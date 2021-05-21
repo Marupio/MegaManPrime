@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: MegaManIdle
+  m_Name: MegaManClimbShoot
   serializedVersion: 6
   m_Legacy: 0
   m_Compressed: 0
@@ -20,11 +20,7 @@ AnimationClip:
   m_PPtrCurves:
   - curve:
     - time: 0
-      value: {fileID: 4597493482622831452, guid: 6bbb665f01ee3f641b1340deddf69f77, type: 3}
-    - time: 1
-      value: {fileID: 7664549880229906344, guid: 6bbb665f01ee3f641b1340deddf69f77, type: 3}
-    - time: 1.1666666
-      value: {fileID: 7664549880229906344, guid: 6bbb665f01ee3f641b1340deddf69f77, type: 3}
+      value: {fileID: 8314820580132700907, guid: 6bbb665f01ee3f641b1340deddf69f77, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -44,15 +40,13 @@ AnimationClip:
       customType: 23
       isPPtrCurve: 1
     pptrCurveMapping:
-    - {fileID: 4597493482622831452, guid: 6bbb665f01ee3f641b1340deddf69f77, type: 3}
-    - {fileID: 7664549880229906344, guid: 6bbb665f01ee3f641b1340deddf69f77, type: 3}
-    - {fileID: 7664549880229906344, guid: 6bbb665f01ee3f641b1340deddf69f77, type: 3}
+    - {fileID: 8314820580132700907, guid: 6bbb665f01ee3f641b1340deddf69f77, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 1.25
+    m_StopTime: 0.083333336
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
