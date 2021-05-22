@@ -11,6 +11,7 @@ public class Projectile : MonoBehaviour
 {
     protected float m_createdTime;
     protected Rigidbody2D m_rigidBodySelf;
+    [SerializeField] protected LayerMask m_ignoreHitsOnTheseLayer;
     [Tooltip("Base damage dealt when the projectile hits")]
     [SerializeField] [Range(1, 100)] protected int m_damage;
     [Tooltip("Speed of the projectile")]
@@ -50,9 +51,9 @@ public class Projectile : MonoBehaviour
         if (enemy != null)
         {
             enemy.Hit(hitInfo.transform, m_damage, gameObject);
+            Destroy(gameObject);
         }
         Debug.Log("Hit " + hitInfo.name + ", with tag[" + hitInfo.tag + "]");
-        Destroy(gameObject);
     }
 
     /// <summary>

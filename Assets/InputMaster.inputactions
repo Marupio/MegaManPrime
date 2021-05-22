@@ -30,7 +30,7 @@
                     "interactions": ""
                 },
                 {
-                    "name": "Charge",
+                    "name": "Dash",
                     "type": "Button",
                     "id": "09b8d010-f9ae-46c6-b01d-1a51340d6ded",
                     "expectedControlType": "Button",
@@ -271,7 +271,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
-                    "action": "Charge",
+                    "action": "Dash",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -282,7 +282,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "LH Arrow Keys;WASD Keys",
-                    "action": "Charge",
+                    "action": "Dash",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -293,7 +293,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "WASD Keys;RH Arrow Keys",
-                    "action": "Charge",
+                    "action": "Dash",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

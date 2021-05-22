@@ -20,8 +20,8 @@ public class InputMovement : MonoBehaviour
         controls.MegaMan.Shoot.canceled += _ => ShootCanceled();
         controls.MegaMan.Jump.performed += _ => JumpPerformed();
         controls.MegaMan.Jump.canceled += _ => JumpCanceled();
-        controls.MegaMan.Charge.performed += _ => ChargePerformed();
-        controls.MegaMan.Charge.canceled += _ => ChargeCanceled();
+        controls.MegaMan.Dash.performed += _ => DashPerformed();
+        controls.MegaMan.Dash.canceled += _ => DashCanceled();
         controls.MegaMan.Inventory.performed += _ => InventoryPerformed();
         controls.MegaMan.Inventory.canceled += _ => InventoryCanceled();
         controls.MegaMan.Menu.performed += _ => MenuPerformed();
@@ -92,19 +92,20 @@ public class InputMovement : MonoBehaviour
         controller.JumpButtonReleased();
     }
 
-    void ChargePerformed()
+    void DashPerformed()
     {
         if (m_debug)
         {
-            Debug.Log("ChargePerformed");
+            Debug.Log("DashPerformed");
         }
+        controller.DashButtonPressed();
     }
 
-    void ChargeCanceled()
+    void DashCanceled()
     {
         if (m_debug)
         {
-            Debug.Log("ChargeCanceled");
+            Debug.Log("DashCanceled");
         }
     }
 

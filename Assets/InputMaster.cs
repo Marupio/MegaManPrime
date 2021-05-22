@@ -43,7 +43,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""interactions"": """"
                 },
                 {
-                    ""name"": ""Charge"",
+                    ""name"": ""Dash"",
                     ""type"": ""Button"",
                     ""id"": ""09b8d010-f9ae-46c6-b01d-1a51340d6ded"",
                     ""expectedControlType"": ""Button"",
@@ -284,7 +284,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
-                    ""action"": ""Charge"",
+                    ""action"": ""Dash"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -295,7 +295,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""LH Arrow Keys;WASD Keys"",
-                    ""action"": ""Charge"",
+                    ""action"": ""Dash"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -306,7 +306,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""WASD Keys;RH Arrow Keys"",
-                    ""action"": ""Charge"",
+                    ""action"": ""Dash"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -420,7 +420,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         m_MegaMan_Movement = m_MegaMan.FindAction("Movement", throwIfNotFound: true);
         m_MegaMan_Shoot = m_MegaMan.FindAction("Shoot", throwIfNotFound: true);
         m_MegaMan_Jump = m_MegaMan.FindAction("Jump", throwIfNotFound: true);
-        m_MegaMan_Charge = m_MegaMan.FindAction("Charge", throwIfNotFound: true);
+        m_MegaMan_Dash = m_MegaMan.FindAction("Dash", throwIfNotFound: true);
         m_MegaMan_Inventory = m_MegaMan.FindAction("Inventory", throwIfNotFound: true);
         m_MegaMan_Menu = m_MegaMan.FindAction("Menu", throwIfNotFound: true);
     }
@@ -475,7 +475,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
     private readonly InputAction m_MegaMan_Movement;
     private readonly InputAction m_MegaMan_Shoot;
     private readonly InputAction m_MegaMan_Jump;
-    private readonly InputAction m_MegaMan_Charge;
+    private readonly InputAction m_MegaMan_Dash;
     private readonly InputAction m_MegaMan_Inventory;
     private readonly InputAction m_MegaMan_Menu;
     public struct MegaManActions
@@ -485,7 +485,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         public InputAction @Movement => m_Wrapper.m_MegaMan_Movement;
         public InputAction @Shoot => m_Wrapper.m_MegaMan_Shoot;
         public InputAction @Jump => m_Wrapper.m_MegaMan_Jump;
-        public InputAction @Charge => m_Wrapper.m_MegaMan_Charge;
+        public InputAction @Dash => m_Wrapper.m_MegaMan_Dash;
         public InputAction @Inventory => m_Wrapper.m_MegaMan_Inventory;
         public InputAction @Menu => m_Wrapper.m_MegaMan_Menu;
         public InputActionMap Get() { return m_Wrapper.m_MegaMan; }
@@ -506,9 +506,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @Jump.started -= m_Wrapper.m_MegaManActionsCallbackInterface.OnJump;
                 @Jump.performed -= m_Wrapper.m_MegaManActionsCallbackInterface.OnJump;
                 @Jump.canceled -= m_Wrapper.m_MegaManActionsCallbackInterface.OnJump;
-                @Charge.started -= m_Wrapper.m_MegaManActionsCallbackInterface.OnCharge;
-                @Charge.performed -= m_Wrapper.m_MegaManActionsCallbackInterface.OnCharge;
-                @Charge.canceled -= m_Wrapper.m_MegaManActionsCallbackInterface.OnCharge;
+                @Dash.started -= m_Wrapper.m_MegaManActionsCallbackInterface.OnDash;
+                @Dash.performed -= m_Wrapper.m_MegaManActionsCallbackInterface.OnDash;
+                @Dash.canceled -= m_Wrapper.m_MegaManActionsCallbackInterface.OnDash;
                 @Inventory.started -= m_Wrapper.m_MegaManActionsCallbackInterface.OnInventory;
                 @Inventory.performed -= m_Wrapper.m_MegaManActionsCallbackInterface.OnInventory;
                 @Inventory.canceled -= m_Wrapper.m_MegaManActionsCallbackInterface.OnInventory;
@@ -528,9 +528,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @Jump.started += instance.OnJump;
                 @Jump.performed += instance.OnJump;
                 @Jump.canceled += instance.OnJump;
-                @Charge.started += instance.OnCharge;
-                @Charge.performed += instance.OnCharge;
-                @Charge.canceled += instance.OnCharge;
+                @Dash.started += instance.OnDash;
+                @Dash.performed += instance.OnDash;
+                @Dash.canceled += instance.OnDash;
                 @Inventory.started += instance.OnInventory;
                 @Inventory.performed += instance.OnInventory;
                 @Inventory.canceled += instance.OnInventory;
@@ -582,7 +582,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         void OnMovement(InputAction.CallbackContext context);
         void OnShoot(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
-        void OnCharge(InputAction.CallbackContext context);
+        void OnDash(InputAction.CallbackContext context);
         void OnInventory(InputAction.CallbackContext context);
         void OnMenu(InputAction.CallbackContext context);
     }
