@@ -39,6 +39,8 @@ public class MegaManController: MonoBehaviour
     [Tooltip("Collider climbing up - when to complete transition animation at the top")]
     [SerializeField] private Collider2D m_ladderTransitionEndCollider;
 
+    [Tooltip("NewField")]
+    [SerializeField] private LadderCollider m_uprightLadderColliderNew;
 
     [Header("Collision Check Colliders")]
 
@@ -67,7 +69,9 @@ public class MegaManController: MonoBehaviour
     [Tooltip("How much time does MegaMan keep his weapon out after shooting")]
     [SerializeField] [Range(0, 1)] private float m_shootFollowThroughTime = 0.5f;
     [Tooltip("How much control can MegaMan have in the air? 0=none, 1=full")]
-    [SerializeField] private float m_airSteerAccelerationFactor = 0.8f;
+    [SerializeField] [Range(0, 1)] private float m_jumpAirSteerAccelerationFactor = 0.8f;
+    [Tooltip("How much control can MegaMan have in the air? 0=none, 1=full")]
+    [SerializeField] [Range(0, 1)] private float m_dashJumpAirSteerAccelerationFactor = 0.2f;
     [Tooltip("Smooth out MegaMan's movement - 0=jerky")]
     [SerializeField] [Range(0,0.3f)] public float m_movementSmoothing = 0.05f;
     [Tooltip("How long does MegaMan recoil from being hurt")]
@@ -126,9 +130,10 @@ public class MegaManController: MonoBehaviour
 
     // Physics
 
-    private Vector2 m_velocity = Vector2.zero;
+    private Vector2 m_acceleration = Vector2.zero;
     private bool m_canMove = true;
     private bool m_canShoot = true;
+    private bool m_canFlip = true;
     private float m_maxJumpTime;
     private float m_maxSlideTime;
     private float m_slideStartTime = -1; // Different from m_jumpButtonPressTime because we can press jump button multiple times during a slide
@@ -149,10 +154,10 @@ public class MegaManController: MonoBehaviour
     private bool m_shootButtonReleased = false;         // True when a shootButtonRelease event occured
     private bool m_shootButton = false;                 // Actual position of shootButton
     private float m_shootButtonPressTime = -1;          // Time shoot button was last pressed, negative when button is not down
-    private float m_shootButtonReleaseTime = -1;
+    private float m_shootButtonReleaseTime = -1;        // Time shoot button was last released
     private bool m_dashButtonPressed = false;           // True when a dashButtonPress event occured
     private float m_dashButtonPressTime = -1;           // Time dash button was last pressed
-    private Vector2 m_controlVector;                    // User-input movement vector, converted into -1 | 0 | 1 on both axes
+    private Vector2 m_controlVector = Vector2.zero;     // User-input movement vector, converted into -1 | 0 | 1 on both axes
 
     /// <summary>
     /// Actual position of input stick used in part to determine character movement
@@ -162,6 +167,13 @@ public class MegaManController: MonoBehaviour
     private Vector2 m_stickPosition = Vector2.zero;
     private ContactFilter2D m_ladderFilter;
     private ContactFilter2D m_groundFilter;
+
+    Vector3 midPt;
+    Vector3 closePt;
+    Vector3 box0;
+    Vector3 box1;
+    Vector3 box2;
+    Vector3 box3;
 
 
     // Mono behaviour interface
@@ -195,6 +207,22 @@ public class MegaManController: MonoBehaviour
         CollisionAndStateChecking();
         Move();
         UpdateAnimator();
+    }
+
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(box0, box1);
+        Gizmos.DrawLine(box1, box2);
+        Gizmos.DrawLine(box2, box3);
+        Gizmos.DrawLine(box3, box0);
+        Gizmos.DrawLine(midPt, closePt);
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        // Debug.Log("Entered " + other.name + " at " + other.transform.position);
     }
 
 
@@ -247,7 +275,7 @@ public class MegaManController: MonoBehaviour
     public void DashButtonPressed()
     {
         m_dashButtonPressed = true;
-        m_dashStartTime = Time.time;
+        m_dashButtonPressTime = Time.time;
     }
 
     /// <summary>
@@ -260,19 +288,27 @@ public class MegaManController: MonoBehaviour
     /// </summary>
     private void CollisionAndStateChecking()
     {
-        bool shouldBeSliding = false;
         // All states check for grounded
         m_grounded = CollisionCheck(m_groundCheckCollider, m_groundFilter);
 
         // Check if starting a jump, starting a slide, starting a dash
         if (m_jumpButtonPressed)
         {
-            if (m_grounded && m_canMove && state != MegaManStates.Sliding)
+            if (state == MegaManStates.Climbing)
             {
-                if (m_controlVector.y < 0)
+                // Jump off a ladder
+                Debug.Log("Jumped off ladder");
+                state = MegaManStates.Falling;
+            }
+            else if (m_grounded && m_canMove && state != MegaManStates.Sliding)
+            {
+                if (state == MegaManStates.Dashing)
                 {
-                    Debug.Log("Enabling sliding");
-                    shouldBeSliding = true;
+                    // Switch to DashJumping
+                    state = MegaManStates.DashJumping;
+                }
+                else if (m_controlVector.y < 0)
+                {
                     // Slide
                     state = MegaManStates.Sliding;
                     m_slideStartTime = m_jumpButtonPressTime;
@@ -293,6 +329,19 @@ public class MegaManController: MonoBehaviour
         m_dashButtonPressed = false;
         m_dashButtonPressTime = -1;
 
+        // bool isTouching = m_uprightLadderColliderNew.OnLadder();
+        // Vector2 closestPt = m_uprightLadderColliderNew.ClosestLadder();
+        // bool overlapPoint = m_uprightLadderColliderNew.Collider().OverlapPoint(closestPt);
+        // BoxCollider2D boxy = (BoxCollider2D)m_uprightLadderColliderNew.Collider();
+        // Bounds boxyBounds = boxy.bounds;
+        // midPt = new Vector3(boxyBounds.center.x, boxyBounds.center.y, 100);
+        // closePt = new Vector3(closestPt.x, closestPt.y, 100);
+        // box0 = new Vector3(boxyBounds.min.x, boxyBounds.min.y, 100);
+        // box1 = new Vector3(boxyBounds.max.x, boxyBounds.min.y, 100);
+        // box2 = new Vector3(boxyBounds.max.x, boxyBounds.max.y, 100);
+        // box3 = new Vector3(boxyBounds.min.x, boxyBounds.max.y, 100);
+        // Debug.Log(isTouching + "," + overlapPoint);
+
         // State-specific checks
         switch (state)
         {
@@ -304,12 +353,26 @@ public class MegaManController: MonoBehaviour
                 LadderCheck(m_uprightLadderCollider);
                 break;
             case MegaManStates.Jumping:
-                if (Time.time - m_jumpButtonPressTime >= m_maxJumpTime || CollisionCheck(m_uprightCeilingCheckCollider, m_groundFilter))
+                if (m_jumpButtonReleased || Time.time - m_jumpButtonPressTime >= m_maxJumpTime || CollisionCheck(m_uprightCeilingCheckCollider, m_groundFilter))
                 {
                     // Hit the ceiling or jumping ran out of steam
                     state = MegaManStates.Falling;
                 }
                 LadderCheck(m_uprightLadderCollider);
+                Debug.Log(m_uprightLadderColliderNew.OnLadder());
+                // bool isTouching = m_uprightLadderColliderNew.OnLadder();
+                // Vector2 closestPt = m_uprightLadderColliderNew.ClosestLadder();
+                // bool overlapPoint = m_uprightLadderColliderNew.Collider().OverlapPoint(closestPt);
+                // BoxCollider2D boxy = (BoxCollider2D)m_uprightLadderColliderNew.Collider();
+                // Bounds boxyBounds = boxy.bounds;
+                // Debug.Log(isTouching + "," + overlapPoint + ", min=" + boxyBounds.min + ", max = " + boxyBounds.max + ", closest = " + closestPt);
+                // Debug.Log("Closest point is to " + m_uprightLadderColliderNew.Collider().bounds.center + " is " + closestPt);
+
+                // if (m_uprightLadderColliderNew.HasLadders())
+                // {
+                //     Vector2 closestPt = m_uprightLadderColliderNew.ClosestPoint(m_uprightLadderColliderNew.myCollider().bounds.center);
+                //     Debug.Log("Has ladders, closest point is " + closestPt);
+                // }
                 break;
             case MegaManStates.Falling:
                 if (m_grounded)
@@ -336,7 +399,7 @@ public class MegaManController: MonoBehaviour
                 LadderCheck(m_uprightLadderCollider);
                 break;
             case MegaManStates.DashJumping:
-                if (Time.time - m_jumpButtonPressTime >= m_maxJumpTime || CollisionCheck(m_uprightCeilingCheckCollider, m_groundFilter))
+                if (m_jumpButtonReleased || Time.time - m_jumpButtonPressTime >= m_maxJumpTime || CollisionCheck(m_uprightCeilingCheckCollider, m_groundFilter))
                 {
                     // Hit the ceiling or jumping ran out of steam
                     state = MegaManStates.DashFalling;
@@ -345,6 +408,10 @@ public class MegaManController: MonoBehaviour
                 break;
             case MegaManStates.DashFalling:
                 // Upright ladder check
+                if (m_grounded)
+                {
+                    state = MegaManStates.Dashing;
+                }
                 LadderCheck(m_uprightLadderCollider);
                 break;
             case MegaManStates.Climbing:
@@ -355,12 +422,14 @@ public class MegaManController: MonoBehaviour
                     if (m_grounded)
                     {
                         // Step off ladder
+                        Debug.Log("Stepped off ladder");
                         state = MegaManStates.Normal;
                     }
                 }
                 if (!CollisionCheck(m_uprightLadderCollider, m_ladderFilter))
                 {
                     // Not holding on to a ladder anymore
+                    Debug.Log("Climbed off ladder");
                     state = MegaManStates.Falling;
                 }
                 else
@@ -441,10 +510,7 @@ public class MegaManController: MonoBehaviour
                 Debug.LogError("Unhandled MegaMan state: " + state);
                 break;
         }
-        if (shouldBeSliding && state != MegaManStates.Sliding)
-        {
-            Debug.LogError("Sliding lost A");
-        }
+        m_jumpButtonReleased = false;
     }
 
 
@@ -458,7 +524,7 @@ public class MegaManController: MonoBehaviour
         m_uprightCollider.enabled = true;
         m_canShoot = true;
         m_canMove = true;
-        //Debug.Log("State=" + state);
+        m_canFlip = true;
         switch (state)
         {
             case MegaManStates.Normal:
@@ -473,21 +539,23 @@ public class MegaManController: MonoBehaviour
                     m_animatorRunning = false;
                 }
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_rigidBodySelf.velocity.y);
-                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_velocity, m_movementSmoothing);
+                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
                 break;
             }
             case MegaManStates.Jumping:
             {
                 float xTargetSpeed = m_controlVector.x * m_runSpeed;
+                xTargetSpeed = m_rigidBodySelf.velocity.x * (1-m_jumpAirSteerAccelerationFactor) + xTargetSpeed * m_jumpAirSteerAccelerationFactor;
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_jumpSpeed);
-                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_velocity, m_movementSmoothing*m_airSteerAccelerationFactor);
+                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
                 break;
             }
             case MegaManStates.Falling:
             {
                 float xTargetSpeed = m_controlVector.x * m_runSpeed;
+                xTargetSpeed = m_rigidBodySelf.velocity.x * (1-m_jumpAirSteerAccelerationFactor) + xTargetSpeed * m_jumpAirSteerAccelerationFactor;
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_rigidBodySelf.velocity.y);
-                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_velocity, m_movementSmoothing*m_airSteerAccelerationFactor);
+                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
                 break;
             }
             case MegaManStates.Dashing:
@@ -495,7 +563,8 @@ public class MegaManController: MonoBehaviour
                 float xDir = m_facingRight ? 1 : -1;
                 float xTargetSpeed = xDir * m_dashSpeed;
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_rigidBodySelf.velocity.y);
-                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_velocity, m_movementSmoothing);
+                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
+                m_canFlip = false;
                 break;
             }
             case MegaManStates.DashJumping:
@@ -507,8 +576,10 @@ public class MegaManController: MonoBehaviour
                         // MegaMan is trying to slow down
                         xTargetSpeed = m_controlVector.x * m_runSpeed;
                 }
+                xTargetSpeed = m_rigidBodySelf.velocity.x * (1-m_dashJumpAirSteerAccelerationFactor) + xTargetSpeed * m_dashJumpAirSteerAccelerationFactor;
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_jumpSpeed);
-                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_velocity, m_movementSmoothing * m_airSteerAccelerationFactor);
+                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
+                m_canFlip = false;
                 break;
             }
             case MegaManStates.DashFalling:
@@ -520,29 +591,32 @@ public class MegaManController: MonoBehaviour
                         // MegaMan is trying to slow down
                         xTargetSpeed = m_controlVector.x * m_runSpeed;
                 }
+                xTargetSpeed = m_rigidBodySelf.velocity.x * (1-m_dashJumpAirSteerAccelerationFactor) + xTargetSpeed * m_dashJumpAirSteerAccelerationFactor;
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_rigidBodySelf.velocity.y);
-                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_velocity, m_movementSmoothing * m_airSteerAccelerationFactor);
+                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
+                m_canFlip = false;
                 break;
             }
             case MegaManStates.Climbing:
             {
                 float yTargetSpeed = m_controlVector.y * m_ladderClimbSpeed;
                 Vector2 targetVelocity = new Vector2(0, yTargetSpeed);
-                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_velocity, m_movementSmoothing);
+                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
+                m_canFlip = false;
                 break;
             }
             case MegaManStates.Sliding:
             {
                 float xDir = m_facingRight ? 1 : -1;
                 float xTargetSpeed = xDir * m_slideSpeed;
-                Debug.Log("Sliding at speed " + xTargetSpeed);
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_rigidBodySelf.velocity.y);
-                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_velocity, m_movementSmoothing);
+                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
 
                 // Just a reminder
                 m_canShoot = false;
                 m_slidingCollider.enabled = true;
                 m_uprightCollider.enabled = false;
+                m_canFlip = false;
                 break;
             }
             case MegaManStates.Hurt:
@@ -551,11 +625,12 @@ public class MegaManController: MonoBehaviour
                 float xDir = m_facingRight ? 1 : -1;
                 float xTargetSpeed = -xDir * m_hurtSpeed;
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, 0);
-                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_velocity, m_movementSmoothing);
+                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
 
                 // Just a reminder
                 m_canMove = false;
                 m_canShoot = false;
+                m_canFlip = false;
                 break;
             }
             default:
@@ -564,7 +639,7 @@ public class MegaManController: MonoBehaviour
                 break;
             }
         }
-        if (m_canMove)
+        if (m_canMove && m_canFlip)
         {
             if (m_controlVector.x < 0 && m_facingRight)
             {
@@ -583,7 +658,7 @@ public class MegaManController: MonoBehaviour
     /// </summary>
     void BounceX()
     {
-        m_velocity.x = -m_velocity.x;
+        m_acceleration.x = -m_acceleration.x;
         Flip();
     }
 
@@ -592,7 +667,7 @@ public class MegaManController: MonoBehaviour
     /// </summary>
     void BounceY()
     {
-        m_velocity.y = -m_velocity.y;
+        m_acceleration.y = -m_acceleration.y;
     }
 
 
@@ -611,9 +686,9 @@ public class MegaManController: MonoBehaviour
         if (state == MegaManStates.Climbing)
         {
             // Manipulate animation speed based on MegaMan's actual speed
-            if (Mathf.Abs(m_velocity.y) > 0)
+            if (Mathf.Abs(m_acceleration.y) > 0)
             {
-                animatorSpeed = Mathf.Abs(m_velocity.y) / m_ladderClimbSpeed;
+                animatorSpeed = Mathf.Abs(m_acceleration.y) / m_ladderClimbSpeed;
             }
             else
             {
@@ -698,29 +773,48 @@ public class MegaManController: MonoBehaviour
     {
         if (Mathf.Abs(m_controlVector.y) > Mathf.Epsilon)
         {
-            List<Collider2D> candidateLadder = new List<Collider2D>(0);
-            Physics2D.OverlapCollider(ladderCheckCollider, m_ladderFilter, candidateLadder);
-            bool foundLadder = false;
-            float closestMagY = float.MaxValue;
-            Collider2D closestLadder = new Collider2D();
-            foreach (Collider2D ladderI in candidateLadder)
-            {
-                float dist = Mathf.Abs(ladderI.transform.position.y - m_rigidBodySelf.transform.position.y);
-                if (dist < closestMagY)
-                {
-                    closestMagY = dist;
-                    closestLadder = ladderI;
-                    foundLadder = true;
-                }
-            }
+            bool foundLadder = MountClosestLadder(ladderCheckCollider);
             if (foundLadder)
             {
-                MountLadder(closestLadder);
+                return true;
             }
-            return foundLadder;
+            if (m_controlVector.y < 0)
+            {
+                // Check for ladder underneath if pressing down
+                return MountClosestLadder(m_groundCheckCollider);
+            }
         }
         return false;
     }
+
+
+    bool MountClosestLadder(Collider2D ladderCheckCollider)
+    {
+        List<Collider2D> candidateLadders = new List<Collider2D>(0);
+        Physics2D.OverlapCollider(ladderCheckCollider, m_ladderFilter, candidateLadders);
+
+        bool foundLadder = false;
+        float closestDist = float.MaxValue;
+        Collider2D closestLadder = new Collider2D();
+        foreach (Collider2D ladderI in candidateLadders)
+        {
+            float dist = Vector2.Distance(ladderI.transform.position, m_rigidBodySelf.transform.position);
+            Mathf.Abs(ladderI.transform.position.y - m_rigidBodySelf.transform.position.y);
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closestLadder = ladderI;
+                foundLadder = true;
+            }
+        }
+        if (foundLadder)
+        {
+            MountLadder(closestLadder);
+            return true;
+        }
+        return false;
+    }
+
 
     void MountLadder(Collider2D ladder)
     {
@@ -728,13 +822,9 @@ public class MegaManController: MonoBehaviour
         Vector2 ladderPosition = ladder.transform.position;
         Vector2 newPosition = new Vector2(ladderPosition.x, 0.5f*(oldPosition.y + ladderPosition.y));
         state = MegaManStates.Climbing;
-
-        // May have come here from sliding
-        m_uprightCollider.enabled = true;
-        m_slidingCollider.enabled = false;
         // For ladders, if MegaMan's y position is above the ladder's tile, then the animation needs to be the topping style
-
     }
+
 
     private void Flip()
     {
