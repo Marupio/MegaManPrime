@@ -8,6 +8,7 @@ public class MegaManController: MonoBehaviour
     private Rigidbody2D m_rigidBodySelf;
     private Animator m_animator;
     private EnergyBuster m_energyBuster;
+    private LadderHandler m_ladderHandler;
 
 
     [Header("Control Settings")]
@@ -26,21 +27,18 @@ public class MegaManController: MonoBehaviour
     [SerializeField] private Collider2D m_slidingCollider;
 
 
-    [Header("Ladder Colliders")]
+    [Header("Ladder Detectors")]
+    [Tooltip("Detector for grabbing a ladder that is under MegaMan's feet")]
+    [SerializeField] private Collider2D m_groundLadderDetector;
+    [Tooltip("Detector for grabbing a ladder when MegaMan is standing / moving upright")]
+    [SerializeField] private Collider2D m_uprightLadderDetector;
+    [Tooltip("Detector for grabbing a ladder when MegaMan is standing / moving upright")]
+    [SerializeField] private Collider2D m_slidingLadderDetector;
+    [Tooltip("Detector climbing up - when to start transition animation at the top")]
+    [SerializeField] private Collider2D m_ladderTransitionStartDetector;
+    [Tooltip("Detector climbing up - when to complete transition animation at the top")]
+    [SerializeField] private Collider2D m_ladderTransitionEndDetector;
 
-    [Tooltip("A mask determining what is a ladder to MegaMan")]
-    [SerializeField] private LayerMask m_whatAreLadders;
-    [Tooltip("Collider for grabbing a ladder when MegaMan is standing / moving upright")]
-    [SerializeField] private Collider2D m_uprightLadderCollider;
-    [Tooltip("Collider for grabbing a ladder when MegaMan is standing / moving upright")]
-    [SerializeField] private Collider2D m_slidingLadderCollider;
-    [Tooltip("Collider climbing up - when to start transition animation at the top")]
-    [SerializeField] private Collider2D m_ladderTransitionStartCollider;
-    [Tooltip("Collider climbing up - when to complete transition animation at the top")]
-    [SerializeField] private Collider2D m_ladderTransitionEndCollider;
-
-    [Tooltip("NewField")]
-    [SerializeField] private LadderCollider m_uprightLadderColliderNew;
 
     [Header("Collision Check Colliders")]
 
@@ -149,6 +147,8 @@ public class MegaManController: MonoBehaviour
     private bool m_jumpButtonPressed = false;           // True when a jumpButtonPress event occured
     private bool m_jumpButtonReleased = false;          // True when a jumpButtonRelease event occured
     private bool m_jumpButton = false;                  // Actual position of jumpButton
+    private float m_gravity = 1;                        // Gravity multiplier in y axis - positive 1 = gravity pointing down
+    private float m_gravityDefault;
     private float m_jumpButtonPressTime = -1;           // Time jump button was last pressed, negative when button is not down
     private bool m_shootButtonPressed = false;          // True when a shootButtonPress event occured
     private bool m_shootButtonReleased = false;         // True when a shootButtonRelease event occured
@@ -181,6 +181,7 @@ public class MegaManController: MonoBehaviour
     private void Awake()
     {
         m_rigidBodySelf = GetComponent<Rigidbody2D>();
+        m_ladderHandler = GameObject.FindObjectOfType<LadderHandler>();
         foreach (Transform child in this.transform)
         {
             if (!m_animator)
@@ -192,13 +193,12 @@ public class MegaManController: MonoBehaviour
                 m_energyBuster = child.GetComponent<EnergyBuster>();
             }
         }
-        m_ladderFilter = new ContactFilter2D();
-        m_ladderFilter.SetLayerMask(m_whatAreLadders);
         m_groundFilter = new ContactFilter2D();
         m_groundFilter.SetLayerMask(m_whatIsGround);
         m_maxJumpTime = m_jumpSpeed <= 0 ? 0 : m_jumpHeight / m_jumpSpeed;
         m_maxSlideTime = m_slideSpeed <= 0 ? 0 : m_slideDistance / m_slideSpeed;
         m_maxDashTime = m_dashSpeed <= 0 ? 0 : m_dashDistance / m_dashSpeed;
+        m_gravityDefault = m_rigidBodySelf.gravityScale;
     }
 
     private void FixedUpdate()
@@ -329,19 +329,6 @@ public class MegaManController: MonoBehaviour
         m_dashButtonPressed = false;
         m_dashButtonPressTime = -1;
 
-        // bool isTouching = m_uprightLadderColliderNew.OnLadder();
-        // Vector2 closestPt = m_uprightLadderColliderNew.ClosestLadder();
-        // bool overlapPoint = m_uprightLadderColliderNew.Collider().OverlapPoint(closestPt);
-        // BoxCollider2D boxy = (BoxCollider2D)m_uprightLadderColliderNew.Collider();
-        // Bounds boxyBounds = boxy.bounds;
-        // midPt = new Vector3(boxyBounds.center.x, boxyBounds.center.y, 100);
-        // closePt = new Vector3(closestPt.x, closestPt.y, 100);
-        // box0 = new Vector3(boxyBounds.min.x, boxyBounds.min.y, 100);
-        // box1 = new Vector3(boxyBounds.max.x, boxyBounds.min.y, 100);
-        // box2 = new Vector3(boxyBounds.max.x, boxyBounds.max.y, 100);
-        // box3 = new Vector3(boxyBounds.min.x, boxyBounds.max.y, 100);
-        // Debug.Log(isTouching + "," + overlapPoint);
-
         // State-specific checks
         switch (state)
         {
@@ -350,7 +337,7 @@ public class MegaManController: MonoBehaviour
                 {
                     state = MegaManStates.Falling;
                 }
-                LadderCheck(m_uprightLadderCollider);
+                LadderCheck(m_uprightLadderDetector);
                 break;
             case MegaManStates.Jumping:
                 if (m_jumpButtonReleased || Time.time - m_jumpButtonPressTime >= m_maxJumpTime || CollisionCheck(m_uprightCeilingCheckCollider, m_groundFilter))
@@ -358,21 +345,7 @@ public class MegaManController: MonoBehaviour
                     // Hit the ceiling or jumping ran out of steam
                     state = MegaManStates.Falling;
                 }
-                LadderCheck(m_uprightLadderCollider);
-                Debug.Log(m_uprightLadderColliderNew.OnLadder());
-                // bool isTouching = m_uprightLadderColliderNew.OnLadder();
-                // Vector2 closestPt = m_uprightLadderColliderNew.ClosestLadder();
-                // bool overlapPoint = m_uprightLadderColliderNew.Collider().OverlapPoint(closestPt);
-                // BoxCollider2D boxy = (BoxCollider2D)m_uprightLadderColliderNew.Collider();
-                // Bounds boxyBounds = boxy.bounds;
-                // Debug.Log(isTouching + "," + overlapPoint + ", min=" + boxyBounds.min + ", max = " + boxyBounds.max + ", closest = " + closestPt);
-                // Debug.Log("Closest point is to " + m_uprightLadderColliderNew.Collider().bounds.center + " is " + closestPt);
-
-                // if (m_uprightLadderColliderNew.HasLadders())
-                // {
-                //     Vector2 closestPt = m_uprightLadderColliderNew.ClosestPoint(m_uprightLadderColliderNew.myCollider().bounds.center);
-                //     Debug.Log("Has ladders, closest point is " + closestPt);
-                // }
+                LadderCheck(m_uprightLadderDetector);
                 break;
             case MegaManStates.Falling:
                 if (m_grounded)
@@ -380,7 +353,7 @@ public class MegaManController: MonoBehaviour
                     // landed
                     state = MegaManStates.Normal;
                 }
-                LadderCheck(m_uprightLadderCollider);
+                LadderCheck(m_uprightLadderDetector);
                 break;
             case MegaManStates.Dashing:
                 if (!m_grounded)
@@ -396,7 +369,7 @@ public class MegaManController: MonoBehaviour
                         state = MegaManStates.Normal;
                     }
                 }
-                LadderCheck(m_uprightLadderCollider);
+                LadderCheck(m_uprightLadderDetector);
                 break;
             case MegaManStates.DashJumping:
                 if (m_jumpButtonReleased || Time.time - m_jumpButtonPressTime >= m_maxJumpTime || CollisionCheck(m_uprightCeilingCheckCollider, m_groundFilter))
@@ -404,7 +377,7 @@ public class MegaManController: MonoBehaviour
                     // Hit the ceiling or jumping ran out of steam
                     state = MegaManStates.DashFalling;
                 }
-                LadderCheck(m_uprightLadderCollider);
+                LadderCheck(m_uprightLadderDetector);
                 break;
             case MegaManStates.DashFalling:
                 // Upright ladder check
@@ -412,7 +385,7 @@ public class MegaManController: MonoBehaviour
                 {
                     state = MegaManStates.Dashing;
                 }
-                LadderCheck(m_uprightLadderCollider);
+                LadderCheck(m_uprightLadderDetector);
                 break;
             case MegaManStates.Climbing:
                 m_animatorLadderTopTransitioning = false;
@@ -426,7 +399,7 @@ public class MegaManController: MonoBehaviour
                         state = MegaManStates.Normal;
                     }
                 }
-                if (!CollisionCheck(m_uprightLadderCollider, m_ladderFilter))
+                if (!m_ladderHandler.OnLadder(m_uprightLadderDetector))
                 {
                     // Not holding on to a ladder anymore
                     Debug.Log("Climbed off ladder");
@@ -434,8 +407,8 @@ public class MegaManController: MonoBehaviour
                 }
                 else
                 {
-                    bool transitionStart = CollisionCheck(m_ladderTransitionStartCollider, m_ladderFilter);
-                    bool transitionEnd = CollisionCheck(m_ladderTransitionEndCollider, m_ladderFilter);
+                    bool transitionStart = m_ladderHandler.OnLadder(m_ladderTransitionStartDetector);
+                    bool transitionEnd = m_ladderHandler.OnLadder(m_ladderTransitionEndDetector);
                     if (!transitionStart)
                     {
                         if (!transitionEnd)
@@ -474,7 +447,7 @@ public class MegaManController: MonoBehaviour
                     BounceX();
                 }
                 // Sliding ladder check
-                if (LadderCheck(m_slidingLadderCollider))
+                if (LadderCheck(m_slidingLadderDetector))
                 {
                     // Grabbed a ladder, now in a different state
                     m_slideStartTime = -1;
@@ -525,6 +498,7 @@ public class MegaManController: MonoBehaviour
         m_canShoot = true;
         m_canMove = true;
         m_canFlip = true;
+        m_rigidBodySelf.gravityScale = m_gravityDefault;
         switch (state)
         {
             case MegaManStates.Normal:
@@ -601,6 +575,7 @@ public class MegaManController: MonoBehaviour
             {
                 float yTargetSpeed = m_controlVector.y * m_ladderClimbSpeed;
                 Vector2 targetVelocity = new Vector2(0, yTargetSpeed);
+                m_rigidBodySelf.gravityScale = 0;
                 m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
                 m_canFlip = false;
                 break;
@@ -612,7 +587,6 @@ public class MegaManController: MonoBehaviour
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_rigidBodySelf.velocity.y);
                 m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
 
-                // Just a reminder
                 m_canShoot = false;
                 m_slidingCollider.enabled = true;
                 m_uprightCollider.enabled = false;
@@ -624,10 +598,10 @@ public class MegaManController: MonoBehaviour
                 // Recoil in opposite direction from the way we are facing
                 float xDir = m_facingRight ? 1 : -1;
                 float xTargetSpeed = -xDir * m_hurtSpeed;
+                m_rigidBodySelf.gravityScale = 0;
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, 0);
                 m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
 
-                // Just a reminder
                 m_canMove = false;
                 m_canShoot = false;
                 m_canFlip = false;
@@ -686,9 +660,9 @@ public class MegaManController: MonoBehaviour
         if (state == MegaManStates.Climbing)
         {
             // Manipulate animation speed based on MegaMan's actual speed
-            if (Mathf.Abs(m_acceleration.y) > 0)
+            if (Mathf.Abs(m_rigidBodySelf.velocity.y) > 0)
             {
-                animatorSpeed = Mathf.Abs(m_acceleration.y) / m_ladderClimbSpeed;
+                animatorSpeed = Mathf.Min(Mathf.Abs(m_rigidBodySelf.velocity.y) / m_ladderClimbSpeed, 1);
             }
             else
             {
@@ -769,11 +743,11 @@ public class MegaManController: MonoBehaviour
     /// Checks if MegaMan grabs a ladder, if so, changes state, adjusts position as required
     /// </summary>
     /// <returns>true if he did</returns>
-    bool LadderCheck(Collider2D ladderCheckCollider)
+    bool LadderCheck(Collider2D ladderDetector)
     {
         if (Mathf.Abs(m_controlVector.y) > Mathf.Epsilon)
         {
-            bool foundLadder = MountClosestLadder(ladderCheckCollider);
+            bool foundLadder = MountLadder(ladderDetector);
             if (foundLadder)
             {
                 return true;
@@ -781,48 +755,26 @@ public class MegaManController: MonoBehaviour
             if (m_controlVector.y < 0)
             {
                 // Check for ladder underneath if pressing down
-                return MountClosestLadder(m_groundCheckCollider);
+                return MountLadder(m_groundLadderDetector);
             }
         }
         return false;
     }
 
-
-    bool MountClosestLadder(Collider2D ladderCheckCollider)
+    bool MountLadder(Collider2D ladderDetector)
     {
-        List<Collider2D> candidateLadders = new List<Collider2D>(0);
-        Physics2D.OverlapCollider(ladderCheckCollider, m_ladderFilter, candidateLadders);
-
-        bool foundLadder = false;
-        float closestDist = float.MaxValue;
-        Collider2D closestLadder = new Collider2D();
-        foreach (Collider2D ladderI in candidateLadders)
+        Vector2 ladderCentre = new Vector2();
+        bool foundLadder = m_ladderHandler.ClosestLadder(ladderDetector, ref ladderCentre);
+        if (!foundLadder)
         {
-            float dist = Vector2.Distance(ladderI.transform.position, m_rigidBodySelf.transform.position);
-            Mathf.Abs(ladderI.transform.position.y - m_rigidBodySelf.transform.position.y);
-            if (dist < closestDist)
-            {
-                closestDist = dist;
-                closestLadder = ladderI;
-                foundLadder = true;
-            }
+            return false;
         }
-        if (foundLadder)
-        {
-            MountLadder(closestLadder);
-            return true;
-        }
-        return false;
-    }
-
-
-    void MountLadder(Collider2D ladder)
-    {
-        Vector2 oldPosition = m_rigidBodySelf.transform.position;
-        Vector2 ladderPosition = ladder.transform.position;
-        Vector2 newPosition = new Vector2(ladderPosition.x, 0.5f*(oldPosition.y + ladderPosition.y));
+        Vector2 newPosition = new Vector2(ladderCentre.x, gameObject.transform.position.y);
+        Debug.Log("Mounting ladder at " + ladderCentre);
+        gameObject.transform.position = newPosition;
+        m_rigidBodySelf.velocity = Vector2.zero;
         state = MegaManStates.Climbing;
-        // For ladders, if MegaMan's y position is above the ladder's tile, then the animation needs to be the topping style
+        return true;
     }
 
 

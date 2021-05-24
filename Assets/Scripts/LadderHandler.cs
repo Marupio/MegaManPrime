@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class LadderCollider : MonoBehaviour
+public class LadderHandler : MonoBehaviour
 {
     private Grid m_ladderGrid;
     private Tilemap m_ladderMap;
     private TilemapCollider2D m_ladderCollider;
-    private Collider2D m_myCollider;
 
     [Tooltip("A mask determining what is a ladder")]
     [SerializeField] private LayerMask m_whatAreLadders;
@@ -45,7 +44,6 @@ public class LadderCollider : MonoBehaviour
                 enabled = false;
             }
         }
-        m_myCollider = gameObject.GetComponent<Collider2D>();
     }
 
 
@@ -63,37 +61,29 @@ public class LadderCollider : MonoBehaviour
     {
         return m_ladderCollider;
     }
-    public Collider2D Collider()
-    {
-        return m_myCollider;
-    }
 
 
     // Query
 
-    public bool OnLadder()
+    public bool OnLadder(Collider2D testCollider)
     {
-        if (!m_myCollider)
-        {
-            return false;
-        }
-        return m_myCollider.IsTouching(m_ladderCollider);
+        return testCollider.IsTouching(m_ladderCollider);
     }
 
 
-    public bool ClosestLadder(ref Vector2 closestPosition)
+    public bool ClosestLadder(Collider2D testCollider, ref Vector2 closestPosition)
     {
-        if (!OnLadder())
+        if (!OnLadder(testCollider))
         {
             return false;
         }
-        Vector2 closestPt = m_ladderCollider.ClosestPoint(m_myCollider.bounds.center);
+        Vector2 closestPt = m_ladderCollider.ClosestPoint(testCollider.bounds.center);
         Vector3Int closestCell = m_ladderGrid.WorldToCell(closestPt);
-        return CheckNeighbours(closestCell, ref closestPosition);
+        return CheckNeighbours(testCollider, closestCell, ref closestPosition);
     }
 
 
-    private bool CheckNeighbours(Vector3Int closestCell, ref Vector2 closestPosition)
+    private bool CheckNeighbours(Collider2D testCollider, Vector3Int closestCell, ref Vector2 closestPosition)
     {
         List<Vector3Int> neighbours = new List<Vector3Int>();
         BoundsInt cellBounds = m_ladderMap.cellBounds;
@@ -103,11 +93,7 @@ public class LadderCollider : MonoBehaviour
         {
             for (int y = -1; y <= 1; ++y)
             {
-                if (x == 0 && y == 0)
-                {
-                    continue;
-                }
-                Vector3Int newCellCoords = new Vector3Int(x, y, 0);
+                Vector3Int newCellCoords = new Vector3Int(closestCell.x + x, closestCell.y + y, closestCell.z);
                 if (cellBounds.Contains(newCellCoords))
                 {
                     neighbours.Add(newCellCoords);
@@ -116,18 +102,21 @@ public class LadderCollider : MonoBehaviour
         }
 
         float minDist = float.MaxValue;
-        Vector3Int bestCell = new Vector3Int(0,0,0);
+        Vector2 bestCoords = Vector2.zero;
         bool foundLadder = false;
-        foreach(Vector3Int cellI in neighbours)
+        Vector3 halfWay = m_ladderGrid.cellSize * 0.5f;
+        Vector2 testCtr = testCollider.bounds.center;
+        foreach (Vector3Int cellI in neighbours)
         {
             if (m_ladderMap.HasTile(cellI))
             {
-                float curDist = Vector3.Distance(m_myCollider.bounds.center, m_ladderGrid.CellToWorld(cellI));
+                Vector2 ladderCoords = m_ladderGrid.CellToWorld(cellI) + halfWay;
+                float curDist = Vector2.Distance(testCtr, ladderCoords);
                 if (curDist < minDist)
                 {
                     minDist = curDist;
                     foundLadder = true;
-                    bestCell = cellI;
+                    bestCoords = ladderCoords;
                 }
             }
         }
@@ -136,7 +125,7 @@ public class LadderCollider : MonoBehaviour
             Debug.LogError("Could not find Ladder closest to " + closestCell + ", but OnLadder was true");
             return false;
         }
-        closestPosition = m_ladderGrid.CellToWorld(bestCell);
+        closestPosition = bestCoords;
         return foundLadder;
     }
 }
