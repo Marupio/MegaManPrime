@@ -11,21 +11,32 @@ public class LadderHandler : MonoBehaviour
     private TilemapCollider2D m_ladderCollider;
 
     // Ground data - for trapdoors
+    private bool m_groundHandlingEnabled = false;
+    private GameObject m_groundObject;
     private Grid m_groundGrid;
     private Tilemap m_groundMap;
     private TilemapCollider2D m_groundCollider;
 
 
+    [Header("What Are Ladders?")]
     [Tooltip("A mask determining what is a ladder")]
     [SerializeField] private LayerMask m_ladderLayers;
 
     [Header("What Is Ground?")]
-    [SerializeField] private bool m_useLayerMask = false;
+    [SerializeField] private bool m_specifyLayerMask = false;
     [SerializeField] private LayerMask m_groundLayers;
     [SerializeField] private bool m_specifyMinDepth = false;
     [SerializeField] private float m_groundMinDepth;
     [SerializeField] private bool m_specifyMaxDepth = false;
     [SerializeField] private float m_groundMaxDepth;
+    [SerializeField] private bool m_specifyNameContains = false;
+    [SerializeField] private string m_groundNameContains = "";
+    [SerializeField] private bool m_specifyNameExact = false;
+    [SerializeField] private string m_groundNameExact = "";
+    [SerializeField] private bool m_specifyTagContains = false;
+    [SerializeField] private string m_groundTagContains = "";
+    [SerializeField] private bool m_specifyTagExact = false;
+    [SerializeField] private string m_groundTagExact = "";
 
 
     // Monobehaviour interface
@@ -38,37 +49,52 @@ public class LadderHandler : MonoBehaviour
         m_ladderCollider = GetComponent<TilemapCollider2D>();
         m_ladderGrid = m_ladderMap.layoutGrid;
 
-        // Tilemap[] allTilemaps = FindObjectsOfType<Tilemap>();
-        // int foundLadderMaps = 0;
-        // int foundGroundMaps = 0;
-        // foreach (Tilemap mapI in allTilemaps)
-        // {
-        //     if (GeneralTools.IsInLayerMask(mapI.gameObject, m_ladderLayers))
-        //     {
-        //         m_ladderMap = mapI;
-        //         ++foundLadderMaps;
-        //     }
-        //     // if (GeneralTools.IsInLayerMask(mapI.gameObject, m_whatIsGround))
-        //     // {
-        //     //     m_GroundMap = mapI;
-        //     //     ++foundGroundMaps;
-        //     // }
-        // }
-        // if (foundLadderMaps != 1)
-        // {
-        //     Debug.LogError("Found " + foundLadderMaps + " tilemaps on ladder LayerMask.  Need 1 and only 1.  Cannot detect ladders correctly!");
-        //     enabled = false;
-        // }
-        // else
-        // {
-        //     m_ladderGrid = m_ladderMap.layoutGrid;
-        //     m_ladderCollider = m_ladderMap.gameObject.GetComponent<TilemapCollider2D>();
-        //     if (!m_ladderCollider)
-        //     {
-        //         Debug.LogError("Ladder tilemap " + m_ladderMap.gameObject.name + " has no TilemapCollider2D.  Cannot detect ladders correctly!");
-        //         enabled = false;
-        //     }
-        // }
+        ObjectFinder groundFinder = new ObjectFinder();
+
+        if (m_specifyLayerMask)
+        {
+            groundFinder.SetLayerMask(m_groundLayers);
+        }
+        if (m_specifyMinDepth)
+        {
+            groundFinder.SetMinDepth(m_groundMinDepth);
+        }
+        if (m_specifyMaxDepth)
+        {
+            groundFinder.SetMaxDepth(m_groundMaxDepth);
+        }
+        if (m_specifyNameContains)
+        {
+            groundFinder.SetNameContains(m_groundNameContains);
+        }
+        if (m_specifyNameExact)
+        {
+            groundFinder.SetNameExact(m_groundNameExact);
+        }
+        if (m_specifyTagContains)
+        {
+            groundFinder.SetTagContains(m_groundTagContains);
+        }
+        if (m_specifyTagExact)
+        {
+            groundFinder.SetTagExact(m_groundTagExact);
+        }
+
+        m_groundObject = groundFinder.FindObject();
+        if (m_groundObject)
+        {
+            m_groundMap = m_groundObject.GetComponent<Tilemap>();
+            if (m_groundMap)
+            {
+                m_groundGrid = m_groundMap.layoutGrid;
+                m_groundCollider = m_groundObject.GetComponent<TilemapCollider2D>();
+                if (m_groundCollider)
+                {
+                    m_groundHandlingEnabled = true;
+                    Debug.Log("My ground GameObject is named " + m_groundObject.name);
+                }
+            }
+        }
         ResetTrapdoors();
     }
 
