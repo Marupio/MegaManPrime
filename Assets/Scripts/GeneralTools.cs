@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GeneralTools : MonoBehaviour
+public class GeneralTools
 {
     public static bool IsInLayerMask(GameObject obj, LayerMask layerMask)
     {

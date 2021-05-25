@@ -7,5 +7,12 @@ using UnityEngine;
 /// </summary>
 abstract public class Enemy : MonoBehaviour
 {
-    public abstract void Hit(Transform hitPoint, int damage, GameObject bullet);
+    /// <summary>
+    /// Tells the enemy a bullet has hit it
+    /// </summary>
+    /// <param name="hitPoint">Location of hit</param>
+    /// <param name="damage">Normal amount of damage</param>
+    /// <param name="bullet">Type of bullet that hit</param>
+    /// <returns>True if bullet was absorbed, false if deflected</returns>
+    public abstract bool Hit(Transform hitPoint, int damage, GameObject bullet);
 }
