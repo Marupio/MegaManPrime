@@ -50,8 +50,14 @@ public class Projectile : MonoBehaviour
         Enemy enemy = hitInfo.GetComponent<Enemy>();
         if (enemy != null)
         {
-            enemy.Hit(hitInfo.transform, m_damage, gameObject);
-            Destroy(gameObject);
+            if (enemy.Hit(hitInfo.transform, m_damage, gameObject))
+            {
+                Destroy(gameObject);
+            }
+            else
+            {
+                Deflect();
+            }
         }
         Debug.Log("Hit " + hitInfo.name + ", with tag[" + hitInfo.tag + "]");
     }

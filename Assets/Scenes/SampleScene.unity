@@ -4511,9 +4511,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11de9ccbb9161314abe073f52a7e82d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_whatAreLadders:
+  m_ladderLayers:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
+  m_specifyLayerMask: 0
+  m_groundLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_specifyMinDepth: 0
+  m_groundMinDepth: 0
+  m_specifyMaxDepth: 0
+  m_groundMaxDepth: 0
+  m_specifyNameContains: 1
+  m_groundNameContains: ound
+  m_specifyNameExact: 0
+  m_groundNameExact: 
+  m_specifyTagContains: 0
+  m_groundTagContains: 
+  m_specifyTagExact: 0
+  m_groundTagExact: 
 --- !u!1 &1709273706
 GameObject:
   m_ObjectHideFlags: 0
