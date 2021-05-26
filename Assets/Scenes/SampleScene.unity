@@ -3087,7 +3087,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 656770584}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -11.5, y: -1.5, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -4514,16 +4514,16 @@ MonoBehaviour:
   m_ladderLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_specifyLayerMask: 0
+  m_specifyLayerMask: 1
   m_groundLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_specifyMinDepth: 0
   m_groundMinDepth: 0
   m_specifyMaxDepth: 0
   m_groundMaxDepth: 0
   m_specifyNameContains: 1
-  m_groundNameContains: ound
+  m_groundNameContains: Ground
   m_specifyNameExact: 0
   m_groundNameExact: 
   m_specifyTagContains: 0
