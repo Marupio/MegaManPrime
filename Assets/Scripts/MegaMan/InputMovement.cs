@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(MegaManController))]
 public class InputMovement : MonoBehaviour
 {
     public InputMaster controls;

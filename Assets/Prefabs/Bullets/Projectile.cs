@@ -7,6 +7,7 @@ using UnityEngine;
 /// A physical projectile with a speed, range, damage, impact effects.
 /// Does not initiate flight path
 /// </summary>
+[RequireComponent(typeof(Rigidbody2D))]
 public class Projectile : MonoBehaviour
 {
     protected float m_createdTime;

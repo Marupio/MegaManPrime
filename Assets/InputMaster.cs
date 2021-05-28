@@ -115,7 +115,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 {
                     ""name"": ""down"",
                     ""id"": ""97f20e83-6029-4465-b917-3584ada66f9f"",
-                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""path"": ""<Keyboard>/downArrow"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""LH Arrow Keys;RH Arrow Keys"",

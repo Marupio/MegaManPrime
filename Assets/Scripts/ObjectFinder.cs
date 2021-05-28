@@ -3,22 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class ObjectFinder
+public class ObjectFinder : MonoBehaviour
 {
-    public bool m_specifyLayerMask { get; set; }
-    public LayerMask m_layerMask { get; set; }
-    public bool m_specifyMinDepth { get; set; }
-    public float m_minDepth { get; set; }
-    public bool m_specifyMaxDepth { get; set; }
-    public float m_maxDepth { get; set; }
-    public bool m_specifyNameContains { get; set; }
-    public string m_nameContains { get; set; }
-    public bool m_specifyNameExact { get; set; }
-    public string m_nameExact { get; set; }
-    public bool m_specifyTagContains { get; set; }
-    public string m_tagContains { get; set; }
-    public bool m_specifyTagExact { get; set; }
-    public string m_tagExact { get; set; }
+    public string m_finderForWhat;
+
+    [Header("Finder Settings")]
+    [SerializeField] private bool m_specifyLayerMask;
+    [SerializeField] private LayerMask m_layerMask;
+    [SerializeField] private bool m_specifyMinDepth;
+    [SerializeField] private float m_minDepth;
+    [SerializeField] private bool m_specifyMaxDepth;
+    [SerializeField] private float m_maxDepth;
+    [SerializeField] private bool m_specifyNameContains;
+    [SerializeField] private string m_nameContains;
+    [SerializeField] private bool m_specifyNameExact;
+    [SerializeField] private string m_nameExact;
+    [SerializeField] private bool m_specifyTagContains;
+    [SerializeField] private string m_tagContains;
+    [SerializeField] private bool m_specifyTagExact;
+    [SerializeField] private string m_tagExact;
 
     public ObjectFinder() {}
 
