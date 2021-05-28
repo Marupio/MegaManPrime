@@ -3243,52 +3243,6 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.8, y: 0.05}
   m_Direction: 1
---- !u!1 &656770584
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 656770585}
-  - component: {fileID: 656770586}
-  m_Layer: 7
-  m_Name: ScriptMergerTester
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &656770585
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 656770584}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5, y: 0, z: 100}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &656770586
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 656770584}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 676cd1221d0e28a4587a6298d674baa4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_coords: {x: -11, y: 3}
-  m_groundObject: {fileID: 557648171}
-  m_ladderObject: {fileID: 1534221656}
 --- !u!1 &802331777
 GameObject:
   m_ObjectHideFlags: 0
@@ -3299,6 +3253,9 @@ GameObject:
   m_Component:
   - component: {fileID: 802331779}
   - component: {fileID: 802331778}
+  - component: {fileID: 802331782}
+  - component: {fileID: 802331781}
+  - component: {fileID: 802331780}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -3334,6 +3291,78 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &802331780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 802331777}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c787484103dbf8d41a6582bafd86a5a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_finderForWhat: Ground
+  m_specifyLayerMask: 1
+  m_layerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  m_specifyMinDepth: 0
+  m_minDepth: 0
+  m_specifyMaxDepth: 0
+  m_maxDepth: 0
+  m_specifyNameContains: 1
+  m_nameContains: Ground
+  m_specifyNameExact: 0
+  m_nameExact: 
+  m_specifyTagContains: 0
+  m_tagContains: 
+  m_specifyTagExact: 0
+  m_tagExact: 
+--- !u!114 &802331781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 802331777}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c787484103dbf8d41a6582bafd86a5a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_finderForWhat: Ladders
+  m_specifyLayerMask: 1
+  m_layerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  m_specifyMinDepth: 0
+  m_minDepth: 0
+  m_specifyMaxDepth: 0
+  m_maxDepth: 0
+  m_specifyNameContains: 1
+  m_nameContains: Ladder
+  m_specifyNameExact: 0
+  m_nameExact: 
+  m_specifyTagContains: 0
+  m_tagContains: 
+  m_specifyTagExact: 0
+  m_tagExact: 
+--- !u!114 &802331782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 802331777}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11de9ccbb9161314abe073f52a7e82d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ladderFinder: {fileID: 802331781}
+  m_groundFinder: {fileID: 802331780}
 --- !u!1 &843210759
 GameObject:
   m_ObjectHideFlags: 0
@@ -3519,36 +3548,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1.228166, y: 0.7486201}
   m_EdgeRadius: 0.1
---- !u!1 &1180787399
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1180787400}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1180787400
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1180787399}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10, y: -1, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1419034002
 GameObject:
   m_ObjectHideFlags: 0
@@ -3733,8 +3732,6 @@ GameObject:
   - component: {fileID: 1534221660}
   - component: {fileID: 1534221659}
   - component: {fileID: 1534221658}
-  - component: {fileID: 1534221661}
-  - component: {fileID: 1534221662}
   m_Layer: 7
   m_Name: Tilemap_Ladder
   m_TagString: Untagged
@@ -3849,6 +3846,16 @@ Tilemap:
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
       m_AllTileFlags: 1073741825
+  - first: {x: -7, y: -4, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 4
+      m_TileSpriteIndex: 4
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 0
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741825
   - first: {x: -16, y: -3, z: 0}
     second:
       serializedVersion: 2
@@ -3859,11 +3866,31 @@ Tilemap:
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
       m_AllTileFlags: 1073741825
+  - first: {x: -7, y: -3, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 4
+      m_TileSpriteIndex: 4
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 0
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741825
   - first: {x: -16, y: -2, z: 0}
     second:
       serializedVersion: 2
       m_TileIndex: 6
       m_TileSpriteIndex: 6
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 0
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741825
+  - first: {x: -7, y: -2, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 4
+      m_TileSpriteIndex: 4
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -3884,6 +3911,16 @@ Tilemap:
       serializedVersion: 2
       m_TileIndex: 6
       m_TileSpriteIndex: 6
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 0
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741825
+  - first: {x: -7, y: -1, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 4
+      m_TileSpriteIndex: 4
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -3949,8 +3986,8 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
+  - m_RefCount: 4
+    m_Data: {fileID: 11400000, guid: 3d39acda1cd56054eb190409e32d8ff8, type: 2}
   - m_RefCount: 4
     m_Data: {fileID: 11400000, guid: b241b5b17bcbee747a1de6b623278f5e, type: 2}
   - m_RefCount: 7
@@ -3964,14 +4001,14 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
+  - m_RefCount: 4
+    m_Data: {fileID: 4603639865805783541, guid: 50091a76f2613ff4d97a2e15d5268ad9, type: 3}
   - m_RefCount: 4
     m_Data: {fileID: -8445576849249351838, guid: f5d539fb8488bd14d9ddf640188a6374, type: 3}
   - m_RefCount: 7
     m_Data: {fileID: -596997599003989033, guid: 90b92bc83abe805448c9707564b1765b, type: 3}
   m_TileMatrixArray:
-  - m_RefCount: 11
+  - m_RefCount: 15
     m_Data:
       e00: 1
       e01: 0
@@ -3990,7 +4027,7 @@ Tilemap:
       e32: 0
       e33: 1
   m_TileColorArray:
-  - m_RefCount: 11
+  - m_RefCount: 15
     m_Data: {r: 1, g: 1, b: 1, a: 1}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
@@ -4016,48 +4053,6 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
---- !u!114 &1534221661
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1534221656}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11de9ccbb9161314abe073f52a7e82d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_groundFinder: {fileID: 1534221662}
---- !u!114 &1534221662
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1534221656}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c787484103dbf8d41a6582bafd86a5a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_finderForWhat: Ground that MegaMan stands on
-  m_specifyLayerMask: 1
-  m_layerMask:
-    serializedVersion: 2
-    m_Bits: 64
-  m_specifyMinDepth: 0
-  m_minDepth: 0
-  m_specifyMaxDepth: 0
-  m_maxDepth: 0
-  m_specifyNameContains: 1
-  m_nameContains: Ground
-  m_specifyNameExact: 0
-  m_nameExact: 
-  m_specifyTagContains: 0
-  m_tagContains: 
-  m_specifyTagExact: 0
-  m_tagExact: 
 --- !u!1 &1709273706
 GameObject:
   m_ObjectHideFlags: 0
