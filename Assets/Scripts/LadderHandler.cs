@@ -118,10 +118,11 @@ public class LadderHandler : MonoBehaviour
     Dictionary<Vector2Int, TrapDoor> m_trapDoors;
     TrapDoor m_trapDoorNull;
     /// <summary>
-    /// Contains list of all TrapDoor coordinates, in ladderCell coords, as Vector2Int types
+    /// Contains a list of all trapDoors that are currently in a non-default position
+    /// key = ladderCell position, value = a time value, not yet figured out how I'm going to use it
     /// </summary>
-    private List<Vector2Int> m_trapDoorCoords;
-    private List<Watch> m_trapDoorWatches;
+    private Dictionary<Vector2Int, float> m_trapDoorsOffDefault;
+
 
     // Self-generated, only if groundHandling and ladder/ground doubles exist
     bool m_fakeGroundEnabled = false;
@@ -130,6 +131,10 @@ public class LadderHandler : MonoBehaviour
     private Tilemap m_fakeGroundMap;
     private TilemapCollider2D m_fakeGroundCollider;
 
+    [Header("Settings")]
+    [Tooltip("When MegaMan climbs to the top of a ladder, it will turn into a floor so he can stand on it.  If he jumps off, it will wait this "
+        + "delay before turning back into a ladder.")]
+    [SerializeField] [Range(0, 5)] private float m_standingOnLadderFloorDisappearDelay = 2;
 
     [Header("What is MegaMan's Upright Ladder Detector?")]
     [SerializeField] private ObjectFinder m_megaManUldFinder;
@@ -353,7 +358,8 @@ public class LadderHandler : MonoBehaviour
     private void CloseTrapDoor(Vector3Int ladderCell, Collider2D collider)
     {
         // Assume it exists
-        TrapDoor td = m_trapDoors[(Vector2Int)ladderCell];
+        Vector2Int key = (Vector2Int)ladderCell;
+        TrapDoor td = m_trapDoors[key];
         if (td.Opened())
         {
             Vector3Int groundCell = LadderCellToGroundCell(ladderCell);
@@ -361,15 +367,13 @@ public class LadderHandler : MonoBehaviour
             Debug.Log("Ground.SetTile(" + groundCell + ", " + td.groundTile.name + ")");
             m_groundMap.RefreshTile(groundCell);
             td.CloseDoor();
-            m_trapDoors[(Vector2Int)ladderCell] = td;
+            m_trapDoors[key] = td;
             m_groundCollider.ProcessTilemapChanges();
         }
         // td is now closed
-        if (td.defaultPosition == DoorPosition.Open)
+        if (td.defaultPosition == DoorPosition.Close && !m_trapDoorsOffDefault.ContainsKey(key))
         {
-            // Default position is open, set up a watch
-            Watch w = new Watch(m_megaManUprightLadderDetector, (Vector2Int)ladderCell, DoorPosition.Open);
-            m_trapDoorWatches.Add(w);
+            m_trapDoorsOffDefault.Add(key, -1);
         }
         Debug.Log("CloseTrapDoor(" + ladderCell + ")");
     }
@@ -383,23 +387,21 @@ public class LadderHandler : MonoBehaviour
     private void OpenTrapDoor(Vector3Int ladderCell, Collider2D collider)
     {
         // Assume it exists
-        TrapDoor td = m_trapDoors[(Vector2Int)ladderCell];
+        Vector2Int key = (Vector2Int)ladderCell;
+        TrapDoor td = m_trapDoors[key];
         if (td.Closed())
         {
             Vector3Int groundCell = LadderCellToGroundCell(ladderCell);
             m_groundMap.SetTile(groundCell, null);
             Debug.Log("Ground.SetTile(" + groundCell + ", null)");
             td.OpenDoor();
-            m_trapDoors[(Vector2Int)ladderCell] = td;
+            m_trapDoors[key] = td;
             m_groundCollider.ProcessTilemapChanges();
         }
         // td is now closed
-        if (td.defaultPosition == DoorPosition.Close)
+        if (td.defaultPosition == DoorPosition.Close && !m_trapDoorsOffDefault.ContainsKey(key))
         {
-            // Default position is closed, set up a watch
-            // td is now closed
-            Watch w = new Watch(m_megaManUprightLadderDetector, (Vector2Int)ladderCell, DoorPosition.Close);
-            m_trapDoorWatches.Add(w);
+            m_trapDoorsOffDefault.Add(key, -1);
         }
         Debug.Log("OpenTrapDoor(" + ladderCell + ")");
     }
@@ -407,33 +409,64 @@ public class LadderHandler : MonoBehaviour
 
     private void UpdateWatches()
     {
-        for (int i = 0; i < m_trapDoorWatches.Count; ++i)
+        List<Vector2Int> keys = new List<Vector2Int>(m_trapDoorsOffDefault.Count);
+        foreach (KeyValuePair<Vector2Int, float> entry in m_trapDoorsOffDefault)
         {
-            Watch w = m_trapDoorWatches[i];
-            TrapDoor td;
-            bool found = m_trapDoors.TryGetValue(w.ladderCell, out td);
-            if (!found)
+            keys.Add(entry.Key);
+        }
+        if (m_megaManUprightLadderDetector.IsTouching(m_fakeGroundCollider))
+        {
+            // MegaMan is still passing through a TrapDoor, leave doors as is.
+            // Reset all top-standing timers to zero
+            foreach(Vector2Int key in keys)
             {
-                // Weird, not in trapDoors
-                Debug.LogWarning("Watch created for " + w.ladderCell + " but no TrapDoor exists");
+                m_trapDoorsOffDefault[key] = 0;
+            }
+            return;
+        }
+        List<Vector2Int> rmKeyList = new List<Vector2Int>(m_trapDoorsOffDefault.Count);
+        foreach (Vector2Int key in keys)
+        {
+            TrapDoor td = m_trapDoors[key];
+            if (td.position == td.defaultPosition)
+            {
+                // TrapDoor is back in correct position
+                rmKeyList.Add(key);
                 continue;
             }
-            if (w.actionToTake == td.position)
+            if (td.defaultPosition == DoorPosition.Open)
             {
-                // Door is already in correct position, remove watch
-                w.stale = true;
-            }
-            if (!w.collider.IsTouching(m_fakeGroundCollider))
-            {
-                // Collider in question is nolonger touching the tile in question, initiate the action
-                if (w.actionToTake == DoorPosition.Close)
+                m_trapDoorsOffDefault[key] += Time.fixedDeltaTime;
+                if (m_trapDoorsOffDefault[key] >= m_standingOnLadderFloorDisappearDelay)
                 {
-                    CloseTrapDoor((Vector3Int)w.ladderCell, w.collider);
-                    w.stale = true;
+                    if (td.Opened())
+                    {
+                        CloseTrapDoor((Vector3Int)key, m_megaManUprightLadderDetector);
+                    }
+                    else
+                    {
+                        OpenTrapDoor((Vector3Int)key, m_megaManUprightLadderDetector);
+                    }
+                    rmKeyList.Add(key);
                 }
             }
+            else
+            {
+                if (td.Opened())
+                {
+                    CloseTrapDoor((Vector3Int)key, m_megaManUprightLadderDetector);
+                }
+                else
+                {
+                    OpenTrapDoor((Vector3Int)key, m_megaManUprightLadderDetector);
+                }
+                rmKeyList.Add(key);
+            }
         }
-        m_trapDoorWatches.RemoveAll(w => w.stale == true);
+        foreach(Vector2Int key in rmKeyList)
+        {
+            m_trapDoorsOffDefault.Remove(key);
+        }
     }
 
     // *** Initialisation
@@ -490,7 +523,6 @@ public class LadderHandler : MonoBehaviour
         TileBase ladderTile = m_ladderMap.GetTile(ladderCell);
         TrapDoor td = new TrapDoor(ladderTile, DoorPosition.Open);
         m_trapDoors.Add((Vector2Int)ladderCell, td);
-        m_trapDoorCoords.Add((Vector2Int)ladderCell);
         m_groundMap.SetTile(LadderCellToGroundCell(ladderCell), ladderTile);
         // We use fakeGroundCollider to test when MegaMan has left a trapdoor area, so add it here, even though visually not important
         m_fakeGroundMap.SetTile(fakeGroundCell, ladderTile);
@@ -514,7 +546,6 @@ public class LadderHandler : MonoBehaviour
         TileBase groundTile = m_groundMap.GetTile(groundCell);
         TrapDoor td = new TrapDoor(groundTile, DoorPosition.Close);
         m_trapDoors.Add((Vector2Int)ladderCell, td);
-        m_trapDoorCoords.Add((Vector2Int)ladderCell);
         m_fakeGroundMap.SetTile(fakeGroundCell, groundTile);
     }
 
@@ -528,9 +559,8 @@ public class LadderHandler : MonoBehaviour
             return;
         }
         m_trapDoors = new Dictionary<Vector2Int, TrapDoor>();
-        m_trapDoorCoords = new List<Vector2Int>();
-        m_trapDoorWatches = new List<Watch>();
         m_trapDoorNull = new TrapDoor(null, DoorPosition.Pizza);
+        m_trapDoorsOffDefault = new Dictionary<Vector2Int, float>();
         MakeFakeGroundObjects();
         BoundsInt cellBounds = m_ladderMap.cellBounds;
         for (int x = cellBounds.min.x; x <= cellBounds.max.x; ++x)
