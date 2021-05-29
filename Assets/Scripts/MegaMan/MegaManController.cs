@@ -398,6 +398,7 @@ public class MegaManController: MonoBehaviour
                         Debug.Log("Stepped off ladder");
                         state = MegaManStates.Normal;
                     }
+                    m_ladderHandler.OpenTrapDoors(m_groundLadderDetector);
                 }
                 if (!m_ladderHandler.OnLadder(m_uprightLadderDetector))
                 {
@@ -407,6 +408,10 @@ public class MegaManController: MonoBehaviour
                 }
                 else
                 {
+                    if (m_controlVector.y > 0)
+                    {
+                        m_ladderHandler.OpenTrapDoors(m_uprightCeilingCheckCollider);
+                    }
                     bool transitionStart = m_ladderHandler.OnLadder(m_ladderTransitionStartDetector);
                     bool transitionEnd = m_ladderHandler.OnLadder(m_ladderTransitionEndDetector);
                     if (!transitionStart)
@@ -415,6 +420,8 @@ public class MegaManController: MonoBehaviour
                         {
                             // Reached top, stand up (must adjust collider to ensure standing has correct y value)
                             state = MegaManStates.Normal;
+                            // Tell the ladderHandler that we made it to the top, in case it needs to close a trapdoor
+                            m_ladderHandler.ToppedLadder(m_groundLadderDetector);
                         }
                         else
                         {
@@ -763,8 +770,9 @@ public class MegaManController: MonoBehaviour
 
     bool MountLadder(Collider2D ladderDetector)
     {
-        Vector2 ladderCentre = new Vector2();
-        bool foundLadder = m_ladderHandler.ClosestLadder(ladderDetector, ref ladderCentre);
+        Vector2 ladderCentre;
+        Vector3Int dummy;
+        bool foundLadder = m_ladderHandler.ClosestLadder(ladderDetector, out ladderCentre, out dummy);
         if (!foundLadder)
         {
             return false;

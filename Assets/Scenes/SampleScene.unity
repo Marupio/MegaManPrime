@@ -289,6 +289,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac0b09e7857660247b1477e93731de29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &486706237
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 486706238}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &486706238
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486706237}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -16, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -2458,6 +2488,66 @@ Tilemap:
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
       m_AllTileFlags: 1073741826
+  - first: {x: -15, y: -2, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 19
+      m_TileSpriteIndex: 11
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 0
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741826
+  - first: {x: -14, y: -2, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 19
+      m_TileSpriteIndex: 56
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 0
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741826
+  - first: {x: -13, y: -2, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 19
+      m_TileSpriteIndex: 56
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 0
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741826
+  - first: {x: -12, y: -2, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 19
+      m_TileSpriteIndex: 56
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 0
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741826
+  - first: {x: -11, y: -2, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 19
+      m_TileSpriteIndex: 56
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 0
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741826
+  - first: {x: -10, y: -2, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 19
+      m_TileSpriteIndex: 64
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 0
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741826
   - first: {x: 3, y: -2, z: 0}
     second:
       serializedVersion: 2
@@ -2938,7 +3028,7 @@ Tilemap:
     m_Data: {fileID: 11400000, guid: f2c09cdf2f067df4f8c0b44116b8fe2b, type: 2}
   - m_RefCount: 2
     m_Data: {fileID: 11400000, guid: 2aa5293a5ed43bf408dec35bbafe926c, type: 2}
-  - m_RefCount: 42
+  - m_RefCount: 48
     m_Data: {fileID: 11400000, guid: 2eae4454e019dc145be977a4877699f2, type: 2}
   - m_RefCount: 68
     m_Data: {fileID: 11400000, guid: a6057b522e8a0d94abc03934230eae1b, type: 2}
@@ -2967,8 +3057,8 @@ Tilemap:
     m_Data: {fileID: -3801028493910636146, guid: 310593eed76cfb147bf40d5028ce3613, type: 3}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
+  - m_RefCount: 1
+    m_Data: {fileID: 2289319295002005037, guid: f5d539fb8488bd14d9ddf640188a6374, type: 3}
   - m_RefCount: 3
     m_Data: {fileID: -5858642973050996900, guid: f5d539fb8488bd14d9ddf640188a6374, type: 3}
   - m_RefCount: 1
@@ -3057,7 +3147,7 @@ Tilemap:
     m_Data: {fileID: 7395996292350785412, guid: f5d539fb8488bd14d9ddf640188a6374, type: 3}
   - m_RefCount: 1
     m_Data: {fileID: 3646541155788462978, guid: f5d539fb8488bd14d9ddf640188a6374, type: 3}
-  - m_RefCount: 2
+  - m_RefCount: 6
     m_Data: {fileID: -6109657213347793052, guid: f5d539fb8488bd14d9ddf640188a6374, type: 3}
   - m_RefCount: 1
     m_Data: {fileID: 8354238191753533466, guid: f5d539fb8488bd14d9ddf640188a6374, type: 3}
@@ -3073,7 +3163,7 @@ Tilemap:
     m_Data: {fileID: 5567834540116508739, guid: 50091a76f2613ff4d97a2e15d5268ad9, type: 3}
   - m_RefCount: 4
     m_Data: {fileID: 2624265545277409866, guid: f5d539fb8488bd14d9ddf640188a6374, type: 3}
-  - m_RefCount: 1
+  - m_RefCount: 2
     m_Data: {fileID: -8936934033780128759, guid: f5d539fb8488bd14d9ddf640188a6374, type: 3}
   - m_RefCount: 4
     m_Data: {fileID: -2145131332143920375, guid: 310593eed76cfb147bf40d5028ce3613, type: 3}
@@ -3114,7 +3204,7 @@ Tilemap:
   - m_RefCount: 1
     m_Data: {fileID: -4797696744055423418, guid: 90b92bc83abe805448c9707564b1765b, type: 3}
   m_TileMatrixArray:
-  - m_RefCount: 240
+  - m_RefCount: 246
     m_Data:
       e00: 1
       e01: 0
@@ -3133,7 +3223,7 @@ Tilemap:
       e32: 0
       e33: 1
   m_TileColorArray:
-  - m_RefCount: 240
+  - m_RefCount: 246
     m_Data: {r: 1, g: 1, b: 1, a: 1}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
@@ -3254,6 +3344,7 @@ GameObject:
   - component: {fileID: 802331779}
   - component: {fileID: 802331778}
   - component: {fileID: 802331782}
+  - component: {fileID: 802331783}
   - component: {fileID: 802331781}
   - component: {fileID: 802331780}
   m_Layer: 0
@@ -3361,8 +3452,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11de9ccbb9161314abe073f52a7e82d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_megaManUldFinder: {fileID: 802331783}
   m_ladderFinder: {fileID: 802331781}
   m_groundFinder: {fileID: 802331780}
+--- !u!114 &802331783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 802331777}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c787484103dbf8d41a6582bafd86a5a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_finderForWhat: MegaMan Upright Ladder Detecto,r
+  m_specifyLayerMask: 1
+  m_layerMask:
+    serializedVersion: 2
+    m_Bits: 8
+  m_specifyMinDepth: 0
+  m_minDepth: 0
+  m_specifyMaxDepth: 0
+  m_maxDepth: 0
+  m_specifyNameContains: 1
+  m_nameContains: UprightLadder
+  m_specifyNameExact: 0
+  m_nameExact: 
+  m_specifyTagContains: 0
+  m_tagContains: 
+  m_specifyTagExact: 0
+  m_tagExact: 
 --- !u!1 &843210759
 GameObject:
   m_ObjectHideFlags: 0
@@ -3916,16 +4037,6 @@ Tilemap:
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
       m_AllTileFlags: 1073741825
-  - first: {x: -7, y: -1, z: 0}
-    second:
-      serializedVersion: 2
-      m_TileIndex: 4
-      m_TileSpriteIndex: 4
-      m_TileMatrixIndex: 0
-      m_TileColorIndex: 0
-      m_TileObjectToInstantiateIndex: 65535
-      dummyAlignment: 0
-      m_AllTileFlags: 1073741825
   - first: {x: -2, y: -1, z: 0}
     second:
       serializedVersion: 2
@@ -3986,7 +4097,7 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 4
+  - m_RefCount: 3
     m_Data: {fileID: 11400000, guid: 3d39acda1cd56054eb190409e32d8ff8, type: 2}
   - m_RefCount: 4
     m_Data: {fileID: 11400000, guid: b241b5b17bcbee747a1de6b623278f5e, type: 2}
@@ -4001,14 +4112,14 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 4
+  - m_RefCount: 3
     m_Data: {fileID: 4603639865805783541, guid: 50091a76f2613ff4d97a2e15d5268ad9, type: 3}
   - m_RefCount: 4
     m_Data: {fileID: -8445576849249351838, guid: f5d539fb8488bd14d9ddf640188a6374, type: 3}
   - m_RefCount: 7
     m_Data: {fileID: -596997599003989033, guid: 90b92bc83abe805448c9707564b1765b, type: 3}
   m_TileMatrixArray:
-  - m_RefCount: 15
+  - m_RefCount: 14
     m_Data:
       e00: 1
       e01: 0
@@ -4027,7 +4138,7 @@ Tilemap:
       e32: 0
       e33: 1
   m_TileColorArray:
-  - m_RefCount: 15
+  - m_RefCount: 14
     m_Data: {r: 1, g: 1, b: 1, a: 1}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
