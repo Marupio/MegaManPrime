@@ -5,11 +5,15 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class MegaManController: MonoBehaviour
 {
+    // *** Private references
+
     private Rigidbody2D m_rigidBodySelf;
     private Animator m_animator;
     private EnergyBuster m_energyBuster;
     private LadderHandler m_ladderHandler;
 
+
+    // *** Inspector settings
 
     [Header("Control Settings")]
 
@@ -98,7 +102,7 @@ public class MegaManController: MonoBehaviour
     public MegaManStates state = MegaManStates.Normal;
 
 
-    // Animator Values
+    // *** Animator Values
 
     private int m_animatorLastState = -1;
     private int m_animatorLastSpeed = -1;
@@ -110,23 +114,7 @@ public class MegaManController: MonoBehaviour
     private bool m_animatorLadderTopTransitioningPrev = false;  // When at the top of a ladder, halfway to transition to standing
 
 
-    // States switch template
-    //        switch (state)
-    //        {
-    //            case MegaManStates.Normal:
-    //            case MegaManStates.Jumping:
-    //            case MegaManStates.Falling:
-    //            case MegaManStates.Dashing:
-    //            case MegaManStates.DashJumping:
-    //            case MegaManStates.DashFalling:
-    //            case MegaManStates.Climbing:
-    //            case MegaManStates.Sliding:
-    //            case MegaManStates.Hurt:
-    //            default:
-    //        }
-
-
-    // Physics
+    // *** Physics
 
     private Vector2 m_acceleration = Vector2.zero;
     private bool m_canMove = true;
@@ -142,7 +130,7 @@ public class MegaManController: MonoBehaviour
     private bool m_grounded = true;
     
 
-    // Inputs
+    // *** Inputs
 
     private bool m_jumpButtonPressed = false;           // True when a jumpButtonPress event occured
     private bool m_jumpButtonReleased = false;          // True when a jumpButtonRelease event occured
@@ -176,7 +164,7 @@ public class MegaManController: MonoBehaviour
     Vector3 box3;
 
 
-    // Mono behaviour interface
+    // *** Mono behaviour interface
 
     private void Awake()
     {
@@ -226,7 +214,21 @@ public class MegaManController: MonoBehaviour
     }
 
 
-    // Accepting control input
+    // *** Access
+
+    public Collider2D GetUprightLadderDetector()
+    {
+        return m_uprightLadderDetector;
+    }
+
+
+    public Collider2D GetGroundLadderDetector()
+    {
+        return m_groundLadderDetector;
+    }
+
+
+    // *** Accepting control input
 
     public void SetStickPosition(Vector2 direction)
     {
