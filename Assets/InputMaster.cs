@@ -201,6 +201,61 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""isPartOfComposite"": true
                 },
                 {
+                    ""name"": ""DvorakWASD keys"",
+                    ""id"": ""d2076516-d7d7-48be-8d37-6a8707da32b3"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""2156624f-8c5f-4c8e-86c9-2729ceebbe62"",
+                    ""path"": ""<Keyboard>/comma"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""DvorakWASD"",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""547fcf34-8ed1-4d8d-8e56-ca8cc9305390"",
+                    ""path"": ""<Keyboard>/o"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""DvorakWASD"",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""a1bdb07b-4e1f-473e-940d-c33d1b76d85c"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""DvorakWASD"",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""22196495-a3f3-4203-a510-0e3561066bda"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""DvorakWASD"",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
                     ""name"": """",
                     ""id"": ""b7ff1fa7-e84b-4b63-b3ec-3738b42ad189"",
                     ""path"": ""<Gamepad>/buttonSouth"",
@@ -217,7 +272,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""path"": ""<Keyboard>/numpad0"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""LH Arrow Keys;WASD Keys"",
+                    ""groups"": ""LH Arrow Keys;WASD Keys;DvorakWASD"",
                     ""action"": ""Jump"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -272,7 +327,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""path"": ""<Keyboard>/numpadPlus"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""LH Arrow Keys;WASD Keys"",
+                    ""groups"": ""LH Arrow Keys;WASD Keys;DvorakWASD"",
                     ""action"": ""Inventory"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -294,7 +349,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""path"": ""<Keyboard>/numpadEnter"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""LH Arrow Keys;WASD Keys"",
+                    ""groups"": ""LH Arrow Keys;WASD Keys;DvorakWASD"",
                     ""action"": ""Dash"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -338,7 +393,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""path"": ""<Keyboard>/numpadPeriod"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""WASD Keys;LH Arrow Keys"",
+                    ""groups"": ""WASD Keys;LH Arrow Keys;DvorakWASD"",
                     ""action"": ""Shoot"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -349,7 +404,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""path"": ""<Keyboard>/escape"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""LH Arrow Keys;RH Arrow Keys;WASD Keys"",
+                    ""groups"": ""LH Arrow Keys;RH Arrow Keys;WASD Keys;DvorakWASD"",
                     ""action"": ""Menu"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -405,6 +460,17 @@ public class @InputMaster : IInputActionCollection, IDisposable
         {
             ""name"": ""WASD Keys"",
             ""bindingGroup"": ""WASD Keys"",
+            ""devices"": [
+                {
+                    ""devicePath"": ""<Keyboard>"",
+                    ""isOptional"": false,
+                    ""isOR"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""DvorakWASD"",
+            ""bindingGroup"": ""DvorakWASD"",
             ""devices"": [
                 {
                     ""devicePath"": ""<Keyboard>"",
@@ -575,6 +641,15 @@ public class @InputMaster : IInputActionCollection, IDisposable
         {
             if (m_WASDKeysSchemeIndex == -1) m_WASDKeysSchemeIndex = asset.FindControlSchemeIndex("WASD Keys");
             return asset.controlSchemes[m_WASDKeysSchemeIndex];
+        }
+    }
+    private int m_DvorakWASDSchemeIndex = -1;
+    public InputControlScheme DvorakWASDScheme
+    {
+        get
+        {
+            if (m_DvorakWASDSchemeIndex == -1) m_DvorakWASDSchemeIndex = asset.FindControlSchemeIndex("DvorakWASD");
+            return asset.controlSchemes[m_DvorakWASDSchemeIndex];
         }
     }
     public interface IMegaManActions
