@@ -179,7 +179,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 464187382}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Movement Colliders
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2909,7 +2909,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 11
-      m_TileSpriteIndex: 73
+      m_TileSpriteIndex: 76
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -2918,43 +2918,13 @@ Tilemap:
   - first: {x: -8, y: 3, z: 0}
     second:
       serializedVersion: 2
-      m_TileIndex: 11
-      m_TileSpriteIndex: 73
+      m_TileIndex: 12
+      m_TileSpriteIndex: 47
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
-      m_AllTileFlags: 1073741826
-  - first: {x: -7, y: 3, z: 0}
-    second:
-      serializedVersion: 2
-      m_TileIndex: 11
-      m_TileSpriteIndex: 73
-      m_TileMatrixIndex: 0
-      m_TileColorIndex: 0
-      m_TileObjectToInstantiateIndex: 65535
-      dummyAlignment: 0
-      m_AllTileFlags: 1073741826
-  - first: {x: -6, y: 3, z: 0}
-    second:
-      serializedVersion: 2
-      m_TileIndex: 11
-      m_TileSpriteIndex: 73
-      m_TileMatrixIndex: 0
-      m_TileColorIndex: 0
-      m_TileObjectToInstantiateIndex: 65535
-      dummyAlignment: 0
-      m_AllTileFlags: 1073741826
-  - first: {x: -5, y: 3, z: 0}
-    second:
-      serializedVersion: 2
-      m_TileIndex: 11
-      m_TileSpriteIndex: 76
-      m_TileMatrixIndex: 0
-      m_TileColorIndex: 0
-      m_TileObjectToInstantiateIndex: 65535
-      dummyAlignment: 0
-      m_AllTileFlags: 1073741826
+      m_AllTileFlags: 1073741825
   m_AnimatedTiles: {}
   m_TileAssetArray:
   - m_RefCount: 0
@@ -2979,9 +2949,9 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 32
+  - m_RefCount: 28
     m_Data: {fileID: 11400000, guid: 4e51613dab33b1144a1ec6eb6879cfa9, type: 2}
-  - m_RefCount: 1
+  - m_RefCount: 2
     m_Data: {fileID: 11400000, guid: b970a9db2de0739438685e13949eede8, type: 2}
   - m_RefCount: 13
     m_Data: {fileID: 11400000, guid: e90fb1f800c04c64197db1ab7ad7462f, type: 2}
@@ -3096,7 +3066,7 @@ Tilemap:
     m_Data: {fileID: -6696838112217822593, guid: f5d539fb8488bd14d9ddf640188a6374, type: 3}
   - m_RefCount: 1
     m_Data: {fileID: 5356784546184898907, guid: 310593eed76cfb147bf40d5028ce3613, type: 3}
-  - m_RefCount: 1
+  - m_RefCount: 2
     m_Data: {fileID: -3574314452665587315, guid: 50091a76f2613ff4d97a2e15d5268ad9, type: 3}
   - m_RefCount: 1
     m_Data: {fileID: -4901600798122984196, guid: 50091a76f2613ff4d97a2e15d5268ad9, type: 3}
@@ -3148,7 +3118,7 @@ Tilemap:
     m_Data: {fileID: 9135991510235718140, guid: f5d539fb8488bd14d9ddf640188a6374, type: 3}
   - m_RefCount: 2
     m_Data: {fileID: 398546674948494251, guid: 50091a76f2613ff4d97a2e15d5268ad9, type: 3}
-  - m_RefCount: 13
+  - m_RefCount: 9
     m_Data: {fileID: 8203552650939799522, guid: 50091a76f2613ff4d97a2e15d5268ad9, type: 3}
   - m_RefCount: 1
     m_Data: {fileID: -5780259477537762747, guid: f5d539fb8488bd14d9ddf640188a6374, type: 3}
@@ -3171,7 +3141,7 @@ Tilemap:
   - m_RefCount: 1
     m_Data: {fileID: -4797696744055423418, guid: 90b92bc83abe805448c9707564b1765b, type: 3}
   m_TileMatrixArray:
-  - m_RefCount: 240
+  - m_RefCount: 237
     m_Data:
       e00: 1
       e01: 0
@@ -3190,7 +3160,7 @@ Tilemap:
       e32: 0
       e33: 1
   m_TileColorArray:
-  - m_RefCount: 240
+  - m_RefCount: 237
     m_Data: {r: 1, g: 1, b: 1, a: 1}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
@@ -3310,10 +3280,6 @@ GameObject:
   m_Component:
   - component: {fileID: 802331779}
   - component: {fileID: 802331778}
-  - component: {fileID: 802331782}
-  - component: {fileID: 802331783}
-  - component: {fileID: 802331781}
-  - component: {fileID: 802331780}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -3349,108 +3315,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &802331780
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 802331777}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c787484103dbf8d41a6582bafd86a5a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_finderForWhat: Ground
-  m_specifyLayerMask: 1
-  m_layerMask:
-    serializedVersion: 2
-    m_Bits: 64
-  m_specifyMinDepth: 0
-  m_minDepth: 0
-  m_specifyMaxDepth: 0
-  m_maxDepth: 0
-  m_specifyNameContains: 1
-  m_nameContains: Ground
-  m_specifyNameExact: 0
-  m_nameExact: 
-  m_specifyTagContains: 0
-  m_tagContains: 
-  m_specifyTagExact: 0
-  m_tagExact: 
---- !u!114 &802331781
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 802331777}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c787484103dbf8d41a6582bafd86a5a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_finderForWhat: Ladders
-  m_specifyLayerMask: 1
-  m_layerMask:
-    serializedVersion: 2
-    m_Bits: 128
-  m_specifyMinDepth: 0
-  m_minDepth: 0
-  m_specifyMaxDepth: 0
-  m_maxDepth: 0
-  m_specifyNameContains: 1
-  m_nameContains: Ladder
-  m_specifyNameExact: 0
-  m_nameExact: 
-  m_specifyTagContains: 0
-  m_tagContains: 
-  m_specifyTagExact: 0
-  m_tagExact: 
---- !u!114 &802331782
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 802331777}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11de9ccbb9161314abe073f52a7e82d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_megaManUldFinder: {fileID: 802331783}
-  m_ladderFinder: {fileID: 802331781}
-  m_groundFinder: {fileID: 802331780}
---- !u!114 &802331783
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 802331777}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c787484103dbf8d41a6582bafd86a5a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_finderForWhat: MegaMan Upright Ladder Detecto,r
-  m_specifyLayerMask: 1
-  m_layerMask:
-    serializedVersion: 2
-    m_Bits: 8
-  m_specifyMinDepth: 0
-  m_minDepth: 0
-  m_specifyMaxDepth: 0
-  m_maxDepth: 0
-  m_specifyNameContains: 1
-  m_nameContains: UprightLadder
-  m_specifyNameExact: 0
-  m_nameExact: 
-  m_specifyTagContains: 0
-  m_tagContains: 
-  m_specifyTagExact: 0
-  m_tagExact: 
 --- !u!1 &843210759
 GameObject:
   m_ObjectHideFlags: 0
@@ -3460,7 +3324,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 843210760}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: CollisionColliders
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3532,6 +3396,36 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.5, y: 0.05}
   m_Direction: 1
+--- !u!1 &898319985
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 898319986}
+  m_Layer: 3
+  m_Name: ObjectFinders
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &898319986
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 898319985}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1709273709}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &916741707
 GameObject:
   m_ObjectHideFlags: 0
@@ -3703,7 +3597,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1419034003}
   - component: {fileID: 1419034004}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Weapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3718,7 +3612,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1419034002}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.97, y: 0.06, z: 0}
+  m_LocalPosition: {x: 1.003, y: 0.121, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1709273709}
@@ -4248,7 +4142,8 @@ GameObject:
   - component: {fileID: 1709273708}
   - component: {fileID: 1709273707}
   - component: {fileID: 1709273710}
-  m_Layer: 0
+  - component: {fileID: 1709273711}
+  m_Layer: 3
   m_Name: MegaMan
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -4304,7 +4199,7 @@ MonoBehaviour:
   m_jumpSpeed: 15
   m_jumpHeight: 4
   m_ladderClimbSpeed: 5
-  m_shootFollowThroughTime: 0.5
+  m_climbingDownYAdjust: 0.4
   m_jumpAirSteerAccelerationFactor: 0.8
   m_dashJumpAirSteerAccelerationFactor: 0.1
   m_movementSmoothing: 0.1
@@ -4327,6 +4222,7 @@ Transform:
   - {fileID: 464187382}
   - {fileID: 1793457688}
   - {fileID: 843210760}
+  - {fileID: 898319986}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4351,6 +4247,18 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!156049354 &1709273711
+Grid:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1709273706}
+  m_Enabled: 1
+  m_CellSize: {x: 1, y: 1, z: 1}
+  m_CellGap: {x: 0, y: 0, z: 0}
+  m_CellLayout: 0
+  m_CellSwizzle: 0
 --- !u!1 &1793457687
 GameObject:
   m_ObjectHideFlags: 0
@@ -4360,8 +4268,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1793457688}
-  m_Layer: 0
-  m_Name: LadderDetectors
+  - component: {fileID: 1793457693}
+  - component: {fileID: 1793457692}
+  - component: {fileID: 1793457691}
+  - component: {fileID: 1793457690}
+  - component: {fileID: 1793457689}
+  m_Layer: 3
+  m_Name: LadderHandling
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4385,6 +4298,121 @@ Transform:
   m_Father: {fileID: 1709273709}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1793457689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1793457687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c787484103dbf8d41a6582bafd86a5a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_finderForWhat: Ground
+  m_specifyLayerMask: 1
+  m_layerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  m_specifyMinDepth: 0
+  m_minDepth: 0
+  m_specifyMaxDepth: 0
+  m_maxDepth: 0
+  m_specifyNameContains: 1
+  m_nameContains: Ground
+  m_specifyNameExact: 0
+  m_nameExact: 
+  m_specifyTagContains: 0
+  m_tagContains: 
+  m_specifyTagExact: 0
+  m_tagExact: 
+--- !u!114 &1793457690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1793457687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c787484103dbf8d41a6582bafd86a5a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_finderForWhat: Ladders
+  m_specifyLayerMask: 1
+  m_layerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  m_specifyMinDepth: 0
+  m_minDepth: 0
+  m_specifyMaxDepth: 0
+  m_maxDepth: 0
+  m_specifyNameContains: 1
+  m_nameContains: Ladder
+  m_specifyNameExact: 0
+  m_nameExact: 
+  m_specifyTagContains: 0
+  m_tagContains: 
+  m_specifyTagExact: 0
+  m_tagExact: 
+--- !u!114 &1793457691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1793457687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c787484103dbf8d41a6582bafd86a5a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_finderForWhat: MegaMan
+  m_specifyLayerMask: 1
+  m_layerMask:
+    serializedVersion: 2
+    m_Bits: 8
+  m_specifyMinDepth: 0
+  m_minDepth: 0
+  m_specifyMaxDepth: 0
+  m_maxDepth: 0
+  m_specifyNameContains: 0
+  m_nameContains: 
+  m_specifyNameExact: 1
+  m_nameExact: MegaMan
+  m_specifyTagContains: 0
+  m_tagContains: 
+  m_specifyTagExact: 0
+  m_tagExact: 
+--- !u!114 &1793457692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1793457687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11de9ccbb9161314abe073f52a7e82d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_standingOnLadderFloorDisappearDelay: 1
+  m_megaManFinder: {fileID: 1793457691}
+  m_ladderFinder: {fileID: 1793457690}
+  m_groundFinder: {fileID: 1793457689}
+--- !u!156049354 &1793457693
+Grid:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1793457687}
+  m_Enabled: 1
+  m_CellSize: {x: 1, y: 1, z: 1}
+  m_CellGap: {x: 0, y: 0, z: 0}
+  m_CellLayout: 0
+  m_CellSwizzle: 0
 --- !u!1 &1808852298
 GameObject:
   m_ObjectHideFlags: 0
@@ -4396,7 +4424,8 @@ GameObject:
   - component: {fileID: 1808852301}
   - component: {fileID: 1808852300}
   - component: {fileID: 1808852299}
-  m_Layer: 0
+  - component: {fileID: 1808852302}
+  m_Layer: 3
   m_Name: MegaMan sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4487,6 +4516,19 @@ Transform:
   m_Father: {fileID: 1709273709}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1808852302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808852298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2268cdae62e0e274b9d23f951486a066, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_shootFollowThroughTime: 0.5
 --- !u!1 &2002032191
 GameObject:
   m_ObjectHideFlags: 0

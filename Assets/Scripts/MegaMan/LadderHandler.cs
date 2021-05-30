@@ -139,6 +139,7 @@ public class LadderHandler : MonoBehaviour
         + "delay before turning back into a ladder.")]
     [SerializeField] [Range(0, 5)] private float m_standingOnLadderFloorDisappearDelay = 2;
 
+
     [Header("What is MegaMan?")]
     [SerializeField] private ObjectFinder m_megaManFinder;
 
@@ -158,7 +159,7 @@ public class LadderHandler : MonoBehaviour
         string problem = InitReferences();
         if (problem != "")
         {
-            Debug.Log("Failed to properly initialise LadderHandler " + gameObject.name + " for reason: " + problem);
+            Debug.LogError("Failed to properly initialise LadderHandler " + gameObject.name + " for reason: " + problem);
             enabled = false;
             return;
         }
@@ -242,11 +243,11 @@ public class LadderHandler : MonoBehaviour
     }
 
 
-    public void OpenTrapDoors(Collider2D testCollider)
+    public bool OpenTrapDoors(Collider2D testCollider)
     {
         if (!OnLadder(testCollider))
         {
-            return;
+            return false;
         }
         Vector2 closestPosition;
         Vector3Int ladderCell;
@@ -254,7 +255,9 @@ public class LadderHandler : MonoBehaviour
         if (m_trapDoors.ContainsKey((Vector2Int)ladderCell))
         {
             OpenTrapDoor(ladderCell, testCollider);
+            return true;
         }
+        return false; // or should this also be true?
     }
 
 
@@ -367,7 +370,6 @@ public class LadderHandler : MonoBehaviour
         {
             Vector3Int groundCell = LadderCellToGroundCell(ladderCell);
             m_groundMap.SetTile(groundCell, td.groundTile);
-            Debug.Log("Ground.SetTile(" + groundCell + ", " + td.groundTile.name + ")");
             td.CloseDoor();
             m_trapDoors[key] = td;
             m_groundCollider.ProcessTilemapChanges();
@@ -377,7 +379,6 @@ public class LadderHandler : MonoBehaviour
         {
             m_trapDoorsOffDefault.Add(key, 0);
         }
-        Debug.Log("CloseTrapDoor(" + ladderCell + ")");
     }
 
 
@@ -395,7 +396,6 @@ public class LadderHandler : MonoBehaviour
         {
             Vector3Int groundCell = LadderCellToGroundCell(ladderCell);
             m_groundMap.SetTile(groundCell, null);
-            Debug.Log("Ground.SetTile(" + groundCell + ", null)");
             td.OpenDoor();
             m_trapDoors[key] = td;
             m_groundCollider.ProcessTilemapChanges();
@@ -405,7 +405,6 @@ public class LadderHandler : MonoBehaviour
         {
             m_trapDoorsOffDefault.Add(key, 0);
         }
-        Debug.Log("OpenTrapDoor(" + ladderCell + ")");
     }
 
 
@@ -416,6 +415,12 @@ public class LadderHandler : MonoBehaviour
         {
             keys.Add(entry.Key);
         }
+
+        if (keys.Count > 0)
+        {
+            Debug.Log("Watching " + keys.Count + ", including " + keys[0]);
+        }
+
         float factor = 1;
         float delta = Time.fixedDeltaTime;
         if (m_megaManGroundLadderDetector.IsTouching(m_fakeGroundCollider))
@@ -428,11 +433,14 @@ public class LadderHandler : MonoBehaviour
         List<Vector2Int> rmKeyList = new List<Vector2Int>(m_trapDoorsOffDefault.Count);
         foreach (Vector2Int key in keys)
         {
-            m_trapDoorsOffDefault[key] = m_trapDoorsOffDefault[key] *factor + delta;
-            if (m_trapDoorsOffDefault[key] >= m_standingOnLadderFloorDisappearDelay)
+            if (m_trapDoors[key].defaultPosition == DoorPosition.Open)
             {
-                rmKeyList.Add(key);
-                CloseTrapDoor((Vector3Int)key, m_megaManUprightLadderDetector);
+                m_trapDoorsOffDefault[key] = m_trapDoorsOffDefault[key] * factor + delta;
+                if (m_trapDoorsOffDefault[key] >= m_standingOnLadderFloorDisappearDelay)
+                {
+                    rmKeyList.Add(key);
+                    OpenTrapDoor((Vector3Int)key, m_megaManUprightLadderDetector);
+                }
             }
         }
         foreach (Vector2Int key in rmKeyList)

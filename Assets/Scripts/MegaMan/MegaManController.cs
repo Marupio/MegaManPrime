@@ -2,13 +2,32 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <subject>
+/// State, which affects the current laws of physics to which MegaMan is subject.  Associated integer value is for the animator.
+/// The tens column indicates a different animator state.
+/// </subject>
+public enum MegaManStates
+{
+    // When editting these, animator may need to be modified
+    Normal = 0,    // Grounded, standing or running
+    Jumping = 10,   // Going up, jump button held down
+    Falling = 11,   // Going downwards - out of jump steam, or jump button released, or fell off something
+    Dashing = 20,   // Grounded dash movement, left or right
+    DashJumping = 21,   // Jumping while dashing, jump button held down
+    DashFalling = 22,   // Falling while dashing, no more going up
+    Climbing = 30,   // On a ladder
+    Sliding = 40,   // Sliding movement, left or right
+    Hurt = 50    // Recoil from an attack
+}
+
+
 [RequireComponent(typeof(Rigidbody2D))]
 public class MegaManController: MonoBehaviour
 {
     // *** Private references
 
     private Rigidbody2D m_rigidBodySelf;
-    private Animator m_animator;
+    private MegaManAnimationDirector m_animationDirector;
     private EnergyBuster m_energyBuster;
     private LadderHandler m_ladderHandler;
 
@@ -60,45 +79,27 @@ public class MegaManController: MonoBehaviour
 
     [Header("Physics Settings")]
 
-    [SerializeField] private float m_runSpeed = 10.0f;
-    [SerializeField] private float m_dashSpeed = 15.0f;
+    [SerializeField] private float m_runSpeed = 5.0f;
+    [SerializeField] private float m_dashSpeed = 12.0f;
     [SerializeField] private float m_dashDistance = 4.0f;
-    [SerializeField] private float m_slideSpeed = 15.0f;
+    [SerializeField] private float m_slideSpeed = 12.0f;
     [SerializeField] private float m_slideDistance = 4.0f;
     [SerializeField] private float m_jumpSpeed = 15.0f;
-    [SerializeField] private float m_jumpHeight = 7.0f;
-    [SerializeField] private float m_ladderClimbSpeed = 7.0f;
+    [SerializeField] private float m_jumpHeight = 4.0f;
+    [SerializeField] private float m_ladderClimbSpeed = 5.0f;
+    [Tooltip("When mounting a ladder beneath him, MegaMan needs to adjust down this many y units")]
+    [SerializeField] private float m_climbingDownYAdjust = 0.4f;
     [Tooltip("How much time does MegaMan keep his weapon out after shooting")]
-    [SerializeField] [Range(0, 1)] private float m_shootFollowThroughTime = 0.5f;
-    [Tooltip("How much control can MegaMan have in the air? 0=none, 1=full")]
     [SerializeField] [Range(0, 1)] private float m_jumpAirSteerAccelerationFactor = 0.8f;
     [Tooltip("How much control can MegaMan have in the air? 0=none, 1=full")]
-    [SerializeField] [Range(0, 1)] private float m_dashJumpAirSteerAccelerationFactor = 0.2f;
+    [SerializeField] [Range(0, 1)] private float m_dashJumpAirSteerAccelerationFactor = 0.1f;
     [Tooltip("Smooth out MegaMan's movement - 0=jerky")]
-    [SerializeField] [Range(0,0.3f)] public float m_movementSmoothing = 0.05f;
+    [SerializeField] [Range(0,0.3f)] public float m_movementSmoothing = 0.1f;
     [Tooltip("How long does MegaMan recoil from being hurt")]
     [SerializeField] [Range(0.1f, 5)] private float m_hurtDuration;
     [Tooltip("How fast does MegaMan recoil when hurt")]
     [SerializeField] private float m_hurtSpeed;
 
-
-    /// <subject>
-    /// State, which affects the current laws of physics to which MegaMan is subject.  Associated integer value is for the animator.
-    /// The tens column indicates a different animator state.
-    /// </subject>
-    public enum MegaManStates
-    {
-        // When editting these, animator may need to be modified
-        Normal      = 0,    // Grounded, standing or running
-        Jumping     = 10,   // Going up, jump button held down
-        Falling     = 11,   // Going downwards - out of jump steam, or jump button released, or fell off something
-        Dashing     = 20,   // Grounded dash movement, left or right
-        DashJumping = 21,   // Jumping while dashing, jump button held down
-        DashFalling = 22,   // Falling while dashing, no more going up
-        Climbing    = 30,   // On a ladder
-        Sliding     = 40,   // Sliding movement, left or right
-        Hurt        = 50    // Recoil from an attack
-    }
     public MegaManStates state = MegaManStates.Normal;
 
 
@@ -128,6 +129,7 @@ public class MegaManController: MonoBehaviour
     private float m_hurtStartTime = -1;
     private bool m_facingRight = true;
     private bool m_grounded = true;
+    private float m_ladderXPosition = 0;
     
 
     // *** Inputs
@@ -164,6 +166,7 @@ public class MegaManController: MonoBehaviour
     Vector3 box3;
 
 
+
     // *** Mono behaviour interface
 
     private void Awake()
@@ -172,9 +175,9 @@ public class MegaManController: MonoBehaviour
         m_ladderHandler = GameObject.FindObjectOfType<LadderHandler>();
         foreach (Transform child in this.transform)
         {
-            if (!m_animator)
+            if (!m_animationDirector)
             {
-                m_animator = child.GetComponent<Animator>();
+                m_animationDirector = child.GetComponent<MegaManAnimationDirector>();
             }
             if (!m_energyBuster)
             {
@@ -194,7 +197,6 @@ public class MegaManController: MonoBehaviour
         UpdateControlVector();
         CollisionAndStateChecking();
         Move();
-        UpdateAnimator();
     }
 
 
@@ -215,6 +217,9 @@ public class MegaManController: MonoBehaviour
 
 
     // *** Access
+
+    public float ShootButtonReleaseTime { get => m_shootButtonReleaseTime; set => m_shootButtonReleaseTime = value; }
+    public float LadderClimbSpeed { get => m_ladderClimbSpeed; set => m_ladderClimbSpeed = value; }
 
     public Collider2D GetUprightLadderDetector()
     {
@@ -266,11 +271,11 @@ public class MegaManController: MonoBehaviour
         {
             m_shootButtonReleased = true;
             m_shootButton = false;
-            m_shootButtonReleaseTime = Time.time;
-            float chargeTime = m_shootButtonReleaseTime - m_shootButtonPressTime;
+            ShootButtonReleaseTime = Time.time;
+            float chargeTime = ShootButtonReleaseTime - m_shootButtonPressTime;
             m_shootButtonPressTime = -1;
+            m_animationDirector.Shoot();
             m_energyBuster.Shoot(chargeTime);
-            m_animatorShooting = true;
         }
     }
 
@@ -299,7 +304,6 @@ public class MegaManController: MonoBehaviour
             if (state == MegaManStates.Climbing)
             {
                 // Jump off a ladder
-                Debug.Log("Jumped off ladder");
                 state = MegaManStates.Falling;
             }
             else if (m_grounded && m_canMove && state != MegaManStates.Sliding)
@@ -390,23 +394,29 @@ public class MegaManController: MonoBehaviour
                 LadderCheck(m_uprightLadderDetector);
                 break;
             case MegaManStates.Climbing:
-                m_animatorLadderTopTransitioning = false;
+                m_animationDirector.LadderTopTransitioning = false;
                 if (m_controlVector.y < 0)
                 {
-                    // Climbing down
+                    // MegaMan is climbing down and grounded, but is there still a ladder below him?
+                    if (m_ladderHandler.OnLadder(m_groundLadderDetector))
+                    {
+                        m_ladderHandler.OpenTrapDoors(m_groundLadderDetector);
+                        // Keep trying to climb down
+                        break;
+                    }
                     if (m_grounded)
                     {
-                        // Step off ladder
-                        Debug.Log("Stepped off ladder");
+                        // No ladder below, step off ladder
                         state = MegaManStates.Normal;
+                        break;
                     }
-                    m_ladderHandler.OpenTrapDoors(m_groundLadderDetector);
                 }
+                // Is he still holding a ladder?
                 if (!m_ladderHandler.OnLadder(m_uprightLadderDetector))
                 {
                     // Not holding on to a ladder anymore
-                    Debug.Log("Climbed off ladder");
                     state = MegaManStates.Falling;
+                    break;
                 }
                 else
                 {
@@ -428,7 +438,7 @@ public class MegaManController: MonoBehaviour
                         else
                         {
                             // Almost at top
-                            m_animatorLadderTopTransitioning = true;
+                            m_animationDirector.LadderTopTransitioning = true;
                         }
                     }
                 }
@@ -515,11 +525,11 @@ public class MegaManController: MonoBehaviour
                 float xTargetSpeed = m_controlVector.x * m_runSpeed;
                 if (Mathf.Abs(xTargetSpeed) > 0)
                 {
-                    m_animatorRunning = true;
+                    m_animationDirector.Running = true;
                 }
                 else
                 {
-                    m_animatorRunning = false;
+                    m_animationDirector.Running = false;
                 }
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_rigidBodySelf.velocity.y);
                 m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
@@ -582,11 +592,14 @@ public class MegaManController: MonoBehaviour
             }
             case MegaManStates.Climbing:
             {
-                float yTargetSpeed = m_controlVector.y * m_ladderClimbSpeed;
+                float yTargetSpeed = m_controlVector.y * LadderClimbSpeed;
                 Vector2 targetVelocity = new Vector2(0, yTargetSpeed);
                 m_rigidBodySelf.gravityScale = 0;
                 m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
-                m_canFlip = false;
+                // Now ensure rigidBodyPhysics hasn't pushed MegaMan off the ladder
+                Vector3 newPosition = m_rigidBodySelf.transform.position;
+                newPosition.x = m_ladderXPosition;
+                m_rigidBodySelf.transform.position = newPosition;
                 break;
             }
             case MegaManStates.Sliding:
@@ -654,67 +667,6 @@ public class MegaManController: MonoBehaviour
     }
 
 
-    private void UpdateAnimator()
-    {
-        // Handle shooting follow through
-        if (m_animatorShooting && Time.time - m_shootButtonReleaseTime > m_shootFollowThroughTime)
-        {
-            m_animatorShooting = false;
-        }
-
-        bool animatorChanged = false;
-
-        // Animator speed adjustment when on a ladder - if he stops climbing, he should stop animating
-        float animatorSpeed = 1;
-        if (state == MegaManStates.Climbing)
-        {
-            // Manipulate animation speed based on MegaMan's actual speed
-            if (Mathf.Abs(m_rigidBodySelf.velocity.y) > 0)
-            {
-                animatorSpeed = Mathf.Min(Mathf.Abs(m_rigidBodySelf.velocity.y) / m_ladderClimbSpeed, 1);
-            }
-            else
-            {
-                animatorSpeed = 0;
-            }
-        }
-        if (m_animatorLastSpeed != animatorSpeed)
-        {
-            m_animator.speed = animatorSpeed;
-            // Animator speed change does not constitute 'animatorChanged'
-        }
-
-        int currentState = (int)state / 10;
-        if (m_animatorLastState != currentState)
-        {
-            m_animator.SetInteger("MegaManState", currentState);
-            m_animatorLastState = currentState;
-            animatorChanged = true;
-        }
-        if (m_animatorRunningPrev != m_animatorRunning)
-        {
-            m_animator.SetBool("Running", m_animatorRunning);
-            m_animatorRunningPrev = m_animatorRunning;
-            animatorChanged = true;
-        }
-        if (m_animatorLadderTopTransitioningPrev != m_animatorLadderTopTransitioning)
-        {
-            m_animator.SetBool("ClimbTransition", m_animatorLadderTopTransitioning);
-            m_animatorLadderTopTransitioningPrev = m_animatorLadderTopTransitioning;
-            animatorChanged = true;
-        }
-        if (m_animatorShootingPrev != m_animatorShooting)
-        {
-            m_animator.SetBool("Shooting", m_animatorShooting);
-            m_animatorShootingPrev = m_animatorShooting;
-            animatorChanged = true;
-        }
-        if (animatorChanged)
-        {
-            m_animator.SetTrigger("Changed");
-        }
-    }
-
     /// <summary>
     /// Turns analogue inputs into 1 | 0 | -1
     /// </summary>
@@ -764,13 +716,14 @@ public class MegaManController: MonoBehaviour
             if (m_controlVector.y < 0)
             {
                 // Check for ladder underneath if pressing down
-                return MountLadder(m_groundLadderDetector);
+                return MountLadder(m_groundLadderDetector, true);
             }
         }
         return false;
     }
 
-    bool MountLadder(Collider2D ladderDetector)
+
+    bool MountLadder(Collider2D ladderDetector, bool topEntry = false)
     {
         Vector2 ladderCentre;
         Vector3Int dummy;
@@ -779,9 +732,15 @@ public class MegaManController: MonoBehaviour
         {
             return false;
         }
-        Vector2 newPosition = new Vector2(ladderCentre.x, gameObject.transform.position.y);
-        Debug.Log("Mounting ladder at " + ladderCentre);
+        float yAdjust = 0;
+        if (topEntry)
+        {
+            yAdjust = m_climbingDownYAdjust;
+            m_ladderHandler.OpenTrapDoors(m_groundLadderDetector);
+        }
+        Vector2 newPosition = new Vector2(ladderCentre.x, gameObject.transform.position.y - yAdjust);
         gameObject.transform.position = newPosition;
+        m_ladderXPosition = newPosition.x;
         m_rigidBodySelf.velocity = Vector2.zero;
         state = MegaManStates.Climbing;
         return true;
