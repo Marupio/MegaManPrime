@@ -14,7 +14,7 @@ TagManager:
   - UI
   - Solid
   - Ladder
-  - 
+  - Decoration
   - 
   - 
   - 
@@ -39,6 +39,24 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 2476064287
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Ground
+    uniqueID: 3075861289
+    locked: 0
+  - name: DecorationsBehindPlayers
+    uniqueID: 3946005855
+    locked: 0
+  - name: Players&Enemies
+    uniqueID: 2357212169
+    locked: 0
+  - name: DecorationsInfrontOfPlayers
+    uniqueID: 756842487
+    locked: 0
+  - name: Foreground
+    uniqueID: 3490121323
     locked: 0
