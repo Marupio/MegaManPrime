@@ -21,6 +21,14 @@ public enum MegaManStates
 }
 
 
+
+
+// Still need to add:
+//  Volume model
+//      Sinking (slow sinking - sand / mud)
+//      Jump suppression (Like sunken in sand, jumping only puts you up a little bit)
+
+
 [RequireComponent(typeof(Rigidbody2D))]
 public class MegaManController: MonoBehaviour
 {
@@ -129,6 +137,7 @@ public class MegaManController: MonoBehaviour
     private float m_hurtStartTime = -1;
     private bool m_facingRight = true;
     private bool m_grounded = true;
+    private SurfaceModel m_surfaceModel;
     private float m_ladderXPosition = 0;
     
 
@@ -296,7 +305,9 @@ public class MegaManController: MonoBehaviour
     private void CollisionAndStateChecking()
     {
         // All states check for grounded
-        m_grounded = CollisionCheck(m_groundCheckCollider, m_groundFilter);
+//        m_grounded = CollisionCheck(m_groundCheckCollider, m_groundFilter);
+        m_surfaceModel = GroundCheck(m_groundCheckCollider, m_groundFilter);
+        m_grounded = m_surfaceModel != null;
 
         // Check if starting a jump, starting a slide, starting a dash
         if (m_jumpButtonPressed)
@@ -315,9 +326,18 @@ public class MegaManController: MonoBehaviour
                 }
                 else if (m_controlVector.y < 0)
                 {
-                    // Slide
-                    state = MegaManStates.Sliding;
-                    m_slideStartTime = m_jumpButtonPressTime;
+                    if (m_surfaceModel == null || m_surfaceModel.Slidable)
+                    {
+                        // Slide
+                        state = MegaManStates.Sliding;
+                        m_slideStartTime = m_jumpButtonPressTime;
+                    }
+                    else
+                    {
+                        // MegaMan is trying to slide, but can't
+                        // Don't do anything
+                        Debug.Log("I refuse to slide");
+                    }
                 }
                 else
                 {
@@ -522,7 +542,18 @@ public class MegaManController: MonoBehaviour
         {
             case MegaManStates.Normal:
             {
-                float xTargetSpeed = m_controlVector.x * m_runSpeed;
+                float speedLimitFactor = 1;
+                float maxAccel = 100;
+                if (m_surfaceModel != null)
+                {
+                    speedLimitFactor = 1 - m_surfaceModel.Resistance;
+                    maxAccel = m_surfaceModel.Mu * 100;
+                }
+                if (maxAccel == 100)
+                {
+                    maxAccel = Mathf.Infinity;
+                }
+                float xTargetSpeed = m_controlVector.x * m_runSpeed * speedLimitFactor;
                 if (Mathf.Abs(xTargetSpeed) > 0)
                 {
                     m_animationDirector.Running = true;
@@ -532,7 +563,7 @@ public class MegaManController: MonoBehaviour
                     m_animationDirector.Running = false;
                 }
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_rigidBodySelf.velocity.y);
-                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
+                m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing, maxAccel);
                 break;
             }
             case MegaManStates.Jumping:
@@ -553,8 +584,13 @@ public class MegaManController: MonoBehaviour
             }
             case MegaManStates.Dashing:
             {
+                float speedLimitFactor = 1;
+                if (m_surfaceModel != null)
+                {
+                    speedLimitFactor = 1 - m_surfaceModel.Resistance;
+                }
                 float xDir = m_facingRight ? 1 : -1;
-                float xTargetSpeed = xDir * m_dashSpeed;
+                float xTargetSpeed = xDir * m_dashSpeed * speedLimitFactor;
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_rigidBodySelf.velocity.y);
                 m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
                 m_canFlip = false;
@@ -604,8 +640,21 @@ public class MegaManController: MonoBehaviour
             }
             case MegaManStates.Sliding:
             {
+                float speedLimitFactor = 1;
+                if (m_surfaceModel != null)
+                {
+                    speedLimitFactor = 1 - m_surfaceModel.Resistance;
+                    if (!m_surfaceModel.Slidable)
+                    {
+                        // Full stop, halt slide
+                        speedLimitFactor = 0;
+                        m_slideStartTime = -1;
+                        state = MegaManStates.Normal;
+                        m_rigidBodySelf.velocity = Vector2.zero;
+                    }
+                }
                 float xDir = m_facingRight ? 1 : -1;
-                float xTargetSpeed = xDir * m_slideSpeed;
+                float xTargetSpeed = xDir * m_slideSpeed * speedLimitFactor;
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_rigidBodySelf.velocity.y);
                 m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
 
@@ -693,12 +742,30 @@ public class MegaManController: MonoBehaviour
         }
     }
 
+
+    SurfaceModel GroundCheck(Collider2D checkCollider, ContactFilter2D filter)
+    {
+        List<Collider2D> candidates = new List<Collider2D>(0);
+        Physics2D.OverlapCollider(checkCollider, filter, candidates);
+        foreach(Collider2D col in candidates)
+        {
+            SurfaceModel surf = col.GetComponent<SurfaceModel>();
+            if (surf != null)
+            {
+                return surf;
+            }
+        }
+        return null;
+    }
+
+
     bool CollisionCheck(Collider2D checkCollider, ContactFilter2D filter)
     {
         List<Collider2D> candidates = new List<Collider2D>(0);
         Physics2D.OverlapCollider(checkCollider, filter, candidates);
         return candidates.Count > 0;
     }
+
 
     /// <summary>
     /// Checks if MegaMan grabs a ladder, if so, changes state, adjusts position as required

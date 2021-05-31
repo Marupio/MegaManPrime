@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(MegaManController))]
@@ -132,6 +133,7 @@ public class InputMovement : MonoBehaviour
         {
             Debug.Log("MenuPerformed");
         }
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     void MenuCanceled()
