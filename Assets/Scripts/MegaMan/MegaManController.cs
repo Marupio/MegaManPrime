@@ -328,7 +328,6 @@ public class MegaManController: MonoBehaviour
                     {
                         // MegaMan is trying to slide, but can't
                         // Don't do anything
-                        Debug.Log("I refuse to slide");
                     }
                 }
                 else

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-[RequireComponent(typeof(Grid))]
 public class LadderHandler : MonoBehaviour
 {
     // *** Internal classes, structs, types

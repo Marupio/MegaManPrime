@@ -528,7 +528,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5904244047301956666}
-  - component: {fileID: 5904244047301956671}
   - component: {fileID: 5904244047301956670}
   - component: {fileID: 5904244047301956665}
   - component: {fileID: 5904244047301956664}
@@ -558,18 +557,6 @@ Transform:
   m_Father: {fileID: 5904244047486212175}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!156049354 &5904244047301956671
-Grid:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5904244047301956661}
-  m_Enabled: 1
-  m_CellSize: {x: 1, y: 1, z: 1}
-  m_CellGap: {x: 0, y: 0, z: 0}
-  m_CellLayout: 0
-  m_CellSwizzle: 0
 --- !u!114 &5904244047301956670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -801,7 +788,6 @@ GameObject:
   - component: {fileID: 5904244047486212174}
   - component: {fileID: 5904244047486212169}
   - component: {fileID: 5904244047486212172}
-  - component: {fileID: 5904244047486212173}
   m_Layer: 3
   m_Name: MegaMan
   m_TagString: Player
@@ -905,18 +891,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!156049354 &5904244047486212173
-Grid:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5904244047486212168}
-  m_Enabled: 1
-  m_CellSize: {x: 1, y: 1, z: 1}
-  m_CellGap: {x: 0, y: 0, z: 0}
-  m_CellLayout: 0
-  m_CellSwizzle: 0
 --- !u!1 &5904244047550355645
 GameObject:
   m_ObjectHideFlags: 0
