@@ -21,14 +21,6 @@ public enum MegaManStates
 }
 
 
-
-
-// Still need to add:
-//  Volume model
-//      Sinking (slow sinking - sand / mud)
-//      Jump suppression (Like sunken in sand, jumping only puts you up a little bit)
-
-
 [RequireComponent(typeof(Rigidbody2D))]
 public class MegaManController: MonoBehaviour
 {
