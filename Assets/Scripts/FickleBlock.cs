@@ -10,7 +10,7 @@ public class FickleBlock : SnapToTileGrid
 {
     private Rigidbody2D self;
     private Animator animator;
-    private Animation animation;
+    private AnimatorOverrideController animatorOverrideController;
 
     public float on;
     public float off;
@@ -20,20 +20,28 @@ public class FickleBlock : SnapToTileGrid
     public AnimationClip appearingAnimation;
     public AnimationClip disappearingAnimation;
 
-    private bool exists;
-
     /// <summary>
     /// When true, the block is visible when the cycle loops
     /// </summary>
     private bool startsVisible;
-
-    // public AnimatedTile appearingAnimation;
-    // public AnimatedTile disappearingAnimation;
+    /// <summary>
+    /// Block exists after appearanceAnimation is done playing, and before disappearanceAnimation begins
+    /// </summary>
+    private bool exists;
+    private float appearanceTime;
+    private float disappearanceTime;
 
     void Awake()
     {
         self = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        animatorOverrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
+        animator.runtimeAnimatorController = animatorOverrideController;
+        animatorOverrideController["appear"] = appearingAnimation;
+        animatorOverrideController["disappear"] = disappearingAnimation;
+        appearanceTime = appearingAnimation.length;
+        disappearanceTime = disappearingAnimation.length;
+
         startsVisible = false;
         exists = false;
         if (on > off)
@@ -63,7 +71,8 @@ public class FickleBlock : SnapToTileGrid
         {
             exists = true;
         }
-
+        
+        // Check for animator state change
     }
 }
 

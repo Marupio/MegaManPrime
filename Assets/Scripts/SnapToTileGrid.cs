@@ -33,27 +33,59 @@ public class SnapToTileGrid : MonoBehaviour
             // Assume everything is okay
             return;
         }
+
+        // First look for other SnapToTileGrid objects and group them together
+        SnapToTileGrid[] snapObjects = FindObjectsOfType<SnapToTileGrid>();
+        foreach(SnapToTileGrid snapObject in snapObjects)
+        {
+            grid = snapObject.GetComponentInParent<Grid>();
+            if (grid == null)
+            {
+                // Unusable object
+                continue;
+            }
+            // Use existing parent
+            gameObject.transform.SetParent(snapObject.transform.parent);
+        }
+
+        if (grid != null)
+        {
+            // Okay, you can go now
+            return;
+        }
+
+        // Still didn't find it... probably first one being created
         Grid[] grids = FindObjectsOfType<Grid>();
+        if (grids.Length == 0)
+        {
+            // Instantiate a grid as a component of a new parent gameObject
+            GameObject snapGroupObject = new GameObject("SnappedObjects");
+            snapGroupObject.AddComponent<Grid>();
+            GameObject newParent = Instantiate<GameObject>(snapGroupObject);
+            grid = newParent.GetComponent<Grid>();
+            gameObject.transform.SetParent(newParent.transform);
+            Debug.LogWarning(gameObject.name + " cannot find a Grid to snap to, instantiate default Grid as a parent GameObject");
+            UpdateGridValues();
+            return;
+        }
         if (grids.Length == 1)
         {
             // Do this one silently, as it may be working as intended
-            gameObject.transform.SetParent(grids[0].transform);
-            UpdateGridValues();
-            return;
+            grid = grids[0];
         }
-        if (grids.Length == 0)
+        else
         {
-            // Instantiate a grid as a component
-            Debug.LogWarning(gameObject.name + " cannot find a Grid to snap to, instantiate default Grid as a component");
-            gameObject.AddComponent<Grid>();
-            grid = GetComponent<Grid>();
-            UpdateGridValues();
-            return;
+            // Multiple grids exist, and I'm not set to one
+            grid = grids[0];
+            Debug.LogWarning(gameObject.name + " is missing its Grid, multiple exist.  Selecting first one: " + grids[0].gameObject.name);
         }
-        // Multiple grids exist, and I'm not set to one
-        Debug.LogWarning(gameObject.name + " is missing its Grid, multiple exist.  Selecting first one: " + grids[0].gameObject.name);
-        grid = grids[0];
-        UpdateGridValues();
+        {
+            // Local scope to clear non-C++ errors that I'm not used to encountering
+            GameObject snapGroupObject = new GameObject("SnappedObjects");
+            GameObject newParent = Instantiate<GameObject>(snapGroupObject, grid.transform.position, grid.transform.rotation, grid.transform);
+            gameObject.transform.SetParent(newParent.transform);
+            UpdateGridValues();
+        }
     }
 #endif
 }
