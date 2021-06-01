@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 
-[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Collider2D))]
 [RequireComponent(typeof(Animator))]
 public class FickleBlock : SnapToTileGrid
 {
-    private Rigidbody2D self;
     private Animator animator;
     private AnimatorOverrideController animatorOverrideController;
+    private Collider2D collider;
 
     public float on;
     public float off;
@@ -18,7 +18,9 @@ public class FickleBlock : SnapToTileGrid
 
     public Sprite solidSprite;
     public AnimationClip appearingAnimation;
+    public AnimationClip hereAnimation;
     public AnimationClip disappearingAnimation;
+    public AnimationClip goneAnimation;
 
     /// <summary>
     /// When true, the block is visible when the cycle loops
@@ -27,27 +29,53 @@ public class FickleBlock : SnapToTileGrid
     /// <summary>
     /// Block exists after appearanceAnimation is done playing, and before disappearanceAnimation begins
     /// </summary>
+    private float appearanceAnimationStartTime;
+    private float appearanceDuration;
+    private float disappearanceDuration;
+    private float disappearanceAnimationFinishTime;
     private bool exists;
-    private float appearanceTime;
-    private float disappearanceTime;
+
+    public enum BlockState
+    {
+        Appearing,
+        Here,
+        Disappearing,
+        Gone
+    }
+
+    BlockState state = BlockState.Gone;
 
     void Awake()
     {
-        self = GetComponent<Rigidbody2D>();
+        collider = GetComponent<Collider2D>();
         animator = GetComponent<Animator>();
         animatorOverrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
         animator.runtimeAnimatorController = animatorOverrideController;
-        animatorOverrideController["appear"] = appearingAnimation;
-        animatorOverrideController["disappear"] = disappearingAnimation;
-        appearanceTime = appearingAnimation.length;
-        disappearanceTime = disappearingAnimation.length;
+        animatorOverrideController["Appear"] = appearingAnimation;
+        animatorOverrideController["Here"] = hereAnimation;
+        animatorOverrideController["Disappear"] = disappearingAnimation;
+        animatorOverrideController["Gone"] = goneAnimation;
+        appearanceDuration = appearingAnimation.length;
+        disappearanceDuration = disappearingAnimation.length;
+        appearanceAnimationStartTime = on - appearanceDuration;
+        if (appearanceAnimationStartTime < 0)
+        {
+            appearanceAnimationStartTime += cycle;
+        }
+        disappearanceAnimationFinishTime = off + disappearanceDuration;
+        if (disappearanceAnimationFinishTime > cycle)
+        {
+            disappearanceAnimationFinishTime -= cycle;
+        }
 
         startsVisible = false;
         exists = false;
+        state = BlockState.Gone;
         if (on > off)
         {
             startsVisible = true;
             exists = true;
+            state = BlockState.Here;
         }
     }
 
@@ -72,7 +100,48 @@ public class FickleBlock : SnapToTileGrid
             exists = true;
         }
         
+        // Disable / enable rigidBody if needed
+        if (existsWas && ! exists)
+        {
+            collider.enabled = false;
+        }
+        else if (!existsWas && exists)
+        {
+            collider.enabled = true;
+        }
+
         // Check for animator state change
+        switch (state)
+        {
+            case BlockState.Appearing:
+                if (exists)
+                {
+                    state = BlockState.Here;
+                    animator.SetTrigger("Here");
+                }
+                break;
+            case BlockState.Here:
+                if (!exists)
+                {
+                    state = BlockState.Disappearing;
+                    animator.SetTrigger("Disappear");
+                }
+                break;
+            case BlockState.Disappearing:
+                if (cycleTime >= disappearanceAnimationFinishTime)
+                {
+                    state = BlockState.Gone;
+                    animator.SetTrigger("Gone");
+                }
+                break;
+            case BlockState.Gone:
+                if (cycleTime >= appearanceAnimationStartTime)
+                {
+                    state = BlockState.Appearing;
+                    animator.SetTrigger("Appear");
+                }
+                break;
+        }
     }
 }
 
