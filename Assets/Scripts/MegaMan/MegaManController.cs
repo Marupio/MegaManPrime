@@ -306,8 +306,11 @@ public class MegaManController: MonoBehaviour
         {
             if (state == MegaManStates.Climbing)
             {
-                // Jump off a ladder
-                state = MegaManStates.Falling;
+                if (m_controlVector.y == 0)
+                {
+                    // Jump off a ladder
+                    state = MegaManStates.Falling;
+                }
             }
             else if (m_grounded && m_canMove && state != MegaManStates.Sliding)
             {

@@ -15,7 +15,10 @@ public class SnapToTileGrid : MonoBehaviour
 
     public void UpdateGridValues()
     {
-        Grid grid = GetComponentInParent<Grid>();
+        if (grid == null)
+        {
+            SetGridRef();
+        }
         snapValue = (Vector2)grid.cellSize + (Vector2)grid.cellGap;
         snapOffset = (Vector2)grid.transform.position;
         Tilemap tilemap = grid.GetComponentInChildren<Tilemap>();
@@ -28,6 +31,13 @@ public class SnapToTileGrid : MonoBehaviour
 
     public void OnValidate()
     {
+        SetGridRef();
+        UpdateGridValues();
+    }
+
+
+    public void SetGridRef()
+    {
         if (grid != null)
         {
             // Assume everything is okay
@@ -38,19 +48,13 @@ public class SnapToTileGrid : MonoBehaviour
         SnapToTileGrid[] snapObjects = FindObjectsOfType<SnapToTileGrid>();
         foreach(SnapToTileGrid snapObject in snapObjects)
         {
-            grid = snapObject.GetComponentInParent<Grid>();
+            grid = snapObject.grid;
             if (grid == null)
             {
                 // Unusable object
                 continue;
             }
             // Use existing parent
-            gameObject.transform.SetParent(snapObject.transform.parent);
-        }
-
-        if (grid != null)
-        {
-            // Okay, you can go now
             return;
         }
 
@@ -58,14 +62,10 @@ public class SnapToTileGrid : MonoBehaviour
         Grid[] grids = FindObjectsOfType<Grid>();
         if (grids.Length == 0)
         {
-            // Instantiate a grid as a component of a new parent gameObject
-            GameObject snapGroupObject = new GameObject("SnappedObjects");
-            snapGroupObject.AddComponent<Grid>();
-            GameObject newParent = Instantiate<GameObject>(snapGroupObject);
-            grid = newParent.GetComponent<Grid>();
-            gameObject.transform.SetParent(newParent.transform);
-            Debug.LogWarning(gameObject.name + " cannot find a Grid to snap to, instantiate default Grid as a parent GameObject");
-            UpdateGridValues();
+            // Instantiate a grid as a component
+            gameObject.AddComponent<Grid>();
+            grid = GetComponent<Grid>();
+            Debug.LogWarning(gameObject.name + " cannot find a Grid to snap to, instantiate default Grid as a component.");
             return;
         }
         if (grids.Length == 1)
@@ -77,14 +77,8 @@ public class SnapToTileGrid : MonoBehaviour
         {
             // Multiple grids exist, and I'm not set to one
             grid = grids[0];
-            Debug.LogWarning(gameObject.name + " is missing its Grid, multiple exist.  Selecting first one: " + grids[0].gameObject.name);
-        }
-        {
-            // Local scope to clear non-C++ errors that I'm not used to encountering
-            GameObject snapGroupObject = new GameObject("SnappedObjects");
-            GameObject newParent = Instantiate<GameObject>(snapGroupObject, grid.transform.position, grid.transform.rotation, grid.transform);
-            gameObject.transform.SetParent(newParent.transform);
             UpdateGridValues();
+            Debug.LogWarning(gameObject.name + " is missing its Grid, multiple exist.  Selecting first one: " + grids[0].gameObject.name);
         }
     }
 #endif

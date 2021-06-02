@@ -14,5 +14,15 @@ abstract public class Enemy : MonoBehaviour
     /// <param name="damage">Normal amount of damage</param>
     /// <param name="bullet">Type of bullet that hit</param>
     /// <returns>True if bullet was absorbed, false if deflected</returns>
-    public abstract bool Hit(Transform hitPoint, int damage, GameObject bullet);
+    abstract public bool Hit(Transform hitPoint, int damage, GameObject bullet);
+
+    /// <summary>
+    /// Returns maximum health
+    /// </summary>
+    abstract public int GetMaxHealth();
+
+    /// <summary>
+    /// Returns current health
+    /// </summary>
+    abstract public int GetCurrentHealth();
 }

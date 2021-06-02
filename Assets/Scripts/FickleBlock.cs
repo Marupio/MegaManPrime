@@ -8,32 +8,20 @@ using UnityEngine.Tilemaps;
 [RequireComponent(typeof(Animator))]
 public class FickleBlock : SnapToTileGrid
 {
-    private Animator animator;
-    private AnimatorOverrideController animatorOverrideController;
-    private Collider2D collider;
+    private Animator anim;
+    private AnimatorOverrideController aoc;
+    private Collider2D col;
 
+    public bool active = true;
     public float on;
     public float off;
     public float cycle;
 
-    public Sprite solidSprite;
-    public AnimationClip appearingAnimation;
-    public AnimationClip hereAnimation;
-    public AnimationClip disappearingAnimation;
-    public AnimationClip goneAnimation;
-
-    /// <summary>
-    /// When true, the block is visible when the cycle loops
-    /// </summary>
-    private bool startsVisible;
-    /// <summary>
-    /// Block exists after appearanceAnimation is done playing, and before disappearanceAnimation begins
-    /// </summary>
-    private float appearanceAnimationStartTime;
-    private float appearanceDuration;
-    private float disappearanceDuration;
-    private float disappearanceAnimationFinishTime;
-    private bool exists;
+    // public Sprite solidSprite;
+    public AnimationClip animationAppear;
+    public AnimationClip animationHere;
+    public AnimationClip animationDisappear;
+    public AnimationClip animationGone;
 
     public enum BlockState
     {
@@ -42,153 +30,345 @@ public class FickleBlock : SnapToTileGrid
         Disappearing,
         Gone
     }
+    public BlockState loopState;
 
-    BlockState state = BlockState.Gone;
+    public float tHere; // Start of Here state
+    public float tDiss; // Start of Disappear state
+    public float tGone; // Start of Gone state
+    public float tApp;  // Start of Appear state
 
+    public float durationHere; // Duration of Here state
+    public float durationDiss; // Duration of Dissappear state
+    public float durationGone; // Duration of Gone state
+    public float durationApp;  // Duration of Appear state
+
+    // Current state
+    public BlockState state;
+    public float cycleTime;
+    private int nCycles;
+    private int nCyclesLast = -1;
+    private bool here;
+    
     void Awake()
     {
-        collider = GetComponent<Collider2D>();
-        animator = GetComponent<Animator>();
-        animatorOverrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
-        animator.runtimeAnimatorController = animatorOverrideController;
-        animatorOverrideController["Appear"] = appearingAnimation;
-        animatorOverrideController["Here"] = hereAnimation;
-        animatorOverrideController["Disappear"] = disappearingAnimation;
-        animatorOverrideController["Gone"] = goneAnimation;
-        appearanceDuration = appearingAnimation.length;
-        disappearanceDuration = disappearingAnimation.length;
-        appearanceAnimationStartTime = on - appearanceDuration;
-        if (appearanceAnimationStartTime < 0)
+        // Set references
+        col = GetComponent<Collider2D>();
+        anim = GetComponent<Animator>();
+        aoc = new AnimatorOverrideController(anim.runtimeAnimatorController);
+
+        // Set animation clips
+        anim.runtimeAnimatorController = aoc;
+        aoc["Appear"] = animationAppear;
+        aoc["Here"] = animationHere;
+        aoc["Disappear"] = animationDisappear;
+        aoc["Gone"] = animationGone;
+
+        // Calculate times and durations
+        tHere = on;
+        tDiss = off;
+        durationApp = animationAppear.length;
+        durationDiss = animationDisappear.length;
+        tApp = tHere - durationApp;
+        if (tApp < 0)
         {
-            appearanceAnimationStartTime += cycle;
+            tApp += cycle;
+            loopState = BlockState.Appearing;
         }
-        disappearanceAnimationFinishTime = off + disappearanceDuration;
-        if (disappearanceAnimationFinishTime > cycle)
+        tGone = tDiss + durationDiss;
+        if (tGone > cycle)
         {
-            disappearanceAnimationFinishTime -= cycle;
+            tGone -= cycle;
+            loopState = BlockState.Disappearing;
+        }
+        durationGone = tApp - tGone;
+        if (durationGone < 0)
+        {
+            durationGone += cycle;
+            loopState = BlockState.Gone;
+        }
+        durationHere = tDiss - tHere;
+        if (durationHere < 0)
+        {
+            durationHere += cycle;
+            loopState = BlockState.Here;
         }
 
-        startsVisible = false;
-        exists = false;
-        state = BlockState.Gone;
-        if (on > off)
+        InitState();
+    }
+
+    void FixedUpdate()
+    {
+        if (!active)
         {
-            startsVisible = true;
-            exists = true;
-            state = BlockState.Here;
+            return;
+        }
+        UpdateState();
+    }
+
+
+    public void Gone()
+    {
+        if (here)
+        {
+            here = false;
+            col.enabled = false;
+        }
+    }
+    public bool IsGone()
+    {
+        return !here;
+    }
+
+
+    public void Here()
+    {
+        if (!here)
+        {
+            here = true;
+            col.enabled = true;
+        }
+    }
+    public bool IsHere()
+    {
+        return here;
+    }
+
+
+    public void Disable()
+    {
+        active = false;
+    }
+    public bool Disabled()
+    {
+        return !active;
+    }
+
+
+    public void Enable()
+    {
+        active = true;
+    }
+    public bool Enabled()
+    {
+        return active;
+    }
+
+    /// <summary>
+    /// Updates nCycles and cycleTime with current Time value
+    /// </summary>
+    void UpdateCurrentState()
+    {
+        float currentTime = Time.time;
+        nCycles = (int)(currentTime / cycle);
+        cycleTime = currentTime - nCycles * cycle;
+    }
+
+
+    /// <summary>
+    /// Initializes animator, here flag and collider
+    /// </summary>
+    void InitState()
+    {
+        switch (loopState)
+        {
+            case BlockState.Appearing:
+                if (cycleTime < tHere)
+                {
+                    anim.SetTrigger("Appear");
+                    Gone();
+                }
+                else if (cycleTime < tDiss)
+                {
+                    anim.SetTrigger("Here");
+                    Here();
+                }
+                else if (cycleTime < tGone)
+                {
+                    anim.SetTrigger("Disappear");
+                    Gone();
+                }
+                else if (cycleTime < tApp)
+                {
+                    anim.SetTrigger("Gone");
+                    Gone();
+                }
+                else
+                {
+                    anim.SetTrigger("Appear");
+                    Gone();
+                }
+                break;
+            case BlockState.Here:
+                if (cycleTime < tDiss)
+                {
+                    anim.SetTrigger("Here");
+                    Here();
+                }
+                else if (cycleTime < tGone)
+                {
+                    anim.SetTrigger("Disappear");
+                    Gone();
+                }
+                else if (cycleTime < tApp)
+                {
+                    anim.SetTrigger("Gone");
+                    Gone();
+                }
+                else if (cycleTime < tHere)
+                {
+                    anim.SetTrigger("Appear");
+                    Gone();
+                }
+                else
+                {
+                    anim.SetTrigger("Here");
+                    Here();
+                }
+                break;
+            case BlockState.Disappearing:
+                if (cycleTime < tGone)
+                {
+                    anim.SetTrigger("Disappear");
+                    Gone();
+                }
+                else if (cycleTime < tApp)
+                {
+                    anim.SetTrigger("Gone");
+                    Gone();
+                }
+                else if (cycleTime < tHere)
+                {
+                    anim.SetTrigger("Appear");
+                    Gone();
+                }
+                if (cycleTime < tDiss)
+                {
+                    anim.SetTrigger("Here");
+                    Here();
+                }
+                else
+                {
+                    anim.SetTrigger("Disappear");
+                    Gone();
+                }
+                break;
+            case BlockState.Gone:
+                if (cycleTime < tApp)
+                {
+                    anim.SetTrigger("Gone");
+                    Gone();
+                }
+                else if (cycleTime < tHere)
+                {
+                    anim.SetTrigger("Appear");
+                    Gone();
+                }
+                if (cycleTime < tDiss)
+                {
+                    anim.SetTrigger("Here");
+                    Here();
+                }
+                else if (cycleTime < tGone)
+                {
+                    anim.SetTrigger("Disappear");
+                    Gone();
+                }
+                else
+                {
+                    anim.SetTrigger("Gone");
+                    Gone();
+                }
+                break;
         }
     }
 
 
-    void FixedUpdate()
+    void UpdateState()
     {
-        float currentTime = Time.time;
-        int nCycles = (int)(currentTime / cycle);
-        float cycleTime = currentTime - nCycles*cycle;
+        // Get state variables up-to-date
+        UpdateCurrentState();
 
-        bool existsWas = exists;
-        exists = false;
-        if (startsVisible)
-        {
-            if (cycleTime >= on || cycleTime < off)
-            {
-                exists = true;
-            }
-        }
-        else if (cycleTime >= on && cycleTime < off)
-        {
-            exists = true;
-        }
-        
-        // Disable / enable rigidBody if needed
-        if (existsWas && ! exists)
-        {
-            collider.enabled = false;
-        }
-        else if (!existsWas && exists)
-        {
-            collider.enabled = true;
-        }
-
-        // Check for animator state change
+        // Calculate any changes of state
         switch (state)
         {
             case BlockState.Appearing:
-                if (exists)
+                if (loopState == state && cycleTime > tGone)
+                {
+                    break;
+                }
+                if (cycleTime >= tHere)
                 {
                     state = BlockState.Here;
-                    animator.SetTrigger("Here");
+                    anim.SetTrigger("Here");
+                    Here();
                 }
                 break;
             case BlockState.Here:
-                if (!exists)
+                if (loopState == state && cycleTime > tApp)
+                {
+                    break;
+                }
+                if (cycleTime >= tDiss)
                 {
                     state = BlockState.Disappearing;
-                    animator.SetTrigger("Disappear");
+                    anim.SetTrigger("Disappear");
+                    Gone();
                 }
                 break;
             case BlockState.Disappearing:
-                if (cycleTime >= disappearanceAnimationFinishTime)
+                if (loopState == state && cycleTime > tHere)
+                {
+                    break;
+                }
+                if (cycleTime >= tGone)
                 {
                     state = BlockState.Gone;
-                    animator.SetTrigger("Gone");
+                    anim.SetTrigger("Gone");
+                    Gone();
                 }
                 break;
             case BlockState.Gone:
-                if (cycleTime >= appearanceAnimationStartTime)
+                if (state == loopState && cycleTime > tDiss)
+                {
+                    break;
+                }
+                if (cycleTime >= tApp)
                 {
                     state = BlockState.Appearing;
-                    animator.SetTrigger("Appear");
+                    anim.SetTrigger("Appear");
+                    Gone();
                 }
+                break;
+        }
+        // Edge case detection
+        if (nCyclesLast != nCycles && state != loopState)
+        {
+            state = loopState;
+            SetAnimator();
+        }
+        nCyclesLast = nCycles;
+    }
+
+
+    /// <summary>
+    /// If we get out of sync, this sends the animator trigger for the current state
+    /// </summary>
+    void SetAnimator()
+    {
+        switch (state)
+        {
+            case BlockState.Appearing:
+                anim.SetTrigger("Appear");
+                break;
+            case BlockState.Here:
+                anim.SetTrigger("Here");
+                break;
+            case BlockState.Disappearing:
+                anim.SetTrigger("Disappear");
+                break;
+            case BlockState.Gone:
+                anim.SetTrigger("Gone");
                 break;
         }
     }
 }
-
-
-
-// public float attackTime;
-// public float damageTime;
-// public float deathTime;
-// public float idleTime;
-
-// private Animator anim;
-// private AnimationClip clip;
-
-// // Use this for initialization
-// void Start()
-// {
-//     anim = GetComponent<Animator>();
-//     if (anim == null)
-//     {
-//         Debug.Log("Error: Did not find anim!");
-//     }
-//     else
-//     {
-//         //Debug.Log("Got anim");
-//     }
-
-//     UpdateAnimClipTimes();
-// }
-// public void UpdateAnimClipTimes()
-// {
-//     AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
-//     foreach (AnimationClip clip in clips)
-//     {
-//         switch (clip.name)
-//         {
-//             case "Attacking":
-//                 attackTime = clip.length;
-//                 break;
-//             case "Damage":
-//                 damageTime = clip.length;
-//                 break;
-//             case "Dead":
-//                 deathTime = clip.length;
-//                 break;
-//             case "Idle":
-//                 idleTime = clip.length;
-//                 break;
-//         }
-//     }
-// }
