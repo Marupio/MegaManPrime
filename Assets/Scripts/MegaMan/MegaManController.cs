@@ -526,16 +526,18 @@ public class MegaManController: MonoBehaviour
             {
                 float speedLimitFactor = 1;
                 float maxAccel = 100;
+                float xGroundSpeed = 0;
                 if (m_surfaceModel != null)
                 {
                     speedLimitFactor = 1 - m_surfaceModel.Resistance;
                     maxAccel = m_surfaceModel.Mu * 100;
+                    xGroundSpeed = m_surfaceModel.WallVelocity.x;
                 }
                 if (maxAccel == 100)
                 {
                     maxAccel = Mathf.Infinity;
                 }
-                float xTargetSpeed = m_controlVector.x * m_runSpeed * speedLimitFactor;
+                float xTargetSpeed = m_controlVector.x * m_runSpeed * speedLimitFactor + xGroundSpeed;
                 if (Mathf.Abs(xTargetSpeed) > 0)
                 {
                     m_animationDirector.Running = true;
@@ -567,12 +569,14 @@ public class MegaManController: MonoBehaviour
             case MegaManStates.Dashing:
             {
                 float speedLimitFactor = 1;
+                float xGroundSpeed = 0;
                 if (m_surfaceModel != null)
                 {
                     speedLimitFactor = 1 - m_surfaceModel.Resistance;
+                    xGroundSpeed = m_surfaceModel.WallVelocity.x;
                 }
                 float xDir = m_facingRight ? 1 : -1;
-                float xTargetSpeed = xDir * m_dashSpeed * speedLimitFactor;
+                float xTargetSpeed = xDir * m_dashSpeed * speedLimitFactor + xGroundSpeed;
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_rigidBodySelf.velocity.y);
                 m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
                 m_canFlip = false;
@@ -623,9 +627,11 @@ public class MegaManController: MonoBehaviour
             case MegaManStates.Sliding:
             {
                 float speedLimitFactor = 1;
+                float xGroundSpeed = 0;
                 if (m_surfaceModel != null)
                 {
                     speedLimitFactor = 1 - m_surfaceModel.Resistance;
+                    xGroundSpeed = m_surfaceModel.WallVelocity.x;
                     if (!m_surfaceModel.Slidable)
                     {
                         // Full stop, halt slide
@@ -636,7 +642,7 @@ public class MegaManController: MonoBehaviour
                     }
                 }
                 float xDir = m_facingRight ? 1 : -1;
-                float xTargetSpeed = xDir * m_slideSpeed * speedLimitFactor;
+                float xTargetSpeed = xDir * m_slideSpeed * speedLimitFactor + xGroundSpeed;
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_rigidBodySelf.velocity.y);
                 m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
 

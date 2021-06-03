@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.Tilemaps;
 
-
 public class SnapToTileGrid : MonoBehaviour
 {
 #if UNITY_EDITOR
@@ -64,10 +63,15 @@ public class SnapToTileGrid : MonoBehaviour
         Grid[] grids = FindObjectsOfType<Grid>();
         if (grids.Length == 0)
         {
-            // Instantiate a grid as a component
-            gameObject.AddComponent<Grid>();
-            grid = GetComponent<Grid>();
-            Debug.LogWarning(gameObject.name + " cannot find a Grid to snap to, instantiate default Grid as a component.");
+            // // Instantiate a grid as a component
+            // gameObject.AddComponent<Grid>();
+            // grid = GetComponent<Grid>();
+            // Debug.LogWarning(gameObject.name + " cannot find a Grid to snap to, instantiate default Grid as a component.");
+            // Set to Config defaults
+            snapValue = Config.defaultSnapToTileGrid_snapValue;
+            snapOffset = Config.defaultSnapToTileGrid_snapOffset;
+            sizeValue = Config.defaultSnapToTileGrid_sizeValue;
+
             return;
         }
         if (grids.Length == 1)
