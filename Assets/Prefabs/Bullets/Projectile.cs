@@ -12,13 +12,17 @@ public class Projectile : MonoBehaviour
 {
     protected float m_createdTime;
     protected Rigidbody2D m_rigidBodySelf;
-    [SerializeField] protected LayerMask m_ignoreHitsOnTheseLayer;
+    [SerializeField] protected LayerMask m_ignoreHitsOnTheseLayers;
     [Tooltip("Base damage dealt when the projectile hits")]
     [SerializeField] [Range(1, 100)] protected int m_damage;
     [Tooltip("Speed of the projectile")]
     [SerializeField] [Range(0.1f, 100.0f)] protected float m_speed;
     [Tooltip("Distance the projectile will travel before disappearing")]
     [SerializeField] [Range(1, 500)] protected int m_range;
+    [Tooltip("How many frames does the projectile keep going after hitting something, to see if it hits other things, e.g. at a grid edge")]
+    [SerializeField] [Range(0, 10)] int m_endurance;
+    private bool m_swanSong; // When true, this bullet has hit something, and is running out its m_endurance frames before disintegrating
+    private List<IEnemy> m_objectsHit;
     protected float m_duration;
 
     private void Awake()
@@ -26,6 +30,7 @@ public class Projectile : MonoBehaviour
         m_rigidBodySelf = GetComponent<Rigidbody2D>();
         m_duration = m_range / m_speed;
         m_createdTime = Time.time;
+        m_objectsHit = new List<IEnemy>();
     }
 
     private void FixedUpdate()
@@ -34,6 +39,14 @@ public class Projectile : MonoBehaviour
         {
             // Out of range
             Destroy(gameObject);
+        }
+        if (m_swanSong)
+        {
+            --m_endurance;
+            if (m_endurance <= 0)
+            {
+                Destroy(gameObject);
+            }
         }
     }
 
@@ -51,9 +64,14 @@ public class Projectile : MonoBehaviour
         IEnemy enemy = hitInfo.GetComponent<IEnemy>();
         if (enemy != null)
         {
+            if (m_objectsHit.Contains(enemy))
+            {
+                return;
+            }
             if (enemy.Hit(hitInfo.transform, m_damage, gameObject))
             {
-                Destroy(gameObject);
+                m_objectsHit.Add(enemy);
+                m_swanSong = true;
             }
             else
             {

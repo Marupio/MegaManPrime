@@ -99,7 +99,6 @@ public class DestructibleBlock : SnapToTileGrid, IEnemy, IGasp
     public bool Hit(Transform hitPoint, int damage, GameObject bullet)
     {
         life.TakeDamage(damage);
-        Destroy(bullet);
         return true;
     }
 

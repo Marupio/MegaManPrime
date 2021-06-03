@@ -134,6 +134,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8757a541e5b4bc14a9a155ed071a71c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_ignoreHitsOnTheseLayers:
+    serializedVersion: 2
+    m_Bits: 0
   m_damage: 5
   m_speed: 15
   m_range: 100
+  m_endurance: 3
