@@ -5,7 +5,7 @@ using UnityEngine;
 public class Life : MonoBehaviour
 {
     [SerializeField] private int maxHealth;
-    private int health;
+    [SerializeField] private int health;
     private bool alive;
 
     public int Health { get => health; }
@@ -45,7 +45,7 @@ public class Life : MonoBehaviour
             return;
         }
         health -= damage;
-        if (health < 0)
+        if (health <= 0)
         {
             alive = false;
             Die();

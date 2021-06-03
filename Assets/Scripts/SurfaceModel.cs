@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class SurfaceModel : MonoBehaviour
+public class SurfaceModel : MonoBehaviour, ISurfaceModel
 {
     // Surface characteristics
 
@@ -58,31 +58,31 @@ public class SurfaceModel : MonoBehaviour
 
 
     // Convenience
-    bool Null()
+    public bool Null()
     {
         return surfaceName == "None";
     }
-    bool Normal()
+    public bool Normal()
     {
         return Mu == 1 && wallVelocity == Vector2.zero && resistance == 1;
     }
-    bool Slippery()
+    public bool Slippery()
     {
         return Mu < 1 && Mu > 0;
     }
-    bool Frictionless()
+    public bool Frictionless()
     {
         return Mu == 0;
     }
-    bool Static()
+    public bool Static()
     {
         return wallVelocity == Vector2.zero;
     }
-    bool Moving()
+    public bool Moving()
     {
         return wallVelocity != Vector2.zero;
     }
-    bool Trudging()
+    public bool Trudging()
     {
         return resistance < 1;
     }

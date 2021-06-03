@@ -15,7 +15,7 @@ public class DestructibleBlock : SnapToTileGrid, IEnemy, IGasp
     private bool exploded = false;
     private int currentState;
     private float deltaH;
-    private List<int> stateTransitions;
+    public List<int> stateTransitions;
 
     void Awake()
     {
@@ -131,7 +131,7 @@ public class DestructibleBlock : SnapToTileGrid, IEnemy, IGasp
             {
                 int t = stateTransitions[i];
                 int delta = health - t;
-                if (delta < 0)
+                if (delta <= 0)
                 {
                     newState = i;
                     break;

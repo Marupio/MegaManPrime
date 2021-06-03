@@ -117,7 +117,7 @@ public class MegaManController: MonoBehaviour
     private float m_hurtStartTime = -1;
     private bool m_facingRight = true;
     private bool m_grounded = true;
-    private SurfaceModel m_surfaceModel;
+    private ISurfaceModel m_surfaceModel;
     private float m_ladderXPosition = 0;
     
 
@@ -731,13 +731,13 @@ public class MegaManController: MonoBehaviour
     }
 
 
-    SurfaceModel GroundCheck(Collider2D checkCollider, ContactFilter2D filter)
+    ISurfaceModel GroundCheck(Collider2D checkCollider, ContactFilter2D filter)
     {
         List<Collider2D> candidates = new List<Collider2D>(0);
         Physics2D.OverlapCollider(checkCollider, filter, candidates);
         foreach(Collider2D col in candidates)
         {
-            SurfaceModel surf = col.GetComponent<SurfaceModel>();
+            ISurfaceModel surf = col.GetComponent<ISurfaceModel>();
             if (surf != null)
             {
                 return surf;
