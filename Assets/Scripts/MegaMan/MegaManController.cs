@@ -103,18 +103,6 @@ public class MegaManController: MonoBehaviour
     public MegaManStates state = MegaManStates.Normal;
 
 
-    // *** Animator Values
-
-    private int m_animatorLastState = -1;
-    private int m_animatorLastSpeed = -1;
-    private bool m_animatorRunning = false;
-    private bool m_animatorRunningPrev = false;
-    private bool m_animatorShooting = false;
-    private bool m_animatorShootingPrev = false;
-    private bool m_animatorLadderTopTransitioning = false;  // When at the top of a ladder, halfway to transition to standing
-    private bool m_animatorLadderTopTransitioningPrev = false;  // When at the top of a ladder, halfway to transition to standing
-
-
     // *** Physics
 
     private Vector2 m_acceleration = Vector2.zero;
@@ -138,7 +126,7 @@ public class MegaManController: MonoBehaviour
     private bool m_jumpButtonPressed = false;           // True when a jumpButtonPress event occured
     private bool m_jumpButtonReleased = false;          // True when a jumpButtonRelease event occured
     private bool m_jumpButton = false;                  // Actual position of jumpButton
-    private float m_gravity = 1;                        // Gravity multiplier in y axis - positive 1 = gravity pointing down
+    //private float m_gravity = 1;                        // Gravity multiplier in y axis - positive 1 = gravity pointing down
     private float m_gravityDefault;
     private float m_jumpButtonPressTime = -1;           // Time jump button was last pressed, negative when button is not down
     private bool m_shootButtonPressed = false;          // True when a shootButtonPress event occured

@@ -25,7 +25,7 @@ PrefabInstance:
       objectReference: {fileID: 7400000, guid: d398d1296c357a94d87223e426dbe94c, type: 2}
     - target: {fileID: 5204295213037775404, guid: e807d07ac5b50d54fa31079df4bb8b0a, type: 3}
       propertyPath: m_Name
-      value: GreenFickleBlock
+      value: GreenFickleBlock Variant
       objectReference: {fileID: 0}
     - target: {fileID: 5204295213037775414, guid: e807d07ac5b50d54fa31079df4bb8b0a, type: 3}
       propertyPath: m_RootOrder
@@ -71,5 +71,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 8717670900475033680, guid: e807d07ac5b50d54fa31079df4bb8b0a, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: e807d07ac5b50d54fa31079df4bb8b0a, type: 3}

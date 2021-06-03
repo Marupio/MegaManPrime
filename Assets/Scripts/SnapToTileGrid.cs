@@ -29,7 +29,7 @@ public class SnapToTileGrid : MonoBehaviour
         sizeValue = (Vector2)grid.cellSize;
     }
 
-    public void OnValidate()
+    public virtual void OnValidate()
     {
         SetGridRef();
         UpdateGridValues();
@@ -44,6 +44,7 @@ public class SnapToTileGrid : MonoBehaviour
             return;
         }
 
+        Debug.Log("Need to set GridRef");
         // First look for other SnapToTileGrid objects and group them together
         SnapToTileGrid[] snapObjects = FindObjectsOfType<SnapToTileGrid>();
         foreach(SnapToTileGrid snapObject in snapObjects)
@@ -54,7 +55,8 @@ public class SnapToTileGrid : MonoBehaviour
                 // Unusable object
                 continue;
             }
-            // Use existing parent
+            // Use existing object
+            Debug.Log("Setting to existing SnapToTile parent");
             return;
         }
 
@@ -71,6 +73,7 @@ public class SnapToTileGrid : MonoBehaviour
         if (grids.Length == 1)
         {
             // Do this one silently, as it may be working as intended
+            Debug.Log("Found one grid, setting to it");
             grid = grids[0];
         }
         else

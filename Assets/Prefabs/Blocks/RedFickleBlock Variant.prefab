@@ -53,7 +53,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 678870205724248345, guid: 8ab6c983e6315e6eaa095a5ce8e8d605, type: 3}
       propertyPath: m_Name
-      value: RedFickleBlock
+      value: RedFickleBlock Variant
       objectReference: {fileID: 0}
     - target: {fileID: 678870205724248348, guid: 8ab6c983e6315e6eaa095a5ce8e8d605, type: 3}
       propertyPath: m_Sprite
@@ -71,5 +71,6 @@ PrefabInstance:
       propertyPath: animationDisappear
       value: 
       objectReference: {fileID: 7400000, guid: 47b9a27ab0efe2b48922839bf040db46, type: 2}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 8ab6c983e6315e6eaa095a5ce8e8d605, type: 3}

@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
+//public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 public class SnapToGrid : MonoBehaviour
 {
 #if UNITY_EDITOR

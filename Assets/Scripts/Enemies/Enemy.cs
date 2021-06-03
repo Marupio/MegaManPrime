@@ -8,6 +8,11 @@ using UnityEngine;
 abstract public class Enemy : MonoBehaviour
 {
     /// <summary>
+    /// Component can take over death by calling LastGasp
+    /// </summary>
+    public Enemy reaper;
+
+    /// <summary>
     /// Tells the enemy a bullet has hit it
     /// </summary>
     /// <param name="hitPoint">Location of hit</param>
@@ -25,4 +30,26 @@ abstract public class Enemy : MonoBehaviour
     /// Returns current health
     /// </summary>
     abstract public int GetCurrentHealth();
+
+
+    public virtual void LastGasp(Enemy angel)
+    {
+        if (reaper == null)
+        {
+            reaper = angel;
+        }
+        else
+        {
+            reaper.LastGasp(angel);
+        }
+    }
+
+
+    public virtual void Die()
+    {
+        if (reaper == null)
+        {
+            Destroy(gameObject);
+        }
+    }
 }

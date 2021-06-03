@@ -9,6 +9,13 @@ public class PassiveEnemy : Enemy
 
     private int currentHealth;
 
+    PassiveEnemy(int maxHealthIn, GameObject deathExplosionIn)
+    {
+        maxHealth = maxHealthIn;
+        deathExplosion = deathExplosionIn;
+    }
+
+
     void Awake()
     {
         currentHealth = maxHealth;
@@ -23,14 +30,14 @@ public class PassiveEnemy : Enemy
     }
 
 
-    override public bool Hit(Transform hitPoint, int damage, GameObject bullet)
+    public override bool Hit(Transform hitPoint, int damage, GameObject bullet)
     {
         currentHealth -= damage;
         return true;
     }
 
 
-    override public int GetMaxHealth()
+    public override int GetMaxHealth()
     {
         return maxHealth;
     }
@@ -42,9 +49,12 @@ public class PassiveEnemy : Enemy
     }
 
 
-    void Die()
+    public override void Die()
     {
         Instantiate(deathExplosion, transform.position, transform.rotation);
-        Destroy(gameObject);
+        if (reaper == null)
+        {
+            Destroy(gameObject);
+        }
     }
 }

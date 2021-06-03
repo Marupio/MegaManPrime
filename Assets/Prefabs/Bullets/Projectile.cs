@@ -48,7 +48,7 @@ public class Projectile : MonoBehaviour
             Deflect();
             return;
         }
-        Enemy enemy = hitInfo.GetComponent<Enemy>();
+        IEnemy enemy = hitInfo.GetComponent<IEnemy>();
         if (enemy != null)
         {
             if (enemy.Hit(hitInfo.transform, m_damage, gameObject))
