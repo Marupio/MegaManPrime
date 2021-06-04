@@ -43,7 +43,6 @@ public class SnapToTileGrid : MonoBehaviour
             return;
         }
 
-        Debug.Log("Need to set GridRef");
         // First look for other SnapToTileGrid objects and group them together
         SnapToTileGrid[] snapObjects = FindObjectsOfType<SnapToTileGrid>();
         foreach(SnapToTileGrid snapObject in snapObjects)
@@ -55,7 +54,6 @@ public class SnapToTileGrid : MonoBehaviour
                 continue;
             }
             // Use existing object
-            Debug.Log("Setting to existing SnapToTile parent");
             return;
         }
 
@@ -77,7 +75,6 @@ public class SnapToTileGrid : MonoBehaviour
         if (grids.Length == 1)
         {
             // Do this one silently, as it may be working as intended
-            Debug.Log("Found one grid, setting to it");
             grid = grids[0];
         }
         else

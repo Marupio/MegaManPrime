@@ -415,11 +415,6 @@ public class LadderHandler : MonoBehaviour
             keys.Add(entry.Key);
         }
 
-        if (keys.Count > 0)
-        {
-            Debug.Log("Watching " + keys.Count + ", including " + keys[0]);
-        }
-
         float factor = 1;
         float delta = Time.fixedDeltaTime;
         if (m_megaManGroundLadderDetector.IsTouching(m_fakeGroundCollider))

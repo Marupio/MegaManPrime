@@ -209,6 +209,21 @@ public class MegaManController: MonoBehaviour
 
     public float ShootButtonReleaseTime { get => m_shootButtonReleaseTime; set => m_shootButtonReleaseTime = value; }
     public float LadderClimbSpeed { get => m_ladderClimbSpeed; set => m_ladderClimbSpeed = value; }
+    public float RunSpeed { get => m_runSpeed; set => m_runSpeed = value; }
+    public float GroundSpeed
+    {
+        get
+        {
+            if (m_surfaceModel != null)
+            {
+                return m_rigidBodySelf.velocity.x - m_surfaceModel.WallVelocity.x;
+            }
+            else
+            {
+                return m_rigidBodySelf.velocity.x;
+            }
+        }
+    }
 
     public Collider2D GetUprightLadderDetector()
     {
@@ -537,8 +552,8 @@ public class MegaManController: MonoBehaviour
                 {
                     maxAccel = Mathf.Infinity;
                 }
-                float xTargetSpeed = m_controlVector.x * m_runSpeed * speedLimitFactor + xGroundSpeed;
-                if (Mathf.Abs(xTargetSpeed) > 0)
+                float xTargetSpeed = m_controlVector.x * RunSpeed * speedLimitFactor + xGroundSpeed;
+                if (Mathf.Abs(xTargetSpeed - xGroundSpeed) > 0)
                 {
                     m_animationDirector.Running = true;
                 }
@@ -552,7 +567,7 @@ public class MegaManController: MonoBehaviour
             }
             case MegaManStates.Jumping:
             {
-                float xTargetSpeed = m_controlVector.x * m_runSpeed;
+                float xTargetSpeed = m_controlVector.x * RunSpeed;
                 xTargetSpeed = m_rigidBodySelf.velocity.x * (1-m_jumpAirSteerAccelerationFactor) + xTargetSpeed * m_jumpAirSteerAccelerationFactor;
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_jumpSpeed);
                 m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
@@ -560,7 +575,7 @@ public class MegaManController: MonoBehaviour
             }
             case MegaManStates.Falling:
             {
-                float xTargetSpeed = m_controlVector.x * m_runSpeed;
+                float xTargetSpeed = m_controlVector.x * RunSpeed;
                 xTargetSpeed = m_rigidBodySelf.velocity.x * (1-m_jumpAirSteerAccelerationFactor) + xTargetSpeed * m_jumpAirSteerAccelerationFactor;
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_rigidBodySelf.velocity.y);
                 m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
@@ -589,7 +604,7 @@ public class MegaManController: MonoBehaviour
                 if (m_controlVector.x * xDir < 0)
                 {
                         // MegaMan is trying to slow down
-                        xTargetSpeed = m_controlVector.x * m_runSpeed;
+                        xTargetSpeed = m_controlVector.x * RunSpeed;
                 }
                 xTargetSpeed = m_rigidBodySelf.velocity.x * (1-m_dashJumpAirSteerAccelerationFactor) + xTargetSpeed * m_dashJumpAirSteerAccelerationFactor;
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_jumpSpeed);
@@ -604,7 +619,7 @@ public class MegaManController: MonoBehaviour
                 if (m_controlVector.x * xDir < 0)
                 {
                         // MegaMan is trying to slow down
-                        xTargetSpeed = m_controlVector.x * m_runSpeed;
+                        xTargetSpeed = m_controlVector.x * RunSpeed;
                 }
                 xTargetSpeed = m_rigidBodySelf.velocity.x * (1-m_dashJumpAirSteerAccelerationFactor) + xTargetSpeed * m_dashJumpAirSteerAccelerationFactor;
                 Vector2 targetVelocity = new Vector2(xTargetSpeed, m_rigidBodySelf.velocity.y);

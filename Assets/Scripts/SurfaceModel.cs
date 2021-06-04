@@ -55,35 +55,4 @@ public class SurfaceModel : MonoBehaviour, ISurfaceModel
             Debug.LogError("Ground resistance value out of range 0..1 : " + resistance);
         }
     }
-
-
-    // Convenience
-    public bool Null()
-    {
-        return surfaceName == "None";
-    }
-    public bool Normal()
-    {
-        return Mu == 1 && wallVelocity == Vector2.zero && resistance == 1;
-    }
-    public bool Slippery()
-    {
-        return Mu < 1 && Mu > 0;
-    }
-    public bool Frictionless()
-    {
-        return Mu == 0;
-    }
-    public bool Static()
-    {
-        return wallVelocity == Vector2.zero;
-    }
-    public bool Moving()
-    {
-        return wallVelocity != Vector2.zero;
-    }
-    public bool Trudging()
-    {
-        return resistance < 1;
-    }
 }
