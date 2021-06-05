@@ -23,17 +23,14 @@ public class EnergyBuster: MonoBehaviour
     {
         if (chargeTime >= m_largeChargeTime)
         {
-            Debug.Log("Shooting large: " + chargeTime);
             Instantiate(m_busterShotLarge, m_firePoint.position, m_firePoint.rotation);
         }
         else if (chargeTime >= m_mediumChargeTime)
         {
-            Debug.Log("Shooting medium: " + chargeTime);
             Instantiate(m_busterShotMedium, m_firePoint.position, m_firePoint.rotation);
         }
         else
         {
-            Debug.Log("Shooting small: " + chargeTime);
             Instantiate(m_busterShotSmall, m_firePoint.position, m_firePoint.rotation);
         }
     }

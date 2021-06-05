@@ -89,22 +89,24 @@ public class DestructibleBlock : SnapToTileGrid, IEnemy, IGasp
 
     // *** IEnemy interface ***
 
-    /// <summary>
-    /// Tells the enemy a bullet has hit it
-    /// </summary>
-    /// <param name="hitPoint">Location of hit</param>
-    /// <param name="damage">Normal amount of damage</param>
-    /// <param name="bullet">Type of bullet that hit</param>
-    /// <returns>True if bullet was absorbed, false if deflected</returns>
     public bool Hit(Transform hitPoint, int damage, GameObject bullet)
     {
         life.TakeDamage(damage);
         return true;
     }
 
-    /// <summary>
-    /// Play death scene, if any.
-    /// </summary>
+    public bool Hit(Collision2D hitPoint, int damage, IProjectile bullet)
+    {
+        life.TakeDamage(damage);
+        return true;
+    }
+    public bool Hit(Collider2D otherCollider, int damage, IProjectile projectile)
+    {
+        life.TakeDamage(damage);
+        return true;
+    }
+
+
     public void Die()
     {
         Gasp();

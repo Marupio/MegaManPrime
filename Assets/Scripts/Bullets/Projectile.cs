@@ -8,10 +8,12 @@ using UnityEngine;
 /// Does not initiate flight path
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
-public class Projectile : MonoBehaviour
+[RequireComponent(typeof(Collider2D))]
+public class Projectile : MonoBehaviour, IProjectile
 {
     protected float m_createdTime;
     protected Rigidbody2D m_rigidBodySelf;
+    protected Collider2D m_collider;
     [SerializeField] protected LayerMask m_ignoreHitsOnTheseLayers;
     [Tooltip("Base damage dealt when the projectile hits")]
     [SerializeField] [Range(1, 100)] protected int m_damage;
@@ -25,15 +27,16 @@ public class Projectile : MonoBehaviour
     private List<IEnemy> m_objectsHit;
     protected float m_duration;
 
-    private void Awake()
+    void Awake()
     {
         m_rigidBodySelf = GetComponent<Rigidbody2D>();
+        m_collider = GetComponent<Collider2D>();
         m_duration = m_range / m_speed;
         m_createdTime = Time.time;
         m_objectsHit = new List<IEnemy>();
     }
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
         if (Time.time - m_createdTime >= m_duration)
         {
@@ -50,35 +53,57 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D hitInfo)
+
+    // *** IProjectile interface ***
+
+    public bool ScatterShot()
+    {
+        return false;
+    }
+
+    public void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Player")
+        {
+            return;
+        }
+        IEnemy enemy = collision.gameObject.GetComponent<IEnemy>();
+        if (enemy != null)
+        {
+            // Don't hit the same enemy twice
+            if (m_objectsHit.Contains(enemy))
+            {
+                return;
+            }
+            if (enemy.Hit(collision, m_damage, this))
+            {
+                // Enemy has accepted the hit, do our Hit reaction
+                Hit(collision, enemy);
+            }
+        }
+    }
+
+
+    public void OnTriggerEnter2D(Collider2D hitInfo)
     {
         if (hitInfo.tag == "Player")
         {
             return;
         }
-        if (hitInfo.tag.Contains("Deflective"))
-        {
-            Deflect();
-            return;
-        }
         IEnemy enemy = hitInfo.GetComponent<IEnemy>();
         if (enemy != null)
         {
+            // Don't hit the same enemy twice
             if (m_objectsHit.Contains(enemy))
             {
                 return;
             }
-            if (enemy.Hit(hitInfo.transform, m_damage, gameObject))
+            if (enemy.Hit(m_collider, m_damage, this))
             {
-                m_objectsHit.Add(enemy);
-                m_swanSong = true;
-            }
-            else
-            {
-                Deflect();
+                // Enemy has accepted the hit, do our Hit reaction
+                Hit(hitInfo, enemy);
             }
         }
-        Debug.Log("Hit " + hitInfo.name + ", with tag[" + hitInfo.tag + "]");
     }
 
     /// <summary>
@@ -91,5 +116,19 @@ public class Projectile : MonoBehaviour
 
         // A deflected bullet can't hit anything anymore
         GetComponent<Collider2D>().enabled = false;
+    }
+
+    public bool Hit(Collision2D collision, IEnemy enemy)
+    {
+        m_objectsHit.Add(enemy);
+        m_swanSong = true;
+        return true;
+    }
+
+    public bool Hit(Collider2D collision, IEnemy enemy)
+    {
+        m_objectsHit.Add(enemy);
+        m_swanSong = true;
+        return true;
     }
 }
