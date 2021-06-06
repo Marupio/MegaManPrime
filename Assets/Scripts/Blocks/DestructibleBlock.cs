@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(Collider2D))]
 [RequireComponent(typeof(Life))]
-public class DestructibleBlock : SnapToTileGrid, IEnemy, IGasp
+public class DestructibleBlock : SnapToTileGrid, ILive, IDie
 {
     private Life life;
     private SpriteRenderer spriterer;
@@ -44,12 +44,12 @@ public class DestructibleBlock : SnapToTileGrid, IEnemy, IGasp
     }
 
 
-    // *** IGasp interface ***
+    // *** IDie interface ***
 
     /// <summary>
     /// Do death scene
     /// </summary>
-    public void Gasp()
+    public void Die()
     {
         if (explosions.Count > 0)
         {
@@ -69,10 +69,10 @@ public class DestructibleBlock : SnapToTileGrid, IEnemy, IGasp
 
 
     /// <summary>
-    /// Gasp has already been called on me, check if I'm ready to die
+    /// Die has already been called on me, check if I'm ready to die
     /// </summary>
     /// <returns></returns>
-    public bool Gasped()
+    public bool Dying()
     {
         return exploded;
     }
@@ -87,7 +87,7 @@ public class DestructibleBlock : SnapToTileGrid, IEnemy, IGasp
     }
 
 
-    // *** IEnemy interface ***
+    // *** ILive interface ***
 
     public bool Hit(Transform hitPoint, int damage, GameObject bullet)
     {
@@ -104,12 +104,6 @@ public class DestructibleBlock : SnapToTileGrid, IEnemy, IGasp
     {
         life.TakeDamage(damage);
         return true;
-    }
-
-
-    public void Die()
-    {
-        Gasp();
     }
 
 

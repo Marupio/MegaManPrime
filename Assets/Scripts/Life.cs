@@ -11,16 +11,19 @@ public class Life : MonoBehaviour
     public int Health { get => health; }
     public int MaxHealth { get => maxHealth; set => maxHealth = value; }
 
+    public bool Alive { get => alive; }
+    public bool Dead { get => !alive; }
+
     /// <summary>
-    /// Gasps are components that want to do something right before this object is destroyed
+    /// OverActors are components that want to do something right before this object is destroyed
     /// </summary>
-    private List<IGasp> gasps;
+    private List<IDie> overActors;
 
     public void Awake()
     {
         health = MaxHealth;
         alive = true;
-        GetGasps();
+        GetOverActors();
     }
 
 
@@ -32,7 +35,7 @@ public class Life : MonoBehaviour
             Die();
         }
     }
-
+    
 
     /// <summary>
     /// Something hurt me, take damage, maybe even die
@@ -78,18 +81,19 @@ public class Life : MonoBehaviour
 
 
     /// <summary>
-    /// 
+    /// Go through all overActors and have them play their death scene
+    /// Ensure everyone is ready to Die, then destroy the object
     /// </summary>
     public void Die()
     {
         bool readyToDie = true;
-        foreach(IGasp gasper in gasps)
+        foreach(IDie overActor in overActors)
         {
-            if (!gasper.Gasped())
+            if (!overActor.Dying())
             {
-                gasper.Gasp();
+                overActor.Die();
             }
-            if (!gasper.ReadyToDie())
+            if (!overActor.ReadyToDie())
             {
                 readyToDie = false;
             }
@@ -102,31 +106,31 @@ public class Life : MonoBehaviour
 
 
     /// <summary>
-    /// Register a gasp to the list
+    /// Register an overActor to the list
     /// </summary>
-    /// <param name="gasper">Component that wants to do something before being Destroyed</param>
-    public void IHaveFinalWords(IGasp gasper)
+    /// <param name="overActor">Component that wants to do something before being Destroyed</param>
+    public void IHaveFinalWords(IDie overActor)
     {
-        gasps.Add(gasper);
+        overActors.Add(overActor);
     }
 
 
     /// <summary>
-    /// For whatever reason, a gasper is now gone, so it nolonger needs to do anything before Destroy
+    /// For whatever reason, an overACtor is now gone, so it nolonger needs to do anything before Destroy
     /// </summary>
-    /// <param name="gasper">Component that lelft</param>
-    public void NeverMind(IGasp gasper)
+    /// <param name="overActor">Component that lelft</param>
+    public void NeverMind(IDie overActor)
     {
-        gasps.Remove(gasper);
+        overActors.Remove(overActor);
     }
 
 
     /// <summary>
     /// Initiate list of components that need to do something before Destroy
     /// </summary>
-    private void GetGasps()
+    private void GetOverActors()
     {
-        IGasp[] gaspers = GetComponentsInChildren<IGasp>();
-        gasps = new List<IGasp>(gaspers);
+        IDie[] overActorArray = GetComponentsInChildren<IDie>();
+        overActors = new List<IDie>(overActorArray);
     }
 }

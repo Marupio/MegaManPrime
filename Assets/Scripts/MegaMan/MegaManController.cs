@@ -22,7 +22,7 @@ public enum MegaManStates
 
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class MegaManController: MonoBehaviour
+public class MegaManController: MonoBehaviour, ILive
 {
     // *** Private references
 
@@ -30,6 +30,7 @@ public class MegaManController: MonoBehaviour
     private MegaManAnimationDirector m_animationDirector;
     private EnergyBuster m_energyBuster;
     private LadderHandler m_ladderHandler;
+    private Life m_life;
 
 
     // *** Inspector settings
@@ -160,6 +161,7 @@ public class MegaManController: MonoBehaviour
 
     private void Awake()
     {
+        m_life = GetComponent<Life>();
         m_rigidBodySelf = GetComponent<Rigidbody2D>();
         m_ladderHandler = GameObject.FindObjectOfType<LadderHandler>();
         foreach (Transform child in this.transform)
@@ -823,5 +825,33 @@ public class MegaManController: MonoBehaviour
         m_facingRight = !m_facingRight;
     
         transform.Rotate(0f, 180f, 0f);
+    }
+
+
+    // *** ILive interface ***
+    public bool Hit(Collision2D collision, int damage, IProjectile projectile)
+    {
+        m_life.TakeDamage(damage);
+        return true;
+    }
+    public bool Hit(Collider2D otherCollider, int damage, IProjectile projectile)
+    {
+        m_life.TakeDamage(damage);
+        return true;
+    }
+
+
+    // *** IDie interface
+    public void Die()
+    {
+        Debug.Log("MegaMan has died");
+    }
+    public bool Dying()
+    {
+        return m_life.Dead;
+    }
+    public bool ReadyToDie()
+    {
+        return m_life.Dead;
     }
 }

@@ -2,18 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IGasp
+public interface IDie
 {
     /// <summary>
     /// Do death scene
     /// </summary>
-    public void Gasp();
-
+    public void Die();
 
     /// <summary>
-    /// Gasp has already been called on me, check if I'm ready to die
+    /// Die has already been called on me, now check if I'm ready to die
     /// </summary>
-    public bool Gasped();
+    public bool Dying();
 
     /// <summary>
     /// Returns true when I'm ready to be Destroyed

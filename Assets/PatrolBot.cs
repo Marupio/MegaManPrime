@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Life))]
-public class PatrolBot : MonoBehaviour, IEnemy
+public class PatrolBot : MonoBehaviour, ILive
 {
     Life life;
 
@@ -18,7 +18,7 @@ public class PatrolBot : MonoBehaviour, IEnemy
     }
 
 
-    // *** IEnemy interface ***
+    // *** ILive interface ***
 
     public bool Hit(Collision2D collision, int damage, IProjectile projectile)
     {

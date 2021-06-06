@@ -38,12 +38,12 @@ public interface IProjectile
     /// <param name="collision">Information about the collision</param>
     /// <param name="enemy">Enemy that has been hit</param>
     /// <returns>True if hit was accepted, false causes projectile to ignore me</returns>
-    public bool Hit(Collision2D collision, IEnemy enemy);
+    public bool Hit(Collision2D collision, ILive enemy);
     /// <summary>
     /// Tells the enemy that it has been hit - Collider2D version
     /// </summary>
     /// <param name="otherCollider">The enemy collider that has been hit</param>
     /// <param name="enemy">The enemy that has been hit</param>
     /// <returns></returns>
-    public bool Hit(Collider2D otherCollider, IEnemy enemy);
+    public bool Hit(Collider2D otherCollider, ILive enemy);
 }

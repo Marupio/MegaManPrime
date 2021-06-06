@@ -24,7 +24,7 @@ public class Projectile : MonoBehaviour, IProjectile
     [Tooltip("How many frames does the projectile keep going after hitting something, to see if it hits other things, e.g. at a grid edge")]
     [SerializeField] [Range(0, 10)] int m_endurance;
     private bool m_swanSong; // When true, this bullet has hit something, and is running out its m_endurance frames before disintegrating
-    private List<IEnemy> m_objectsHit;
+    private List<ILive> m_objectsHit;
     protected float m_duration;
 
     void Awake()
@@ -33,7 +33,7 @@ public class Projectile : MonoBehaviour, IProjectile
         m_collider = GetComponent<Collider2D>();
         m_duration = m_range / m_speed;
         m_createdTime = Time.time;
-        m_objectsHit = new List<IEnemy>();
+        m_objectsHit = new List<ILive>();
     }
 
     void FixedUpdate()
@@ -67,7 +67,7 @@ public class Projectile : MonoBehaviour, IProjectile
         {
             return;
         }
-        IEnemy enemy = collision.gameObject.GetComponent<IEnemy>();
+        ILive enemy = collision.gameObject.GetComponent<ILive>();
         if (enemy != null)
         {
             // Don't hit the same enemy twice
@@ -90,7 +90,7 @@ public class Projectile : MonoBehaviour, IProjectile
         {
             return;
         }
-        IEnemy enemy = hitInfo.GetComponent<IEnemy>();
+        ILive enemy = hitInfo.GetComponent<ILive>();
         if (enemy != null)
         {
             // Don't hit the same enemy twice
@@ -118,14 +118,14 @@ public class Projectile : MonoBehaviour, IProjectile
         GetComponent<Collider2D>().enabled = false;
     }
 
-    public bool Hit(Collision2D collision, IEnemy enemy)
+    public bool Hit(Collision2D collision, ILive enemy)
     {
         m_objectsHit.Add(enemy);
         m_swanSong = true;
         return true;
     }
 
-    public bool Hit(Collider2D collision, IEnemy enemy)
+    public bool Hit(Collider2D collision, ILive enemy)
     {
         m_objectsHit.Add(enemy);
         m_swanSong = true;

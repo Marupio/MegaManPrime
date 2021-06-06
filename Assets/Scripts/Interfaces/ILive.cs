@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Enemy base class with interfaces used by other classes that interact with it
+/// Base class for entities with health that can be hurt / healed
 /// </summary>
-public interface IEnemy
+public interface ILive
 {
     // /// <summary>
-    // /// Tells the enemy a bullet has hit it
+    // /// Tells the entity a bullet has hit it
     // /// </summary>
     // /// <param name="hitPoint">Location of hit</param>
     // /// <param name="damage">Normal amount of damage</param>
@@ -17,7 +17,7 @@ public interface IEnemy
     // public bool Hit(Transform hitPoint, int damage, GameObject bullet);
 
     /// <summary>
-    /// Tells the enemy the projectile has hit it
+    /// Tells the entity the projectile has hit it
     /// This is the Physics2D collision version
     /// </summary>
     /// <param name="collision">Information about the hit</param>
@@ -26,7 +26,7 @@ public interface IEnemy
     /// <returns>True if the hit was accepted, false if ignored</returns>
     public bool Hit(Collision2D collision, int damage, IProjectile projectile);
     /// <summary>
-    /// Tells the enemy it was hit
+    /// Tells the entity it was hit
     /// This is the Collider2D Trigger version
     /// </summary>
     /// <param name="otherCollider"></param>
@@ -34,9 +34,4 @@ public interface IEnemy
     /// <param name="projectile"></param>
     /// <returns></returns>
     public bool Hit(Collider2D otherCollider, int damage, IProjectile projectile);
-
-    /// <summary>
-    /// Play death scene, if any.
-    /// </summary>
-    public void Die();
 }
