@@ -2113,6 +2113,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0db43721db3b5ec909a75fe97106a9e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_touchDamage: 5
+  m_explosion: {fileID: 0}
+  m_smugDuration: 1
 --- !u!114 &1010140256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2127,6 +2130,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 25
   health: 0
+  alive: 0
 --- !u!1 &1192379855
 GameObject:
   m_ObjectHideFlags: 0
@@ -2399,25 +2403,6 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
---- !u!1 &1344293464 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5904244047486212168, guid: c7249455cc1d48cc4bfe0c83a5914152, type: 3}
-  m_PrefabInstance: {fileID: 5904244046859086370}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1344293465
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1344293464}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca9f3739458f466219adc968385fd727, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 100
-  health: 0
 --- !u!1 &1490312521
 GameObject:
   m_ObjectHideFlags: 0

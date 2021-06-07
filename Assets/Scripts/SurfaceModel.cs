@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
+/// <summary>
+/// A simple concrete implementation of the ISurfaceModel interface
+/// </summary>
 public class SurfaceModel : MonoBehaviour, ISurfaceModel
 {
     // Surface characteristics

@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Helper class to handle MegaMan's animator
+/// </summary>
 [RequireComponent(typeof(Animator))]
 public class MegaManAnimationDirector : MonoBehaviour
 {

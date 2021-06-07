@@ -4,10 +4,12 @@ using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(Collider2D))]
-[RequireComponent(typeof(HealthManager))]
-public class DestructibleBlock : SnapToTileGrid, IGetHurt, IDie
+[RequireComponent(typeof(ILive))]
+[RequireComponent(typeof(ISelfDestruct))]
+public class DestructibleBlock : SnapToTileGrid, ILoyalty, IGetHurt, IDie
 {
-    private HealthManager health;
+    private ILive health;
+    private ISelfDestruct reaper;
     private SpriteRenderer spriterer;
 
     public List<Sprite> sprites;
@@ -17,10 +19,18 @@ public class DestructibleBlock : SnapToTileGrid, IGetHurt, IDie
     private float deltaH;
     public List<int> stateTransitions;
 
+
+    // *** ILoyalty interface
+    public Team side { get; set; }
+
+
+    // *** MonoBehaviour interface
+
     void Awake()
     {
         side = Team.Neutral;
-        health = GetComponent<HealthManager>();
+        health = GetComponent<ILive>();
+        reaper = GetComponent<ISelfDestruct>();
         spriterer = GetComponent<SpriteRenderer>();
         int maxHealth = health.MaxHealth;
         deltaH = (float)maxHealth / (float)sprites.Count;
@@ -33,7 +43,7 @@ public class DestructibleBlock : SnapToTileGrid, IGetHurt, IDie
         int currentHealth = health.Health;
         if (explosions.Count > 0)
         {
-            health.IHaveFinalWords(this);
+            reaper.IHaveFinalWords(this);
         }
         SetCurrentState(currentHealth);
         UpdateState();
@@ -49,13 +59,7 @@ public class DestructibleBlock : SnapToTileGrid, IGetHurt, IDie
     }
 
 
-    // *** IDie interface ***
-
-    public Team side { get; set; }
-
-    /// <summary>
-    /// Do death scene
-    /// </summary>
+    // *** IDie interface
     public void Die()
     {
         if (explosions.Count > 0)
@@ -73,28 +77,17 @@ public class DestructibleBlock : SnapToTileGrid, IGetHurt, IDie
         }
         exploded = true;
     }
-
-
-    /// <summary>
-    /// Die has already been called on me, check if I'm ready to die
-    /// </summary>
-    /// <returns></returns>
     public bool Dying()
     {
         return exploded;
     }
-
-
-    /// <summary>
-    /// Returns true when I'm ready to be Destroyed
-    /// </summary>
     public bool ReadyToDie()
     {
         return exploded;
     }
 
 
-    // *** ILive interface ***
+    // *** ILive interface
 
     public bool Hit(Transform hitPoint, int damage, GameObject bullet)
     {
@@ -114,7 +107,7 @@ public class DestructibleBlock : SnapToTileGrid, IGetHurt, IDie
     }
 
 
-    // *** Private member functions ***
+    // *** Private member functions
 
     /// <summary>
     /// Sets the currentState to the correct value

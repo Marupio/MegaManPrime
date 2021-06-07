@@ -24,19 +24,19 @@ public class EnergyBuster: MonoBehaviour
         if (chargeTime >= m_largeChargeTime)
         {
             GameObject bullet = Instantiate(m_busterShotLarge, m_firePoint.position, m_firePoint.rotation);
-            ILive bulletLive = bullet.GetComponent<ILive>();
+            ILoyalty bulletLive = bullet.GetComponent<ILoyalty>();
             bulletLive.side = Team.GoodGuys;
         }
         else if (chargeTime >= m_mediumChargeTime)
         {
             GameObject bullet = Instantiate(m_busterShotMedium, m_firePoint.position, m_firePoint.rotation);
-            ILive bulletLive = bullet.GetComponent<ILive>();
+            ILoyalty bulletLive = bullet.GetComponent<ILoyalty>();
             bulletLive.side = Team.GoodGuys;
         }
         else
         {
             GameObject bullet = Instantiate(m_busterShotSmall, m_firePoint.position, m_firePoint.rotation);
-            ILive bulletLive = bullet.GetComponent<ILive>();
+            ILoyalty bulletLive = bullet.GetComponent<ILoyalty>();
             bulletLive.side = Team.GoodGuys;
         }
     }

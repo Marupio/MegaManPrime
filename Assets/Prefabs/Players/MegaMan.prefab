@@ -787,6 +787,7 @@ GameObject:
   - component: {fileID: 5904244047486212175}
   - component: {fileID: 5904244047486212174}
   - component: {fileID: 5904244047486212169}
+  - component: {fileID: 8948002600361760173}
   - component: {fileID: 5904244047486212172}
   m_Layer: 3
   m_Name: MegaMan
@@ -870,6 +871,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_debug: 0
+--- !u!114 &8948002600361760173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5904244047486212168}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fec76b7adfe506cfb63b75a770cd2e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  health: 0
 --- !u!50 &5904244047486212172
 Rigidbody2D:
   serializedVersion: 4

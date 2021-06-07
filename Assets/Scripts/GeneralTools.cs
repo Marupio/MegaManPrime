@@ -11,13 +11,6 @@ public class GeneralTools
         return ((layerMask.value & (1 << obj.layer)) > 0);
     }
 
-    public static Tile CombineTiles(Tile under, Tile over)
-    {
-        Tile both = under;
-
-        return both;
-    }
-
     public static bool AssertNotNull<T>(T entity, string description)
     {
         if (entity == null)
@@ -27,34 +20,58 @@ public class GeneralTools
         }
         return true;
     }
+
+    /// <summary>
+    /// Checks target collider's Loyalty against my own.  If the pairing is valid, return the IGetHurt interface of it.
+    /// </summary>
+    /// <param name="target">The target collider I hit</param>
+    /// <param name="myCollider">My collider</param>
+    /// <param name="myTeam">My loyalty</param>
+    /// <param name="origin">A string clue to help debugging</param>
+    /// <returns>The IGetHurt interface of the collider I hit</returns>
+    public static IGetHurt ApplyRulesOfEngagement(Collider2D target, Collider2D myCollider, Team myTeam, string origin)
+    {
+        if (target == myCollider)
+        {
+            Debug.Log("ApplyRulesOfEngagement - I found my own collider from " + origin);
+        }
+        // Use '...InParent' search because complex prefabs may have colliders as children
+        ILoyalty targetLoyalty = target.gameObject.GetComponentInParent<ILoyalty>();
+        if (targetLoyalty == null)
+        {
+            // Fail quiet, may not be that kind of GameObject
+            return null;
+        }
+        Team targetTeam = targetLoyalty.side;
+        switch (myTeam)
+        {
+            case Team.Neutral:
+                // Neutral can hit anyone
+                break;
+            case Team.BadGuys:
+                // BadGuys can only hit GoodGuys
+                if (targetTeam == Team.GoodGuys)
+                {
+                    break;
+                }
+                else
+                {
+                    return null;
+                }
+            case Team.GoodGuys:
+                // GoodGuys can hit Neutral and BadGuys
+                if (targetTeam == Team.GoodGuys)
+                {
+                    return null;
+                }
+                break;
+            default:
+                Debug.LogError("Unhandled Team, ApplyRulesOfEngagement " + origin);
+                break;
+        }
+        // Again, using ...InParent function because complex prefabs may have IGetHurt component at a higher level
+        IGetHurt entity = target.GetComponentInParent<IGetHurt>();
+        // No need to AssertNotNull because it may not be 'hurtable'
+        return entity;
+    }
 }
-
-
-/// <summary>
-/// Script adapted from version posted by NitromeSteed on unity forums at:
-///     https://forum.unity.com/threads/merging-multiple-textures-sprites-into-one-texture.583393/
-/// </summary>
-public class SpriteMerge : MonoBehaviour
-{
-
-    public SpriteRenderer spriteRenderer;// assumes you've dragged a reference into this
-    public Transform mergeInput;// a transform with a bunch of SpriteRenderers you want to merge
-
-    public enum RotationFlip
-    {
-        None, One, Two, Three, NoneFlip, OneFlip, TwoFlip, ThreeFlip
-    }
-
-    void Start()
-    {
-        // spriteRenderer.sprite = Create(new Vector2Int(2048, 2048), mergeInput);
-    }
-
-    public static Sprite Create(Vector2Int size, Transform input)
-    {
-        // return Create(size, input, new Vector2Int());
-        return null;
-    }
-}
-
-

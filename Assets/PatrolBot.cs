@@ -1,14 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(ILive))]
-[RequireComponent(typeof(IDestroy))]
+[RequireComponent(typeof(ISelfDestruct))]
 [RequireComponent(typeof(Collider2D))]
 public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
 {
     ILive m_health;
-    IDestroy m_reaper;
+    ISelfDestruct m_reaper;
     Collider2D m_collider;
 
     [Tooltip("How much damage does MegaMan get when he touches me")]
@@ -18,27 +19,44 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
     [SerializeField] private GameObject m_explosion;
     private bool m_exploded;
 
-    // *** ILoyalty interface
-    public Team side { get; set; }
-
-
     // The graphics face left, so PatrolBot's default direction is left
     bool m_facingLeft;
 
+    // Smug expression (when shielded and he hit MegaMan)
+    bool m_smug;
+    float m_smugStart;
+    [Tooltip("When he hits MegaMan, he can become smug.  This is how long.")]
+    [SerializeField] [Range(0, 2)] private float m_smugDuration = 1;
+
+
+    // *** MonoBehaviour interface
 
     void Awake()
     {
         m_health = GetComponent<ILive>();
-        m_reaper = GetComponent<IDestroy>();
+        m_reaper = GetComponent<ISelfDestruct>();
         m_collider = GetComponent<Collider2D>();
-        m_facingLeft = true;
-        side = Team.BadGuys;
         m_exploded = false;
+        m_facingLeft = true;
+        m_smug = false;
+        m_smugStart = -1;
+        side = Team.BadGuys;
     }
 
 
-    // *** IDie interface ***
+    void FixedUpdate()
+    {
+        if (m_smug && Time.time - m_smugStart > m_smugDuration)
+        {
+            m_smug = false;
+        }
+    }
 
+    // *** ILoyalty interface
+    public Team side { get; set; }
+
+
+    // *** IDie interface
     public void Die()
     {
         if (m_explosion != null)
@@ -57,73 +75,22 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
     }
 
 
-    // *** IGetHurt interface ***
-
+    // *** IGetHurt interface
     public bool TakeDamage(Collision2D collision, int damage, ICanHit attacker)
     {
-        List<Vector2> points = new List<Vector2>();
 
         List<ContactPoint2D> contacts = new List<ContactPoint2D>();
         collision.GetContacts(contacts);
-        // TODO - Google this and fix it with LINQ, .ToList or something like that
-        foreach (ContactPoint2D contact in contacts)
-        {
-            points.Add(contact.point);
-        }
+        List<Vector2> points = (from contact in contacts select contact.point).ToList();
         return InternalHit(points, damage, attacker);
     }
-
     public bool TakeDamage(Collider2D otherCollider, int damage, ICanHit attacker)
     {
         List<Vector2> points = new List<Vector2>();
         points.Add(otherCollider.bounds.center);
         return InternalHit(points, damage, attacker);
     }
-
-
-    // *** ICanHit interface ***
-
-    public void OnCollisionEnter2D(Collision2D collision);
-    public void OnTriggerEnter2D(Collider2D hitInfo);
-    public bool Deflectable();
-    public void Deflect();
-    public bool ScatterHit();
-
-
-    // *** IProjectile interface ***
-    /// <summary>
-    /// ScatterShot flag
-    /// </summary>
-    /// <returns>True if the projectile can hit at multiple points, causing multple damage</returns>
-    public bool ScatterShot()
-    {
-        return false;
-    }
-    public bool Deflect()
-    {
-        return false;
-    }
-    public void OnCollisionEnter2D(Collision2D collision)
-    {
-        // Not implemented
-        Debug.LogError("PatrolBot.cs - OnCollisionEnter2D not implemented");
-    }
-
-    /// <summary>
-    /// I can hurt MegaMan by running into him
-    /// </summary>
-    /// <param name="hitInfo">The thing I ran into</param>
-    public void OnTriggerEnter2D(Collider2D hitInfo)
-    {
-        ILive other = hitInfo.gameObject.GetComponentInParent<ILive>();
-        if (other != null && other.side != side)
-        {
-            other.TakeHit(m_collider, m_touchDamage, this);
-        }
-    }
-
-
-
+    // *** IGetHurt interface internal helpers
     private bool InternalHit(List<Vector2> points, int damage, ICanHit attacker)
     {
         int nHits = 0;
@@ -148,7 +115,7 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
                 if (point.x < gameObject.transform.position.x)
                 {
                     ++nHits;
-                    if (!projectile.ScatterShot())
+                    if (!attacker.ScatterHit())
                     {
                         break;
                     }
@@ -157,7 +124,7 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
         }
         if (nHits > 0)
         {
-            if (!projectile.ScatterShot())
+            if (!attacker.ScatterHit())
             {
                 nHits = 1;
             }
@@ -166,8 +133,61 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
         }
         else
         {
-            projectile.Deflect();
+            if (attacker.Deflectable())
+            {
+                attacker.Deflect();
+            }
             return false;
         }
+    }
+
+
+    // *** ICanHit interface
+
+    public void OnCollisionEnter2D(Collision2D collision)
+    {
+        Collider2D otherCollider = collision.otherCollider;
+        IGetHurt other = GeneralTools.ApplyRulesOfEngagement(otherCollider, m_collider, side, "collision.otherCollider");
+        if (other == null)
+        {
+            otherCollider = collision.collider;
+            other = GeneralTools.ApplyRulesOfEngagement(otherCollider, m_collider, side, "collision.collider");
+        }
+        if (other == null)
+        {
+            return;
+        }
+        if (other.TakeDamage(collision, m_touchDamage, this))
+        {
+            // Other has accepted the hit, do our Hit reaction
+            m_smugStart = Time.time;
+            m_smug = true;
+        }
+    }
+    public void OnTriggerEnter2D(Collider2D hitInfo)
+    {
+        IGetHurt other = GeneralTools.ApplyRulesOfEngagement(hitInfo, m_collider, side, "collision.otherCollider");
+        if (other == null)
+        {
+            return;
+        }
+        if (other.TakeDamage(hitInfo, m_touchDamage, this))
+        {
+            // Other has accepted the hit, do our Hit reaction
+            m_smugStart = Time.time;
+            m_smug = true;
+        }
+    }
+    public bool Deflectable()
+    {
+        return false;
+    }
+    public void Deflect()
+    {
+        // Do nothing
+    }
+    public bool ScatterHit()
+    {
+        return false;
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 /// Components that have death scenes (or actions to take before Destroy()) register with this class, and they get to perform their action
 /// Classes with this interface are responsible for calling Destroy() on their GameObjects
 /// </summary>
-public interface IDestroy
+public interface ISelfDestruct
 {
     /// <summary>
     /// Go through all overActors and have them play their death scene

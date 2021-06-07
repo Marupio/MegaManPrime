@@ -22,15 +22,18 @@ public enum MegaManStates
 
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class MegaManController: MonoBehaviour, IGetHurt, ICanHeal
+[RequireComponent(typeof(ILive))]
+[RequireComponent(typeof(ISelfDestruct))]
+public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
 {
     // *** Private references
 
     private Rigidbody2D m_rigidBodySelf;
+    private ILive m_health;
+    private ISelfDestruct m_reaper;
     private MegaManAnimationDirector m_animationDirector;
     private EnergyBuster m_energyBuster;
     private LadderHandler m_ladderHandler;
-    private Life m_life;
 
 
     // *** Inspector settings
@@ -157,13 +160,14 @@ public class MegaManController: MonoBehaviour, IGetHurt, ICanHeal
     Vector3 box3;
 
 
-    // *** Mono behaviour interface
+    // *** MonoBehaviour interface
 
     private void Awake()
     {
-        side = Team.GoodGuys;
-        m_life = GetComponent<Life>();
         m_rigidBodySelf = GetComponent<Rigidbody2D>();
+        m_health = GetComponent<ILive>();
+        m_reaper = GetComponent<ISelfDestruct>();
+        side = Team.GoodGuys;
         m_ladderHandler = GameObject.FindObjectOfType<LadderHandler>();
         foreach (Transform child in this.transform)
         {
@@ -202,14 +206,53 @@ public class MegaManController: MonoBehaviour, IGetHurt, ICanHeal
         Gizmos.DrawLine(midPt, closePt);
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+
+    // *** ILoyalty interface
+    public Team side { get; set; }
+
+    // *** IGetHurt interface
+    public bool TakeDamage(Collision2D collision, int damage, ICanHit attacker)
     {
-        // Debug.Log("Entered " + other.name + " at " + other.transform.position);
+        return InternalTakeDamage(damage, attacker);
+    }
+    public bool TakeDamage(Collider2D otherCollider, int damage, ICanHit attacker)
+    {
+        return InternalTakeDamage(damage, attacker);
+    }
+    // *** IGetHurt interface internal helpers
+    private bool InternalTakeDamage(int damage, ICanHit attacker)
+    {
+        if (state == MegaManStates.Hurt)
+        {
+            // Cannot get hurt while hurt
+            return false;
+        }
+        m_health.TakeDamage(damage);
+        m_hurtStartTime = Time.time;
+        state = MegaManStates.Hurt;
+        return true;
     }
 
 
-    // *** Access
+    // *** IDie interface
+    public void Die()
+    {
+        m_dead = true;
+        Debug.Log("MegaMan has died");
+    }
+    public bool Dying()
+    {
+        return m_dead;
+    }
+    public bool ReadyToDie()
+    {
+        return m_dead;
+    }
 
+
+    // *** Other public member functions
+
+    // *** Access
     public float ShootButtonReleaseTime { get => m_shootButtonReleaseTime; set => m_shootButtonReleaseTime = value; }
     public float LadderClimbSpeed { get => m_ladderClimbSpeed; set => m_ladderClimbSpeed = value; }
     public float RunSpeed { get => m_runSpeed; set => m_runSpeed = value; }
@@ -227,13 +270,10 @@ public class MegaManController: MonoBehaviour, IGetHurt, ICanHeal
             }
         }
     }
-
     public Collider2D GetUprightLadderDetector()
     {
         return m_uprightLadderDetector;
     }
-
-
     public Collider2D GetGroundLadderDetector()
     {
         return m_groundLadderDetector;
@@ -241,26 +281,22 @@ public class MegaManController: MonoBehaviour, IGetHurt, ICanHeal
 
 
     // *** Accepting control input
-
     public void SetStickPosition(Vector2 direction)
     {
         m_stickPosition = direction;
     }
-
     public void JumpButtonPressed()
     {
         m_jumpButtonPressed = true;
         m_jumpButton = true;
         m_jumpButtonPressTime = Time.time;
     }
-
     public void JumpButtonReleased()
     {
         m_jumpButtonReleased = true;
         m_jumpButton = false;
         m_jumpButtonPressTime = -1;
     }
-
     public void ShootButtonPressed()
     {
         if (m_canShoot)
@@ -270,7 +306,6 @@ public class MegaManController: MonoBehaviour, IGetHurt, ICanHeal
             m_shootButtonPressTime = Time.time;
         }
     }
-
     public void ShootButtonReleased()
     {
         // Ignore shootButton release events if not pressed (maybe !m_canShoot)
@@ -285,12 +320,34 @@ public class MegaManController: MonoBehaviour, IGetHurt, ICanHeal
             m_energyBuster.Shoot(chargeTime);
         }
     }
-
     public void DashButtonPressed()
     {
         m_dashButtonPressed = true;
         m_dashButtonPressTime = Time.time;
     }
+
+
+    // *** Other miscellaneous public functions
+
+    /// <summary>
+    /// MegaMan bounces in the x-direction
+    /// </summary>
+    public void BounceX()
+    {
+        m_acceleration.x = -m_acceleration.x;
+        Flip();
+    }
+
+    /// <summary>
+    /// MegaMan bounces in the y-direction
+    /// </summary>
+    public void BounceY()
+    {
+        m_acceleration.y = -m_acceleration.y;
+    }
+
+
+    // *** Private member functions
 
     /// <summary>
     /// Performs all collider checks, many state transitions:
@@ -303,7 +360,6 @@ public class MegaManController: MonoBehaviour, IGetHurt, ICanHeal
     private void CollisionAndStateChecking()
     {
         // All states check for grounded
-//        m_grounded = CollisionCheck(m_groundCheckCollider, m_groundFilter);
         m_surfaceModel = GroundCheck(m_groundCheckCollider, m_groundFilter);
         m_grounded = m_surfaceModel != null;
 
@@ -529,7 +585,7 @@ public class MegaManController: MonoBehaviour, IGetHurt, ICanHeal
     /// <summary>
     /// Performs all x & y movement of MegaMan
     /// </summary>
-    void Move()
+    private void Move()
     {
         // Reset to default
         m_slidingCollider.enabled = false;
@@ -705,28 +761,10 @@ public class MegaManController: MonoBehaviour, IGetHurt, ICanHeal
 
 
     /// <summary>
-    /// MegaMan bounces in the x-direction
-    /// </summary>
-    void BounceX()
-    {
-        m_acceleration.x = -m_acceleration.x;
-        Flip();
-    }
-
-    /// <summary>
-    /// MegaMan bounces in the y-direction
-    /// </summary>
-    void BounceY()
-    {
-        m_acceleration.y = -m_acceleration.y;
-    }
-
-
-    /// <summary>
     /// Turns analogue inputs into 1 | 0 | -1
     /// </summary>
     /// <returns>controlVec that can only contain 1s, 0s, or -1s</returns>
-    void UpdateControlVector()
+    private void UpdateControlVector()
     {
         m_controlVector = Vector2.zero;
         if (m_stickPosition.x > m_analogueXAxisDeadZone)
@@ -749,7 +787,13 @@ public class MegaManController: MonoBehaviour, IGetHurt, ICanHeal
     }
 
 
-    ISurfaceModel GroundCheck(Collider2D checkCollider, ContactFilter2D filter)
+    /// <summary>
+    /// Checks for the presence of a surface model under MegaMan's feet
+    /// </summary>
+    /// <param name="checkCollider">Which collider to use to check for a surface model</param>
+    /// <param name="filter">Apply this filter to the results</param>
+    /// <returns>Any surface model that may have been found, or null for none</returns>
+    private ISurfaceModel GroundCheck(Collider2D checkCollider, ContactFilter2D filter)
     {
         List<Collider2D> candidates = new List<Collider2D>(0);
         Physics2D.OverlapCollider(checkCollider, filter, candidates);
@@ -765,7 +809,13 @@ public class MegaManController: MonoBehaviour, IGetHurt, ICanHeal
     }
 
 
-    bool CollisionCheck(Collider2D checkCollider, ContactFilter2D filter)
+    /// <summary>
+    /// Collider check helper function
+    /// </summary>
+    /// <param name="checkCollider">What collider to check with</param>
+    /// <param name="filter">Filter the results with</param>
+    /// <returns>True if something was found</returns>
+    private bool CollisionCheck(Collider2D checkCollider, ContactFilter2D filter)
     {
         List<Collider2D> candidates = new List<Collider2D>(0);
         Physics2D.OverlapCollider(checkCollider, filter, candidates);
@@ -777,7 +827,7 @@ public class MegaManController: MonoBehaviour, IGetHurt, ICanHeal
     /// Checks if MegaMan grabs a ladder, if so, changes state, adjusts position as required
     /// </summary>
     /// <returns>true if he did</returns>
-    bool LadderCheck(Collider2D ladderDetector)
+    private bool LadderCheck(Collider2D ladderDetector)
     {
         if (Mathf.Abs(m_controlVector.y) > Mathf.Epsilon)
         {
@@ -796,7 +846,13 @@ public class MegaManController: MonoBehaviour, IGetHurt, ICanHeal
     }
 
 
-    bool MountLadder(Collider2D ladderDetector, bool topEntry = false)
+    /// <summary>
+    /// MegaMan gets on the supplied ladder
+    /// </summary>
+    /// <param name="ladderDetector">The ladder detector that found the ladder</param>
+    /// <param name="topEntry">When true, we are checking below MegaMan's feet, so he might need to be shoved downwards a little</param>
+    /// <returns></returns>
+    private bool MountLadder(Collider2D ladderDetector, bool topEntry = false)
     {
         Vector2 ladderCentre;
         Vector3Int dummy;
@@ -820,41 +876,14 @@ public class MegaManController: MonoBehaviour, IGetHurt, ICanHeal
     }
 
 
+    /// <summary>
+    /// Everything is rightward facing for MegaMan, when turning left, just use this
+    /// </summary>
     private void Flip()
     {
         // Switch the way the player is labelled as facing.
         m_facingRight = !m_facingRight;
     
         transform.Rotate(0f, 180f, 0f);
-    }
-
-
-    // *** ILive interface ***
-    public Team side { get; set; }
-    public bool TakeHit(Collision2D collision, int damage, IProjectile projectile)
-    {
-        m_life.TakeDamage(damage);
-        return true;
-    }
-    public bool TakeHit(Collider2D otherCollider, int damage, IProjectile projectile)
-    {
-        m_life.TakeDamage(damage);
-        return true;
-    }
-
-
-    // *** IDie interface
-    public void Die()
-    {
-        m_dead = true;
-        Debug.Log("MegaMan has died");
-    }
-    public bool Dying()
-    {
-        return m_dead;
-    }
-    public bool ReadyToDie()
-    {
-        return m_dead;
     }
 }

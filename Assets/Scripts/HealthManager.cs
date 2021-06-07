@@ -6,17 +6,12 @@ using UnityEngine;
 /// A simple health-managing class
 /// Components that have death scenes register with this to play their death scenes before being destroyed.
 /// </summary>
-public class HealthManager : MonoBehaviour, ILive, IDestroy
+public class HealthManager : MonoBehaviour, ILive, ISelfDestruct
 {
     [SerializeField] private int maxHealth;
     [SerializeField] private int health;
     private bool alive;
 
-    public int Health { get => health; }
-    public int MaxHealth { get => maxHealth; set => maxHealth = value; }
-
-    public bool Alive { get => alive; }
-    public bool Dead { get => !alive; }
 
     /// <summary>
     /// OverActors are components that want to do something right before this object is destroyed
@@ -39,12 +34,15 @@ public class HealthManager : MonoBehaviour, ILive, IDestroy
             FinalRites();
         }
     }
-    
 
-    /// <summary>
-    /// Something hurt me, take damage, maybe even die
-    /// </summary>
-    /// <param name="damage"></param>
+
+    // *** ILive interface
+
+    public int Health { get => health; }
+    public int MaxHealth { get => maxHealth; set => maxHealth = value; }
+
+    public bool Alive() { return alive; }
+    public bool Dead() { return !alive; }
     public void TakeDamage(int damage)
     {
         if (!alive)
@@ -58,13 +56,6 @@ public class HealthManager : MonoBehaviour, ILive, IDestroy
             FinalRites();
         }
     }
-
-
-    /// <summary>
-    /// Something is healing me
-    /// </summary>
-    /// <param name="healing">Amount of healing</param>
-    /// <param name="okayToExceedMax">When true, health can go above maxHealth</param>
     public void Heal(int healing, bool okayToExceedMax = false)
     {
         if (!alive)
@@ -84,10 +75,7 @@ public class HealthManager : MonoBehaviour, ILive, IDestroy
     }
 
 
-    /// <summary>
-    /// Go through all overActors and have them play their death scene
-    /// Ensure everyone is ready to Die, then destroy the object
-    /// </summary>
+    // *** ISelfDestruct interface
     public void FinalRites()
     {
         bool readyToDie = true;
@@ -107,31 +95,17 @@ public class HealthManager : MonoBehaviour, ILive, IDestroy
             Destroy(gameObject);
         }
     }
-
-
-    /// <summary>
-    /// Register an overActor to the list
-    /// </summary>
-    /// <param name="overActor">Component that wants to do something before being Destroyed</param>
     public void IHaveFinalWords(IDie overActor)
     {
         overActors.Add(overActor);
     }
-
-
-    /// <summary>
-    /// For whatever reason, an overACtor is now gone, so it nolonger needs to do anything before Destroy
-    /// </summary>
-    /// <param name="overActor">Component that lelft</param>
     public void NeverMind(IDie overActor)
     {
         overActors.Remove(overActor);
     }
 
 
-    /// <summary>
-    /// Initiate list of components that need to do something before Destroy
-    /// </summary>
+    // *** Internal functions
     private void GetOverActors()
     {
         IDie[] overActorArray = GetComponentsInChildren<IDie>();

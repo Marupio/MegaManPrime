@@ -9,7 +9,7 @@ using UnityEngine;
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
-public class Projectile : MonoBehaviour, ICanHit, ILoyalty, IDie, IDestroy
+public class Projectile : MonoBehaviour, ICanHit, ILoyalty, IDie, ISelfDestruct
 {
     protected float m_createdTime;
     protected Rigidbody2D m_rigidBodySelf;
@@ -33,10 +33,10 @@ public class Projectile : MonoBehaviour, ICanHit, ILoyalty, IDie, IDestroy
     private List<IGetHurt> m_objectsHit;
     protected float m_duration;
 
-    // *** ILoyalty interface ***
+    // *** ILoyalty interface
     public Team side { get; set; }
 
-    // *** MonoBehaviour interface ***
+    // *** MonoBehaviour interface
 
     void Awake()
     {
@@ -77,18 +77,19 @@ public class Projectile : MonoBehaviour, ICanHit, ILoyalty, IDie, IDestroy
     }
 
 
-    // *** ICanHit interface ***
+    // *** ICanHit interface
 
     public void OnCollisionEnter2D(Collision2D collision)
     {
         Collider2D otherCollider = collision.otherCollider;
-        IGetHurt other = CheckCollider(otherCollider, "collision.otherCollider");
-        if (other == null)
+        IGetHurt other = GeneralTools.ApplyRulesOfEngagement(otherCollider, m_collider, side, "collision.otherCollider");
+        // Could be null - didn't find a good hit, but could also be an entity we already hit - don't hit the same entity twice
+        if (other == null || m_objectsHit.Contains(other))
         {
             otherCollider = collision.collider;
-            other = CheckCollider(otherCollider, "collision.collider");
+            other = GeneralTools.ApplyRulesOfEngagement(otherCollider, m_collider, side, "collision.collider");
         }
-        if (other == null)
+        if (other == null || m_objectsHit.Contains(other))
         {
             return;
         }
@@ -98,11 +99,11 @@ public class Projectile : MonoBehaviour, ICanHit, ILoyalty, IDie, IDestroy
             Hit(otherCollider, other);
         }
     }
-
     public void OnTriggerEnter2D(Collider2D hitInfo)
     {
-        IGetHurt other = CheckCollider(hitInfo, "OnTriggerEnter2D");
-        if (other != null)
+        IGetHurt other = GeneralTools.ApplyRulesOfEngagement(hitInfo, m_collider, side, "OnTriggerEnter2D");
+        // If it isn't null and isn't an entity we already hit, proceed with the hit
+        if (other != null && !m_objectsHit.Contains(other))
         {
             if (other.TakeDamage(m_collider, m_damage, this))
             {
@@ -133,7 +134,7 @@ public class Projectile : MonoBehaviour, ICanHit, ILoyalty, IDie, IDestroy
     }
 
 
-    // *** IDie interface ***
+    // *** IDie interface
 
     public void Die()
     {
@@ -153,7 +154,7 @@ public class Projectile : MonoBehaviour, ICanHit, ILoyalty, IDie, IDestroy
     }
 
 
-    // *** IDestroy interface ***
+    // *** IDestroy interface
 
     public void FinalRites()
     {
@@ -184,36 +185,7 @@ public class Projectile : MonoBehaviour, ICanHit, ILoyalty, IDie, IDestroy
     }
 
 
-    // *** Internal member functions ***
-    
-    /// <summary>
-    /// Check if this is an actual hit
-    /// </summary>
-    /// <param name="hitInfo">The other collider involved</param>
-    /// <param name="origin">The function calling this function, debugging purposes</param>
-    /// <returns>The entity that we just hit</returns>
-    protected IGetHurt CheckCollider(Collider2D hitInfo, string origin)
-    {
-        if (hitInfo == m_collider)
-        {
-            Debug.Log("Projectile - I found my own collider from " + origin);
-        }
-        ILoyalty team = hitInfo.gameObject.GetComponent<ILoyalty>();
-        GeneralTools.AssertNotNull(team, "Projectile CheckCollider " + origin);
-        if (team.side != Team.Neutral && team.side == side)
-        {
-            // No friendly fire
-            return null;
-        }
-        IGetHurt entity = hitInfo.GetComponent<IGetHurt>();
-        GeneralTools.AssertNotNull(entity, "Projectile CheckCollider " + origin);
-        // Don't hit the same entity twice
-        if (m_objectsHit.Contains(entity))
-        {
-            return null;
-        }
-        return entity;
-    }
+    // *** Internal member functions
 
     protected bool Hit(Collider2D collision, IGetHurt entity)
     {
