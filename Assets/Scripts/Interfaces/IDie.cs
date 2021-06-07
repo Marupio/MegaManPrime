@@ -1,7 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
+/// <summary>
+/// Interface for Components that want to do something just before the GameObject is Destroyed()
+/// If an associated IDestroy exists (as a component or parent), then they register with it.
+/// If one doesn't exist, they Destroy themselves after performing their Die() action.
+/// </summary>
 public interface IDie
 {
     /// <summary>
@@ -10,7 +12,8 @@ public interface IDie
     public void Die();
 
     /// <summary>
-    /// Die has already been called on me, now check if I'm ready to die
+    /// Die has already been called on me, but I may still not yet be ready.
+    /// Check if I'm ReadyToDie().
     /// </summary>
     public bool Dying();
 

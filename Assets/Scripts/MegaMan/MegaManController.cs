@@ -22,7 +22,7 @@ public enum MegaManStates
 
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class MegaManController: MonoBehaviour, ILive
+public class MegaManController: MonoBehaviour, IGetHurt, ICanHeal
 {
     // *** Private references
 
@@ -116,6 +116,7 @@ public class MegaManController: MonoBehaviour, ILive
     private float m_maxDashTime;
     private float m_dashStartTime = -1;
     private float m_hurtStartTime = -1;
+    private bool m_dead = false;
     private bool m_facingRight = true;
     private bool m_grounded = true;
     private ISurfaceModel m_surfaceModel;
@@ -156,11 +157,11 @@ public class MegaManController: MonoBehaviour, ILive
     Vector3 box3;
 
 
-
     // *** Mono behaviour interface
 
     private void Awake()
     {
+        side = Team.GoodGuys;
         m_life = GetComponent<Life>();
         m_rigidBodySelf = GetComponent<Rigidbody2D>();
         m_ladderHandler = GameObject.FindObjectOfType<LadderHandler>();
@@ -829,12 +830,13 @@ public class MegaManController: MonoBehaviour, ILive
 
 
     // *** ILive interface ***
-    public bool Hit(Collision2D collision, int damage, IProjectile projectile)
+    public Team side { get; set; }
+    public bool TakeHit(Collision2D collision, int damage, IProjectile projectile)
     {
         m_life.TakeDamage(damage);
         return true;
     }
-    public bool Hit(Collider2D otherCollider, int damage, IProjectile projectile)
+    public bool TakeHit(Collider2D otherCollider, int damage, IProjectile projectile)
     {
         m_life.TakeDamage(damage);
         return true;
@@ -844,14 +846,15 @@ public class MegaManController: MonoBehaviour, ILive
     // *** IDie interface
     public void Die()
     {
+        m_dead = true;
         Debug.Log("MegaMan has died");
     }
     public bool Dying()
     {
-        return m_life.Dead;
+        return m_dead;
     }
     public bool ReadyToDie()
     {
-        return m_life.Dead;
+        return m_dead;
     }
 }

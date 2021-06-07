@@ -17,6 +17,16 @@ public class GeneralTools
 
         return both;
     }
+
+    public static bool AssertNotNull<T>(T entity, string description)
+    {
+        if (entity == null)
+        {
+            Debug.Log("Null object returned: " + description + ", Type=" + entity.GetType());
+            return false;
+        }
+        return true;
+    }
 }
 
 

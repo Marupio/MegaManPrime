@@ -4,10 +4,10 @@ using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(Collider2D))]
-[RequireComponent(typeof(Life))]
-public class DestructibleBlock : SnapToTileGrid, ILive, IDie
+[RequireComponent(typeof(HealthManager))]
+public class DestructibleBlock : SnapToTileGrid, IGetHurt, IDie
 {
-    private Life life;
+    private HealthManager health;
     private SpriteRenderer spriterer;
 
     public List<Sprite> sprites;
@@ -19,9 +19,10 @@ public class DestructibleBlock : SnapToTileGrid, ILive, IDie
 
     void Awake()
     {
-        life = GetComponent<Life>();
+        side = Team.Neutral;
+        health = GetComponent<HealthManager>();
         spriterer = GetComponent<SpriteRenderer>();
-        int maxHealth = life.MaxHealth;
+        int maxHealth = health.MaxHealth;
         deltaH = (float)maxHealth / (float)sprites.Count;
         stateTransitions = new List<int>(sprites.Count);
         for (int i = 1; i <= sprites.Count; ++i)
@@ -29,7 +30,11 @@ public class DestructibleBlock : SnapToTileGrid, ILive, IDie
             int transition = Mathf.RoundToInt(deltaH * (float)i);
             stateTransitions.Add(transition);
         }
-        int currentHealth = life.Health;
+        int currentHealth = health.Health;
+        if (explosions.Count > 0)
+        {
+            health.IHaveFinalWords(this);
+        }
         SetCurrentState(currentHealth);
         UpdateState();
     }
@@ -37,7 +42,7 @@ public class DestructibleBlock : SnapToTileGrid, ILive, IDie
 
     void FixedUpdate()
     {
-        if (SetCurrentState(life.Health))
+        if (SetCurrentState(health.Health))
         {
             UpdateState();
         }
@@ -45,6 +50,8 @@ public class DestructibleBlock : SnapToTileGrid, ILive, IDie
 
 
     // *** IDie interface ***
+
+    public Team side { get; set; }
 
     /// <summary>
     /// Do death scene
@@ -91,18 +98,18 @@ public class DestructibleBlock : SnapToTileGrid, ILive, IDie
 
     public bool Hit(Transform hitPoint, int damage, GameObject bullet)
     {
-        life.TakeDamage(damage);
+        health.TakeDamage(damage);
         return true;
     }
 
-    public bool Hit(Collision2D hitPoint, int damage, IProjectile bullet)
+    public bool TakeDamage(Collision2D collision, int damage, ICanHit attacker)
     {
-        life.TakeDamage(damage);
+        health.TakeDamage(damage);
         return true;
     }
-    public bool Hit(Collider2D otherCollider, int damage, IProjectile projectile)
+    public bool TakeDamage(Collider2D otherCollider, int damage, ICanHit attacker)
     {
-        life.TakeDamage(damage);
+        health.TakeDamage(damage);
         return true;
     }
 
