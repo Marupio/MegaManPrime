@@ -855,8 +855,8 @@ MonoBehaviour:
   m_jumpAirSteerAccelerationFactor: 0.8
   m_dashJumpAirSteerAccelerationFactor: 0.1
   m_movementSmoothing: 0.1
-  m_hurtDuration: 1
-  m_hurtSpeed: 3
+  m_hurtDuration: 0.75
+  m_hurtSpeed: 2
   state: 0
 --- !u!114 &5904244047486212169
 MonoBehaviour:

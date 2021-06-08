@@ -9,15 +9,15 @@ using UnityEngine;
 public enum MegaManStates
 {
     // When editting these, animator may need to be modified
-    Normal = 0,    // Grounded, standing or running
-    Jumping = 10,   // Going up, jump button held down
-    Falling = 11,   // Going downwards - out of jump steam, or jump button released, or fell off something
-    Dashing = 20,   // Grounded dash movement, left or right
+    Normal = 0,         // Grounded, standing or running
+    Jumping = 10,       // Going up, jump button held down
+    Falling = 11,       // Going downwards - out of jump steam, or jump button released, or fell off something
+    Dashing = 20,       // Grounded dash movement, left or right
     DashJumping = 21,   // Jumping while dashing, jump button held down
     DashFalling = 22,   // Falling while dashing, no more going up
-    Climbing = 30,   // On a ladder
-    Sliding = 40,   // Sliding movement, left or right
-    Hurt = 50    // Recoil from an attack
+    Climbing = 30,      // On a ladder
+    Sliding = 40,       // Sliding movement, left or right
+    Hurt = 50           // Recoil from an attack
 }
 
 
@@ -91,8 +91,10 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
     [SerializeField] private float m_jumpSpeed = 15.0f;
     [SerializeField] private float m_jumpHeight = 4.0f;
     [SerializeField] private float m_ladderClimbSpeed = 5.0f;
-    [Tooltip("When mounting a ladder beneath him, MegaMan needs to adjust down this many y units")]
+    [Tooltip("When mounting a ladder below his feet, MegaMan needs to adjust down this many y units")]
     [SerializeField] private float m_climbingDownYAdjust = 0.4f;
+    [Tooltip("When mounting a ladder above his head, MegaMan needs to adjust up this many y units")]
+    [SerializeField] private float m_climbingUpYAdjust = 0.4f;
     [Tooltip("How much time does MegaMan keep his weapon out after shooting")]
     [SerializeField] [Range(0, 1)] private float m_jumpAirSteerAccelerationFactor = 0.8f;
     [Tooltip("How much control can MegaMan have in the air? 0=none, 1=full")]
@@ -100,9 +102,11 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
     [Tooltip("Smooth out MegaMan's movement - 0=jerky")]
     [SerializeField] [Range(0,0.3f)] public float m_movementSmoothing = 0.1f;
     [Tooltip("How long does MegaMan recoil from being hurt")]
-    [SerializeField] [Range(0.1f, 5)] private float m_hurtDuration;
+    [SerializeField] [Range(0.1f, 5)] private float m_hurtDuration = 0.75f;
     [Tooltip("How fast does MegaMan recoil when hurt")]
-    [SerializeField] private float m_hurtSpeed;
+    [SerializeField] private float m_hurtSpeed = 2;
+    [Tooltip("How long is MegaMan invincible after recoiling from a hit?")]
+    [SerializeField] [Range(0.1f, 5)] private float m_invincibleDuration = 0.75f;
 
     public MegaManStates state = MegaManStates.Normal;
 
@@ -119,6 +123,9 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
     private float m_maxDashTime;
     private float m_dashStartTime = -1;
     private float m_hurtStartTime = -1;
+    private float m_invincibleStartTime = -1;
+    private bool m_invincible = false;
+    private bool m_visible = true; // Toggles on and off when invincible
     private bool m_dead = false;
     private bool m_facingRight = true;
     private bool m_grounded = true;
@@ -188,13 +195,17 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
         m_gravityDefault = m_rigidBodySelf.gravityScale;
     }
 
+    private void Start()
+    {
+        m_reaper.IHaveFinalWords(this);
+    }
+
     private void FixedUpdate()
     {
         UpdateControlVector();
         CollisionAndStateChecking();
         Move();
     }
-
 
     private void OnDrawGizmosSelected()
     {
@@ -222,6 +233,10 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
     // *** IGetHurt interface internal helpers
     private bool InternalTakeDamage(int damage, ICanHit attacker)
     {
+        if (m_invincible)
+        {
+            return false;
+        }
         if (state == MegaManStates.Hurt)
         {
             // Cannot get hurt while hurt
@@ -256,20 +271,25 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
     public float ShootButtonReleaseTime { get => m_shootButtonReleaseTime; set => m_shootButtonReleaseTime = value; }
     public float LadderClimbSpeed { get => m_ladderClimbSpeed; set => m_ladderClimbSpeed = value; }
     public float RunSpeed { get => m_runSpeed; set => m_runSpeed = value; }
-    public float GroundSpeed
-    {
-        get
-        {
-            if (m_surfaceModel != null)
-            {
-                return m_rigidBodySelf.velocity.x - m_surfaceModel.WallVelocity.x;
-            }
-            else
-            {
-                return m_rigidBodySelf.velocity.x;
-            }
-        }
-    }
+    public float InvincibleDuration { get => m_invincibleDuration; set => m_invincibleDuration = value; }
+    public bool Visible { get => m_visible; set => m_visible = value; }
+
+    // public float GroundSpeed
+    // {
+    //     get
+    //     {
+    //         if (m_surfaceModel != null)
+    //         {
+    //             return m_rigidBodySelf.velocity.x - m_surfaceModel.WallVelocity.x;
+    //         }
+    //         else
+    //         {
+    //             return m_rigidBodySelf.velocity.x;
+    //         }
+    //     }
+    // }
+
+
     public Collider2D GetUprightLadderDetector()
     {
         return m_uprightLadderDetector;
@@ -427,7 +447,7 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
                     // Hit the ceiling or jumping ran out of steam
                     state = MegaManStates.Falling;
                 }
-                LadderCheck(m_uprightLadderDetector);
+                LadderCheck(m_uprightLadderDetector, true);
                 break;
             case MegaManStates.Falling:
                 if (m_grounded)
@@ -435,7 +455,7 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
                     // landed
                     state = MegaManStates.Normal;
                 }
-                LadderCheck(m_uprightLadderDetector);
+                LadderCheck(m_uprightLadderDetector, true);
                 break;
             case MegaManStates.Dashing:
                 if (!m_grounded)
@@ -459,7 +479,7 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
                     // Hit the ceiling or jumping ran out of steam
                     state = MegaManStates.DashFalling;
                 }
-                LadderCheck(m_uprightLadderDetector);
+                LadderCheck(m_uprightLadderDetector, true);
                 break;
             case MegaManStates.DashFalling:
                 // Upright ladder check
@@ -467,7 +487,7 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
                 {
                     state = MegaManStates.Dashing;
                 }
-                LadderCheck(m_uprightLadderDetector);
+                LadderCheck(m_uprightLadderDetector, true);
                 break;
             case MegaManStates.Climbing:
                 m_animationDirector.LadderTopTransitioning = false;
@@ -564,6 +584,8 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
                 if (Time.time - m_hurtStartTime >= m_hurtDuration)
                 {
                     // Done recoiling
+                    m_invincible = true;
+                    m_invincibleStartTime = Time.time;
                     if (m_grounded)
                     {
                         state = MegaManStates.Normal;
@@ -579,6 +601,20 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
                 break;
         }
         m_jumpButtonReleased = false;
+        if (m_invincible)
+        {
+            if (Time.time - m_invincibleStartTime > m_invincibleDuration)
+            {
+                // Invincible is over
+                m_invincible = false;
+                m_invincibleStartTime = -1;
+                m_visible = true;
+            }
+            else
+            {
+                m_visible = !m_visible;
+            }
+        }
     }
 
 
@@ -731,8 +767,7 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
                 // Recoil in opposite direction from the way we are facing
                 float xDir = m_facingRight ? 1 : -1;
                 float xTargetSpeed = -xDir * m_hurtSpeed;
-                m_rigidBodySelf.gravityScale = 0;
-                Vector2 targetVelocity = new Vector2(xTargetSpeed, 0);
+                Vector2 targetVelocity = new Vector2(xTargetSpeed, m_rigidBodySelf.velocity.y);
                 m_rigidBodySelf.velocity = Vector2.SmoothDamp(m_rigidBodySelf.velocity, targetVelocity, ref m_acceleration, m_movementSmoothing);
 
                 m_canMove = false;
@@ -826,8 +861,10 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
     /// <summary>
     /// Checks if MegaMan grabs a ladder, if so, changes state, adjusts position as required
     /// </summary>
-    /// <returns>true if he did</returns>
-    private bool LadderCheck(Collider2D ladderDetector)
+    /// <param name="ladderDetector">Collider to check under</param>
+    /// <param name="checkAbove">Check also the uprightCeiling collider for a ladder above his head</param>
+    /// <returns>True if MegaMan grabbed a ladder</returns>
+    private bool LadderCheck(Collider2D ladderDetector, bool checkAbove = false)
     {
         if (Mathf.Abs(m_controlVector.y) > Mathf.Epsilon)
         {
@@ -839,12 +876,16 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
             if (m_controlVector.y < 0)
             {
                 // Check for ladder underneath if pressing down
-                return MountLadder(m_groundLadderDetector, true);
+                return MountLadder(m_groundLadderDetector, -m_climbingDownYAdjust);
+            }
+            else
+            {
+                // Pressing 'up'
+                return MountLadder(m_uprightCeilingCheckCollider, m_climbingUpYAdjust);
             }
         }
         return false;
     }
-
 
     /// <summary>
     /// MegaMan gets on the supplied ladder
@@ -852,7 +893,7 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
     /// <param name="ladderDetector">The ladder detector that found the ladder</param>
     /// <param name="topEntry">When true, we are checking below MegaMan's feet, so he might need to be shoved downwards a little</param>
     /// <returns></returns>
-    private bool MountLadder(Collider2D ladderDetector, bool topEntry = false)
+    private bool MountLadder(Collider2D ladderDetector, float yAdjust = 0)
     {
         Vector2 ladderCentre;
         Vector3Int dummy;
@@ -861,13 +902,15 @@ public class MegaManController: MonoBehaviour, ILoyalty, IGetHurt, IDie
         {
             return false;
         }
-        float yAdjust = 0;
-        if (topEntry)
+        if (yAdjust < 0)
         {
-            yAdjust = m_climbingDownYAdjust;
             m_ladderHandler.OpenTrapDoors(m_groundLadderDetector);
         }
-        Vector2 newPosition = new Vector2(ladderCentre.x, gameObject.transform.position.y - yAdjust);
+        else if (yAdjust > 0)
+        {
+            m_ladderHandler.OpenTrapDoors(m_uprightCeilingCheckCollider);
+        }
+        Vector2 newPosition = new Vector2(ladderCentre.x, gameObject.transform.position.y + yAdjust);
         gameObject.transform.position = newPosition;
         m_ladderXPosition = newPosition.x;
         m_rigidBodySelf.velocity = Vector2.zero;

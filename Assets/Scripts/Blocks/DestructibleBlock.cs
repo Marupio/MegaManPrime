@@ -41,12 +41,17 @@ public class DestructibleBlock : SnapToTileGrid, ILoyalty, IGetHurt, IDie
             stateTransitions.Add(transition);
         }
         int currentHealth = health.Health;
+        SetCurrentState(currentHealth);
+        UpdateState();
+    }
+
+
+    void Start()
+    {
         if (explosions.Count > 0)
         {
             reaper.IHaveFinalWords(this);
         }
-        SetCurrentState(currentHealth);
-        UpdateState();
     }
 
 
@@ -100,7 +105,7 @@ public class DestructibleBlock : SnapToTileGrid, ILoyalty, IGetHurt, IDie
         health.TakeDamage(damage);
         return true;
     }
-    public bool TakeDamage(Collider2D otherCollider, int damage, ICanHit attacker)
+    public bool TakeDamage(Collider2D targetCollider, int damage, ICanHit attacker)
     {
         health.TakeDamage(damage);
         return true;

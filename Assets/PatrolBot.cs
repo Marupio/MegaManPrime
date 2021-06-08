@@ -3,30 +3,86 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// enum PatrolBotState
+// {
+//     Scooting = 0,
+//     TurnStart = 10,
+//     TurnFinish = 20,
+//     BareShock = 30,
+//     BareScooting = 40,
+//     BareTurnStart = 50,
+//     BareTurnFinish = 60,
+//     SmugScooting = 70,
+//     SmugTurnStart = 80,
+//     SmugTurnFinish = 90
+// }
+
+// Or using flags for Bare, BareShock, Smug
+enum PatrolBotState
+{
+    Scooting = 0,
+    TurnStart = 10,
+    TurnFinish = 20
+}
+
+
 [RequireComponent(typeof(ILive))]
 [RequireComponent(typeof(ISelfDestruct))]
 [RequireComponent(typeof(Collider2D))]
 public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
 {
+    // *** References
     ILive m_health;
     ISelfDestruct m_reaper;
     Collider2D m_collider;
 
-    [Tooltip("How much damage does MegaMan get when he touches me")]
-    [SerializeField] private int m_touchDamage = 5;
 
-    [Tooltip("Explosion death scene, if any")]
-    [SerializeField] private GameObject m_explosion;
-    private bool m_exploded;
+    // *** User settings
+
+    [Header("Patrol movement")]
+    [SerializeField] private float m_leftwards = 2;
+    [SerializeField] private float m_rightwards = 2;
+    [SerializeField] private float m_patrolSpeed = 3;
+    [SerializeField] private float m_acceleration = 10;
 
     // The graphics face left, so PatrolBot's default direction is left
-    bool m_facingLeft;
+    [Tooltip("Which way does he start facing?")]
+    [SerializeField] private bool m_facingLeft;
 
-    // Smug expression (when shielded and he hit MegaMan)
+    [Header("Other settings")]
+    [Tooltip("How much damage does MegaMan get when he touches me")]
+    [SerializeField] private int m_touchDamage = 5;
+    [Tooltip("When his shield gets pulled off, he looks shocked for this duration")]
+    [SerializeField] [Range(0, 2)] private float m_shockDuration = 1;
+    [Tooltip("When he hits MegaMan, he becomes smug for this duration")]
+    [SerializeField] [Range(0, 2)] private float m_smugDuration = 1;
+    [Tooltip("Explosion death scene, if any")]
+    [SerializeField] private GameObject m_explosion;
+
+
+
+    // *** Private variables
+
+    // Trajectory constants
+    Vector3 m_initPosition;
+    Vector3 m_positionLeft;
+    Vector3 m_positionRight;
+    Vector3 m_turningPointLeft;
+    Vector3 m_turningPointRight;
+    float m_totalDist;
+    float m_decelTime;
+    float m_decelDist;
+
+    // Current state of things
+    PatrolBotState state = PatrolBotState.Scooting;
+    float m_direction; // -1 left, +1 right
+    float m_currVelocity;
+    bool m_exploded;
+    bool m_bare;
+    float m_bareShockStart;
     bool m_smug;
     float m_smugStart;
-    [Tooltip("When he hits MegaMan, he can become smug.  This is how long.")]
-    [SerializeField] [Range(0, 2)] private float m_smugDuration = 1;
+    float m_targetSpeed;
 
 
     // *** MonoBehaviour interface
@@ -41,8 +97,16 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
         m_smug = false;
         m_smugStart = -1;
         side = Team.BadGuys;
+        CalculateTrajectory();
     }
 
+    void Start()
+    {
+        if (m_explosion != null)
+        {
+            m_reaper.IHaveFinalWords(this);
+        }
+    }
 
     void FixedUpdate()
     {
@@ -50,6 +114,7 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
         {
             m_smug = false;
         }
+        Move();
     }
 
     // *** ILoyalty interface
@@ -84,10 +149,10 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
         List<Vector2> points = (from contact in contacts select contact.point).ToList();
         return InternalHit(points, damage, attacker);
     }
-    public bool TakeDamage(Collider2D otherCollider, int damage, ICanHit attacker)
+    public bool TakeDamage(Collider2D incomingCollider, int damage, ICanHit attacker)
     {
         List<Vector2> points = new List<Vector2>();
-        points.Add(otherCollider.bounds.center);
+        points.Add(incomingCollider.bounds.center);
         return InternalHit(points, damage, attacker);
     }
     // *** IGetHurt interface internal helpers
@@ -146,34 +211,43 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
 
     public void OnCollisionEnter2D(Collision2D collision)
     {
-        Collider2D otherCollider = collision.otherCollider;
-        IGetHurt other = GeneralTools.ApplyRulesOfEngagement(otherCollider, m_collider, side, "collision.otherCollider");
-        if (other == null)
-        {
-            otherCollider = collision.collider;
-            other = GeneralTools.ApplyRulesOfEngagement(otherCollider, m_collider, side, "collision.collider");
-        }
-        if (other == null)
+        Collider2D targetCollider = collision.collider;
+        IGetHurt target = GeneralTools.ApplyRulesOfEngagement(targetCollider, m_collider, side, "collision.collider");
+        if (target == null)
         {
             return;
         }
-        if (other.TakeDamage(collision, m_touchDamage, this))
+        if (target.TakeDamage(collision, m_touchDamage, this))
         {
-            // Other has accepted the hit, do our Hit reaction
+            // Target has accepted the hit, do our Hit reaction
             m_smugStart = Time.time;
             m_smug = true;
         }
     }
     public void OnTriggerEnter2D(Collider2D hitInfo)
     {
-        IGetHurt other = GeneralTools.ApplyRulesOfEngagement(hitInfo, m_collider, side, "collision.otherCollider");
-        if (other == null)
+        IGetHurt target = GeneralTools.ApplyRulesOfEngagement(hitInfo, m_collider, side, "collision.otherCollider");
+        if (target == null)
         {
             return;
         }
-        if (other.TakeDamage(hitInfo, m_touchDamage, this))
+        if (target.TakeDamage(hitInfo, m_touchDamage, this))
         {
-            // Other has accepted the hit, do our Hit reaction
+            // Target has accepted the hit, do our Hit reaction
+            m_smugStart = Time.time;
+            m_smug = true;
+        }
+    }
+    public void OnTriggerStay2D(Collider2D hitInfo)
+    {
+        IGetHurt target = GeneralTools.ApplyRulesOfEngagement(hitInfo, m_collider, side, "collision.otherCollider");
+        if (target == null)
+        {
+            return;
+        }
+        if (target.TakeDamage(hitInfo, m_touchDamage, this))
+        {
+            // Target has accepted the hit, do our Hit reaction
             m_smugStart = Time.time;
             m_smug = true;
         }
@@ -189,5 +263,94 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
     public bool ScatterHit()
     {
         return false;
+    }
+
+
+    // *** Private member functions
+
+    private void Move()
+    {
+        if (m_targetSpeed > 0)
+        {
+            // Accellerating / moving right
+            if (transform.position.x <= m_turningPointRight.x)
+            {
+                // Change direction
+                m_targetSpeed = -m_patrolSpeed;
+            }
+        }
+        else
+        {
+            if (transform.position.x <= m_turningPointLeft.x)
+            {
+                // Change direction
+                state = PatrolBotState.TurnStart;
+                m_targetSpeed = m_patrolSpeed;
+            }
+        }
+        float delta = m_currVelocity - m_targetSpeed;
+        if (delta < Mathf.Epsilon)
+        {
+            m_currVelocity = Mathf.Max(m_targetSpeed, m_currVelocity + m_acceleration*Time.fixedDeltaTime);
+        }
+        else if (delta > Mathf.Epsilon)
+        {
+            m_currVelocity = Mathf.Min(m_targetSpeed, m_currVelocity - m_acceleration * Time.fixedDeltaTime);
+        }
+        else
+        {
+            state = PatrolBotState.Scooting;
+        }
+        Vector3 newPosition = new Vector3(transform.position.x + m_currVelocity*Time.fixedDeltaTime, transform.position.y, transform.position.z);
+        transform.position = newPosition;
+        // Detect a zero-crossing of m_currentVelocity
+        if (state == PatrolBotState.TurnStart && m_currVelocity*m_direction > 0)
+        {
+            state = PatrolBotState.TurnFinish;
+            m_facingLeft = !m_facingLeft;
+            m_direction *= -1;
+        }
+    }
+
+
+    /// <summary>
+    /// Calculate constant variables associated with patrolbot's trajectory
+    /// </summary>
+    private void CalculateTrajectory()
+    {
+        m_initPosition = gameObject.transform.position;
+        m_positionLeft = m_initPosition;
+        m_positionLeft.x -= m_leftwards;
+        m_positionRight = m_initPosition;
+        m_positionRight.x += m_rightwards;
+        float m_totalDist = m_leftwards + m_rightwards;
+        m_direction = m_facingLeft ? -1 : 1;
+        m_targetSpeed = m_direction * m_patrolSpeed;
+        m_currVelocity = m_targetSpeed;
+        if (m_acceleration < Mathf.Epsilon)
+        {
+            // Disable acceleration
+            m_decelTime = 0;
+            m_decelDist = 0;
+        }
+        else
+        {
+            m_decelTime = m_patrolSpeed/m_acceleration;
+            m_decelDist = m_patrolSpeed * m_decelTime + 0.5f * m_acceleration * m_decelTime * m_decelTime;
+            if (m_decelDist >= m_totalDist*0.5f)
+            {
+                Vector3 midPoint = 0.5f*(m_positionLeft + m_positionRight);
+                m_turningPointLeft = midPoint;
+                m_turningPointRight = midPoint;
+                m_currVelocity = 0;
+            }
+            else
+            {
+                m_turningPointLeft = m_positionLeft;
+                m_turningPointLeft.x += m_decelDist;
+                m_turningPointRight = m_positionRight;
+                m_turningPointRight.x -= m_decelDist;
+            }
+        }
     }
 }

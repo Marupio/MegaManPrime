@@ -1,7 +1,16 @@
 fileFormatVersion: 2
 guid: 2ca20208800b6d14a9aa377329627428
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: -5181338451069132386
+    second: mm10_enemy_105
+  - first:
+      213: 5977124564296793937
+    second: mm10_enemy_107
+  - first:
+      213: 3839707177764153648
+    second: mm10_enemy_108
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -8675,6 +8684,69 @@ TextureImporter:
       bones: []
       spriteID: 974801d98c7a82630800000000000000
       internalID: 3902553557186937977
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mm10_enemy_105
+      rect:
+        serializedVersion: 2
+        x: 647
+        y: 141
+        width: 24
+        height: 32
+      alignment: 9
+      pivot: {x: 0.33333334, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e91a3f271203818b0800000000000000
+      internalID: -5181338451069132386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mm10_enemy_107
+      rect:
+        serializedVersion: 2
+        x: 674
+        y: 141
+        width: 20
+        height: 32
+      alignment: 9
+      pivot: {x: 0.4, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 15ffb218f1303f250800000000000000
+      internalID: 5977124564296793937
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mm10_enemy_108
+      rect:
+        serializedVersion: 2
+        x: 697
+        y: 141
+        width: 24
+        height: 32
+      alignment: 9
+      pivot: {x: 0.33333334, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0396624a551694530800000000000000
+      internalID: 3839707177764153648
       vertices: []
       indices: 
       edges: []

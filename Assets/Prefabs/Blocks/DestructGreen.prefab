@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 377021557259548643}
   - component: {fileID: 377021557259548646}
   - component: {fileID: 377021557259548647}
+  - component: {fileID: 8014230692825238501}
   - component: {fileID: 377021557259548644}
-  - component: {fileID: 377021557259548641}
   - component: {fileID: 377021557259548645}
   m_Layer: 6
   m_Name: DestructGreen
@@ -134,6 +134,20 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &8014230692825238501
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 377021557259548666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fec76b7adfe506cfb63b75a770cd2e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 25
+  health: 0
 --- !u!114 &377021557259548644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151,19 +165,6 @@ MonoBehaviour:
   wallVelocity: {x: 0, y: 0}
   resistance: 0
   slidable: 1
---- !u!114 &377021557259548641
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 377021557259548666}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca9f3739458f466219adc968385fd727, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 25
 --- !u!114 &377021557259548645
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -190,3 +191,4 @@ MonoBehaviour:
   explosions:
   - {fileID: 7885965169830052680, guid: 3aae6d2a02d873f4fb6e75b423e79b96, type: 3}
   - {fileID: 4318773288708202524, guid: 32bdb2827262c9344b0e7325899e31b1, type: 3}
+  stateTransitions: 

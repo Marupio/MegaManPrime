@@ -6,9 +6,9 @@ public interface ICanHit
     /// A 2D physics-based collision has occurred
     /// We support these for objects that MegaMan cannot pass through, such as destructible blocks
     /// This function must tell the IEnemy class involved that it got hit
-    /// The advantage of this one is it tells the enemy exactly where it got hit
     /// </summary>
     /// <param name="collision">Informamtion about the collision</param>
+    /// <note>collision.otherCollider (etc.) seems to refer to the attacker, and collision.collider refers to the entity getting hit</note>
     public void OnCollisionEnter2D(Collision2D collision);
 
     /// <summary>

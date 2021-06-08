@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7152976854702657952}
   - component: {fileID: 7152976854702657953}
   - component: {fileID: 7152976854702657954}
-  - component: {fileID: 7152976854702657959}
+  - component: {fileID: 6343909143572397418}
   - component: {fileID: 7152976854702657955}
   m_Layer: 6
   m_Name: DestructBlue
@@ -151,7 +151,7 @@ MonoBehaviour:
   wallVelocity: {x: 0, y: 0}
   resistance: 0
   slidable: 1
---- !u!114 &7152976854702657959
+--- !u!114 &6343909143572397418
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -160,10 +160,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 7152976854702657980}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca9f3739458f466219adc968385fd727, type: 3}
+  m_Script: {fileID: 11500000, guid: 2fec76b7adfe506cfb63b75a770cd2e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 25
+  health: 0
 --- !u!114 &7152976854702657955
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -190,3 +191,4 @@ MonoBehaviour:
   explosions:
   - {fileID: 663009927323838725, guid: 8e0790189ddca61439e6ce2292f688b4, type: 3}
   - {fileID: 4318773288708202524, guid: 32bdb2827262c9344b0e7325899e31b1, type: 3}
+  stateTransitions: 

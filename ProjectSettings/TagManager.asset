@@ -8,6 +8,7 @@ TagManager:
   - Ice
   - MovingPlatform
   - Mud
+  - IgnoreHits
   layers:
   - Default
   - TransparentFX

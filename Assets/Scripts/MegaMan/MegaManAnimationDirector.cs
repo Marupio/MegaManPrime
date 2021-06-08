@@ -9,6 +9,7 @@ using UnityEngine;
 public class MegaManAnimationDirector : MonoBehaviour
 {
     private Animator m_animator;
+    private SpriteRenderer m_renderer;
     private MegaManController m_controller;
     private Rigidbody2D m_rigidBodySelf;
     private EnergyBuster m_energyBuster;
@@ -31,6 +32,7 @@ public class MegaManAnimationDirector : MonoBehaviour
     private bool m_shootingPrev = false;
     private bool m_ladderTopTransitioning = false;  // When at the top of a ladder, halfway to transition to standing
     private bool m_ladderTopTransitioningPrev = false;  // When at the top of a ladder, halfway to transition to standing
+    private bool m_visiblePrev = true;
 
 
     // *** Weapon Fire Point Values
@@ -61,37 +63,37 @@ public class MegaManAnimationDirector : MonoBehaviour
         switch (m_currentState)
         {
             case 0:
+            {
+                if (m_running)
                 {
-                    if (m_running)
-                    {
-                        newFirePoint = m_firePointRunShoot;
-                    }
-                    else
-                    {
-                        newFirePoint = m_firePointStandShoot;
-                    }
-                    break;
+                    newFirePoint = m_firePointRunShoot;
                 }
+                else
+                {
+                    newFirePoint = m_firePointStandShoot;
+                }
+                break;
+            }
             case 1:
-                {
-                    newFirePoint = m_firePointJumpShoot;
-                    break;
-                }
+            {
+                newFirePoint = m_firePointJumpShoot;
+                break;
+            }
             case 2:
-                {
-                    newFirePoint = m_firePointDashShoot;
-                    break;
-                }
+            {
+                newFirePoint = m_firePointDashShoot;
+                break;
+            }
             case 3:
-                {
-                    newFirePoint = m_firePointClimbShoot;
-                    break;
-                }
+            {
+                newFirePoint = m_firePointClimbShoot;
+                break;
+            }
             default:
-                {
-                    Debug.LogError("Unhandled state for Weapon Fire Point position");
-                    break;
-                }
+            {
+                Debug.LogError("Unhandled state for Weapon Fire Point position");
+                break;
+            }
         }
         if (newFirePoint != m_currentFirePoint)
         {
@@ -106,6 +108,7 @@ public class MegaManAnimationDirector : MonoBehaviour
     private void Awake()
     {
         m_animator = GetComponent<Animator>();
+        m_renderer = GetComponent<SpriteRenderer>();
         m_controller = GetComponentInParent<MegaManController>();
         m_rigidBodySelf = GetComponentInParent<Rigidbody2D>();
 
@@ -184,6 +187,11 @@ public class MegaManAnimationDirector : MonoBehaviour
         if (animatorChanged)
         {
             m_animator.SetTrigger("Changed");
+        }
+        if (m_visiblePrev != m_controller.Visible)
+        {
+            m_visiblePrev = !m_visiblePrev;
+            m_renderer.enabled = m_visiblePrev;
         }
     }
 }

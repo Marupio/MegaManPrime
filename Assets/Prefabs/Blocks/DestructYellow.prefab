@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 7363237725073052039}
   - component: {fileID: 7363237725073052034}
   - component: {fileID: 7363237725073052035}
+  - component: {fileID: 8546671032317891456}
   - component: {fileID: 7363237725073052032}
-  - component: {fileID: 7363237725073052037}
   - component: {fileID: 7363237725073052033}
   m_Layer: 6
   m_Name: DestructYellow
@@ -134,6 +134,20 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &8546671032317891456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7363237725073052062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fec76b7adfe506cfb63b75a770cd2e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 25
+  health: 0
 --- !u!114 &7363237725073052032
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151,19 +165,6 @@ MonoBehaviour:
   wallVelocity: {x: 0, y: 0}
   resistance: 0
   slidable: 1
---- !u!114 &7363237725073052037
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7363237725073052062}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca9f3739458f466219adc968385fd727, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 25
 --- !u!114 &7363237725073052033
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -190,3 +191,4 @@ MonoBehaviour:
   explosions:
   - {fileID: 4017256995052443781, guid: 111f9e7327ac3a14fa0aa806e7b89e21, type: 3}
   - {fileID: 4318773288708202524, guid: 32bdb2827262c9344b0e7325899e31b1, type: 3}
+  stateTransitions: 

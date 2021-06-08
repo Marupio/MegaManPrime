@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2135449464964222135}
   - component: {fileID: 6746488222934247391}
-  - component: {fileID: 8980851807463249004}
   - component: {fileID: 1606943820322765172}
+  - component: {fileID: 7993634313736471323}
   - component: {fileID: 1742254334439852505}
   m_Layer: 8
   m_Name: DustBitsRed
@@ -53,19 +53,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &8980851807463249004
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2384484086994139209}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f9d597c416b7d04299dbc07df8dbe85, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  duration: 0.5
 --- !u!212 &1606943820322765172
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -117,6 +104,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &7993634313736471323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2384484086994139209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5561d1af65acc94292cb39b797df3e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  duration: 0.5
 --- !u!114 &1742254334439852505
 MonoBehaviour:
   m_ObjectHideFlags: 0

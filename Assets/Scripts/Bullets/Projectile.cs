@@ -53,10 +53,7 @@ public class Projectile : MonoBehaviour, ICanHit, ILoyalty, IDie, ISelfDestruct
 
     void Start()
     {
-        if (m_splat != null)
-        {
-            IHaveFinalWords(this);
-        }
+        IHaveFinalWords(this);
     }
 
     void FixedUpdate()
@@ -81,34 +78,28 @@ public class Projectile : MonoBehaviour, ICanHit, ILoyalty, IDie, ISelfDestruct
 
     public void OnCollisionEnter2D(Collision2D collision)
     {
-        Collider2D otherCollider = collision.otherCollider;
-        IGetHurt other = GeneralTools.ApplyRulesOfEngagement(otherCollider, m_collider, side, "collision.otherCollider");
-        // Could be null - didn't find a good hit, but could also be an entity we already hit - don't hit the same entity twice
-        if (other == null || m_objectsHit.Contains(other))
-        {
-            otherCollider = collision.collider;
-            other = GeneralTools.ApplyRulesOfEngagement(otherCollider, m_collider, side, "collision.collider");
-        }
-        if (other == null || m_objectsHit.Contains(other))
+        Collider2D targetCollider = collision.collider;
+        IGetHurt target = GeneralTools.ApplyRulesOfEngagement(targetCollider, m_collider, side, "collision.collider");
+        if (target == null || m_objectsHit.Contains(target))
         {
             return;
         }
-        if (other.TakeDamage(collision, m_damage, this))
+        if (target.TakeDamage(collision, m_damage, this))
         {
-            // Other has accepted the hit, do our Hit reaction
-            Hit(otherCollider, other);
+            // Target has accepted the hit, do our Hit reaction
+            Hit(targetCollider, target);
         }
     }
     public void OnTriggerEnter2D(Collider2D hitInfo)
     {
-        IGetHurt other = GeneralTools.ApplyRulesOfEngagement(hitInfo, m_collider, side, "OnTriggerEnter2D");
+        IGetHurt target = GeneralTools.ApplyRulesOfEngagement(hitInfo, m_collider, side, "OnTriggerEnter2D");
         // If it isn't null and isn't an entity we already hit, proceed with the hit
-        if (other != null && !m_objectsHit.Contains(other))
+        if (target != null && !m_objectsHit.Contains(target))
         {
-            if (other.TakeDamage(m_collider, m_damage, this))
+            if (target.TakeDamage(m_collider, m_damage, this))
             {
                 // Entity has accepted the hit, do our Hit reaction
-                Hit(hitInfo, other);
+                Hit(hitInfo, target);
             }
         }
     }
@@ -140,7 +131,10 @@ public class Projectile : MonoBehaviour, ICanHit, ILoyalty, IDie, ISelfDestruct
     {
         if (!m_splatted)
         {
-            Instantiate(m_splat, gameObject.transform.position, gameObject.transform.rotation);
+            if (m_splat != null)
+            {
+                Instantiate(m_splat, gameObject.transform.position, gameObject.transform.rotation);
+            }
             m_splatted = true;
         }
     }

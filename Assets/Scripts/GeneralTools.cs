@@ -35,6 +35,11 @@ public class GeneralTools
         {
             Debug.Log("ApplyRulesOfEngagement - I found my own collider from " + origin);
         }
+        if (target.tag.Contains("IgnoreHits"))
+        {
+            // As the tag says
+            return null;
+        }
         // Use '...InParent' search because complex prefabs may have colliders as children
         ILoyalty targetLoyalty = target.gameObject.GetComponentInParent<ILoyalty>();
         if (targetLoyalty == null)

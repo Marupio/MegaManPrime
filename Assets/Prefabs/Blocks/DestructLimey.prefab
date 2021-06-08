@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1351694217937059238}
   - component: {fileID: 1351694217937059239}
   - component: {fileID: 1351694217937059236}
-  - component: {fileID: 1351694217937059233}
+  - component: {fileID: 4912499040339034035}
   - component: {fileID: 1351694217937059237}
   m_Layer: 6
   m_Name: DestructLimey
@@ -151,7 +151,7 @@ MonoBehaviour:
   wallVelocity: {x: 0, y: 0}
   resistance: 0
   slidable: 1
---- !u!114 &1351694217937059233
+--- !u!114 &4912499040339034035
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -160,10 +160,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1351694217937059258}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca9f3739458f466219adc968385fd727, type: 3}
+  m_Script: {fileID: 11500000, guid: 2fec76b7adfe506cfb63b75a770cd2e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 25
+  health: 0
 --- !u!114 &1351694217937059237
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -190,3 +191,4 @@ MonoBehaviour:
   explosions:
   - {fileID: 5590170153243665196, guid: c4a877f6b0cc7314abfbc1c3875924b1, type: 3}
   - {fileID: 4318773288708202524, guid: 32bdb2827262c9344b0e7325899e31b1, type: 3}
+  stateTransitions: 
