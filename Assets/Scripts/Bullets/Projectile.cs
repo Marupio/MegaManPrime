@@ -75,7 +75,6 @@ public class Projectile : MonoBehaviour, ICanHit, ILoyalty, IDie, ISelfDestruct
 
 
     // *** ICanHit interface
-
     public void OnCollisionEnter2D(Collision2D collision)
     {
         Collider2D targetCollider = collision.collider;
@@ -91,6 +90,15 @@ public class Projectile : MonoBehaviour, ICanHit, ILoyalty, IDie, ISelfDestruct
         }
     }
     public void OnTriggerEnter2D(Collider2D hitInfo)
+    {
+        CheckForColliderHits(hitInfo);
+    }
+    public void OnTriggerStay2D(Collider2D hitInfo)
+    {
+        CheckForColliderHits(hitInfo);
+    }
+    // *** ICanHit interface internal helpers
+    private void CheckForColliderHits(Collider2D hitInfo)
     {
         IGetHurt target = GeneralTools.ApplyRulesOfEngagement(hitInfo, m_collider, side, "OnTriggerEnter2D");
         // If it isn't null and isn't an entity we already hit, proceed with the hit

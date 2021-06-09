@@ -28,7 +28,8 @@ public class SelfDestructTimer : MonoBehaviour, ISelfDestruct
             Animator[] animators = GetComponentsInChildren<Animator>();
             foreach (Animator anim in animators)
             {
-                AnimatorClipInfo[] clips = anim.GetCurrentAnimatorClipInfo(anim.gameObject.layer);
+                // TODO - Use animator layers properly
+                AnimatorClipInfo[] clips = anim.GetCurrentAnimatorClipInfo(0);
                 foreach (AnimatorClipInfo clip in clips)
                 {
                     maxLength = Mathf.Max(maxLength, clip.clip.length);

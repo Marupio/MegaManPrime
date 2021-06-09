@@ -13,11 +13,12 @@ public interface ICanHit
 
     /// <summary>
     /// A trigger-type Collider2D collision has occurred
-    /// We support these for objects that MegaMan can pass through, such as enemies
+    /// We support these for objects that MegaMan can pass through, such as enemies.  Implement both Enter and Stay variations.
     /// This function must tell the IEnemy class involved that it got hit
     /// </summary>
     /// <param name="hitInfo">The Collider of the other object involved in the collision</param>
     public void OnTriggerEnter2D(Collider2D hitInfo);
+    public void OnTriggerStay2D(Collider2D hitInfo);
 
     /// <summary>
     /// Am I deflectable?
