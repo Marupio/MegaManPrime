@@ -11,6 +11,9 @@ TextureImporter:
   - first:
       213: 3839707177764153648
     second: mm10_enemy_108
+  - first:
+      213: -9223352397276595099
+    second: mm10_enemy_110
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -8747,6 +8750,27 @@ TextureImporter:
       bones: []
       spriteID: 0396624a551694530800000000000000
       internalID: 3839707177764153648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mm10_enemy_110
+      rect:
+        serializedVersion: 2
+        x: 462
+        y: 89
+        width: 22
+        height: 22
+      alignment: 9
+      pivot: {x: 0.27272728, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 56cb412bcd1100080800000000000000
+      internalID: -9223352397276595099
       vertices: []
       indices: 
       edges: []

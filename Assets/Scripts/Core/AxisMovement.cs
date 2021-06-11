@@ -11,11 +11,27 @@ public abstract class AxisMovement : KinematicLimits
     {
         m_inputRange.ControlScalar = value;
     }
-    public abstract KinematicVariable IndependentVariable { get; }
-    public virtual float PositionTarget() { Debug.LogError("Not an independent variable"); return float.NaN; }
-    public virtual float SpeedTarget() { Debug.LogError("Not an independent variable"); return float.NaN; }
-    public virtual float AccelerationTarget() { Debug.LogError("Not an independent variable"); return float.NaN; }
-    public virtual float JerkTarget() { Debug.LogError("Not an independent variable"); return float.NaN; }
+    /// <summary>
+    /// Returns the 'ImpulseMovement' class for this, if it is one.  ImpulseMovement is the base class for impulse axis movement types.
+    /// </summary>
+    /// <returns></returns>
+    public virtual ImpulseMovement ImpulseType()
+    {
+        if (this is ImpulseMovement)
+        {
+            return (ImpulseMovement)this;
+        }
+        else
+        {
+            return null;
+        }
+    }
+    public abstract KinematicVariables IndependentVariable { get; }
+    public virtual float PositionTarget { get {Debug.LogError("Not an independent variable"); return float.NaN; } }
+    public virtual float SpeedTarget { get {Debug.LogError("Not an independent variable"); return float.NaN; } }
+    public virtual float AccelerationTarget { get {Debug.LogError("Not an independent variable"); return float.NaN; } }
+    public virtual float ForceTarget { get {Debug.LogError("Not an independent variable"); return float.NaN; } }
+    public virtual float JerkTarget { get {Debug.LogError("Not an independent variable"); return float.NaN; } }
 
     protected AxisMovement(KinematicLimits limits, InputRange inputRange)
         : base (limits)
@@ -25,82 +41,49 @@ public abstract class AxisMovement : KinematicLimits
 }
 
 
-/*
-    AxisMovement (required variables / settings)
-        Uncontrolled
-        ControlledPosition
-        ControlledSpeed
-            Speed (inputRange)
-            AccelerationMax
-            Smoothing
-        ControlledAcceleration
-            Acceleration (inputRange)
-            SpeedMax
-            JerkSmoothing
-            TaperOffSmoothing
-        ControlledForce
-            Force (inputRange)
-            SpeedMax
-            JerkSmoothing
-            TaperOffSmoothing
-        ImpulseInitialSpeed
-            InitialSpeed (inputRange)
-        ImpulseSpeedAndDuration
-            Speed
-            Duration (inputRange)
-        ImpulseAccelerationAndDuration
-        ImpulseForceAndDuration
-*/
 public class UncontrolledAxisMovement : AxisMovement
 {
     public override void ApplyControlScalar(float value) { /* Do nothing */ }
-    public override KinematicVariable IndependentVariable { get => KinematicVariable.None; }
+    public override KinematicVariables IndependentVariable { get => KinematicVariables.None; }
     public UncontrolledAxisMovement(KinematicLimits limits) : base(limits, null) {}
 }
 
+
 public class ControlledPositionAxisMovement : AxisMovement
 {
-    public override KinematicVariable IndependentVariable { get => KinematicVariable.Position; }
-    public override float PositionTarget()
-    {
-        return m_inputRange.InputValue;
-    }
+    public override KinematicVariables IndependentVariable { get => KinematicVariables.Position; }
+    public override float PositionTarget { get { return m_inputRange.InputValue; } }
     public ControlledPositionAxisMovement(KinematicLimits limits, InputRange inputRange)
         : base(limits, inputRange)
     {}
 }
+
+
 public class ControlledSpeedAxisMovement : AxisMovement
 {
-    public override KinematicVariable IndependentVariable { get => KinematicVariable.Speed; }
-    public override float SpeedTarget()
-    {
-        return m_inputRange.InputValue;
-    }
+    public override KinematicVariables IndependentVariable { get => KinematicVariables.Speed; }
+    public override float SpeedTarget { get { return m_inputRange.InputValue; } }
     public ControlledSpeedAxisMovement(KinematicLimits limits, InputRange inputRange)
         : base(limits, inputRange)
     {}
 }
+
+
 public class ControlledAccelerationAxisMovement : AxisMovement
 {
-    public override KinematicVariable IndependentVariable { get => KinematicVariable.Acceleration; }
-    public override float AccelerationTarget()
-    {
-        return m_inputRange.InputValue;
-    }
+    public override KinematicVariables IndependentVariable { get => KinematicVariables.Acceleration; }
+    public override float AccelerationTarget { get { return m_inputRange.InputValue; } }
     public ControlledAccelerationAxisMovement(KinematicLimits limits, InputRange inputRange)
         : base(limits, inputRange)
     { }
 }
 
-//         ControlledForce
-//             Force (inputRange)
-//             SpeedMax
-//             JerkSmoothing
-//             TaperOffSmoothing
-//         ImpulseInitialSpeed
-//             InitialSpeed (inputRange)
-//         ImpulseSpeedAndDuration
-//             Speed
-//             Duration (inputRange)
-//         ImpulseAccelerationAndDuration
-//         ImpulseForceAndDuration
+
+public class ControlledForceAxisMovement : AxisMovement
+{
+    public override KinematicVariables IndependentVariable { get => KinematicVariables.Force; }
+    public override float ForceTarget { get { return m_inputRange.InputValue; } }
+    public ControlledForceAxisMovement(KinematicLimits limits, InputRange inputRange)
+        : base(limits, inputRange)
+    { }
+}
