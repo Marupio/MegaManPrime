@@ -71,9 +71,20 @@ public abstract class AxisMovement<T> : KinematicLimits {
         ref T acceleration,
         ref T appliedForce,
         ref T instantaneousForce,
-        ref KinematicVariables involvedVariables
+        ref KinematicVariables involvedVariables,
+        Dictionary<string, AxisSource> sources
     );
 
+    public bool SmoothingEnabled
+    {
+        get => m_smoothingEnabled;
+        set { m_smoothingEnabled = InternalSmoothingAllowed() ? value : false; }
+    }
+    public float SmoothingTime
+    {
+        get => m_smoothingTime;
+        set { m_smoothingTime = InternalSmoothingAllowed() ? value : 0;}
+    }
     protected AxisMovement(KinematicLimits limits, InputRange<T> inputRange)
         : base (limits) {
         m_inputRange = inputRange;
@@ -82,6 +93,19 @@ public abstract class AxisMovement<T> : KinematicLimits {
     // Dictionary<string, AxisSource> m_axisSources;
     // bool m_smoothingEnabled;
     // float m_smoothingTime;
+
+    /// <summary>
+    /// Enforces no smoothing for Instantaneous movement control
+    /// </summary>
+    protected bool InternalSmoothingAllowed()
+    {
+        ImpulseMovement<T> impulseType = ImpulseType();
+        if (impulseType != null && impulseType.Instantaneous)
+        {
+            return false;
+        }
+        return true;
+    }
 }
 
 
