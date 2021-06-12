@@ -96,9 +96,9 @@ public class Movement2D {
         float curRotation = m_rigidBody.rotation;
         float curOmega = m_rigidBody.angularVelocity;
         float instantaneousTorque = 0;
-        KinematicVariables xInvolvedVariables = new KinematicVariables();
-        KinematicVariables yInvolvedVariables = new KinematicVariables();
-        KinematicVariables zInvolvedVariables = new KinematicVariables();
+        KinematicVariableTypes xInvolvedVariables = new KinematicVariableTypes();
+        KinematicVariableTypes yInvolvedVariables = new KinematicVariableTypes();
+        KinematicVariableTypes zInvolvedVariables = new KinematicVariableTypes();
 
         MoveAxis(
             m_xAxis,
@@ -136,11 +136,11 @@ public class Movement2D {
 
         // Now all changes have been loaded into the local variables, apply limits
         m_xAxis.AxisMovement.ApplyLimits(ref curPosition.x, ref curVelocity.x, ref m_accelerationDesired.x, ref m_appliedForce.x);
-        m_xAxis.AxisMovement.ApplyLimit(KinematicVariables.Force, ref instantaneousForce.x);
+        m_xAxis.AxisMovement.ApplyLimit(KinematicVariableTypes.Force, ref instantaneousForce.x);
         m_yAxis.AxisMovement.ApplyLimits(ref curPosition.y, ref curVelocity.y, ref m_accelerationDesired.y, ref m_appliedForce.y);
-        m_yAxis.AxisMovement.ApplyLimit(KinematicVariables.Force, ref instantaneousForce.y);
+        m_yAxis.AxisMovement.ApplyLimit(KinematicVariableTypes.Force, ref instantaneousForce.y);
         m_zAxis.AxisMovement.ApplyLimits(ref curRotation, ref curOmega, ref m_angularAccelerationDesired, ref m_appliedTorque);
-        m_zAxis.AxisMovement.ApplyLimit(KinematicVariables.Force, ref instantaneousTorque);
+        m_zAxis.AxisMovement.ApplyLimit(KinematicVariableTypes.Force, ref instantaneousTorque);
 
         // Transfer local variables to m_rigidBody variables
         m_rigidBody.position = curPosition;
@@ -175,14 +175,14 @@ public class Movement2D {
         ref float accelerationDesired,
         ref float appliedForce,
         ref float instantaneousForce,
-        ref KinematicVariables involvedVariables
+        ref KinematicVariableTypes involvedVariables
     ) {
         switch (axis.AxisMovement.IndependentVariable.Enum) {
-            case KinematicVariables.NoneEnum: {
+            case KinematicVariableTypes.NoneEnum: {
                 // Uncontrolled axis, 
                 break;
             }
-            case KinematicVariables.PositionEnum: {
+            case KinematicVariableTypes.PositionEnum: {
                 UpdateKinematicVariableSet (
                     axis,
                     ref position,
@@ -191,10 +191,10 @@ public class Movement2D {
                     axis.AxisMovement.SpeedMax,
                     axis.AxisMovement.SpeedMin
                 );
-                involvedVariables.Add(KinematicVariables.Position);
+                involvedVariables.Add(KinematicVariableTypes.Position);
                 break;
             }
-            case KinematicVariables.SpeedEnum: {
+            case KinematicVariableTypes.SpeedEnum: {
                 UpdateKinematicVariableSet(
                     axis,
                     ref speed,
@@ -203,10 +203,10 @@ public class Movement2D {
                     axis.AxisMovement.AccelerationMax,
                     axis.AxisMovement.AccelerationMin
                 );
-                involvedVariables.Add(KinematicVariables.Speed);
+                involvedVariables.Add(KinematicVariableTypes.Speed);
                 break;
             }
-            case KinematicVariables.AccelerationEnum: {
+            case KinematicVariableTypes.AccelerationEnum: {
                 float jerk = 0;
                 UpdateKinematicVariableSet(
                     axis,
@@ -216,10 +216,10 @@ public class Movement2D {
                     axis.AxisMovement.JerkMax,
                     axis.AxisMovement.JerkMin
                 );
-                involvedVariables.Add(KinematicVariables.Acceleration);
+                involvedVariables.Add(KinematicVariableTypes.Acceleration);
                 break;
             }
-            case KinematicVariables.ForceEnum: {
+            case KinematicVariableTypes.ForceEnum: {
                 // Force is handled differently than the rest because rigidBody2D has AddForce functionality
                 ImpulseMovement impulse = axis.AxisMovement.ImpulseType();
                 if (impulse != null && impulse.Instantaneous) {
@@ -238,11 +238,11 @@ public class Movement2D {
                     } else {
                         appliedForce = axis.AxisMovement.ForceTarget;
                     }
-                    involvedVariables.Add(KinematicVariables.Force);
+                    involvedVariables.Add(KinematicVariableTypes.Force);
                 }
                 break;
             }
-            case KinematicVariables.JerkEnum:
+            case KinematicVariableTypes.JerkEnum:
             default: {
                 Debug.LogError("Unhandled case");
                 break;
@@ -257,15 +257,15 @@ public class Movement2D {
                     break;
                 case AxisSourceType.ConstantSpeed:
                     speed += entry.Value.Value;
-                    involvedVariables.Add(KinematicVariables.Speed);
+                    involvedVariables.Add(KinematicVariableTypes.Speed);
                     break;
                 case AxisSourceType.ConstantAcceleration:
                     accelerationDesired += entry.Value.Value;
-                    involvedVariables.Add(KinematicVariables.Acceleration);
+                    involvedVariables.Add(KinematicVariableTypes.Acceleration);
                     break;
                 case AxisSourceType.ConstantForce:
                     appliedForce += entry.Value.Value;
-                    involvedVariables.Add(KinematicVariables.Force);
+                    involvedVariables.Add(KinematicVariableTypes.Force);
                     break;
                 default:
                     Debug.LogError("Unhandled case");
@@ -308,20 +308,20 @@ public class Movement2D {
     /// If any axes involve acceleration, this is where we apply it
     /// </summary>
     public void ApplyAccelerations(
-        KinematicVariables involvedVariables,
+        KinematicVariableTypes involvedVariables,
         ref float curPosition,
         ref float curSpeed,
         float accelerationDesired,
         float deltaT
     ){
-        if (involvedVariables.Contains(KinematicVariables.Acceleration)) {
+        if (involvedVariables.Contains(KinematicVariableTypes.Acceleration)) {
             // Calculate new speed and position
             float newSpeed = curSpeed + accelerationDesired * deltaT;
             float newPosition = curPosition + curSpeed * deltaT + 0.5f * accelerationDesired * deltaT * deltaT;
 
             GeneralTools.Assert
             (
-                !involvedVariables.Contains(KinematicVariables.Position) && !involvedVariables.Contains(KinematicVariables.Speed)
+                !involvedVariables.Contains(KinematicVariableTypes.Position) && !involvedVariables.Contains(KinematicVariableTypes.Speed)
             );
 
             curPosition = newPosition;

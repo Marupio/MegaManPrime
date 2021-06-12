@@ -123,7 +123,7 @@ public abstract class ImpulseMovement<T> : AxisMovement<T>
 
 public class PositionImpulseMovement : ImpulseMovement
 {
-    public override KinematicVariables IndependentVariable { get => KinematicVariables.Position; }
+    public override KinematicVariableTypes IndependentVariable { get => KinematicVariableTypes.Position; }
     public override float ValueTarget { get => InternalGetInput(); }
     public PositionImpulseMovement(KinematicLimits limits, InputRange inputRange, float maxDuration, bool interruptable, bool enabled = true)
         : base(limits, inputRange, maxDuration, interruptable, enabled)
@@ -133,7 +133,7 @@ public class PositionImpulseMovement : ImpulseMovement
 
 public class SpeedImpulseMovement : ImpulseMovement
 {
-    public override KinematicVariables IndependentVariable { get => KinematicVariables.Speed; }
+    public override KinematicVariableTypes IndependentVariable { get => KinematicVariableTypes.Speed; }
     public override float DerivativeTarget { get => InternalGetInput(); }
     public SpeedImpulseMovement(KinematicLimits limits, InputRange inputRange, float maxDuration, bool interruptable, bool enabled = true)
         : base(limits, inputRange, maxDuration, interruptable, enabled)
@@ -143,7 +143,7 @@ public class SpeedImpulseMovement : ImpulseMovement
 
 public class AccelerationImpulseMovement : ImpulseMovement
 {
-    public override KinematicVariables IndependentVariable { get => KinematicVariables.Acceleration; }
+    public override KinematicVariableTypes IndependentVariable { get => KinematicVariableTypes.Acceleration; }
     public override float SecondDerivativeTarget { get => InternalGetInput(); }
     public AccelerationImpulseMovement(KinematicLimits limits, InputRange inputRange, float maxDuration, bool interruptable, bool enabled = true)
         : base(limits, inputRange, maxDuration, interruptable, enabled)
@@ -153,7 +153,7 @@ public class AccelerationImpulseMovement : ImpulseMovement
 
 public class ForceImpulseMovement : ImpulseMovement
 {
-    public override KinematicVariables IndependentVariable { get => KinematicVariables.Force; }
+    public override KinematicVariableTypes IndependentVariable { get => KinematicVariableTypes.Force; }
     public override float ForceTarget { get => InternalGetInput(); }
     public ForceImpulseMovement(KinematicLimits limits, InputRange inputRange, float maxDuration, bool interruptable, bool enabled = true)
         : base(limits, inputRange, maxDuration, interruptable, enabled)

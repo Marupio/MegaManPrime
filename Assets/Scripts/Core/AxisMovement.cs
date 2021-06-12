@@ -59,7 +59,7 @@ public abstract class AxisMovement<T> : KinematicLimits {
             return null;
         }
     }
-    public abstract KinematicVariables IndependentVariable { get; }
+    public abstract KinematicVariableTypes IndependentVariable { get; }
     public abstract T Target { get; }
     /// <summary>
     /// Perform kinematic calculations on provided variables
@@ -71,7 +71,7 @@ public abstract class AxisMovement<T> : KinematicLimits {
         ref T acceleration,
         ref T appliedForce,
         ref T instantaneousForce,
-        ref KinematicVariables involvedVariables,
+        ref KinematicVariableTypes involvedVariables,
         Dictionary<string, AxisSource> sources
     );
 
@@ -112,7 +112,7 @@ public abstract class AxisMovement<T> : KinematicLimits {
 public class UncontrolledAxisMovement<T> : AxisMovement<T>
 {
     public override void ApplyControlValue(T value) { /* Do nothing */ }
-    public override KinematicVariables IndependentVariable { get => KinematicVariables.None; }
+    public override KinematicVariableTypes IndependentVariable { get => KinematicVariableTypes.None; }
     public override T Target => throw new System.NotImplementedException();
     public UncontrolledAxisMovement(KinematicLimits limits) : base(limits, null) {}
 }
@@ -120,10 +120,10 @@ public class UncontrolledAxisMovement<T> : AxisMovement<T>
 
 public class ControlledAxisMovement<T> : AxisMovement<T>
 {
-    KinematicVariables m_kinematicVariable;
-    public override KinematicVariables IndependentVariable { get => m_kinematicVariable; }
+    KinematicVariableTypes m_kinematicVariable;
+    public override KinematicVariableTypes IndependentVariable { get => m_kinematicVariable; }
     public override T Target { get { return m_inputRange.InputValue; } }
-    public ControlledAxisMovement(KinematicLimits limits, InputRange<T> inputRange, KinematicVariables kinematicVariable)
+    public ControlledAxisMovement(KinematicLimits limits, InputRange<T> inputRange, KinematicVariableTypes kinematicVariable)
         : base(limits, inputRange)
     {
         m_kinematicVariable = kinematicVariable;
