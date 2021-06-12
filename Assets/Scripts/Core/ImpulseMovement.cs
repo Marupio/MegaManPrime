@@ -4,7 +4,7 @@ using UnityEngine;
 /// A type of movement that needs to be enabled before using, and once firing is complete, automatically disables itself again
 /// Useful for things like jumping
 /// </summary>
-public abstract class ImpulseMovement : AxisMovement
+public abstract class ImpulseMovement<T> : AxisMovement<T>
 {
     // *** Protected member variables
 
@@ -45,7 +45,7 @@ public abstract class ImpulseMovement : AxisMovement
 
     // *** Constructors
 
-    public ImpulseMovement(KinematicLimits limits, InputRange inputRange, float maxDuration, bool interruptable, bool enabled = true)
+    public ImpulseMovement(KinematicLimits limits, InputRange<T> inputRange, float maxDuration, bool interruptable, bool enabled = true)
         : base(limits, inputRange)
     {
         m_maxDuration = maxDuration;
@@ -85,12 +85,12 @@ public abstract class ImpulseMovement : AxisMovement
         m_startTime = 0;
         return true;
     }
-    protected virtual float InternalGetInput()
+    protected virtual T InternalGetInput()
     {
         if (Enabled)
         {
             // Ready to fire, check for max historical input
-            float newValue = m_inputRange.UnqueriedMaxMagnitudeInputValue;
+            T newValue = m_inputRange.UnqueriedMaxMagnitudeInputValue;
             if (newValue != 0)
             {
                 Activate();
@@ -124,7 +124,7 @@ public abstract class ImpulseMovement : AxisMovement
 public class PositionImpulseMovement : ImpulseMovement
 {
     public override KinematicVariables IndependentVariable { get => KinematicVariables.Position; }
-    public override float PositionTarget { get => InternalGetInput(); }
+    public override float ValueTarget { get => InternalGetInput(); }
     public PositionImpulseMovement(KinematicLimits limits, InputRange inputRange, float maxDuration, bool interruptable, bool enabled = true)
         : base(limits, inputRange, maxDuration, interruptable, enabled)
     { }
@@ -134,7 +134,7 @@ public class PositionImpulseMovement : ImpulseMovement
 public class SpeedImpulseMovement : ImpulseMovement
 {
     public override KinematicVariables IndependentVariable { get => KinematicVariables.Speed; }
-    public override float SpeedTarget { get => InternalGetInput(); }
+    public override float DerivativeTarget { get => InternalGetInput(); }
     public SpeedImpulseMovement(KinematicLimits limits, InputRange inputRange, float maxDuration, bool interruptable, bool enabled = true)
         : base(limits, inputRange, maxDuration, interruptable, enabled)
     { }
@@ -144,7 +144,7 @@ public class SpeedImpulseMovement : ImpulseMovement
 public class AccelerationImpulseMovement : ImpulseMovement
 {
     public override KinematicVariables IndependentVariable { get => KinematicVariables.Acceleration; }
-    public override float AccelerationTarget { get => InternalGetInput(); }
+    public override float SecondDerivativeTarget { get => InternalGetInput(); }
     public AccelerationImpulseMovement(KinematicLimits limits, InputRange inputRange, float maxDuration, bool interruptable, bool enabled = true)
         : base(limits, inputRange, maxDuration, interruptable, enabled)
     { }

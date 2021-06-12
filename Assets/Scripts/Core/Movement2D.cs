@@ -8,6 +8,10 @@ public class Movement2D {
     AxisProfile m_xAxis;
     AxisProfile m_yAxis;
     AxisProfile m_zAxis; // rotation
+    /// <summary>
+    /// Treat XY axes as 2D space with vector math instead of individual scalars. Ignores m_yAxis.
+    /// </summary>
+    bool m_linkXY;
 
     // Extra state variables
     Vector2 m_velocity0 = Vector2.zero;
@@ -20,32 +24,70 @@ public class Movement2D {
     Vector2 m_appliedForce = Vector2.zero;
     float m_appliedTorque = 0;
 
-    public void AddAxis(string name, AxisProfile axis)
-    {
+    // *** Axes setup
+    public void AddAxis(string name, AxisProfile axis) {
         m_axisProfiles.Add(name, axis);
     }
-    public void RemoveAxis(string name)
-    {
+    public void RemoveAxis(string name) {
         m_axisProfiles.Remove(name);
     }
-    public void ActivateXYZ(string nameX, string nameY, string nameZ)
-    {
+    public void ActivateXYZ(string nameX, string nameY, string nameZ) {
         m_xAxis = m_axisProfiles[nameX];
         m_yAxis = m_axisProfiles[nameY];
         m_zAxis = m_axisProfiles[nameZ];
     }
-    public void ActivateX(string name)
-    {
+    public void ActivateX(string name) {
         m_xAxis = m_axisProfiles[name];
     }
-    public void ActivateY(string name)
-    {
+    public void ActivateY(string name) {
         m_yAxis = m_axisProfiles[name];
     }
-    public void ActivateZ(string name)
-    {
+    public void ActivateZ(string name) {
         m_zAxis = m_axisProfiles[name];
     }
+    public void ClearXYZ() {
+        m_xAxis = null;
+        m_yAxis = null;
+        m_zAxis = null;
+    }
+    public void ClearX() {
+        m_xAxis = null;
+    }
+    public void ClearY() {
+        m_yAxis = null;
+    }
+    public void ClearZ() {
+        m_zAxis = null;
+    }
+    /// <summary>
+    /// LinkXY allows the X and Y axes to be treated as a 2D plane with vector math instead of individual scalars
+    /// When enabled, ignores Y-Axis settings
+    /// </summary>
+    public void LinkXY() {
+        m_linkXY = true;
+    }
+    public void UnlinkXY() {
+        m_linkXY = false;
+    }
+    public bool AreXYLinked() {
+        return m_linkXY;
+    }
+
+    // *** Query
+    // Relative quantities - how fast the entity is moving relative to applied sources
+    // Useful for quantities such as walking speed
+    float RelativeSpeedX();
+    float RelativeSpeedY();
+    float RelativeRotation();
+    Vector2 RelativeVelocityXY();
+    // Felt quantities - the external applied forces (excluding controlled inputs)
+    // Captures magnitude of effects such as wind
+    float FeltForceX();
+    float FeltForceY();
+    float FeltTorque();
+    Vector2 FeltForceXY();
+
+    // *** Operate
     public void Move(float deltaT) {
         UpdateLocalStateVariable(deltaT);
         Vector2 curPosition = m_rigidBody.position;
@@ -86,6 +128,7 @@ public class Movement2D {
             ref zInvolvedVariables
         );
 
+
         // Do accelerations first
         ApplyAccelerations(xInvolvedVariables, ref curPosition.x, ref curVelocity.x, m_accelerationDesired.x, deltaT);
         ApplyAccelerations(yInvolvedVariables, ref curPosition.y, ref curVelocity.y, m_accelerationDesired.y, deltaT);
@@ -123,6 +166,8 @@ public class Movement2D {
             m_rigidBody.AddTorque(instantaneousTorque, ForceMode2D.Impulse);
         }
     }
+
+    // *** Internal helper functions
     protected void MoveAxis(
         AxisProfile axis,
         ref float position,
@@ -141,7 +186,7 @@ public class Movement2D {
                 UpdateKinematicVariableSet (
                     axis,
                     ref position,
-                    axis.AxisMovement.PositionTarget,
+                    axis.AxisMovement.ValueTarget,
                     ref speed,
                     axis.AxisMovement.SpeedMax,
                     axis.AxisMovement.SpeedMin
@@ -153,7 +198,7 @@ public class Movement2D {
                 UpdateKinematicVariableSet(
                     axis,
                     ref speed,
-                    axis.AxisMovement.SpeedTarget,
+                    axis.AxisMovement.DerivativeTarget,
                     ref accelerationDesired,
                     axis.AxisMovement.AccelerationMax,
                     axis.AxisMovement.AccelerationMin
@@ -166,7 +211,7 @@ public class Movement2D {
                 UpdateKinematicVariableSet(
                     axis,
                     ref accelerationDesired,
-                    axis.AxisMovement.AccelerationTarget,
+                    axis.AxisMovement.SecondDerivativeTarget,
                     ref jerk,
                     axis.AxisMovement.JerkMax,
                     axis.AxisMovement.JerkMin
@@ -203,6 +248,30 @@ public class Movement2D {
                 break;
             }
         } // end switch (axis.AxisMovement.IndependentVariable)
+        // Apply sources
+        Dictionary<string, AxisSource> sources = axis.Sources;
+        foreach (KeyValuePair<string, AxisSource> entry in sources) {
+            switch (entry.Value.Type) {
+                case AxisSourceType.None:
+                    // Do nothing
+                    break;
+                case AxisSourceType.ConstantSpeed:
+                    speed += entry.Value.Value;
+                    involvedVariables.Add(KinematicVariables.Speed);
+                    break;
+                case AxisSourceType.ConstantAcceleration:
+                    accelerationDesired += entry.Value.Value;
+                    involvedVariables.Add(KinematicVariables.Acceleration);
+                    break;
+                case AxisSourceType.ConstantForce:
+                    appliedForce += entry.Value.Value;
+                    involvedVariables.Add(KinematicVariables.Force);
+                    break;
+                default:
+                    Debug.LogError("Unhandled case");
+                    break;
+            }
+        }
     }
     /// <summary>
     /// Updates a kinematic variable, applying smoothing if necessary
@@ -235,7 +304,9 @@ public class Movement2D {
         m_accelerationDesired = m_accelerationActual;
         m_angularAccelerationDesired = m_angularAccelerationActual;
     }
-
+    /// <summary>
+    /// If any axes involve acceleration, this is where we apply it
+    /// </summary>
     public void ApplyAccelerations(
         KinematicVariables involvedVariables,
         ref float curPosition,
@@ -307,31 +378,6 @@ public class Movement2D {
 
 // }
 
-// External sources that affect movement
-public enum AxisSourceType
-{
-    None,                   // Billiards
-    ConstantSpeed,          // Conveyor
-    ConstantAcceleration,   // Gravity
-    ConstantForce           // Rocket
-}
-
-
-public struct AxisSource
-{
-    public AxisSourceType type;
-    public float value;
-    public AxisSource(AxisSource asIn)
-    {
-        type = asIn.type;
-        value = asIn.value;
-    }
-    public AxisSource(AxisSourceType typeIn, float valueIn)
-    {
-        type = typeIn;
-        value = valueIn;
-    }
-}
 
 // The mechanism by which the entity has control over movement on an axis
 public enum EnumAxisMovement
