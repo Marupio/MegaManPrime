@@ -1,10 +1,4 @@
 using UnityEngine;
-using Unity.Collections.LowLevel.Unsafe;
-
-using System.Diagnostics;
-using System;
-using Unity.Collections.LowLevel.Unsafe;
-using Unity.Collections;
 
 public interface ITime
 {

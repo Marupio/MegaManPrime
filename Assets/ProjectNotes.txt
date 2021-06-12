@@ -1,0 +1,38 @@
+Ways to interact with RigidBody or RigidBody2D
+
+
+Total:
+Float
+NoControl
+ControlledPosition
+ControlledVelocity
+ControlledForce
+ImpulsePosition
+ImpulseVelocity
+ImpulseForce
+
+
+
+
+NoControl
+ControlledPosition
+ControlledVelocity
+ControlledForce
+ImpulsePosition
+ImpulseVelocity
+ImpulseForce
+
+float
+Vector2
+Vector3
+
+Movement2D
+    Has RigidBody2D
+Movement3D
+    Has RigidBody
+
+Movement breaks it down to axis controlls
+
+public abstract class Movement
+nTranslationalAxes
+nRotationalAxes
