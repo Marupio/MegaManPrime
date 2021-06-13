@@ -8,6 +8,10 @@ public class KinematicLimits {
     KinematicVariableSetExtended1D Max { get => m_maxVars; set => m_maxVars = value; }
     KinematicVariableSetExtended1D Min { get => m_minVars; set => m_minVars = value; }
 
+    KinematicLimits() {
+        m_maxVars = new KinematicVariableSetExtended1D(Mathf.Infinity);
+        m_minVars = new KinematicVariableSetExtended1D(Mathf.NegativeInfinity);
+    }
 }
 
 
