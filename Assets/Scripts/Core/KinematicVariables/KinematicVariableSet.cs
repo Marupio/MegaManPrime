@@ -5,24 +5,21 @@ using UnityEngine;
 // Q = f,v2,v3, q
 // V = f,v2,v3,v3
 public enum KinematicVariableEnum {
-    None,
-    Variable,
-    Derivative,
-    SecondDerivative,
-    AppliedForce,
-    ImpulseForce,
-    Drag
+    None             = 0b_0000_0000,
+    Variable         = 0b_0000_0001,
+    Derivative       = 0b_0000_0010,
+    SecondDerivative = 0b_0000_0100,
+    AppliedForce     = 0b_0000_1000,
+    ImpulseForce     = 0b_0001_0000,
+    Drag             = 0b_0010_0000
 }
 
 public enum KinematicVariableExtendedEnum {
-    None,
-    ThirdDerivative,
-    AppliedForceDerivative,
-    ImpulseForceDerivative
+    None                   = 0b_0000_0000,
+    ThirdDerivative        = 0b_0100_0000,
+    AppliedForceDerivative = 0b_1000_0000,
+    ImpulseForceDerivative = 0b_0000_0000
 }
-
-//public class Dictionary<string, KinematicVariableEnum>;
-
 
 public class KinematicVariableSet<Q,V> {
     protected Q variable;
@@ -258,7 +255,6 @@ public class KinematicVariableSet<Q,V> {
     public KinematicVariableSet() { }
 }
 
-
 public class KinematicVariableSetExtended<Q,V> : KinematicVariableSet<Q,V> {
     protected V thirdDerivative;
     protected V appliedForceDerivative;
@@ -407,7 +403,7 @@ public class KinematicVariableSetExtended<Q,V> : KinematicVariableSet<Q,V> {
     public KinematicVariableSetExtended() { }
 }
 
-// My best take at typedefs
+// Concrete classes
 public class KinematicVariableSet1D : KinematicVariableSet<float, float> {
     public override int ReadQuaternionDict(Dictionary<string, float> dict) {
         Debug.LogWarning("Wrong ReadDict function called");

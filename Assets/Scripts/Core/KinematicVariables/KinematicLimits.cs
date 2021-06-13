@@ -5,45 +5,23 @@ public class KinematicLimits {
     KinematicVariableSetExtended1D m_maxVars;
     KinematicVariableSetExtended1D m_minVars;
 
-    KinematicVariableSetExtended1D Max { get => m_maxVars; set => m_maxVars = value; }
-    KinematicVariableSetExtended1D Min { get => m_minVars; set => m_minVars = value; }
+    // *** Access
+    public KinematicVariableSetExtended1D Max { get => m_maxVars; set => m_maxVars = value; }
+    public KinematicVariableSetExtended1D Min { get => m_minVars; set => m_minVars = value; }
 
-    KinematicLimits() {
+    // *** Constructors
+    public KinematicLimits() {
         m_maxVars = new KinematicVariableSetExtended1D(Mathf.Infinity);
         m_minVars = new KinematicVariableSetExtended1D(Mathf.NegativeInfinity);
     }
 }
 
+public struct KinmaticVariableLimit {
+    public baseType 
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// RUBBISH BELOW
+// ************************************************************************************************
 
 // public enum KinematicVariableEnum {
 //     None,
