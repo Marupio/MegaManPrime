@@ -45,7 +45,7 @@ public abstract class ImpulseMovement<T> : AxisMovement<T>
 
     // *** Constructors
 
-    public ImpulseMovement(KinematicLimits limits, InputRange<T> inputRange, float maxDuration, bool interruptable, bool enabled = true)
+    public ImpulseMovement(KVariableLimits limits, InputRange<T> inputRange, float maxDuration, bool interruptable, bool enabled = true)
         : base(limits, inputRange)
     {
         m_maxDuration = maxDuration;
@@ -123,9 +123,9 @@ public abstract class ImpulseMovement<T> : AxisMovement<T>
 
 public class PositionImpulseMovement : ImpulseMovement
 {
-    public override KinematicVariableTypes IndependentVariable { get => KinematicVariableTypes.Position; }
+    public override KVariableTypeSet IndependentVariable { get => KVariableTypeSet.Position; }
     public override float ValueTarget { get => InternalGetInput(); }
-    public PositionImpulseMovement(KinematicLimits limits, InputRange inputRange, float maxDuration, bool interruptable, bool enabled = true)
+    public PositionImpulseMovement(KVariableLimits limits, InputRange inputRange, float maxDuration, bool interruptable, bool enabled = true)
         : base(limits, inputRange, maxDuration, interruptable, enabled)
     { }
 }
@@ -133,9 +133,9 @@ public class PositionImpulseMovement : ImpulseMovement
 
 public class SpeedImpulseMovement : ImpulseMovement
 {
-    public override KinematicVariableTypes IndependentVariable { get => KinematicVariableTypes.Speed; }
+    public override KVariableTypeSet IndependentVariable { get => KVariableTypeSet.Speed; }
     public override float DerivativeTarget { get => InternalGetInput(); }
-    public SpeedImpulseMovement(KinematicLimits limits, InputRange inputRange, float maxDuration, bool interruptable, bool enabled = true)
+    public SpeedImpulseMovement(KVariableLimits limits, InputRange inputRange, float maxDuration, bool interruptable, bool enabled = true)
         : base(limits, inputRange, maxDuration, interruptable, enabled)
     { }
 }
@@ -143,9 +143,9 @@ public class SpeedImpulseMovement : ImpulseMovement
 
 public class AccelerationImpulseMovement : ImpulseMovement
 {
-    public override KinematicVariableTypes IndependentVariable { get => KinematicVariableTypes.Acceleration; }
+    public override KVariableTypeSet IndependentVariable { get => KVariableTypeSet.Acceleration; }
     public override float SecondDerivativeTarget { get => InternalGetInput(); }
-    public AccelerationImpulseMovement(KinematicLimits limits, InputRange inputRange, float maxDuration, bool interruptable, bool enabled = true)
+    public AccelerationImpulseMovement(KVariableLimits limits, InputRange inputRange, float maxDuration, bool interruptable, bool enabled = true)
         : base(limits, inputRange, maxDuration, interruptable, enabled)
     { }
 }
@@ -153,9 +153,9 @@ public class AccelerationImpulseMovement : ImpulseMovement
 
 public class ForceImpulseMovement : ImpulseMovement
 {
-    public override KinematicVariableTypes IndependentVariable { get => KinematicVariableTypes.Force; }
+    public override KVariableTypeSet IndependentVariable { get => KVariableTypeSet.Force; }
     public override float ForceTarget { get => InternalGetInput(); }
-    public ForceImpulseMovement(KinematicLimits limits, InputRange inputRange, float maxDuration, bool interruptable, bool enabled = true)
+    public ForceImpulseMovement(KVariableLimits limits, InputRange inputRange, float maxDuration, bool interruptable, bool enabled = true)
         : base(limits, inputRange, maxDuration, interruptable, enabled)
     { }
 }

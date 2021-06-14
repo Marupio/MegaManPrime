@@ -4,7 +4,7 @@ using System.Collections.Generic;
 /// <summary>
 /// I turn a controlValue input into a target position/velocity/acceleration
 /// </summary>
-public abstract class AxisMovement<T> : KinematicLimits {
+public abstract class AxisMovement<T> : KVariableLimits {
     // WARNING - m_inputRange is null in some classes
     protected InputRange<T> m_inputRange;
     Dictionary<string, AxisSource> m_axisSources;
@@ -59,7 +59,7 @@ public abstract class AxisMovement<T> : KinematicLimits {
             return null;
         }
     }
-    public abstract KinematicVariableTypes IndependentVariable { get; }
+    public abstract KVariableTypeSet IndependentVariable { get; }
     public abstract T Target { get; }
     /// <summary>
     /// Perform kinematic calculations on provided variables
@@ -71,7 +71,7 @@ public abstract class AxisMovement<T> : KinematicLimits {
         ref T acceleration,
         ref T appliedForce,
         ref T instantaneousForce,
-        ref KinematicVariableTypes involvedVariables,
+        ref KVariableTypeSet involvedVariables,
         Dictionary<string, AxisSource> sources
     );
 
@@ -85,7 +85,7 @@ public abstract class AxisMovement<T> : KinematicLimits {
         get => m_smoothingTime;
         set { m_smoothingTime = InternalSmoothingAllowed() ? value : 0;}
     }
-    protected AxisMovement(KinematicLimits limits, InputRange<T> inputRange)
+    protected AxisMovement(KVariableLimits limits, InputRange<T> inputRange)
         : base (limits) {
         m_inputRange = inputRange;
     }
@@ -112,18 +112,18 @@ public abstract class AxisMovement<T> : KinematicLimits {
 public class UncontrolledAxisMovement<T> : AxisMovement<T>
 {
     public override void ApplyControlValue(T value) { /* Do nothing */ }
-    public override KinematicVariableTypes IndependentVariable { get => KinematicVariableTypes.None; }
+    public override KVariableTypeSet IndependentVariable { get => KVariableTypeSet.None; }
     public override T Target => throw new System.NotImplementedException();
-    public UncontrolledAxisMovement(KinematicLimits limits) : base(limits, null) {}
+    public UncontrolledAxisMovement(KVariableLimits limits) : base(limits, null) {}
 }
 
 
 public class ControlledAxisMovement<T> : AxisMovement<T>
 {
-    KinematicVariableTypes m_kinematicVariable;
-    public override KinematicVariableTypes IndependentVariable { get => m_kinematicVariable; }
+    KVariableTypeSet m_kinematicVariable;
+    public override KVariableTypeSet IndependentVariable { get => m_kinematicVariable; }
     public override T Target { get { return m_inputRange.InputValue; } }
-    public ControlledAxisMovement(KinematicLimits limits, InputRange<T> inputRange, KinematicVariableTypes kinematicVariable)
+    public ControlledAxisMovement(KVariableLimits limits, InputRange<T> inputRange, KVariableTypeSet kinematicVariable)
         : base(limits, inputRange)
     {
         m_kinematicVariable = kinematicVariable;

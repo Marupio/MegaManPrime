@@ -4,50 +4,13 @@ using UnityEngine;
 //    1D,2D,3D,3R
 // Q = f,v2,v3, q
 // V = f,v2,v3,v3
-public enum KinematicVariableEnum {
-    None             = 0b_0000_0000,
-    Variable         = 0b_0000_0001,
-    Derivative       = 0b_0000_0010,
-    SecondDerivative = 0b_0000_0100,
-    AppliedForce     = 0b_0000_1000,
-    ImpulseForce     = 0b_0001_0000,
-    Drag             = 0b_0010_0000
-}
-
-public enum KinematicVariableExtendedEnum {
-    None                   = 0b_0000_0000,
-    ThirdDerivative        = 0b_0100_0000,
-    AppliedForceDerivative = 0b_1000_0000,
-    ImpulseForceDerivative = 0b_0000_0000
-}
-
-public class KinematicVariableSet<Q,V> {
+public class KVariableSet<Q,V> {
     protected Q variable;
     protected V derivative;
     protected V secondDerivative;
     protected V appliedForce;
     protected V impulseForce;
     protected float drag;
-
-    // *** Aliases for setting and getting by name
-    public static Dictionary<string, KinematicVariableEnum> VariableAliases = new Dictionary<string, KinematicVariableEnum> {
-        {"Position", KinematicVariableEnum.Variable},
-        {"Distance", KinematicVariableEnum.Variable},
-        {"Rotation", KinematicVariableEnum.Variable},
-        {"Speed", KinematicVariableEnum.Derivative},
-        {"Velocity", KinematicVariableEnum.Derivative},
-        {"AngularVelocity", KinematicVariableEnum.Derivative},
-        {"Omega", KinematicVariableEnum.Derivative},
-        {"Acceleration", KinematicVariableEnum.SecondDerivative},
-        {"AngularAcceleration", KinematicVariableEnum.SecondDerivative},
-        {"OmegaDot", KinematicVariableEnum.SecondDerivative},
-        {"AppliedForce", KinematicVariableEnum.AppliedForce},
-        {"AppliedTorque", KinematicVariableEnum.AppliedForce},
-        {"Force", KinematicVariableEnum.AppliedForce},
-        {"Torque", KinematicVariableEnum.AppliedForce},
-        {"ImpulseForce", KinematicVariableEnum.ImpulseForce},
-        {"ImpulseTorque", KinematicVariableEnum.ImpulseForce}
-    };
 
     // *** Access
     public Q Variable {get=>variable; set=>variable=value;}
@@ -71,6 +34,7 @@ public class KinematicVariableSet<Q,V> {
     public V Force_alias          {get=>appliedForce; set=>appliedForce=value;}
     public V AppliedTorque_alias  {get=>appliedForce; set=>appliedForce=value;}
     public V Torque_alias         {get=>appliedForce; set=>appliedForce=value;}
+    public V Impulse_alias        {get=>impulseForce; set=>impulseForce=value;}
     public V ImpulseTorque_alias  {get=>impulseForce; set=>impulseForce=value;}
 
     public float AngularDrag_alias {get=>drag; set=>drag=value;}
@@ -80,9 +44,9 @@ public class KinematicVariableSet<Q,V> {
     public virtual int ReadScalarDict(Dictionary<string, float> dict) {
         int nFound = 0;
         foreach(KeyValuePair<string, float> entry in dict) {
-            KinematicVariableEnum type;
-            if (VariableAliases.TryGetValue(entry.Key, out type)) {
-                if (type == KinematicVariableEnum.Drag) {
+            KVariableEnum type;
+            if (KVariableTypeInfo.BaseAliases.TryGetValue(entry.Key, out type)) {
+                if (type == KVariableEnum.Drag) {
                     drag = entry.Value;
                     ++nFound;
                 } else {
@@ -97,22 +61,22 @@ public class KinematicVariableSet<Q,V> {
     public virtual int ReadVectorDict(Dictionary<string, V> dict) {
         int nFound = 0;
         foreach(KeyValuePair<string, V> entry in dict) {
-            KinematicVariableEnum type;
-            if (VariableAliases.TryGetValue(entry.Key, out type)) {
+            KVariableEnum type;
+            if (KVariableTypeInfo.BaseAliases.TryGetValue(entry.Key, out type)) {
                 switch (type) {
-                    case KinematicVariableEnum.Derivative:
+                    case KVariableEnum.Derivative:
                         derivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.SecondDerivative:
+                    case KVariableEnum.SecondDerivative:
                         secondDerivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.AppliedForce:
+                    case KVariableEnum.AppliedForce:
                         appliedForce = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.ImpulseForce:
+                    case KVariableEnum.ImpulseForce:
                         impulseForce = entry.Value;
                         ++nFound;
                         break;
@@ -129,9 +93,9 @@ public class KinematicVariableSet<Q,V> {
     public virtual int ReadQuaternionDict(Dictionary<string, Q> dict) {
         int nFound = 0;
         foreach(KeyValuePair<string, Q> entry in dict) {
-            KinematicVariableEnum type;
-            if (VariableAliases.TryGetValue(entry.Key, out type)) {
-                if (type == KinematicVariableEnum.Variable) {
+            KVariableEnum type;
+            if (KVariableTypeInfo.BaseAliases.TryGetValue(entry.Key, out type)) {
+                if (type == KVariableEnum.Variable) {
                     variable = entry.Value;
                     ++nFound;
                 } else {
@@ -146,27 +110,27 @@ public class KinematicVariableSet<Q,V> {
 
     // *** Set by name
     public virtual bool Set(string name, Q value) {
-        KinematicVariableEnum type;
-        if (VariableAliases.TryGetValue(name, out type) && type == KinematicVariableEnum.Variable) {
+        KVariableEnum type;
+        if (KVariableTypeInfo.BaseAliases.TryGetValue(name, out type) && type == KVariableEnum.Variable) {
             variable = value;
             return true;
         }
         return false;
     }
     public virtual bool Set(string name, V value) {
-        KinematicVariableEnum type;
-        if (VariableAliases.TryGetValue(name, out type)) {
+        KVariableEnum type;
+        if (KVariableTypeInfo.BaseAliases.TryGetValue(name, out type)) {
             switch (type) {
-                case KinematicVariableEnum.Derivative:
+                case KVariableEnum.Derivative:
                     derivative = value;
                     return true;
-                case KinematicVariableEnum.SecondDerivative:
+                case KVariableEnum.SecondDerivative:
                     secondDerivative = value;
                     return true;
-                case KinematicVariableEnum.AppliedForce:
+                case KVariableEnum.AppliedForce:
                     appliedForce = value;
                     return true;
-                case KinematicVariableEnum.ImpulseForce:
+                case KVariableEnum.ImpulseForce:
                     impulseForce = value;
                     return true;
                 default:
@@ -176,8 +140,8 @@ public class KinematicVariableSet<Q,V> {
         return false;
     }
     public virtual bool Set(string name, float value) {
-        KinematicVariableEnum type;
-        if (VariableAliases.TryGetValue(name, out type) && type == KinematicVariableEnum.Drag) {
+        KVariableEnum type;
+        if (KVariableTypeInfo.BaseAliases.TryGetValue(name, out type) && type == KVariableEnum.Drag) {
             drag = value;
             return true;
         }
@@ -186,27 +150,27 @@ public class KinematicVariableSet<Q,V> {
 
     // *** Get by name
     public virtual bool Get(string name, ref Q value) {
-        KinematicVariableEnum type;
-        if (VariableAliases.TryGetValue(name, out type) && type == KinematicVariableEnum.Variable) {
+        KVariableEnum type;
+        if (KVariableTypeInfo.BaseAliases.TryGetValue(name, out type) && type == KVariableEnum.Variable) {
             variable = value;
             return true;
         }
         return false;
     }
     public virtual bool Get(string name, ref V value) {
-        KinematicVariableEnum type;
-        if (VariableAliases.TryGetValue(name, out type)) {
+        KVariableEnum type;
+        if (KVariableTypeInfo.BaseAliases.TryGetValue(name, out type)) {
             switch (type) {
-                case KinematicVariableEnum.Derivative:
+                case KVariableEnum.Derivative:
                     value = derivative;
                     return true;
-                case KinematicVariableEnum.SecondDerivative:
+                case KVariableEnum.SecondDerivative:
                     value = secondDerivative;
                     return true;
-                case KinematicVariableEnum.AppliedForce:
+                case KVariableEnum.AppliedForce:
                     value = appliedForce;
                     return true;
-                case KinematicVariableEnum.ImpulseForce:
+                case KVariableEnum.ImpulseForce:
                     value = impulseForce;
                     return true;
                 default:
@@ -216,8 +180,8 @@ public class KinematicVariableSet<Q,V> {
         return false;
     }
     public virtual bool Get(string name, ref float value) {
-        KinematicVariableEnum type;
-        if (VariableAliases.TryGetValue(name, out type) && type == KinematicVariableEnum.Drag) {
+        KVariableEnum type;
+        if (KVariableTypeInfo.BaseAliases.TryGetValue(name, out type) && type == KVariableEnum.Drag) {
             drag = value;
             return true;
         }
@@ -225,7 +189,7 @@ public class KinematicVariableSet<Q,V> {
     }
    
    // *** Constructors
-    public KinematicVariableSet(
+    public KVariableSet(
         Q variableIn,
         V derivativeIn,
         V secondDerivativeIn,
@@ -240,7 +204,7 @@ public class KinematicVariableSet<Q,V> {
         impulseForce = impulseForceIn;
         drag = dragIn;
     }
-    public KinematicVariableSet(Dictionary<string, Q> qDict, Dictionary<string, V> vDict, Dictionary<string, float> fDict) {
+    public KVariableSet(Dictionary<string, Q> qDict, Dictionary<string, V> vDict, Dictionary<string, float> fDict) {
         if (qDict != null) {
             ReadQuaternionDict(qDict);
         }
@@ -251,33 +215,19 @@ public class KinematicVariableSet<Q,V> {
             ReadScalarDict(fDict);
         }
     }
-    protected KinematicVariableSet(Dictionary<string, Q> qDict, Dictionary<string, V> vDict, Dictionary<string, float> fDict, bool dontReadYet) { }
-    public KinematicVariableSet() { }
+    protected KVariableSet(Dictionary<string, Q> qDict, Dictionary<string, V> vDict, Dictionary<string, float> fDict, bool dontReadYet) { }
+    public KVariableSet() { }
 }
 
-public class KinematicVariableSetExtended<Q,V> : KinematicVariableSet<Q,V> {
+public class KVariableSetExt<Q,V> : KVariableSet<Q,V> {
     protected V thirdDerivative;
     protected V appliedForceDerivative;
     protected V impulseForceDerivative;
 
-    // *** Keys for setting and getting by name
-    // *** Aliases for setting and getting by name
-    public static Dictionary<string, KinematicVariableExtendedEnum> ExtendedVariableAliases = new Dictionary<string, KinematicVariableExtendedEnum> {
-        {"Jerk", KinematicVariableExtendedEnum.ThirdDerivative},
-        {"AngularJerk", KinematicVariableExtendedEnum.ThirdDerivative},
-        {"OmegaDotDot", KinematicVariableExtendedEnum.ThirdDerivative},
-        {"AppliedForceRate", KinematicVariableExtendedEnum.AppliedForceDerivative},
-        {"AppliedTorqueRate", KinematicVariableExtendedEnum.AppliedForceDerivative},
-        {"ForceRate", KinematicVariableExtendedEnum.AppliedForceDerivative},
-        {"TorqueRate", KinematicVariableExtendedEnum.AppliedForceDerivative},
-        {"ImpulseForceRate", KinematicVariableExtendedEnum.ImpulseForceDerivative},
-        {"ImpulseTorqueRate", KinematicVariableExtendedEnum.ImpulseForceDerivative}
-    };
-
     // *** Access
     public V ThirdDerivative {get=>thirdDerivative; set=>thirdDerivative=value;}
-    public V ForceDerivative {get=>appliedForceDerivative; set=>appliedForceDerivative=value;}
-    public V ImpulseDerivative {get=>impulseForceDerivative; set=>impulseForceDerivative=value;}
+    public V AppliedForceDerivative {get=>appliedForceDerivative; set=>appliedForceDerivative=value;}
+    public V ImpulseForceDerivative {get=>impulseForceDerivative; set=>impulseForceDerivative=value;}
 
     // *** Shameful aliases (for readability / clarity)
     public V Jerk_alias        {get=>thirdDerivative; set=>thirdDerivative=value;}
@@ -287,6 +237,7 @@ public class KinematicVariableSetExtended<Q,V> : KinematicVariableSet<Q,V> {
     public V AppliedTorqueRate_alias  {get=>appliedForceDerivative; set=>appliedForceDerivative=value;}
     public V ForceRate_alias          {get=>appliedForceDerivative; set=>appliedForceDerivative=value;}
     public V TorqueRate_alias         {get=>appliedForceDerivative; set=>appliedForceDerivative=value;}
+    public V ImpulseRate_alias       {get=>impulseForceDerivative; set=>impulseForceDerivative=value;}
     public V ImpulseForceRate_alias  {get=>impulseForceDerivative; set=>impulseForceDerivative=value;}
     public V ImpulseTorqueRate_alias {get=>impulseForceDerivative; set=>impulseForceDerivative=value;}
 
@@ -294,18 +245,18 @@ public class KinematicVariableSetExtended<Q,V> : KinematicVariableSet<Q,V> {
     public override int ReadVectorDict(Dictionary<string, V> dict) {
         int nFound = 0;
         foreach(KeyValuePair<string, V> entry in dict) {
-            KinematicVariableExtendedEnum type;
-            if (ExtendedVariableAliases.TryGetValue(entry.Key, out type)) {
+            KVariableExtendedEnum type;
+            if (KVariableTypeInfo.ExtendedAliases.TryGetValue(entry.Key, out type)) {
                 switch (type) {
-                    case KinematicVariableExtendedEnum.ThirdDerivative:
+                    case KVariableExtendedEnum.ThirdDerivative:
                         thirdDerivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableExtendedEnum.AppliedForceDerivative:
+                    case KVariableExtendedEnum.AppliedForceDerivative:
                         appliedForceDerivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableExtendedEnum.ImpulseForceDerivative:
+                    case KVariableExtendedEnum.ImpulseForceDerivative:
                         impulseForceDerivative = entry.Value;
                         ++nFound;
                         break;
@@ -322,16 +273,16 @@ public class KinematicVariableSetExtended<Q,V> : KinematicVariableSet<Q,V> {
 
     // *** Set by name
     public override bool Set(string name, V value) {
-        KinematicVariableExtendedEnum type;
-        if (ExtendedVariableAliases.TryGetValue(name, out type)) {
+        KVariableExtendedEnum type;
+        if (KVariableTypeInfo.ExtendedAliases.TryGetValue(name, out type)) {
             switch (type) {
-                case KinematicVariableExtendedEnum.ThirdDerivative:
+                case KVariableExtendedEnum.ThirdDerivative:
                     thirdDerivative = value;
                     return true;
-                case KinematicVariableExtendedEnum.AppliedForceDerivative:
+                case KVariableExtendedEnum.AppliedForceDerivative:
                     appliedForceDerivative = value;
                     return true;
-                case KinematicVariableExtendedEnum.ImpulseForceDerivative:
+                case KVariableExtendedEnum.ImpulseForceDerivative:
                     impulseForceDerivative = value;
                     return true;
                 default:
@@ -343,16 +294,16 @@ public class KinematicVariableSetExtended<Q,V> : KinematicVariableSet<Q,V> {
 
     // *** Get by name
     public override bool Get(string name, ref V value) {
-        KinematicVariableExtendedEnum type;
-        if (ExtendedVariableAliases.TryGetValue(name, out type)) {
+        KVariableExtendedEnum type;
+        if (KVariableTypeInfo.ExtendedAliases.TryGetValue(name, out type)) {
             switch (type) {
-                case KinematicVariableExtendedEnum.ThirdDerivative:
+                case KVariableExtendedEnum.ThirdDerivative:
                     value = thirdDerivative;
                     return true;
-                case KinematicVariableExtendedEnum.AppliedForceDerivative:
+                case KVariableExtendedEnum.AppliedForceDerivative:
                     value = appliedForceDerivative;
                     return true;
-                case KinematicVariableExtendedEnum.ImpulseForceDerivative:
+                case KVariableExtendedEnum.ImpulseForceDerivative:
                     value = impulseForceDerivative;
                     return true;
                 default:
@@ -363,15 +314,15 @@ public class KinematicVariableSetExtended<Q,V> : KinematicVariableSet<Q,V> {
     }
 
     // *** Constructors
-    public KinematicVariableSetExtended(
+    public KVariableSetExt(
         Q variableIn,
         V derivativeIn,
         V secondDerivativeIn,
         V thirdDerivativeIn,
         V appliedForceIn,
-        V forceDerivativeIn,
+        V appliedForceDerivativeIn,
         V impulseForceIn,
-        V impulseDerivativeIn,
+        V impulseForceDerivativeIn,
         float dragIn = 0
     ) :
     base(
@@ -383,10 +334,10 @@ public class KinematicVariableSetExtended<Q,V> : KinematicVariableSet<Q,V> {
         dragIn
     ){
         thirdDerivative = thirdDerivativeIn;
-        appliedForceDerivative = forceDerivativeIn;
-        impulseForceDerivative = impulseDerivativeIn;
+        appliedForceDerivative = appliedForceDerivativeIn;
+        impulseForceDerivative = impulseForceDerivativeIn;
     }
-    public KinematicVariableSetExtended(Dictionary<string, Q> qDict, Dictionary<string, V> vDict, Dictionary<string, float> fDict)
+    public KVariableSetExt(Dictionary<string, Q> qDict, Dictionary<string, V> vDict, Dictionary<string, float> fDict)
     :
         base(qDict, vDict, fDict, true)
     {
@@ -400,11 +351,11 @@ public class KinematicVariableSetExtended<Q,V> : KinematicVariableSet<Q,V> {
             ReadScalarDict(fDict);
         }
     }
-    public KinematicVariableSetExtended() { }
+    public KVariableSetExt() { }
 }
 
 // Concrete classes
-public class KinematicVariableSet1D : KinematicVariableSet<float, float> {
+public class KVariableSet1D : KVariableSet<float, float> {
     public override int ReadQuaternionDict(Dictionary<string, float> dict) {
         Debug.LogWarning("Wrong ReadDict function called");
         return 0;
@@ -415,31 +366,31 @@ public class KinematicVariableSet1D : KinematicVariableSet<float, float> {
     }
     public override int ReadScalarDict(Dictionary<string, float> dict) {
         int nFound = 0;
-        KinematicVariableEnum baseType;
+        KVariableEnum baseType;
         foreach (KeyValuePair<string, float> entry in dict) {
-            if (VariableAliases.TryGetValue(entry.Key, out baseType)) {
+            if (KVariableTypeInfo.BaseAliases.TryGetValue(entry.Key, out baseType)) {
                 switch (baseType) {
-                    case KinematicVariableEnum.Variable:
+                    case KVariableEnum.Variable:
                         variable = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.Derivative:
+                    case KVariableEnum.Derivative:
                         derivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.SecondDerivative:
+                    case KVariableEnum.SecondDerivative:
                         secondDerivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.AppliedForce:
+                    case KVariableEnum.AppliedForce:
                         appliedForce = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.ImpulseForce:
+                    case KVariableEnum.ImpulseForce:
                         impulseForce = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.Drag:
+                    case KVariableEnum.Drag:
                         drag = entry.Value;
                         ++nFound;
                         break;
@@ -454,10 +405,10 @@ public class KinematicVariableSet1D : KinematicVariableSet<float, float> {
         return nFound;
     }
     // *** New constructors
-    public KinematicVariableSet1D(float values, float drag = 0)
+    public KVariableSet1D(float values, float drag = 0)
     : base(values, values, values, values, values, drag) { }
     // *** Pass on constructors from base
-    public KinematicVariableSet1D(
+    public KVariableSet1D(
         float variableIn,
         float derivativeIn,
         float secondDerivativeIn,
@@ -465,12 +416,12 @@ public class KinematicVariableSet1D : KinematicVariableSet<float, float> {
         float impulseForceIn,
         float dragIn = 0
     ) : base (variableIn, derivativeIn, secondDerivativeIn, appliedForceIn, impulseForceIn, dragIn) { }
-    public KinematicVariableSet1D(Dictionary<string, float> allDicts) {
+    public KVariableSet1D(Dictionary<string, float> allDicts) {
         ReadScalarDict(allDicts);
     }
-    public KinematicVariableSet1D() { }
+    public KVariableSet1D() { }
 }
-public class KinematicVariableSet2D : KinematicVariableSet<Vector2, Vector2> {
+public class KVariableSet2D : KVariableSet<Vector2, Vector2> {
     public override int ReadQuaternionDict(Dictionary<string, Vector2> dict) {
         Debug.LogWarning("Wrong ReadDict function called");
         return 0;
@@ -478,26 +429,26 @@ public class KinematicVariableSet2D : KinematicVariableSet<Vector2, Vector2> {
     public override int ReadVectorDict(Dictionary<string, Vector2> dict) {
         int nFound = 0;
         foreach(KeyValuePair<string, Vector2> entry in dict) {
-            KinematicVariableEnum type;
-            if (VariableAliases.TryGetValue(entry.Key, out type)) {
+            KVariableEnum type;
+            if (KVariableTypeInfo.BaseAliases.TryGetValue(entry.Key, out type)) {
                 switch (type) {
-                    case KinematicVariableEnum.Variable:
+                    case KVariableEnum.Variable:
                         variable = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.Derivative:
+                    case KVariableEnum.Derivative:
                         derivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.SecondDerivative:
+                    case KVariableEnum.SecondDerivative:
                         secondDerivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.AppliedForce:
+                    case KVariableEnum.AppliedForce:
                         appliedForce = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.ImpulseForce:
+                    case KVariableEnum.ImpulseForce:
                         impulseForce = entry.Value;
                         ++nFound;
                         break;
@@ -512,10 +463,10 @@ public class KinematicVariableSet2D : KinematicVariableSet<Vector2, Vector2> {
         return nFound;
     }
     // *** New constructors
-    public KinematicVariableSet2D(Vector2 values, float drag = 0)
+    public KVariableSet2D(Vector2 values, float drag = 0)
     : base(values, values, values, values, values, drag) { }
     // *** Pass on base constructors
-    public KinematicVariableSet2D(
+    public KVariableSet2D(
         Vector2 variableIn,
         Vector2 derivativeIn,
         Vector2 secondDerivativeIn,
@@ -524,7 +475,7 @@ public class KinematicVariableSet2D : KinematicVariableSet<Vector2, Vector2> {
         float dragIn = 0
     ) : base (variableIn, derivativeIn, secondDerivativeIn, appliedForceIn, impulseForceIn, dragIn)
     { }
-    public KinematicVariableSet2D(Dictionary<string, Vector2> vDict, Dictionary<string, float> fDict) {
+    public KVariableSet2D(Dictionary<string, Vector2> vDict, Dictionary<string, float> fDict) {
         if (vDict != null) {
             ReadVectorDict(vDict);
         }
@@ -532,9 +483,9 @@ public class KinematicVariableSet2D : KinematicVariableSet<Vector2, Vector2> {
             ReadScalarDict(fDict);
         }
     }
-    public KinematicVariableSet2D() { }
+    public KVariableSet2D() { }
 }
-public class KinematicVariableSet3D : KinematicVariableSet<Vector3, Vector3> {
+public class KVariableSet3D : KVariableSet<Vector3, Vector3> {
     public override int ReadQuaternionDict(Dictionary<string, Vector3> dict) {
         Debug.LogWarning("Wrong ReadDict function called");
         return 0;
@@ -542,26 +493,26 @@ public class KinematicVariableSet3D : KinematicVariableSet<Vector3, Vector3> {
     public override int ReadVectorDict(Dictionary<string, Vector3> dict) {
         int nFound = 0;
         foreach(KeyValuePair<string, Vector3> entry in dict) {
-            KinematicVariableEnum type;
-            if (VariableAliases.TryGetValue(entry.Key, out type)) {
+            KVariableEnum type;
+            if (KVariableTypeInfo.BaseAliases.TryGetValue(entry.Key, out type)) {
                 switch (type) {
-                    case KinematicVariableEnum.Variable:
+                    case KVariableEnum.Variable:
                         variable = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.Derivative:
+                    case KVariableEnum.Derivative:
                         derivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.SecondDerivative:
+                    case KVariableEnum.SecondDerivative:
                         secondDerivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.AppliedForce:
+                    case KVariableEnum.AppliedForce:
                         appliedForce = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.ImpulseForce:
+                    case KVariableEnum.ImpulseForce:
                         impulseForce = entry.Value;
                         ++nFound;
                         break;
@@ -576,10 +527,10 @@ public class KinematicVariableSet3D : KinematicVariableSet<Vector3, Vector3> {
         return nFound;
     }
     // *** New constructors
-    public KinematicVariableSet3D(Vector3 values, float drag = 0)
+    public KVariableSet3D(Vector3 values, float drag = 0)
     : base(values, values, values, values, values, drag) { }
     // *** Pass on base constructors
-    public KinematicVariableSet3D(
+    public KVariableSet3D(
         Vector3 variableIn,
         Vector3 derivativeIn,
         Vector3 secondDerivativeIn,
@@ -588,7 +539,7 @@ public class KinematicVariableSet3D : KinematicVariableSet<Vector3, Vector3> {
         float dragIn = 0
     ) : base (variableIn, derivativeIn, secondDerivativeIn, appliedForceIn, impulseForceIn, dragIn)
     { }
-    public KinematicVariableSet3D(Dictionary<string, Vector3> vDict, Dictionary<string, float> fDict) {
+    public KVariableSet3D(Dictionary<string, Vector3> vDict, Dictionary<string, float> fDict) {
         if (vDict != null) {
             ReadVectorDict(vDict);
         }
@@ -596,14 +547,14 @@ public class KinematicVariableSet3D : KinematicVariableSet<Vector3, Vector3> {
             ReadScalarDict(fDict);
         }
     }
-    public KinematicVariableSet3D() { }
+    public KVariableSet3D() { }
 }
-public class KinematicVariableSet3dRotation : KinematicVariableSet<Quaternion, Vector3> {
+public class KVariableSet3dRotation : KVariableSet<Quaternion, Vector3> {
     // *** New constructors
-    public KinematicVariableSet3dRotation(Quaternion rotation, Vector3 values, float drag = 0)
+    public KVariableSet3dRotation(Quaternion rotation, Vector3 values, float drag = 0)
     : base(rotation, values, values, values, values, drag) { }
     // *** Pass on base constructors
-    public KinematicVariableSet3dRotation(
+    public KVariableSet3dRotation(
         Quaternion variableIn,
         Vector3 derivativeIn,
         Vector3 secondDerivativeIn,
@@ -612,7 +563,7 @@ public class KinematicVariableSet3dRotation : KinematicVariableSet<Quaternion, V
         float dragIn = 0
     ) : base (variableIn, derivativeIn, secondDerivativeIn, appliedForceIn, impulseForceIn, dragIn)
     { }
-    public KinematicVariableSet3dRotation(Dictionary<string, Quaternion> qDict, Dictionary<string, Vector3> vDict, Dictionary<string, float> fDict) {
+    public KVariableSet3dRotation(Dictionary<string, Quaternion> qDict, Dictionary<string, Vector3> vDict, Dictionary<string, float> fDict) {
         if (qDict != null) {
             ReadQuaternionDict(qDict);
         }
@@ -623,10 +574,10 @@ public class KinematicVariableSet3dRotation : KinematicVariableSet<Quaternion, V
             ReadScalarDict(fDict);
         }
     }
-    public KinematicVariableSet3dRotation() { }
+    public KVariableSet3dRotation() { }
 }
 
-public class KinematicVariableSetExtended1D : KinematicVariableSetExtended<float, float> {
+public class KVariableSetExt1D : KVariableSetExt<float, float> {
     public override int ReadQuaternionDict(Dictionary<string, float> dict) {
         Debug.LogWarning("Wrong ReadDict function called");
         return 0;
@@ -637,32 +588,32 @@ public class KinematicVariableSetExtended1D : KinematicVariableSetExtended<float
     }
     public override int ReadScalarDict(Dictionary<string, float> dict) {
         int nFound = 0;
-        KinematicVariableEnum baseType;
-        KinematicVariableExtendedEnum extType;
+        KVariableEnum baseType;
+        KVariableExtendedEnum extType;
         foreach (KeyValuePair<string, float> entry in dict) {
-            if (VariableAliases.TryGetValue(entry.Key, out baseType)) {
+            if (KVariableTypeInfo.BaseAliases.TryGetValue(entry.Key, out baseType)) {
                 switch (baseType) {
-                    case KinematicVariableEnum.Variable:
+                    case KVariableEnum.Variable:
                         variable = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.Derivative:
+                    case KVariableEnum.Derivative:
                         derivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.SecondDerivative:
+                    case KVariableEnum.SecondDerivative:
                         secondDerivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.AppliedForce:
+                    case KVariableEnum.AppliedForce:
                         appliedForce = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.ImpulseForce:
+                    case KVariableEnum.ImpulseForce:
                         impulseForce = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.Drag:
+                    case KVariableEnum.Drag:
                         drag = entry.Value;
                         ++nFound;
                         break;
@@ -670,17 +621,17 @@ public class KinematicVariableSetExtended1D : KinematicVariableSetExtended<float
                         Debug.LogWarning("Bad entry for type 'float': " + entry);
                         break;
                 }
-            } else if (ExtendedVariableAliases.TryGetValue(entry.Key, out extType)) {
+            } else if (KVariableTypeInfo.ExtendedAliases.TryGetValue(entry.Key, out extType)) {
                 switch (extType) {
-                    case KinematicVariableExtendedEnum.ThirdDerivative:
+                    case KVariableExtendedEnum.ThirdDerivative:
                         thirdDerivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableExtendedEnum.AppliedForceDerivative:
+                    case KVariableExtendedEnum.AppliedForceDerivative:
                         appliedForceDerivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableExtendedEnum.ImpulseForceDerivative:
+                    case KVariableExtendedEnum.ImpulseForceDerivative:
                         impulseForceDerivative = entry.Value;
                         ++nFound;
                         break;
@@ -696,22 +647,22 @@ public class KinematicVariableSetExtended1D : KinematicVariableSetExtended<float
         return nFound;
     }
     // New constructors
-    public KinematicVariableSetExtended1D(float values, float drag = 0)
+    public KVariableSetExt1D(float values, float drag = 0)
     : base(values, values, values, values, values, values, values, values, drag) { }
     // Pass on base constructors
-    public KinematicVariableSetExtended1D(Dictionary<string, float> allDicts)
+    public KVariableSetExt1D(Dictionary<string, float> allDicts)
     : base() {
         ReadScalarDict(allDicts);
     }
-    public KinematicVariableSetExtended1D(
+    public KVariableSetExt1D(
         float variableIn,
         float derivativeIn,
         float secondDerivativeIn,
         float thirdDerivativeIn,
         float appliedForceIn,
-        float forceDerivativeIn,
+        float appliedForceDerivativeIn,
         float impulseForceIn,
-        float impulseDerivativeIn,
+        float impulseForceDerivativeIn,
         float dragIn = 0
     ) : base (
         variableIn,
@@ -719,42 +670,42 @@ public class KinematicVariableSetExtended1D : KinematicVariableSetExtended<float
         secondDerivativeIn,
         thirdDerivativeIn,
         appliedForceIn,
-        forceDerivativeIn,
+        appliedForceDerivativeIn,
         impulseForceIn,
-        impulseDerivativeIn,
+        impulseForceDerivativeIn,
         dragIn
     ) { }
-    public KinematicVariableSetExtended1D() { }
+    public KVariableSetExt1D() { }
 }
-public class KinematicVariableSetExtended2D : KinematicVariableSetExtended<Vector2, Vector2> {
+public class KVariableSetExt2D : KVariableSetExt<Vector2, Vector2> {
     public override int ReadQuaternionDict(Dictionary<string, Vector2> dict) {
         Debug.LogWarning("Wrong ReadDict function called");
         return 0;
     }
     public override int ReadVectorDict(Dictionary<string, Vector2> dict) {
         int nFound = 0;
-        KinematicVariableEnum baseType;
-        KinematicVariableExtendedEnum extType;
+        KVariableEnum baseType;
+        KVariableExtendedEnum extType;
         foreach(KeyValuePair<string, Vector2> entry in dict) {
-            if (VariableAliases.TryGetValue(entry.Key, out baseType)) {
+            if (KVariableTypeInfo.BaseAliases.TryGetValue(entry.Key, out baseType)) {
                 switch (baseType) {
-                    case KinematicVariableEnum.Variable:
+                    case KVariableEnum.Variable:
                         variable = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.Derivative:
+                    case KVariableEnum.Derivative:
                         derivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.SecondDerivative:
+                    case KVariableEnum.SecondDerivative:
                         secondDerivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.AppliedForce:
+                    case KVariableEnum.AppliedForce:
                         appliedForce = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.ImpulseForce:
+                    case KVariableEnum.ImpulseForce:
                         impulseForce = entry.Value;
                         ++nFound;
                         break;
@@ -762,17 +713,17 @@ public class KinematicVariableSetExtended2D : KinematicVariableSetExtended<Vecto
                         Debug.LogWarning("Bad entry for type 'V': " + entry);
                         break;
                 }
-            } else if (ExtendedVariableAliases.TryGetValue(entry.Key, out extType)) {
+            } else if (KVariableTypeInfo.ExtendedAliases.TryGetValue(entry.Key, out extType)) {
                 switch (extType) {
-                    case KinematicVariableExtendedEnum.ThirdDerivative:
+                    case KVariableExtendedEnum.ThirdDerivative:
                         thirdDerivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableExtendedEnum.AppliedForceDerivative:
+                    case KVariableExtendedEnum.AppliedForceDerivative:
                         appliedForceDerivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableExtendedEnum.ImpulseForceDerivative:
+                    case KVariableExtendedEnum.ImpulseForceDerivative:
                         impulseForceDerivative = entry.Value;
                         ++nFound;
                         break;
@@ -787,18 +738,18 @@ public class KinematicVariableSetExtended2D : KinematicVariableSetExtended<Vecto
         return nFound;
     }
     // *** New constructors
-    public KinematicVariableSetExtended2D(Vector2 values, float drag = 0)
+    public KVariableSetExt2D(Vector2 values, float drag = 0)
     : base(values, values, values, values, values, values, values, values, drag) { }
     // *** Pass on base constructors
-    public KinematicVariableSetExtended2D(
+    public KVariableSetExt2D(
         Vector2 variableIn,
         Vector2 derivativeIn,
         Vector2 secondDerivativeIn,
         Vector2 thirdDerivativeIn,
         Vector2 appliedForceIn,
-        Vector2 forceDerivativeIn,
+        Vector2 appliedForceDerivativeIn,
         Vector2 impulseForceIn,
-        Vector2 impulseDerivativeIn,
+        Vector2 impulseForceDerivativeIn,
         float dragIn = 0
     ) : base (
         variableIn,
@@ -806,12 +757,12 @@ public class KinematicVariableSetExtended2D : KinematicVariableSetExtended<Vecto
         secondDerivativeIn,
         thirdDerivativeIn,
         appliedForceIn,
-        forceDerivativeIn,
+        appliedForceDerivativeIn,
         impulseForceIn,
-        impulseDerivativeIn,
+        impulseForceDerivativeIn,
         dragIn
     ) { }
-    public KinematicVariableSetExtended2D(Dictionary<string, Vector2> vDict, Dictionary<string, float> fDict) {
+    public KVariableSetExt2D(Dictionary<string, Vector2> vDict, Dictionary<string, float> fDict) {
         if (vDict != null) {
             ReadVectorDict(vDict);
         }
@@ -819,37 +770,37 @@ public class KinematicVariableSetExtended2D : KinematicVariableSetExtended<Vecto
             ReadScalarDict(fDict);
         }
     }
-    public KinematicVariableSetExtended2D() { }
+    public KVariableSetExt2D() { }
 }
-public class KinematicVariableSetExtended3D : KinematicVariableSetExtended<Vector3, Vector3> {
+public class KVariableSetExt3D : KVariableSetExt<Vector3, Vector3> {
     public override int ReadQuaternionDict(Dictionary<string, Vector3> dict) {
         Debug.LogWarning("Wrong ReadDict function called");
         return 0;
     }
     public override int ReadVectorDict(Dictionary<string, Vector3> dict) {
         int nFound = 0;
-        KinematicVariableEnum baseType;
-        KinematicVariableExtendedEnum extType;
+        KVariableEnum baseType;
+        KVariableExtendedEnum extType;
         foreach(KeyValuePair<string, Vector3> entry in dict) {
-            if (VariableAliases.TryGetValue(entry.Key, out baseType)) {
+            if (KVariableTypeInfo.BaseAliases.TryGetValue(entry.Key, out baseType)) {
                 switch (baseType) {
-                    case KinematicVariableEnum.Variable:
+                    case KVariableEnum.Variable:
                         variable = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.Derivative:
+                    case KVariableEnum.Derivative:
                         derivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.SecondDerivative:
+                    case KVariableEnum.SecondDerivative:
                         secondDerivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.AppliedForce:
+                    case KVariableEnum.AppliedForce:
                         appliedForce = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableEnum.ImpulseForce:
+                    case KVariableEnum.ImpulseForce:
                         impulseForce = entry.Value;
                         ++nFound;
                         break;
@@ -857,17 +808,17 @@ public class KinematicVariableSetExtended3D : KinematicVariableSetExtended<Vecto
                         Debug.LogWarning("Bad entry for type 'V': " + entry);
                         break;
                 }
-            } else if (ExtendedVariableAliases.TryGetValue(entry.Key, out extType)) {
+            } else if (KVariableTypeInfo.ExtendedAliases.TryGetValue(entry.Key, out extType)) {
                 switch (extType) {
-                    case KinematicVariableExtendedEnum.ThirdDerivative:
+                    case KVariableExtendedEnum.ThirdDerivative:
                         thirdDerivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableExtendedEnum.AppliedForceDerivative:
+                    case KVariableExtendedEnum.AppliedForceDerivative:
                         appliedForceDerivative = entry.Value;
                         ++nFound;
                         break;
-                    case KinematicVariableExtendedEnum.ImpulseForceDerivative:
+                    case KVariableExtendedEnum.ImpulseForceDerivative:
                         impulseForceDerivative = entry.Value;
                         ++nFound;
                         break;
@@ -882,18 +833,18 @@ public class KinematicVariableSetExtended3D : KinematicVariableSetExtended<Vecto
         return nFound;
     }
     // *** New constructors
-    public KinematicVariableSetExtended3D(Vector3 values, float drag = 0)
+    public KVariableSetExt3D(Vector3 values, float drag = 0)
     : base(values, values, values, values, values, values, values, values, drag) { }
     // *** Pass on base constructors
-    public KinematicVariableSetExtended3D(
+    public KVariableSetExt3D(
         Vector3 variableIn,
         Vector3 derivativeIn,
         Vector3 secondDerivativeIn,
         Vector3 thirdDerivativeIn,
         Vector3 appliedForceIn,
-        Vector3 forceDerivativeIn,
+        Vector3 appliedForceDerivativeIn,
         Vector3 impulseForceIn,
-        Vector3 impulseDerivativeIn,
+        Vector3 impulseForceDerivativeIn,
         float dragIn = 0
     ) : base (
         variableIn,
@@ -901,12 +852,12 @@ public class KinematicVariableSetExtended3D : KinematicVariableSetExtended<Vecto
         secondDerivativeIn,
         thirdDerivativeIn,
         appliedForceIn,
-        forceDerivativeIn,
+        appliedForceDerivativeIn,
         impulseForceIn,
-        impulseDerivativeIn,
+        impulseForceDerivativeIn,
         dragIn
     ) { }
-    public KinematicVariableSetExtended3D(Dictionary<string, Vector3> vDict, Dictionary<string, float> fDict) {
+    public KVariableSetExt3D(Dictionary<string, Vector3> vDict, Dictionary<string, float> fDict) {
         if (vDict != null) {
             ReadVectorDict(vDict);
         }
@@ -914,22 +865,22 @@ public class KinematicVariableSetExtended3D : KinematicVariableSetExtended<Vecto
             ReadScalarDict(fDict);
         }
     }
-    public KinematicVariableSetExtended3D() { }
+    public KVariableSetExt3D() { }
 }
-public class KinematicVariableSetExtended3dRotation : KinematicVariableSetExtended<Quaternion, Vector3> {
+public class KVariableSetExt3DRot : KVariableSetExt<Quaternion, Vector3> {
     // *** New constructors
-    public KinematicVariableSetExtended3dRotation(Quaternion rotation, Vector3 values, float drag = 0)
+    public KVariableSetExt3DRot(Quaternion rotation, Vector3 values, float drag = 0)
     : base(rotation, values, values, values, values, values, values, values, drag) { }
     // *** Pass on base constructors
-    public KinematicVariableSetExtended3dRotation(
+    public KVariableSetExt3DRot(
         Quaternion variableIn,
         Vector3 derivativeIn,
         Vector3 secondDerivativeIn,
         Vector3 thirdDerivativeIn,
         Vector3 appliedForceIn,
-        Vector3 forceDerivativeIn,
+        Vector3 appliedForceDerivativeIn,
         Vector3 impulseForceIn,
-        Vector3 impulseDerivativeIn,
+        Vector3 impulseForceDerivativeIn,
         float dragIn = 0
     ) : base (
         variableIn,
@@ -937,12 +888,12 @@ public class KinematicVariableSetExtended3dRotation : KinematicVariableSetExtend
         secondDerivativeIn,
         thirdDerivativeIn,
         appliedForceIn,
-        forceDerivativeIn,
+        appliedForceDerivativeIn,
         impulseForceIn,
-        impulseDerivativeIn,
+        impulseForceDerivativeIn,
         dragIn
     ) { }
-    public KinematicVariableSetExtended3dRotation(
+    public KVariableSetExt3DRot(
         Dictionary<string, Quaternion> qDict,
         Dictionary<string, Vector3> vDict,
         Dictionary<string, float> fDict
@@ -957,5 +908,5 @@ public class KinematicVariableSetExtended3dRotation : KinematicVariableSetExtend
             ReadScalarDict(fDict);
         }
     }
-    public KinematicVariableSetExtended3dRotation() { }
+    public KVariableSetExt3DRot() { }
 }
