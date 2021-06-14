@@ -5,38 +5,112 @@ using UnityEngine;
 
 public interface IRigidbody<T, V, Q>
 {
-    public V position { get; set; }
-    public Q rotation { get; set; }
-    public V velocity { get; set; }
-    public T angularVelocity { get; set; }
-    public float mass { get; set; }
+    public V Position { get; set; }
+    public Q Rotation { get; set; }
+    public V Velocity { get; set; }
+    public T AngularVelocity { get; set; }
+    public float Mass { get; set; }
     public void ApplyForce(V force);   // => AddForce(force, 0)
     public void ImpulseForce(V force); // => AddForce(force, 1)
     public void ApplyTorque(T torque); // As above
     public void ImpulseTorque(T torque); // As above
-    public float drag { get; set; }
-    public float angularDrag { get; set; }
-    public bool useGravity { get; set; } // 3d = use gravity, 2d = gravityScale (need to store value)
-    public bool freezeRotation { get; set; }
+    public float Drag { get; set; }
+    public float AngularDrag { get; set; }
+    public bool UseGravity { get; set; } // 3d = use gravity, 2d = gravityScale (need to store value)
+    public bool FreezeRotation { get; set; }
+    public bool SpatialConstraint(Axis axis);
+    public void SetSpatialConstraint(Axis axis, bool constrain);
+    public bool RotationalConstraint(Axis axis);
+    public void SetRotationalConstraint(Axis axis, bool constrain);
 }
 
 public class WrappedRigidbody : IRigidbody<Vector3, Vector3, Quaternion> {
     public Rigidbody m_rigidBody;
     public WrappedRigidbody(Rigidbody rb) {m_rigidBody = rb;}
 
-    public Vector3 position { get=>m_rigidBody.position; set=>m_rigidBody.position = value; }
-    public Quaternion rotation { get=>m_rigidBody.rotation; set=>m_rigidBody.rotation = value; }
-    public Vector3 velocity { get=>m_rigidBody.velocity; set=>m_rigidBody.velocity = value; }
-    public Vector3 angularVelocity { get=>m_rigidBody.angularVelocity; set=>m_rigidBody.angularVelocity = value; }
-    public float mass { get=>m_rigidBody.mass; set=>m_rigidBody.mass = value; }
+    public Vector3 Position { get=>m_rigidBody.position; set=>m_rigidBody.position = value; }
+    public Quaternion Rotation { get=>m_rigidBody.rotation; set=>m_rigidBody.rotation = value; }
+    public Vector3 Velocity { get=>m_rigidBody.velocity; set=>m_rigidBody.velocity = value; }
+    public Vector3 AngularVelocity { get=>m_rigidBody.angularVelocity; set=>m_rigidBody.angularVelocity = value; }
+    public float Mass { get=>m_rigidBody.mass; set=>m_rigidBody.mass = value; }
     public void ApplyForce(Vector3 force) { m_rigidBody.AddForce(force, ForceMode.Force); }
     public void ImpulseForce(Vector3 force)  { m_rigidBody.AddForce(force, ForceMode.Impulse); }
     public void ApplyTorque(Vector3 torque)  { m_rigidBody.AddTorque(torque, ForceMode.Force); }
     public void ImpulseTorque(Vector3 torque)  { m_rigidBody.AddTorque(torque, ForceMode.Impulse); }
-    public float drag { get=>m_rigidBody.drag; set=>m_rigidBody.drag = value; }
-    public float angularDrag { get=>m_rigidBody.angularDrag; set=>m_rigidBody.angularDrag = value; }
-    public bool useGravity { get=>m_rigidBody.useGravity; set=>m_rigidBody.useGravity = value; }
-    public bool freezeRotation { get=>m_rigidBody.freezeRotation; set=>m_rigidBody.freezeRotation = value; }
+    public float Drag { get=>m_rigidBody.drag; set=>m_rigidBody.drag = value; }
+    public float AngularDrag { get=>m_rigidBody.angularDrag; set=>m_rigidBody.angularDrag = value; }
+    public bool UseGravity { get=>m_rigidBody.useGravity; set=>m_rigidBody.useGravity = value; }
+    public bool FreezeRotation { get=>m_rigidBody.freezeRotation; set=>m_rigidBody.freezeRotation = value; }
+    public bool SpatialConstraint(Axis axis) {
+        RigidbodyConstraints constraints = m_rigidBody.constraints;
+        switch (axis) {
+            case Axis.None:
+                return false;
+            case Axis.X:
+                return (constraints & RigidbodyConstraints.FreezePositionX) == RigidbodyConstraints.FreezePositionX;
+            case Axis.Y:
+                return (constraints & RigidbodyConstraints.FreezePositionY) == RigidbodyConstraints.FreezePositionY;
+            case Axis.Z:
+                return (constraints & RigidbodyConstraints.FreezePositionZ) == RigidbodyConstraints.FreezePositionZ;
+            default:
+                Debug.LogError("Unhandled case");
+                return false;
+        }
+    }
+    public void SetSpatialConstraint(Axis axis, bool constrain) {
+        RigidbodyConstraints constraints = m_rigidBody.constraints;
+        switch (axis) {
+            case Axis.None:
+                break;
+            case Axis.X:
+                m_rigidBody.constraints = constraints | RigidbodyConstraints.FreezePositionX;
+                break;
+            case Axis.Y:
+                m_rigidBody.constraints = constraints | RigidbodyConstraints.FreezePositionY;
+                break;
+            case Axis.Z:
+                m_rigidBody.constraints = constraints | RigidbodyConstraints.FreezePositionZ;
+                break;
+            default:
+                Debug.LogError("Unhandled case");
+                return;
+        }
+    }
+    public bool RotationalConstraint(Axis axis) {
+        RigidbodyConstraints constraints = m_rigidBody.constraints;
+        switch (axis) {
+            case Axis.None:
+                return false;
+            case Axis.X:
+                return (constraints & RigidbodyConstraints.FreezeRotationX) == RigidbodyConstraints.FreezeRotationX;
+            case Axis.Y:
+                return (constraints & RigidbodyConstraints.FreezeRotationY) == RigidbodyConstraints.FreezeRotationY;
+            case Axis.Z:
+                return (constraints & RigidbodyConstraints.FreezeRotationZ) == RigidbodyConstraints.FreezeRotationZ;
+            default:
+                Debug.LogError("Unhandled case");
+                return false;
+        }
+    }
+    public void SetRotationalConstraint(Axis axis, bool constrain) {
+        RigidbodyConstraints constraints = m_rigidBody.constraints;
+        switch (axis) {
+            case Axis.None:
+                break;
+            case Axis.X:
+                m_rigidBody.constraints = constraints | RigidbodyConstraints.FreezeRotationX;
+                break;
+            case Axis.Y:
+                m_rigidBody.constraints = constraints | RigidbodyConstraints.FreezeRotationY;
+                break;
+            case Axis.Z:
+                m_rigidBody.constraints = constraints | RigidbodyConstraints.FreezeRotationZ;
+                break;
+            default:
+                Debug.LogError("Unhandled case");
+                break;
+        }
+    }
 }
 
 
@@ -48,18 +122,18 @@ public class WrappedRigidbody2D : IRigidbody<float, Vector2, float> {
         m_origGravity = m_rigidBody.gravityScale;
     }
 
-    public Vector2 position { get=>m_rigidBody.position; set=>m_rigidBody.position = value; }
-    public float rotation { get=>m_rigidBody.rotation; set=>m_rigidBody.rotation = value; }
-    public Vector2 velocity { get=>m_rigidBody.velocity; set=>m_rigidBody.velocity = value; }
-    public float angularVelocity { get=>m_rigidBody.angularVelocity; set=>m_rigidBody.angularVelocity = value; }
-    public float mass { get=>m_rigidBody.mass; set=>m_rigidBody.mass = value; }
+    public Vector2 Position { get=>m_rigidBody.position; set=>m_rigidBody.position = value; }
+    public float Rotation { get=>m_rigidBody.rotation; set=>m_rigidBody.rotation = value; }
+    public Vector2 Velocity { get=>m_rigidBody.velocity; set=>m_rigidBody.velocity = value; }
+    public float AngularVelocity { get=>m_rigidBody.angularVelocity; set=>m_rigidBody.angularVelocity = value; }
+    public float Mass { get=>m_rigidBody.mass; set=>m_rigidBody.mass = value; }
     public void ApplyForce(Vector2 force) { m_rigidBody.AddForce(force, ForceMode2D.Force); }
     public void ImpulseForce(Vector2 force)  { m_rigidBody.AddForce(force, ForceMode2D.Impulse); }
     public void ApplyTorque(float torque)  { m_rigidBody.AddTorque(torque, ForceMode2D.Force); }
     public void ImpulseTorque(float torque)  { m_rigidBody.AddTorque(torque, ForceMode2D.Impulse); }
-    public float drag { get=>m_rigidBody.drag; set=>m_rigidBody.drag = value; }
-    public float angularDrag { get=>m_rigidBody.angularDrag; set=>m_rigidBody.angularDrag = value; }
-    public bool useGravity {
+    public float Drag { get=>m_rigidBody.drag; set=>m_rigidBody.drag = value; }
+    public float AngularDrag { get=>m_rigidBody.angularDrag; set=>m_rigidBody.angularDrag = value; }
+    public bool UseGravity {
         get=>m_rigidBody.gravityScale != 0;
         set
         {
@@ -70,5 +144,78 @@ public class WrappedRigidbody2D : IRigidbody<float, Vector2, float> {
             }
         }
     }
-    public bool freezeRotation { get=>m_rigidBody.freezeRotation; set=>m_rigidBody.freezeRotation = value; }
+    public bool FreezeRotation { get=>m_rigidBody.freezeRotation; set=>m_rigidBody.freezeRotation = value; }
+    public bool SpatialConstraint(Axis axis) {
+        RigidbodyConstraints2D constraints = m_rigidBody.constraints;
+        switch (axis) {
+            case Axis.None:
+                return false;
+            case Axis.X:
+                return (constraints & RigidbodyConstraints2D.FreezePositionX) == RigidbodyConstraints2D.FreezePositionX;
+            case Axis.Y:
+                return (constraints & RigidbodyConstraints2D.FreezePositionY) == RigidbodyConstraints2D.FreezePositionY;
+            case Axis.Z:
+                Debug.LogError("Querying constraint on Z-axis in 2D");
+                return false;
+            default:
+                Debug.LogError("Unhandled case");
+                return false;
+        }
+    }
+    public void SetSpatialConstraint(Axis axis, bool constrain) {
+        RigidbodyConstraints2D constraints = m_rigidBody.constraints;
+        switch (axis) {
+            case Axis.None:
+                break;
+            case Axis.X:
+                m_rigidBody.constraints = constraints | RigidbodyConstraints2D.FreezePositionX;
+                break;
+            case Axis.Y:
+                m_rigidBody.constraints = constraints | RigidbodyConstraints2D.FreezePositionY;
+                break;
+            case Axis.Z:
+                Debug.LogError("ATtempting to set Z axis constraint in 2D");
+                break;
+            default:
+                Debug.LogError("Unhandled case");
+                break;;
+        }
+    }
+    public bool RotationalConstraint(Axis axis) {
+        RigidbodyConstraints2D constraints = m_rigidBody.constraints;
+        switch (axis) {
+            case Axis.None:
+                return false;
+            case Axis.X:
+                Debug.LogError("Attempting to query rotational constraint on X axis in 2D");
+                return false;
+            case Axis.Y:
+                Debug.LogError("Attempting to query rotational constraint on Y axis in 2D");
+                return false;
+            case Axis.Z:
+                return (constraints & RigidbodyConstraints2D.FreezeRotation) == RigidbodyConstraints2D.FreezeRotation;
+            default:
+                Debug.LogError("Unhandled case");
+                return false;
+        }
+    }
+    public void SetRotationalConstraint(Axis axis, bool constrain) {
+        RigidbodyConstraints2D constraints = m_rigidBody.constraints;
+        switch (axis) {
+            case Axis.None:
+                break;
+            case Axis.X:
+                m_rigidBody.constraints = constraints | RigidbodyConstraints2D.FreezeRotation;
+                break;
+            case Axis.Y:
+                Debug.LogError("Attempting to set rotational constraint on Y axis in 2D");
+                break;
+            case Axis.Z:
+                Debug.LogError("Attempting to set rotational constraint on Z axis in 2D");
+                break;
+            default:
+                Debug.LogError("Unhandled case");
+                break;
+        }
+    }
 }

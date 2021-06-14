@@ -1,3 +1,9 @@
+TODO
+Remove all Min restrictions? - this will change MagMinMax, InputRange, etc
+Refactor InputRange to accept 1D, 2D and 3D inputs
+
+
+
 Axis can change frequently
 Axis source is more static
 
@@ -13,6 +19,26 @@ Axis
     
 
 I think we need to decouple control axes from movement axes
+
+
+Movement: based on DOFs - no, based on RigidBody[2D] constraints
+    WorldSpace - 2D, 3D
+    Spatial movement - 1, 2, 3
+    Rotations - 1, 2, 3
+
+2D World
+Spatial movement - 0, 1, 2 (axis aligned)
+Rotations - 0, 1
+
+3D World
+Spatial movement - 0, 1, 2, 3 (axis aligned)
+Rotations - 0, 1, 2, 3
+
+WorldSpace
+
+if (World.nAxes > Control.nAxes) {
+    // Control needs an alignment axis, projection
+}
 
 
 Ways to interact with RigidBody or RigidBody2D

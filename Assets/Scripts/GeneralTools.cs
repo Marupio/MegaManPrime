@@ -74,4 +74,12 @@ public class GeneralTools {
         // No need to AssertNotNull because it may not be 'hurtable'
         return entity;
     }
+
+    /// <summary>
+    /// Return bit from int
+    /// </summary>
+    public static bool GetBit(this byte b, int bitNumber)
+    {
+        return (b & (1 << bitNumber-1)) != 0;
+    }
 }
