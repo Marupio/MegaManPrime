@@ -10,8 +10,8 @@ public abstract class MagMinMax<T>{
     // For float, largest magnitude (positive or negative), for a vector, same as MaxValue
     public virtual T MaxMagValue { get; }
     // True if I ever was equal to zero, within tolerance
-    public abstract bool CrossedZero();
-    // Show me another value to compare against statistics
+    public abstract bool WasZero();
+    // True if I ever was non zero, within tolerance
     public abstract void ObserveValue(T value);
 }
 
@@ -37,7 +37,7 @@ public class MagMinMaxFloat : MagMinMax<float> {
             }
         }
     }
-    public override bool CrossedZero() {
+    public override bool WasZero() {
         return (m_maxValue * m_minValue <= 0);
     }
     public override void ObserveValue(float value)
@@ -74,7 +74,7 @@ public class MagMinMaxVector2 : MagMinMax<Vector2>
     public override Vector2 MaxMagValue {
         get { return m_maxValue; }
     }
-    public override bool CrossedZero() {
+    public override bool WasZero() {
         return Vector2.SqrMagnitude(m_minValue) < m_sqrTolerance;
     }
     public override void ObserveValue(Vector2 value) {
@@ -119,7 +119,7 @@ public class MagMinMaxVector3 : MagMinMax<Vector3>
     public override Vector3 MaxMagValue {
         get { return m_maxValue; }
     }
-    public override bool CrossedZero()
+    public override bool WasZero()
     {
         return Vector3.SqrMagnitude(m_minValue) < m_sqrTolerance;
     }

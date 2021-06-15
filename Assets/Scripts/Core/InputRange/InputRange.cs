@@ -26,7 +26,7 @@ public abstract class InputRange<T>
     /// Returns true if ControlVector reached or crossed zero since the last call to InputValue() or ClearStatistics()
     /// </summary>
     /// <value></value>
-    public virtual bool UnqueriedZeroCrossingInputValue { get => m_magMinMax.CrossedZero(); }
+    public virtual bool UnqueriedZeroInputValue { get => m_magMinMax.WasZero(); }
     //- Control value - input to this class
     public virtual T ControlValue { 
         get => m_controlValue;
@@ -49,7 +49,3 @@ public abstract class InputRange<T>
     }
     protected abstract T InternalInput(T controlValue);
 }
-
-
-
-

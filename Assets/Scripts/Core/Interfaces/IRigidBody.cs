@@ -1,9 +1,9 @@
 using UnityEngine;
 
-// Rigidbody2D : T = float, V = Vector2, Q = float
-// Rigidbody   : T = vector3, V = Vector3, Q = Quaternion
+// Rigidbody   : Q = Quaternion, V = Vector3, T = vector3
+// Rigidbody2D : Q = float, V = Vector2, T = float
 
-public interface IRigidbody<T, V, Q>
+public interface IRigidbody<Q, V, T>
 {
     public V Position { get; set; }
     public Q Rotation { get; set; }
@@ -24,7 +24,7 @@ public interface IRigidbody<T, V, Q>
     public void SetRotationalConstraint(Axis axis, bool constrain);
 }
 
-public class WrappedRigidbody : IRigidbody<Vector3, Vector3, Quaternion> {
+public class WrappedRigidbody : IRigidbody<Quaternion, Vector3, Vector3> {
     public Rigidbody m_rigidBody;
     public WrappedRigidbody(Rigidbody rb) {m_rigidBody = rb;}
 
@@ -155,8 +155,9 @@ public class WrappedRigidbody2D : IRigidbody<float, Vector2, float> {
             case Axis.Y:
                 return (constraints & RigidbodyConstraints2D.FreezePositionY) == RigidbodyConstraints2D.FreezePositionY;
             case Axis.Z:
-                Debug.LogError("Querying constraint on Z-axis in 2D");
-                return false;
+                //Debug.LogError("Querying constraint on Z-axis in 2D");
+                // In 2D, Z axis is always constrained
+                return true;
             default:
                 Debug.LogError("Unhandled case");
                 return false;
@@ -187,11 +188,13 @@ public class WrappedRigidbody2D : IRigidbody<float, Vector2, float> {
             case Axis.None:
                 return false;
             case Axis.X:
-                Debug.LogError("Attempting to query rotational constraint on X axis in 2D");
-                return false;
+                //Debug.LogError("Attempting to query rotational constraint on X axis in 2D");
+                // In 2D X & Y rotations are always constrained
+                return true;
             case Axis.Y:
-                Debug.LogError("Attempting to query rotational constraint on Y axis in 2D");
-                return false;
+                // Debug.LogError("Attempting to query rotational constraint on Y axis in 2D");
+                // In 2D X & Y rotations are always constrained
+                return true;
             case Axis.Z:
                 return (constraints & RigidbodyConstraints2D.FreezeRotation) == RigidbodyConstraints2D.FreezeRotation;
             default:
@@ -205,13 +208,13 @@ public class WrappedRigidbody2D : IRigidbody<float, Vector2, float> {
             case Axis.None:
                 break;
             case Axis.X:
-                m_rigidBody.constraints = constraints | RigidbodyConstraints2D.FreezeRotation;
+                Debug.LogError("Attempting to set rotational constraint on X axis in 2D");
                 break;
             case Axis.Y:
                 Debug.LogError("Attempting to set rotational constraint on Y axis in 2D");
                 break;
             case Axis.Z:
-                Debug.LogError("Attempting to set rotational constraint on Z axis in 2D");
+                m_rigidBody.constraints = constraints | RigidbodyConstraints2D.FreezeRotation;
                 break;
             default:
                 Debug.LogError("Unhandled case");

@@ -4,7 +4,7 @@ using UnityEngine;
 
 using UnityEngine.Tilemaps;
 
-public class GeneralTools {
+public static class GeneralTools {
     public static bool IsInLayerMask(GameObject obj, LayerMask layerMask) {
         return ((layerMask.value & (1 << obj.layer)) > 0);
     }

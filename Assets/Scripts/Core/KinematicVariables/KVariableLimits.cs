@@ -161,6 +161,10 @@ public class KVariableLimits {
         m_maxVars = new KVariableSetExt1D(float.PositiveInfinity);
         m_minVars = new KVariableSetExt1D(float.NegativeInfinity);
     }
+    public KVariableLimits(KVariableLimits kvl) {
+        m_maxVars = kvl.m_maxVars;
+        m_minVars = kvl.m_minVars;
+    }
     public KVariableLimits(KVariableLimit kvl) {
         m_maxVars = new KVariableSetExt1D(float.PositiveInfinity);
         m_minVars = new KVariableSetExt1D(float.NegativeInfinity);
