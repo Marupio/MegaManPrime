@@ -6,7 +6,7 @@ using UnityEngine;
 public enum RigidBodyActorType {
     None,
     ForceUser,      // These actors interact by applying a force / forceDerivative
-    StateSetter,    // These actors interact by setting a state variable such as position and velocity
+    StateSetter,    // These actors interact by setting a state variable such as position or velocity
     Both
 }
 

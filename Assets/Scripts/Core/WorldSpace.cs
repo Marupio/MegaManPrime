@@ -22,6 +22,22 @@ public class WorldSpace<Q, V, T>
     IRigidbody<Q, V, T> m_rigidBody;
     Transform m_owner;
 
+    // Extra kinematic variables that rigidBody doesn't track
+    V m_accelerationActual;
+    V m_accelerationDesired;
+    // V m_jerkActual;
+    // V m_jerkDesired;
+    V m_appliedForceActual;
+    V m_appliedForceDesired;
+    V m_appliedForceRateActual;
+    V m_appliedForceRateDesired;
+    T m_angularAccelerationActual;
+    T m_angularAccelerationDesired;
+    T m_angularForceActual;
+    T m_angularForceDesired;
+    T m_angularForceRateActual;
+    T m_angularForceRateDesired;
+
     public bool ThreeD { get => GeneralTools.ThreeD<V>(); }
     public bool TwoD { get => GeneralTools.TwoD<V>(); }
     public int NSpatialFreedoms {
@@ -53,8 +69,38 @@ public class WorldSpace<Q, V, T>
     // TODO Set , Query , Swap axes functionality needed
 
     public void Move() {
+        Traits<V> traitsV = new Traits<V>();
+        // Global
+        float mass = m_rigidBody.Mass;
+
+        // Linear
+        float drag = m_rigidBody.Drag;
+        V position = m_rigidBody.Position;
+        V velocity = m_rigidBody.Velocity;
+        V acceleration = traitsV.Zero;
+        V jerk = traitsV.Zero;
+        V appliedForce = traitsV.Zero;
+        V impulseForce = traitsV.Zero;
+        V appliedForceRate = traitsV.Zero;
+        V impulseForceRate = traitsV.Zero;
+
+        // Rotational
+        float angularDrag = 0f;
+        Q rotation = (new Traits<Q>()).Zero;
+        V angularVelocity = traitsV.Zero;
+        V angularAcceleration = traitsV.Zero;
+        V angularJerk = traitsV.Zero;
+        V appliedTorque = traitsV.Zero;
+        V impulseTorque = traitsV.Zero;
+        V appliedTorqueRate = traitsV.Zero;
+        V impulseTorqueRate = traitsV.Zero;
+
+
+
         foreach(AxisProfile<float, V> axis in m_activeAxes1D) {
-            
+            if (axis.Projecting) {
+
+            }
         }
     }
 

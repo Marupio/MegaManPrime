@@ -106,20 +106,16 @@ public static class GeneralTools {
 
 public class Traits<T> {
     public virtual T Zero { get; }
-    public virtual T One { get; }
 }
-
 public class TraitsFloat : Traits<float> {
-    public override float Zero { get=>0; }
-    public override float One { get=>1; }
+    public override float Zero { get=>0f; }
 }
-
 public class TraitsVector2 : Traits<Vector2> {
     public override Vector2 Zero { get=>Vector2.zero; }
-    public override Vector2 One { get=>new Vector2(1,1); }
 }
-
 public class TraitsVector3 : Traits<Vector3> {
     public override Vector3 Zero { get=>Vector3.zero; }
-    public override Vector3 One { get=>new Vector3(1,1,1); }
+}
+public class TraitsQuaternion : Traits<Quaternion> {
+    public override Quaternion Zero { get=>Quaternion.identity; }
 }
