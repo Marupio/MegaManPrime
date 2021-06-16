@@ -3,6 +3,13 @@ using UnityEngine;
 // Rigidbody   : Q = Quaternion, V = Vector3, T = vector3
 // Rigidbody2D : Q = float, V = Vector2, T = float
 
+public enum RigidBodyActorType {
+    None,
+    ForceUser,      // These actors interact by applying a force / forceDerivative
+    StateSetter,    // These actors interact by setting a state variable such as position and velocity
+    Both
+}
+
 public interface IRigidbody<Q, V, T>
 {
     public bool TwoD { get; }

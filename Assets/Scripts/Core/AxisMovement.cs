@@ -75,6 +75,32 @@ public abstract class AxisMovement<T> : KVariableLimits {
     //     Dictionary<string, AxisSource> sources
     // );
 
+    public RigidBodyActorType ActorType {
+        get {
+            bool forceUser = KVariableTypeInfo.ForceType.Contains(IndependentVariable);
+            bool stateSetter = KVariableTypeInfo.StateVarType.Contains(IndependentVariable);
+            if (forceUser) {
+                if (stateSetter) {
+                    return RigidBodyActorType.Both;
+                } else {
+                    return RigidBodyActorType.ForceUser;
+                }
+            } else if (stateSetter) {
+                return RigidBodyActorType.StateSetter;
+            } else {
+                return RigidBodyActorType.None;
+            }
+        }
+    }
+    // TODO switch these to KVariableTypeSet.ForceType() and StateSetter()
+    public bool ForceUser() {
+        return ActorType == RigidBodyActorType.ForceUser || ActorType == RigidBodyActorType.Both;
+    }
+    public bool StateSetter() {
+        return ActorType == RigidBodyActorType.StateSetter || ActorType == RigidBodyActorType.Both;
+    }
+
+
     public bool SmoothingEnabled
     {
         get => m_smoothingEnabled;

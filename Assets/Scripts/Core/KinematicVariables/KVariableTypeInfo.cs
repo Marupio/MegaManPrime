@@ -19,16 +19,22 @@ public enum KVariableExtendedEnum {
 }
 
 public class KVariableTypeInfo {
+    // None
     public static KVariableTypeSet None                   = new KVariableTypeSet(KVariableEnum.None);
+    // Base types
     public static KVariableTypeSet Variable               = new KVariableTypeSet(KVariableEnum.Variable);
     public static KVariableTypeSet Derivative             = new KVariableTypeSet(KVariableEnum.Derivative);
     public static KVariableTypeSet SecondDerivative       = new KVariableTypeSet(KVariableEnum.SecondDerivative);
     public static KVariableTypeSet AppliedForce           = new KVariableTypeSet(KVariableEnum.AppliedForce);
     public static KVariableTypeSet ImpulseForce           = new KVariableTypeSet(KVariableEnum.ImpulseForce);
     public static KVariableTypeSet Drag                   = new KVariableTypeSet(KVariableEnum.Drag);
+    // Extended types
     public static KVariableTypeSet ThirdDerivative        = new KVariableTypeSet(KVariableExtendedEnum.ThirdDerivative);
     public static KVariableTypeSet AppliedForceDerivative = new KVariableTypeSet(KVariableExtendedEnum.AppliedForceDerivative);
     public static KVariableTypeSet ImpulseForceDerivative = new KVariableTypeSet(KVariableExtendedEnum.ImpulseForceDerivative);
+    // Mixed types
+    public static KVariableTypeSet ForceType = AppliedForce|ImpulseForce|AppliedForceDerivative|ImpulseForceDerivative;
+    public static KVariableTypeSet StateVarType = ~ForceType;
     public static KVariableTypeSet AllBaseTypes =
         new KVariableTypeSet(
             None | Variable | Derivative | SecondDerivative | AppliedForce | ImpulseForce | Drag

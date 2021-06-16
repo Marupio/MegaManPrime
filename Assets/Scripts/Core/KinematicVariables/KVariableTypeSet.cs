@@ -27,6 +27,7 @@ public class KVariableTypeSet {
     }
 
     // *** Special properties
+    // TODO - Add ForceType(), StateSetter() here
     public bool ExtendedAllowed {
         get=>m_extendedAllowed;
         set {
