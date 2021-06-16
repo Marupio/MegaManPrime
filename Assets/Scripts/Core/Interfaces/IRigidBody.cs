@@ -5,6 +5,8 @@ using UnityEngine;
 
 public interface IRigidbody<Q, V, T>
 {
+    public bool TwoD { get; }
+    public bool ThreeD { get; }
     public V Position { get; set; }
     public Q Rotation { get; set; }
     public V Velocity { get; set; }
@@ -28,6 +30,8 @@ public class WrappedRigidbody : IRigidbody<Quaternion, Vector3, Vector3> {
     public Rigidbody m_rigidBody;
     public WrappedRigidbody(Rigidbody rb) {m_rigidBody = rb;}
 
+    public bool TwoD { get=>false; }
+    public bool ThreeD { get=>true; }
     public Vector3 Position { get=>m_rigidBody.position; set=>m_rigidBody.position = value; }
     public Quaternion Rotation { get=>m_rigidBody.rotation; set=>m_rigidBody.rotation = value; }
     public Vector3 Velocity { get=>m_rigidBody.velocity; set=>m_rigidBody.velocity = value; }
@@ -122,6 +126,8 @@ public class WrappedRigidbody2D : IRigidbody<float, Vector2, float> {
         m_origGravity = m_rigidBody.gravityScale;
     }
 
+    public bool TwoD { get=>true; }
+    public bool ThreeD { get=>false; }
     public Vector2 Position { get=>m_rigidBody.position; set=>m_rigidBody.position = value; }
     public float Rotation { get=>m_rigidBody.rotation; set=>m_rigidBody.rotation = value; }
     public Vector2 Velocity { get=>m_rigidBody.velocity; set=>m_rigidBody.velocity = value; }

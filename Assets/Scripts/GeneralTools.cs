@@ -82,4 +82,44 @@ public static class GeneralTools {
     {
         return (b & (1 << bitNumber-1)) != 0;
     }
+
+    // Waiting for upgrade to .NET
+    public static void ArrayDotFill<T>(ref T[] array, T element) {
+        for (int i = 0; i < array.Length; ++i) {
+            array[i] = element;
+        }
+    }
+
+    /// <summary>
+    /// Returns true if the generic type T is a Vector2
+    /// </summary>
+    public static bool TwoD<T>() {
+        return typeof(Vector2).IsAssignableFrom(typeof(T));
+    }
+    /// <summary>
+    /// Returns true if the generic type T is a Vector3
+    /// </summary>
+    public static bool ThreeD<T>() {
+        return typeof(Vector3).IsAssignableFrom(typeof(T));
+    }
+}
+
+public class Traits<T> {
+    public virtual T Zero { get; }
+    public virtual T One { get; }
+}
+
+public class TraitsFloat : Traits<float> {
+    public override float Zero { get=>0; }
+    public override float One { get=>1; }
+}
+
+public class TraitsVector2 : Traits<Vector2> {
+    public override Vector2 Zero { get=>Vector2.zero; }
+    public override Vector2 One { get=>new Vector2(1,1); }
+}
+
+public class TraitsVector3 : Traits<Vector3> {
+    public override Vector3 Zero { get=>Vector3.zero; }
+    public override Vector3 One { get=>new Vector3(1,1,1); }
 }

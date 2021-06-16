@@ -193,11 +193,6 @@ public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
     {
         return EqualityComparer<T>.Default.Equals(param1, param2);
     }
-    // protected abstract bool Equals(T valA, T valB);
-    /// <summary>
-    /// Returns the zero value for the generic type T. Work-around for C# generic class limitations because I don't know how to use them properly yet.
-    /// </summary>
-    protected abstract T Zero();
 
     /// <summary>
     /// Performs bookkeeping actions to activate this impulse.  Can be used when already active - resets the start timer.
@@ -234,7 +229,7 @@ public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
         {
             // Ready to fire, check for max historical input
             T newValue = m_inputRange.UnqueriedMaxMagnitudeInputValue;
-            if (Equals(newValue, Zero()))
+            if (Equals(newValue, (new Traits<T>()).Zero))
             {
                 Activate();
                 m_inputRange.ClearStatistics(m_inputRange.ControlValue);
@@ -250,7 +245,7 @@ public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
             )
             {
                 Deactivate();
-                return Zero();
+                return (new Traits<T>()).Zero;
             }
             T newValue = m_inputRange.UnqueriedMaxMagnitudeInputValue;
             m_inputRange.ClearStatistics(m_inputRange.ControlValue);
@@ -258,7 +253,7 @@ public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
         }
         else
         {
-            return Zero();
+            return (new Traits<T>()).Zero;
         }
     }
 }
@@ -286,17 +281,14 @@ public class ControlledAxisMovement3D : ControlledAxisMovement<Vector3> {
         : base(limits, inputRange, kinematicVariable) {}
 }
 public class ImpulseAxisMovement1D : ImpulseAxisMovement<float> {
-    protected override float Zero() { return 0; }
     public ImpulseAxisMovement1D(KVariableLimits limits, InputRange<float> inputRange, float maxDuration, bool interruptable, bool enabled = true)
         : base(limits, inputRange, maxDuration, interruptable,enabled) {}
 }
 public class ImpulseAxisMovement2D : ImpulseAxisMovement<Vector2> {
-    protected override Vector2 Zero() { return Vector2.zero; }
     public ImpulseAxisMovement2D(KVariableLimits limits, InputRange<Vector2> inputRange, float maxDuration, bool interruptable, bool enabled = true)
         : base(limits, inputRange, maxDuration, interruptable,enabled) {}
 }
 public class ImpulseAxisMovement3D : ImpulseAxisMovement<Vector3> {
-    protected override Vector3 Zero() { return Vector3.zero; }
     public ImpulseAxisMovement3D(KVariableLimits limits, InputRange<Vector3> inputRange, float maxDuration, bool interruptable, bool enabled = true)
         : base(limits, inputRange, maxDuration, interruptable,enabled) {}
 }
