@@ -27,7 +27,6 @@ public class KVariableTypeSet {
     }
 
     // *** Special properties
-    // TODO - Add ForceType(), StateSetter() here
     public bool ExtendedAllowed {
         get=>m_extendedAllowed;
         set {
@@ -41,9 +40,16 @@ public class KVariableTypeSet {
         return this >= KVariableTypeInfo.ThirdDerivative;
     }
     public bool HasBaseVariables() {
-        return this == KVariableTypeInfo.Variable || this == KVariableTypeInfo.Derivative || this == KVariableTypeInfo.SecondDerivative ||
-            this == KVariableTypeInfo.AppliedForce || this == KVariableTypeInfo.ImpulseForce || this == KVariableTypeInfo.Drag;
+        return Contains(KVariableTypeInfo.Variable) || Contains(KVariableTypeInfo.Derivative) || Contains(KVariableTypeInfo.SecondDerivative) ||
+            Contains(KVariableTypeInfo.AppliedForce) || Contains(KVariableTypeInfo.ImpulseForce) || Contains(KVariableTypeInfo.Drag);
     }
+    public bool ForceUser() {
+        return (KVariableTypeInfo.AllForceTypes & this).Count > 0;
+    }
+    public bool StateSetter() {
+        return (KVariableTypeInfo.AllStateSetterTypes & this).Count > 0;
+    }
+    public bool IsSingular() { return Count == 1; }
     public bool SingularOnly {
         get => m_singularOnly;
         set {
@@ -53,7 +59,6 @@ public class KVariableTypeSet {
             m_singularOnly = value;
         }
     }
-    public bool IsSingular() { return Count == 1; }
 
     // *** Query
     public int Count {
@@ -74,6 +79,14 @@ public class KVariableTypeSet {
     public bool Contains(KVariableTypeSet kv) {
         return (this & kv) == kv;
     }
+    public bool Contains(KVariableEnum kve) {
+        KVariableTypeSet kvts = new KVariableTypeSet(kve);
+        return Contains(kvts);
+    }
+    public bool Contains(KVariableExtendedEnum kve) {
+        KVariableTypeSet kvts = new KVariableTypeSet(kve);
+        return Contains(kvts);
+    }
 
     // *** Edit
     public void Add(KVariableTypeSet kv) {
@@ -89,6 +102,21 @@ public class KVariableTypeSet {
     }
     public void Remove(KVariableTypeSet kv) {
         m_value = (this & ~kv).Value;
+    }
+
+
+    public override string ToString() {
+        string outputString = "KVset(" + m_value + "): {";
+        for (System.Int32 i = 1; i < KVariableTypeInfo.NBaseEnums; ++i) {
+            KVariableEnum curEnum = (KVariableEnum)i;
+            if (Contains(curEnum)) {outputString += curEnum + " ";}
+        }
+        for (System.Int32 i = 1; i < KVariableTypeInfo.NExtendedEnums; ++i) {
+            KVariableExtendedEnum curEnum = (KVariableExtendedEnum)i;
+            if (Contains(curEnum)) {outputString += curEnum + " ";}
+        }
+        outputString += "}";
+        return outputString;
     }
 
     // *** Operators

@@ -77,8 +77,8 @@ public abstract class AxisMovement<T> : KVariableLimits {
 
     public RigidBodyActorType ActorType {
         get {
-            bool forceUser = KVariableTypeInfo.ForceType.Contains(IndependentVariable);
-            bool stateSetter = KVariableTypeInfo.StateVarType.Contains(IndependentVariable);
+            bool forceUser = KVariableTypeInfo.AllForceTypes.Contains(IndependentVariable);
+            bool stateSetter = KVariableTypeInfo.AllStateSetterTypes.Contains(IndependentVariable);
             if (forceUser) {
                 if (stateSetter) {
                     return RigidBodyActorType.Both;
@@ -92,12 +92,11 @@ public abstract class AxisMovement<T> : KVariableLimits {
             }
         }
     }
-    // TODO switch these to KVariableTypeSet.ForceType() and StateSetter()
     public bool ForceUser() {
-        return ActorType == RigidBodyActorType.ForceUser || ActorType == RigidBodyActorType.Both;
+        return IndependentVariable.ForceUser();
     }
     public bool StateSetter() {
-        return ActorType == RigidBodyActorType.StateSetter || ActorType == RigidBodyActorType.Both;
+        return IndependentVariable.StateSetter();
     }
 
 
@@ -152,7 +151,13 @@ public class ControlledAxisMovement<T> : AxisMovement<T>
     public ControlledAxisMovement(KVariableLimits limits, InputRange<T> inputRange, KVariableTypeSet kinematicVariable)
         : base(limits, inputRange)
     {
-        m_kinematicVariable = kinematicVariable;
+        // Filter out non-controllable variables
+        if (kinematicVariable.Contains(KVariableTypeInfo.ExcludedFromControl)) {
+            Debug.LogError("Attempting to make axis with Kinematic Variables that cannot be applied to control: " + kinematicVariable);
+            m_kinematicVariable = kinematicVariable & ~KVariableTypeInfo.ExcludedFromControl;
+        } else {
+            m_kinematicVariable = kinematicVariable;
+        }
     }
 }
 

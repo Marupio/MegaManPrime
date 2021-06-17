@@ -33,17 +33,24 @@ public class KVariableTypeInfo {
     public static KVariableTypeSet AppliedForceDerivative = new KVariableTypeSet(KVariableExtendedEnum.AppliedForceDerivative);
     public static KVariableTypeSet ImpulseForceDerivative = new KVariableTypeSet(KVariableExtendedEnum.ImpulseForceDerivative);
     // Mixed types
-    public static KVariableTypeSet ForceType = AppliedForce|ImpulseForce|AppliedForceDerivative|ImpulseForceDerivative;
-    public static KVariableTypeSet StateVarType = ~ForceType;
+    public static KVariableTypeSet AllForceTypes = AppliedForce|ImpulseForce|AppliedForceDerivative|ImpulseForceDerivative;
+    public static KVariableTypeSet AllStateSetterTypes = ~AllForceTypes;
     public static KVariableTypeSet AllBaseTypes =
         new KVariableTypeSet(
             None | Variable | Derivative | SecondDerivative | AppliedForce | ImpulseForce | Drag
         );
-    public static KVariableTypeSet AllExtTypes =
+    public static KVariableTypeSet AllExtendedTypes =
         new KVariableTypeSet(
             None | ThirdDerivative | AppliedForceDerivative | ImpulseForceDerivative
         );
-    public static KVariableTypeSet AllTypes = new KVariableTypeSet(AllBaseTypes | AllExtTypes);
+    public static KVariableTypeSet ExcludedFromControl = 
+        new KVariableTypeSet(
+            ThirdDerivative | AppliedForceDerivative | ImpulseForceDerivative | Drag
+        );
+    public static KVariableTypeSet AllTypes = new KVariableTypeSet(AllBaseTypes | AllExtendedTypes);
+
+    public static int NBaseEnums = 7;
+    public static int NExtendedEnums = 4;
 
     // c# switch statement hack, look away
     public const System.UInt32 NoneEnum = (System.UInt32)KVariableEnum.None;

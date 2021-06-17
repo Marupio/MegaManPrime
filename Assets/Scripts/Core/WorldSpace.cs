@@ -1,4 +1,4 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,8 +15,6 @@ public enum ControlAxis {None, U, V, W} public enum Plane {None, XY, XZ, YZ}
 //      Axis alignment Vector3
 // WorldSpace2D (Rigidbody2D) : Q = float, V = Vector2, T = float
 //      Axis alignment Vector2
-
-
 public class WorldSpace<Q, V, T>
 {
     IRigidbody<Q, V, T> m_rigidBody;
@@ -59,14 +57,10 @@ public class WorldSpace<Q, V, T>
         }
     }
 
-    Dictionary<string, AxisProfile<float, V>> m_axes1D;
-    Dictionary<string, AxisProfile<Vector2, V>> m_axes2D;
-    Dictionary<string, AxisProfile<Vector3, V>> m_axes3D;
-    List<AxisProfile<float, V>> m_activeAxes1D;
-    List<AxisProfile<Vector2, V>> m_activeAxes2D;
-    List<AxisProfile<Vector3, V>> m_activeAxes3D;
-    
-    // TODO Set , Query , Swap axes functionality needed
+    ControlledAxisManager<V> m_axes;
+
+
+    // TODO Set , Query , Swap axes functionality needed - when changing axes, we have to reset any metadata
 
     public void Move() {
         Traits<V> traitsV = new Traits<V>();
@@ -77,8 +71,8 @@ public class WorldSpace<Q, V, T>
         float drag = m_rigidBody.Drag;
         V position = m_rigidBody.Position;
         V velocity = m_rigidBody.Velocity;
-        V acceleration = traitsV.Zero;
-        V jerk = traitsV.Zero;
+        //V acceleration = traitsV.Zero;
+        //V jerk = traitsV.Zero;
         V appliedForce = traitsV.Zero;
         V impulseForce = traitsV.Zero;
         V appliedForceRate = traitsV.Zero;
@@ -97,7 +91,7 @@ public class WorldSpace<Q, V, T>
 
 
 
-        foreach(AxisProfile<float, V> axis in m_activeAxes1D) {
+        foreach(AxisProfile<float, V> axis in m_axes.ActiveAxes1D) {
             if (axis.Projecting) {
 
             }
@@ -107,7 +101,7 @@ public class WorldSpace<Q, V, T>
     // *** Internal functions
     bool CheckSetup() {
         int nFreedoms = NSpatialFreedoms + NRotationalFreedoms;
-        int nControls = m_activeAxes1D.Count + 2*m_activeAxes2D.Count + 3*m_activeAxes3D.Count;
+        int nControls = m_axes.ActiveAxes1D.Count + 2*m_axes.ActiveAxes2D.Count + 3*m_axes.ActiveAxes3D.Count;
         // This check is not informative, because some control axes may be ForceUsers, which can overlap with other ForceUsers and one StateSetters
         // if (nFreedoms - nControls < 0) {
         //     Debug.LogError("Overconstrained system: " + nFreedoms + " freedoms, " + nControls + " controls.");
@@ -117,7 +111,7 @@ public class WorldSpace<Q, V, T>
         Vector3Int fixedRotational = Vector3Int.zero;
         int nSpatial = NSpatialFreedoms;
         int nRotational = NRotationalFreedoms;
-        foreach (AxisProfile<float, V> axis in m_activeAxes1D) {
+        foreach (AxisProfile<float, V> axis in m_axes.ActiveAxes1D) {
             fixedSpatial += axis.CheckUsedSpatialAxes;
             fixedRotational += axis.CheckUsedRotationalAxes;
             if (axis.Control.StateSetter()) {
@@ -128,7 +122,7 @@ public class WorldSpace<Q, V, T>
                 }
             }
         }
-        foreach (AxisProfile<Vector2, V> axis in m_activeAxes2D) {
+        foreach (AxisProfile<Vector2, V> axis in m_axes.ActiveAxes2D) {
             fixedSpatial += axis.CheckUsedSpatialAxes;
             fixedRotational += axis.CheckUsedRotationalAxes;
             if (axis.Control.StateSetter()) {
@@ -139,7 +133,7 @@ public class WorldSpace<Q, V, T>
                 }
             }
         }
-        foreach (AxisProfile<Vector3, V> axis in m_activeAxes3D) {
+        foreach (AxisProfile<Vector3, V> axis in m_axes.ActiveAxes3D) {
             fixedSpatial += axis.CheckUsedSpatialAxes;
             fixedRotational += axis.CheckUsedRotationalAxes;
             if (axis.Control.StateSetter()) {
