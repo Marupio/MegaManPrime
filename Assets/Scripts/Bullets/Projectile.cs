@@ -122,7 +122,11 @@ public class Projectile : MonoBehaviour, ICanHit, ILoyalty, IDie, ISelfDestruct
     /// <returns>true if deflected</returns>
     public void Deflect()
     {
-        m_rigidBodySelf.velocity = new Vector2(-1, 1).normalized * m_speed;
+        transform.Rotate(0f, 180f, 0f);
+        Vector2 velocity = m_rigidBodySelf.velocity;
+        velocity.x *= -0.7071067812f;
+        velocity.y = 0.7071067812f*m_speed;
+        m_rigidBodySelf.velocity = velocity;
 
         // A deflected bullet can't hit anything anymore
         GetComponent<Collider2D>().enabled = false;
