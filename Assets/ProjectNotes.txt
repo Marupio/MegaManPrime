@@ -1,4 +1,6 @@
 TODO
+Need to look again at KVariableSet stuff.
+Limits is having trouble with Single and multi.
 Remove all Min restrictions? - this will change MagMinMax, InputRange, etc
 Refactor InputRange to accept 1D, 2D and 3D inputs
 

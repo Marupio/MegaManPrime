@@ -2,20 +2,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum KVariableEnum {
-    None             = 0b_0000_0000_0000_0000,  //   0
-    Variable         = 0b_0000_0000_0000_0001,  //   1
-    Derivative       = 0b_0000_0000_0000_0010,  //   2
-    SecondDerivative = 0b_0000_0000_0000_0100,  //   4
-    AppliedForce     = 0b_0000_0000_0000_1000,  //   8
-    ImpulseForce     = 0b_0000_0000_0001_0000,  //  16
-    Drag             = 0b_0000_0000_0010_0000   //  32
-}
-
-public enum KVariableExtendedEnum {
-    None                   = 0b_0000_0000_0000_0000,  //  64
-    ThirdDerivative        = 0b_0000_0000_0100_0000,  // 128
-    AppliedForceDerivative = 0b_0000_0000_1000_0000,  // 256
-    ImpulseForceDerivative = 0b_0000_0001_0000_0000   // 512
+    None                   = 0b_0000_0000_0000_0000,  //   0
+    Variable               = 0b_0000_0000_0000_0001,  //   1
+    Derivative             = 0b_0000_0000_0000_0010,  //   2
+    SecondDerivative       = 0b_0000_0000_0000_0100,  //   4
+    ThirdDerivative        = 0b_0000_0000_0000_1000,  //   8
+    AppliedForce           = 0b_0000_0000_0001_0000,  //  16
+    ImpulseForce           = 0b_0000_0000_0010_0000,  //  32
+    AppliedForceDerivative = 0b_0000_0000_0100_0000,  //  64
+    ImpulseForceDerivative = 0b_0000_0000_1000_0000,  // 128
+    Drag                   = 0b_0000_0001_0000_0000   // 256
 }
 
 public class KVariableTypeInfo {
@@ -25,13 +21,12 @@ public class KVariableTypeInfo {
     public static KVariableTypeSet Variable               = new KVariableTypeSet(KVariableEnum.Variable);
     public static KVariableTypeSet Derivative             = new KVariableTypeSet(KVariableEnum.Derivative);
     public static KVariableTypeSet SecondDerivative       = new KVariableTypeSet(KVariableEnum.SecondDerivative);
+    public static KVariableTypeSet ThirdDerivative        = new KVariableTypeSet(KVariableEnum.ThirdDerivative);
     public static KVariableTypeSet AppliedForce           = new KVariableTypeSet(KVariableEnum.AppliedForce);
     public static KVariableTypeSet ImpulseForce           = new KVariableTypeSet(KVariableEnum.ImpulseForce);
+    public static KVariableTypeSet AppliedForceDerivative = new KVariableTypeSet(KVariableEnum.AppliedForceDerivative);
+    public static KVariableTypeSet ImpulseForceDerivative = new KVariableTypeSet(KVariableEnum.ImpulseForceDerivative);
     public static KVariableTypeSet Drag                   = new KVariableTypeSet(KVariableEnum.Drag);
-    // Extended types
-    public static KVariableTypeSet ThirdDerivative        = new KVariableTypeSet(KVariableExtendedEnum.ThirdDerivative);
-    public static KVariableTypeSet AppliedForceDerivative = new KVariableTypeSet(KVariableExtendedEnum.AppliedForceDerivative);
-    public static KVariableTypeSet ImpulseForceDerivative = new KVariableTypeSet(KVariableExtendedEnum.ImpulseForceDerivative);
     // Mixed types
     public static KVariableTypeSet AllForceTypes = AppliedForce|ImpulseForce|AppliedForceDerivative|ImpulseForceDerivative;
     public static KVariableTypeSet AllStateSetterTypes = ~AllForceTypes;
@@ -41,28 +36,40 @@ public class KVariableTypeInfo {
         );
     public static KVariableTypeSet AllExtendedTypes =
         new KVariableTypeSet(
-            None | ThirdDerivative | AppliedForceDerivative | ImpulseForceDerivative
+            
         );
     public static KVariableTypeSet ExcludedFromControl = 
         new KVariableTypeSet(
             ThirdDerivative | AppliedForceDerivative | ImpulseForceDerivative | Drag
         );
-    public static KVariableTypeSet AllTypes = new KVariableTypeSet(AllBaseTypes | AllExtendedTypes);
+    public static KVariableTypeSet AllTypes = new KVariableTypeSet(
+        None |
+        Variable |
+        Derivative |
+        SecondDerivative |
+        ThirdDerivative |
+        AppliedForce |
+        ImpulseForce |
+        AppliedForceDerivative |
+        ImpulseForceDerivative |
+        Drag
+    );
 
+    public static int MaxValue = 511;
     public static int NBaseEnums = 7;
     public static int NExtendedEnums = 4;
 
     // c# switch statement hack, look away
-    public const System.UInt32 NoneEnum = (System.UInt32)KVariableEnum.None;
-    public const System.UInt32 VariableEnum = (System.UInt32)KVariableEnum.Variable;
-    public const System.UInt32 DerivativeEnum = (System.UInt32)KVariableEnum.Derivative;
-    public const System.UInt32 SecondDerivativeEnum = (System.UInt32)KVariableEnum.SecondDerivative;
-    public const System.UInt32 AppliedForceEnum = (System.UInt32)KVariableEnum.AppliedForce;
-    public const System.UInt32 ImpulseForceEnum = (System.UInt32)KVariableEnum.ImpulseForce;
-    public const System.UInt32 DragEnum = (System.UInt32)KVariableEnum.Drag;
-    public const System.UInt32 ThirdDerivativeEnum = (System.UInt32)KVariableExtendedEnum.ThirdDerivative;
-    public const System.UInt32 AppliedForceDerivativeEnum = (System.UInt32)KVariableExtendedEnum.AppliedForceDerivative;
-    public const System.UInt32 ImpulseForceDerivativeEnum = (System.UInt32)KVariableExtendedEnum.ImpulseForceDerivative;
+    public const System.Int32 NoneEnum = (System.Int32)KVariableEnum.None;
+    public const System.Int32 VariableEnum = (System.Int32)KVariableEnum.Variable;
+    public const System.Int32 DerivativeEnum = (System.Int32)KVariableEnum.Derivative;
+    public const System.Int32 SecondDerivativeEnum = (System.Int32)KVariableEnum.SecondDerivative;
+    public const System.Int32 ThirdDerivativeEnum = (System.Int32)KVariableEnum.ThirdDerivative;
+    public const System.Int32 AppliedForceEnum = (System.Int32)KVariableEnum.AppliedForce;
+    public const System.Int32 ImpulseForceEnum = (System.Int32)KVariableEnum.ImpulseForce;
+    public const System.Int32 AppliedForceDerivativeEnum = (System.Int32)KVariableEnum.AppliedForceDerivative;
+    public const System.Int32 ImpulseForceDerivativeEnum = (System.Int32)KVariableEnum.ImpulseForceDerivative;
+    public const System.Int32 DragEnum = (System.Int32)KVariableEnum.Drag;
 
     // *** Aliases
     public static KVariableTypeSet Position_alias            { get=>Variable; }
@@ -92,7 +99,7 @@ public class KVariableTypeInfo {
     public static KVariableTypeSet AngularDrag_alias         { get=>Drag; }
 
     // *** String aliases
-    public static Dictionary<string, KVariableEnum> BaseAliases = new Dictionary<string, KVariableEnum> {
+    public static Dictionary<string, KVariableEnum> Aliases = new Dictionary<string, KVariableEnum> {
         {"Position", KVariableEnum.Variable},
         {"Distance", KVariableEnum.Variable},
         {"Rotation", KVariableEnum.Variable},
@@ -103,6 +110,9 @@ public class KVariableTypeInfo {
         {"Acceleration", KVariableEnum.SecondDerivative},
         {"AngularAcceleration", KVariableEnum.SecondDerivative},
         {"OmegaDot", KVariableEnum.SecondDerivative},
+        {"Jerk", KVariableEnum.ThirdDerivative},
+        {"AngularJerk", KVariableEnum.ThirdDerivative},
+        {"OmegaDotDot", KVariableEnum.ThirdDerivative},
         {"AppliedForce", KVariableEnum.AppliedForce},
         {"AppliedTorque", KVariableEnum.AppliedForce},
         {"Force", KVariableEnum.AppliedForce},
@@ -110,40 +120,26 @@ public class KVariableTypeInfo {
         {"Impulse", KVariableEnum.ImpulseForce},
         {"ImpulseForce", KVariableEnum.ImpulseForce},
         {"ImpulseTorque", KVariableEnum.ImpulseForce},
+        {"AppliedForceRate", KVariableEnum.AppliedForceDerivative},
+        {"AppliedTorqueRate", KVariableEnum.AppliedForceDerivative},
+        {"ForceRate", KVariableEnum.AppliedForceDerivative},
+        {"TorqueRate", KVariableEnum.AppliedForceDerivative},
+        {"ImpulseRate", KVariableEnum.ImpulseForceDerivative},
+        {"ImpulseForceRate", KVariableEnum.ImpulseForceDerivative},
+        {"ImpulseTorqueRate", KVariableEnum.ImpulseForceDerivative},
         {"Drag", KVariableEnum.Drag},
         {"AngularDrag", KVariableEnum.Drag}
     };
-    public static Dictionary<string, KVariableExtendedEnum> ExtendedAliases = new Dictionary<string, KVariableExtendedEnum> {
-        {"Jerk", KVariableExtendedEnum.ThirdDerivative},
-        {"AngularJerk", KVariableExtendedEnum.ThirdDerivative},
-        {"OmegaDotDot", KVariableExtendedEnum.ThirdDerivative},
-        {"AppliedForceRate", KVariableExtendedEnum.AppliedForceDerivative},
-        {"AppliedTorqueRate", KVariableExtendedEnum.AppliedForceDerivative},
-        {"ForceRate", KVariableExtendedEnum.AppliedForceDerivative},
-        {"TorqueRate", KVariableExtendedEnum.AppliedForceDerivative},
-        {"ImpulseRate", KVariableExtendedEnum.ImpulseForceDerivative},
-        {"ImpulseForceRate", KVariableExtendedEnum.ImpulseForceDerivative},
-        {"ImpulseTorqueRate", KVariableExtendedEnum.ImpulseForceDerivative}
-    };
-    public static KVariableEnum BaseEnumFromName(string name) {
+    public static KVariableEnum EnumFromName(string name) {
         KVariableEnum baseEnum = KVariableEnum.None;
-        BaseAliases.TryGetValue(name, out baseEnum);
+        Aliases.TryGetValue(name, out baseEnum);
         return baseEnum;
     }
-    public static KVariableExtendedEnum ExtendedEnumFromName(string name) {
-        KVariableExtendedEnum extEnum = KVariableExtendedEnum.None;
-        ExtendedAliases.TryGetValue(name, out extEnum);
-        return extEnum;
-    }
-    public static System.UInt32 EnumValueFromName(string name) {
+    public static System.Int32 EnumValueFromName(string name) {
         KVariableEnum baseEnum;
-        if (BaseAliases.TryGetValue(name, out baseEnum)) {
-            return (System.UInt32)baseEnum;
+        if (Aliases.TryGetValue(name, out baseEnum)) {
+            return (System.Int32)baseEnum;
         }
-        KVariableExtendedEnum extEnum;
-        if (ExtendedAliases.TryGetValue(name, out extEnum)) {
-            return (System.UInt32)extEnum;
-        }
-        return System.UInt32.MaxValue;
+        return -1;
     }
 }

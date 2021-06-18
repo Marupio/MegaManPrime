@@ -1,20 +1,12 @@
 using UnityEngine;
 
 public class KVariableTypeSet {
-    bool m_extendedAllowed = true;
     bool m_singularOnly = false;
-    System.UInt32 m_value;
+    System.Int32 m_value;
 
-    public System.UInt32 Value {
+    public System.Int32 Value {
         get => m_value;
         set {
-            if (!m_extendedAllowed) {
-                KVariableTypeSet kv = new KVariableTypeSet(value);
-                if (kv.HasExtendedVariables()) {
-                    Debug.LogError("Attempting to set value for extended variable types when this is disallowed, ignoring");
-                    return;
-                }
-            }
             if (m_singularOnly) {
                 KVariableTypeSet kv = new KVariableTypeSet(value);
                 if (kv.Count + Count > 1 && kv != this) {
@@ -27,37 +19,20 @@ public class KVariableTypeSet {
     }
 
     // *** Special properties
-    public bool ExtendedAllowed {
-        get=>m_extendedAllowed;
-        set {
-            if (HasExtendedVariables() && !value) {
-                Debug.LogError("Attempting to disallow extended when Extended exists already");
-            }
-            m_extendedAllowed = value;
-        }
-    }
-    public bool HasExtendedVariables() {
-        return this >= KVariableTypeInfo.ThirdDerivative;
-    }
-    public bool HasBaseVariables() {
-        return Contains(KVariableTypeInfo.Variable) || Contains(KVariableTypeInfo.Derivative) || Contains(KVariableTypeInfo.SecondDerivative) ||
-            Contains(KVariableTypeInfo.AppliedForce) || Contains(KVariableTypeInfo.ImpulseForce) || Contains(KVariableTypeInfo.Drag);
-    }
     public bool ForceUser() {
         return (KVariableTypeInfo.AllForceTypes & this).Count > 0;
     }
     public bool StateSetter() {
         return (KVariableTypeInfo.AllStateSetterTypes & this).Count > 0;
     }
-    public bool IsSingular() { return Count == 1; }
-    public bool SingularOnly {
-        get => m_singularOnly;
-        set {
-            if (Count > 1 && value)  {
-                Debug.LogError("Attempting to enforce Singular when multiple variables already exist");
-            }
-            m_singularOnly = value;
+    public bool IsSingular() { return Count <= 1; }
+    public bool SingularOnly { get => m_singularOnly; }
+    // Once set, cannot be unset
+    public void SetSingularOnly() {
+        if (Count > 1)  {
+            Debug.LogError("Attempting to enforce Singular when multiple variables already exist");
         }
+        m_singularOnly = true;
     }
 
     // *** Query
@@ -83,19 +58,11 @@ public class KVariableTypeSet {
         KVariableTypeSet kvts = new KVariableTypeSet(kve);
         return Contains(kvts);
     }
-    public bool Contains(KVariableExtendedEnum kve) {
-        KVariableTypeSet kvts = new KVariableTypeSet(kve);
-        return Contains(kvts);
-    }
 
     // *** Edit
     public void Add(KVariableTypeSet kv) {
         if (m_singularOnly && Count > 0) {
             Debug.LogError("Attempting to add variable type to singular variable type set. Ignoring.");
-            return;
-        }
-        if (!m_extendedAllowed && kv.HasExtendedVariables()) {
-            Debug.LogError("Attempting to add extended variable types to a base-only variable type set. Ignoring.");
             return;
         }
         m_value = kv.m_value | m_value;
@@ -109,10 +76,6 @@ public class KVariableTypeSet {
         string outputString = "KVset(" + m_value + "): {";
         for (System.Int32 i = 1; i < KVariableTypeInfo.NBaseEnums; ++i) {
             KVariableEnum curEnum = (KVariableEnum)i;
-            if (Contains(curEnum)) {outputString += curEnum + " ";}
-        }
-        for (System.Int32 i = 1; i < KVariableTypeInfo.NExtendedEnums; ++i) {
-            KVariableExtendedEnum curEnum = (KVariableExtendedEnum)i;
             if (Contains(curEnum)) {outputString += curEnum + " ";}
         }
         outputString += "}";
@@ -167,28 +130,15 @@ public class KVariableTypeSet {
     // *** Cast operators
     public static implicit operator KVariableEnum(KVariableTypeSet kv) {
         if (kv.Count > 1) {
-            Debug.LogError("Attempting to cast multi-typed KinematicVariableTypeSet to base enumeration");
-        }
-        if (kv.HasExtendedVariables()) {
-            Debug.LogError("Attempting to cast extended KinematicVariableTypeSet to base enumeration");
+            Debug.LogError("Attempting to cast multi-typed KinematicVariableTypeSet to enumeration");
         }
         return (KVariableEnum)kv.Value;
-    }
-    public static implicit operator KVariableExtendedEnum(KVariableTypeSet kv) {
-        if (kv.Count > 1) {
-            Debug.LogError("Attempting to cast multi-typed KinematicVariableTypeSet to base enumeration");
-        }
-        if (kv.HasBaseVariables()) {
-            Debug.LogError("Attempting to cast base KinematicVariableTypeSet to extended enumeration");
-        }
-        return (KVariableExtendedEnum)kv.Value;
     }
     // TODO - I cannot get this one to work
     //public static explicit operator KinematicVariableTypeSet(KinematicVariableEnum enum) => new KinematicVariableTypeSet(enum);
 
     // *** Constructors
     public KVariableTypeSet(KVariableTypeSet kv) {
-        m_extendedAllowed = kv.m_extendedAllowed;
         m_singularOnly = kv.m_singularOnly;
         m_value = kv.m_value;
     }
@@ -198,69 +148,37 @@ public class KVariableTypeSet {
                 Debug.LogError("Attempting to construct multiple variable set as a singular variable type set");
             }
         }
-        m_extendedAllowed = kv.m_extendedAllowed;
         m_singularOnly = singularOnly;
         m_value = kv.m_value;
     }
-    public KVariableTypeSet(KVariableTypeSet kv, bool singularOnly, bool extendedAllowed) {
-        if (singularOnly && kv.Count > 1) {
+    public KVariableTypeSet(System.Int32 value, bool singularOnly = false) {
+        if (value < 0 || value > KVariableTypeInfo.MaxValue) {
+            Debug.LogError("value " + value + " out of range : 0 .. " + KVariableTypeInfo.MaxValue + ". Setting to zero.");
+            value = 0;
+        }
+        m_value = value;
+        if (singularOnly && Count > 1) {
             Debug.LogError("Attempting to construct multiple variable set as a singular variable type set");
         }
-        if (!extendedAllowed && kv.HasExtendedVariables()) {
-            Debug.LogError("Attempting to construct variable set with extended types as a base variable type set");
-        }
-        m_extendedAllowed = extendedAllowed;
         m_singularOnly = singularOnly;
-        m_value = kv.m_value;
-    }
-    public KVariableTypeSet(System.UInt32 value, bool singularOnly = false, bool extendedAllowed = true) {
-        KVariableTypeSet kv = new KVariableTypeSet(value);
-        if (singularOnly && kv.Count > 1) {
-            Debug.LogError("Attempting to construct multiple variable set as a singular variable type set");
-        }
-        if (!extendedAllowed && kv.HasExtendedVariables()) {
-            Debug.LogError("Attempting to construct variable set with extended types as a base variable type set");
-        }
-        m_extendedAllowed = extendedAllowed;
-        m_singularOnly = singularOnly;
-        m_value = kv.m_value;
     }
     public KVariableTypeSet(KVariableEnum enumValue, bool singularOnly = false, bool extendedAllowed = true) {
-        // No need to check flags, as this is definetely a singular base type
-        m_value = (System.UInt32)enumValue;
+        // No need to check flags, as this is definetely a singular type
+        m_value = (System.Int32)enumValue;
         m_singularOnly = singularOnly;
-        m_extendedAllowed = extendedAllowed;
-    }
-    public KVariableTypeSet(KVariableExtendedEnum enumValue, bool singularOnly = false, bool extendedAllowed = true) {
-        if (!extendedAllowed) {
-            Debug.LogError("Attempting to construct a base variable type set from an extended type set enum");
-        }
-        m_value = (System.UInt32)enumValue;
-        m_singularOnly = singularOnly;
-        m_extendedAllowed = extendedAllowed;
     }
     public KVariableTypeSet(string name, bool singularOnly = false, bool extendedAllowed = true) {
         m_singularOnly = singularOnly;
-        m_extendedAllowed = extendedAllowed;
         KVariableEnum baseEnum;
-        if (KVariableTypeInfo.BaseAliases.TryGetValue(name, out baseEnum)) {
-            m_value = (System.UInt32)baseEnum;
+        if (KVariableTypeInfo.Aliases.TryGetValue(name, out baseEnum)) {
+            m_value = (System.Int32)baseEnum;
         } else {
-            KVariableExtendedEnum extEnum;
-            if (KVariableTypeInfo.ExtendedAliases.TryGetValue(name, out extEnum)) {
-                if (!extendedAllowed) {
-                    Debug.LogError("Attempting to construct a baseVariable type set from an extended type set alias");
-                }
-                m_value = (System.UInt32)baseEnum;
-            } else {
-                Debug.LogError("Name does not match a kinematic variable alias");
-                m_value = (System.UInt32)KVariableEnum.None;
-            }
+            Debug.LogError("Name does not match a kinematic variable alias");
+            m_value = (System.Int32)KVariableEnum.None;
         }
     }
     public KVariableTypeSet() {
-        m_value = (System.UInt32)KVariableEnum.None;
-        m_extendedAllowed = true;
+        m_value = (System.Int32)KVariableEnum.None;
         m_singularOnly = false;
     }
 }

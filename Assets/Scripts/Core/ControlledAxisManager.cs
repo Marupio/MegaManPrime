@@ -13,8 +13,8 @@ public enum AxisStoredAt {
 
 // 2D : V = Vector3
 // 3D : V = Vector2
-public class ControlledAxisManager<V> {
-
+public class ControlledAxisManager<Q, V, T> {
+    WorldSpace<Q, V, T> m_entity;
     string m_name; // Name of associated entity's GameObject
     Dictionary<string, AxisStoredAt> m_axisIndex;
     Dictionary<string, AxisProfile<float, V>> m_axes1D;
@@ -33,7 +33,7 @@ public class ControlledAxisManager<V> {
     public List<AxisProfile<Vector2, V>> ActiveAxes2D { get => m_activeAxes2D; }
     public List<AxisProfile<Vector3, V>> ActiveAxes3D { get => m_activeAxes3D; }
 
-    public bool AddAxis(AxisProfile<float, V> newAxis, bool makeActive, bool overwrite) {
+    public bool AddAxis(AxisProfile<float, V> newAxis, bool makeActive, bool overwrite = true) {
         if (!overwrite && m_axisIndex.ContainsKey(newAxis.Name)) {
             Debug.LogError("AxisManager " + m_name + " - axis name collision: " + newAxis.Name);
             return false;
@@ -46,7 +46,7 @@ public class ControlledAxisManager<V> {
         m_axisIndex.Add(newAxis.Name, asa);
         return true;
     }
-    public bool AddAxis(AxisProfile<Vector2, V> newAxis, bool makeActive, bool overwrite) {
+    public bool AddAxis(AxisProfile<Vector2, V> newAxis, bool makeActive, bool overwrite = true) {
         if (!overwrite && m_axisIndex.ContainsKey(newAxis.Name)) {
             Debug.LogError("AxisManager " + m_name + " - axis name collision: " + newAxis.Name);
             return false;
@@ -59,7 +59,7 @@ public class ControlledAxisManager<V> {
         m_axisIndex.Add(newAxis.Name, asa);
         return true;
     }
-    public bool AddAxis(AxisProfile<Vector3, V> newAxis, bool makeActive, bool overwrite) {
+    public bool AddAxis(AxisProfile<Vector3, V> newAxis, bool makeActive, bool overwrite = true) {
         if (!overwrite && m_axisIndex.ContainsKey(newAxis.Name)) {
             Debug.LogError("AxisManager " + m_name + " - axis name collision: " + newAxis.Name);
             return false;
@@ -101,6 +101,15 @@ public class ControlledAxisManager<V> {
                 break;
         }
         return true;
+    }
+    public void RemoveAllAxes() {
+        m_axes1D.Clear();
+        m_axes2D.Clear();
+        m_axes3D.Clear();
+        m_activeAxes1D.Clear();
+        m_activeAxes2D.Clear();
+        m_activeAxes3D.Clear();
+        m_axisIndex.Clear();
     }
     public bool ActivateAxis(string name) {
         AxisStoredAt storedAt;
@@ -181,8 +190,86 @@ public class ControlledAxisManager<V> {
         }
     }
 
+    // *** Internal functions
+    bool CheckSetup() {
+        int nFreedoms = m_entity.NSpatialFreedoms + m_entity.NRotationalFreedoms;
+        int nControls = m_activeAxes1D.Count + 2*m_activeAxes2D.Count + 3*m_activeAxes3D.Count;
+        // This check is not informative, because some control axes may be ForceUsers, which can overlap with other ForceUsers and one StateSetters
+        // if (nFreedoms - nControls < 0) {
+        //     Debug.LogError("Overconstrained system: " + nFreedoms + " freedoms, " + nControls + " controls.");
+        //     return false;
+        // }
+        Vector3Int fixedSpatial = Vector3Int.zero;
+        Vector3Int fixedRotational = Vector3Int.zero;
+        int nSpatial = m_entity.NSpatialFreedoms;
+        int nRotational = m_entity.NRotationalFreedoms;
+        foreach (AxisProfile<float, V> axis in m_activeAxes1D) {
+            fixedSpatial += axis.CheckUsedSpatialAxes;
+            fixedRotational += axis.CheckUsedRotationalAxes;
+            if (axis.Control.StateSetter()) {
+                if (axis.Type == AxisType.Spatial) {
+                    nSpatial -= axis.NControlledDimensions;
+                } else if (axis.Type == AxisType.Rotational) {
+                    nRotational -= axis.NControlledDimensions;
+                }
+            }
+        }
+        foreach (AxisProfile<Vector2, V> axis in m_activeAxes2D) {
+            fixedSpatial += axis.CheckUsedSpatialAxes;
+            fixedRotational += axis.CheckUsedRotationalAxes;
+            if (axis.Control.StateSetter()) {
+                if (axis.Type == AxisType.Spatial) {
+                    nSpatial -= axis.NControlledDimensions;
+                } else if (axis.Type == AxisType.Rotational) {
+                    nRotational -= axis.NControlledDimensions;
+                }
+            }
+        }
+        foreach (AxisProfile<Vector3, V> axis in m_activeAxes3D) {
+            fixedSpatial += axis.CheckUsedSpatialAxes;
+            fixedRotational += axis.CheckUsedRotationalAxes;
+            if (axis.Control.StateSetter()) {
+                if (axis.Type == AxisType.Spatial) {
+                    nSpatial -= axis.NControlledDimensions;
+                } else if (axis.Type == AxisType.Rotational) {
+                    nRotational -= axis.NControlledDimensions;
+                }
+            }
+        }
+        // Now check results of summations
+        bool pass = true;
+        if (nSpatial < 0) {
+            Debug.LogError("Spatially overconstrained with " + nSpatial + " too many spatial axes controlled by StateSetter types.");
+            pass = false;
+        }
+        if (nRotational < 0) {
+            Debug.LogError("Rotationally overconstrained with " + nRotational + " too many rotational axes controlled by StateSetter types.");
+            pass = false;
+        }
+        bool passSpace = true;
+        bool passRotate = true;
+        for (int i = 0; i < 3; ++i) {
+            if (fixedSpatial[i] > 1) { passSpace = false; }
+            if (fixedRotational[i] > 1) { passRotate = false;}
+        }
+        if (passSpace && passRotate) {
+            return pass;
+        }
+        string spaceFail = "";
+        string rotateFail = "";
+        if (!passSpace) {
+            spaceFail = " Spatial assignment = " + fixedSpatial;
+        }
+        if (!passRotate) {
+            rotateFail = " Rotation assignment = " + fixedRotational;
+        }
+        Debug.Log("Number of StateSetter type axis controllers aligned to each axis cannot exceed 1." + spaceFail + rotateFail);
+        return false;
+    }
+
     // *** Constructors
-    ControlledAxisManager(string name) {
+    ControlledAxisManager(WorldSpace<Q,V,T> entity, string name) {
+        m_entity = entity;
         m_name = name;
     }
 }

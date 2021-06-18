@@ -2,14 +2,21 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public struct KVariableLimit {
-    public KVariableTypeSet Type;
+    public KVariableSingleType Type;
     public float Value;
     public bool Max; // true = this is a maximum; false = this is a minimum
 
     //*** Constructors
-    public KVariableLimit(KVariableTypeSet kv, float value, bool max) {
+    public KVariableLimit(KVariableSingleType kv, float value, bool max) {
         Type = kv;
-        Type.SingularOnly = true;
+        Value = value;
+        Max = max;
+    }
+    public KVariableLimit(KVariableTypeSet kv, float value, bool max) {
+        if (kv.Count > 1) {
+            Debug.LogError("Too many KVariable types in set");
+        }
+        Type = new KVariableSingleType(kv);
         Value = value;
         Max = max;
     }
