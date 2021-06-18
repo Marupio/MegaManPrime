@@ -382,12 +382,24 @@ public class KVariableSet2D : KVariableSet<Vector2, Vector2> {
                         secondDerivative = entry.Value;
                         ++nFound;
                         break;
+                    case KVariableEnum.ThirdDerivative:
+                        thirdDerivative = entry.Value;
+                        ++nFound;
+                        break;
                     case KVariableEnum.AppliedForce:
                         appliedForce = entry.Value;
                         ++nFound;
                         break;
                     case KVariableEnum.ImpulseForce:
                         impulseForce = entry.Value;
+                        ++nFound;
+                        break;
+                    case KVariableEnum.AppliedForceDerivative:
+                        appliedForceDerivative = entry.Value;
+                        ++nFound;
+                        break;
+                    case KVariableEnum.ImpulseForceDerivative:
+                        impulseForceDerivative = entry.Value;
                         ++nFound;
                         break;
                     default:
@@ -402,16 +414,29 @@ public class KVariableSet2D : KVariableSet<Vector2, Vector2> {
     }
     // *** New constructors
     public KVariableSet2D(Vector2 values, float drag = 0)
-    : base(values, values, values, values, values, drag) { }
+    : base(values, values, values, values, values, values, values, values, drag) { }
     // *** Pass on base constructors
     public KVariableSet2D(
         Vector2 variableIn,
         Vector2 derivativeIn,
         Vector2 secondDerivativeIn,
+        Vector2 thirdDerivativeIn,
         Vector2 appliedForceIn,
         Vector2 impulseForceIn,
+        Vector2 appliedForceDerivativeIn,
+        Vector2 impulseForceDerivativeIn,
         float dragIn = 0
-    ) : base (variableIn, derivativeIn, secondDerivativeIn, appliedForceIn, impulseForceIn, dragIn)
+    ) : base (
+        variableIn,
+        derivativeIn,
+        secondDerivativeIn,
+        thirdDerivativeIn,
+        appliedForceIn,
+        impulseForceIn,
+        appliedForceDerivativeIn,
+        impulseForceDerivativeIn,
+        dragIn
+    )
     { }
     public KVariableSet2D(Dictionary<string, Vector2> vDict, Dictionary<string, float> fDict) {
         if (vDict != null) {
@@ -446,12 +471,24 @@ public class KVariableSet3D : KVariableSet<Vector3, Vector3> {
                         secondDerivative = entry.Value;
                         ++nFound;
                         break;
+                    case KVariableEnum.ThirdDerivative:
+                        thirdDerivative = entry.Value;
+                        ++nFound;
+                        break;
                     case KVariableEnum.AppliedForce:
                         appliedForce = entry.Value;
                         ++nFound;
                         break;
                     case KVariableEnum.ImpulseForce:
                         impulseForce = entry.Value;
+                        ++nFound;
+                        break;
+                    case KVariableEnum.AppliedForceDerivative:
+                        appliedForceDerivative = entry.Value;
+                        ++nFound;
+                        break;
+                    case KVariableEnum.ImpulseForceDerivative:
+                        impulseForceDerivative = entry.Value;
                         ++nFound;
                         break;
                     default:
@@ -466,16 +503,29 @@ public class KVariableSet3D : KVariableSet<Vector3, Vector3> {
     }
     // *** New constructors
     public KVariableSet3D(Vector3 values, float drag = 0)
-    : base(values, values, values, values, values, drag) { }
+    : base(values, values, values, values, values, values, values, values, drag) { }
     // *** Pass on base constructors
     public KVariableSet3D(
         Vector3 variableIn,
         Vector3 derivativeIn,
         Vector3 secondDerivativeIn,
+        Vector3 thirdDerivativeIn,
         Vector3 appliedForceIn,
         Vector3 impulseForceIn,
+        Vector3 appliedForceDerivativeIn,
+        Vector3 impulseForceDerivativeIn,
         float dragIn = 0
-    ) : base (variableIn, derivativeIn, secondDerivativeIn, appliedForceIn, impulseForceIn, dragIn)
+    ) : base (
+        variableIn,
+        derivativeIn,
+        secondDerivativeIn,
+        thirdDerivativeIn,
+        appliedForceIn,
+        impulseForceIn,
+        appliedForceDerivativeIn,
+        impulseForceDerivativeIn,
+        dragIn
+    )
     { }
     public KVariableSet3D(Dictionary<string, Vector3> vDict, Dictionary<string, float> fDict) {
         if (vDict != null) {
@@ -490,16 +540,29 @@ public class KVariableSet3D : KVariableSet<Vector3, Vector3> {
 public class KVariableSet3dRotation : KVariableSet<Quaternion, Vector3> {
     // *** New constructors
     public KVariableSet3dRotation(Quaternion rotation, Vector3 values, float drag = 0)
-    : base(rotation, values, values, values, values, drag) { }
+    : base(rotation, values, values, values, values, values, values, values, drag) { }
     // *** Pass on base constructors
     public KVariableSet3dRotation(
         Quaternion variableIn,
         Vector3 derivativeIn,
         Vector3 secondDerivativeIn,
+        Vector3 thirdDerivativeIn,
         Vector3 appliedForceIn,
         Vector3 impulseForceIn,
+        Vector3 appliedForceDerivativeIn,
+        Vector3 impulseForceDerivativeIn,
         float dragIn = 0
-    ) : base (variableIn, derivativeIn, secondDerivativeIn, appliedForceIn, impulseForceIn, dragIn)
+    ) : base (
+        variableIn,
+        derivativeIn,
+        secondDerivativeIn,
+        thirdDerivativeIn,
+        appliedForceIn,
+        impulseForceIn,
+        appliedForceDerivativeIn,
+        impulseForceDerivativeIn,
+        dragIn
+    )
     { }
     public KVariableSet3dRotation(Dictionary<string, Quaternion> qDict, Dictionary<string, Vector3> vDict, Dictionary<string, float> fDict) {
         if (qDict != null) {
@@ -513,338 +576,4 @@ public class KVariableSet3dRotation : KVariableSet<Quaternion, Vector3> {
         }
     }
     public KVariableSet3dRotation() { }
-}
-
-public class KVariableSetExt1D : KVariableSetExt<float, float> {
-    public override int ReadQuaternionDict(Dictionary<string, float> dict) {
-        Debug.LogWarning("Wrong ReadDict function called");
-        return 0;
-    }
-    public override int ReadVectorDict(Dictionary<string, float> dict) {
-        Debug.LogWarning("Wrong ReadDict function called");
-        return 0;
-    }
-    public override int ReadScalarDict(Dictionary<string, float> dict) {
-        int nFound = 0;
-        KVariableEnum baseType;
-        KVariableExtendedEnum extType;
-        foreach (KeyValuePair<string, float> entry in dict) {
-            if (KVariableTypeInfo.Aliases.TryGetValue(entry.Key, out baseType)) {
-                switch (baseType) {
-                    case KVariableEnum.Variable:
-                        variable = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableEnum.Derivative:
-                        derivative = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableEnum.SecondDerivative:
-                        secondDerivative = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableEnum.AppliedForce:
-                        appliedForce = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableEnum.ImpulseForce:
-                        impulseForce = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableEnum.Drag:
-                        drag = entry.Value;
-                        ++nFound;
-                        break;
-                    default:
-                        Debug.LogWarning("Bad entry for type 'float': " + entry);
-                        break;
-                }
-            } else if (KVariableTypeInfo.ExtendedAliases.TryGetValue(entry.Key, out extType)) {
-                switch (extType) {
-                    case KVariableExtendedEnum.ThirdDerivative:
-                        thirdDerivative = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableExtendedEnum.AppliedForceDerivative:
-                        appliedForceDerivative = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableExtendedEnum.ImpulseForceDerivative:
-                        impulseForceDerivative = entry.Value;
-                        ++nFound;
-                        break;
-
-                    default:
-                        Debug.LogWarning("Bad entry for type 'float': " + entry);
-                        break;
-                }
-            } else {
-                Debug.LogWarning("Bad entry for type 'float': " + entry);
-            }
-        }
-        return nFound;
-    }
-    // New constructors
-    public KVariableSetExt1D(float values, float drag = 0)
-    : base(values, values, values, values, values, values, values, values, drag) { }
-    // Pass on base constructors
-    public KVariableSetExt1D(Dictionary<string, float> allDicts)
-    : base() {
-        ReadScalarDict(allDicts);
-    }
-    public KVariableSetExt1D(
-        float variableIn,
-        float derivativeIn,
-        float secondDerivativeIn,
-        float thirdDerivativeIn,
-        float appliedForceIn,
-        float appliedForceDerivativeIn,
-        float impulseForceIn,
-        float impulseForceDerivativeIn,
-        float dragIn = 0
-    ) : base (
-        variableIn,
-        derivativeIn,
-        secondDerivativeIn,
-        thirdDerivativeIn,
-        appliedForceIn,
-        appliedForceDerivativeIn,
-        impulseForceIn,
-        impulseForceDerivativeIn,
-        dragIn
-    ) { }
-    public KVariableSetExt1D() { }
-}
-public class KVariableSetExt2D : KVariableSetExt<Vector2, Vector2> {
-    public override int ReadQuaternionDict(Dictionary<string, Vector2> dict) {
-        Debug.LogWarning("Wrong ReadDict function called");
-        return 0;
-    }
-    public override int ReadVectorDict(Dictionary<string, Vector2> dict) {
-        int nFound = 0;
-        KVariableEnum baseType;
-        KVariableExtendedEnum extType;
-        foreach(KeyValuePair<string, Vector2> entry in dict) {
-            if (KVariableTypeInfo.Aliases.TryGetValue(entry.Key, out baseType)) {
-                switch (baseType) {
-                    case KVariableEnum.Variable:
-                        variable = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableEnum.Derivative:
-                        derivative = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableEnum.SecondDerivative:
-                        secondDerivative = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableEnum.AppliedForce:
-                        appliedForce = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableEnum.ImpulseForce:
-                        impulseForce = entry.Value;
-                        ++nFound;
-                        break;
-                    default:
-                        Debug.LogWarning("Bad entry for type 'V': " + entry);
-                        break;
-                }
-            } else if (KVariableTypeInfo.ExtendedAliases.TryGetValue(entry.Key, out extType)) {
-                switch (extType) {
-                    case KVariableExtendedEnum.ThirdDerivative:
-                        thirdDerivative = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableExtendedEnum.AppliedForceDerivative:
-                        appliedForceDerivative = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableExtendedEnum.ImpulseForceDerivative:
-                        impulseForceDerivative = entry.Value;
-                        ++nFound;
-                        break;
-                    default:
-                        Debug.LogWarning("Bad entry for type 'V': " + entry);
-                        break;
-                }
-            } else {
-                Debug.LogWarning("Bad entry for type 'V': " + entry);
-            }
-        }
-        return nFound;
-    }
-    // *** New constructors
-    public KVariableSetExt2D(Vector2 values, float drag = 0)
-    : base(values, values, values, values, values, values, values, values, drag) { }
-    // *** Pass on base constructors
-    public KVariableSetExt2D(
-        Vector2 variableIn,
-        Vector2 derivativeIn,
-        Vector2 secondDerivativeIn,
-        Vector2 thirdDerivativeIn,
-        Vector2 appliedForceIn,
-        Vector2 appliedForceDerivativeIn,
-        Vector2 impulseForceIn,
-        Vector2 impulseForceDerivativeIn,
-        float dragIn = 0
-    ) : base (
-        variableIn,
-        derivativeIn,
-        secondDerivativeIn,
-        thirdDerivativeIn,
-        appliedForceIn,
-        appliedForceDerivativeIn,
-        impulseForceIn,
-        impulseForceDerivativeIn,
-        dragIn
-    ) { }
-    public KVariableSetExt2D(Dictionary<string, Vector2> vDict, Dictionary<string, float> fDict) {
-        if (vDict != null) {
-            ReadVectorDict(vDict);
-        }
-        if (fDict != null) {
-            ReadScalarDict(fDict);
-        }
-    }
-    public KVariableSetExt2D() { }
-}
-public class KVariableSetExt3D : KVariableSetExt<Vector3, Vector3> {
-    public override int ReadQuaternionDict(Dictionary<string, Vector3> dict) {
-        Debug.LogWarning("Wrong ReadDict function called");
-        return 0;
-    }
-    public override int ReadVectorDict(Dictionary<string, Vector3> dict) {
-        int nFound = 0;
-        KVariableEnum baseType;
-        KVariableExtendedEnum extType;
-        foreach(KeyValuePair<string, Vector3> entry in dict) {
-            if (KVariableTypeInfo.Aliases.TryGetValue(entry.Key, out baseType)) {
-                switch (baseType) {
-                    case KVariableEnum.Variable:
-                        variable = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableEnum.Derivative:
-                        derivative = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableEnum.SecondDerivative:
-                        secondDerivative = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableEnum.AppliedForce:
-                        appliedForce = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableEnum.ImpulseForce:
-                        impulseForce = entry.Value;
-                        ++nFound;
-                        break;
-                    default:
-                        Debug.LogWarning("Bad entry for type 'V': " + entry);
-                        break;
-                }
-            } else if (KVariableTypeInfo.ExtendedAliases.TryGetValue(entry.Key, out extType)) {
-                switch (extType) {
-                    case KVariableExtendedEnum.ThirdDerivative:
-                        thirdDerivative = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableExtendedEnum.AppliedForceDerivative:
-                        appliedForceDerivative = entry.Value;
-                        ++nFound;
-                        break;
-                    case KVariableExtendedEnum.ImpulseForceDerivative:
-                        impulseForceDerivative = entry.Value;
-                        ++nFound;
-                        break;
-                    default:
-                        Debug.LogWarning("Bad entry for type 'V': " + entry);
-                        break;
-                }
-            } else {
-                Debug.LogWarning("Bad entry for type 'V': " + entry);
-            }
-        }
-        return nFound;
-    }
-    // *** New constructors
-    public KVariableSetExt3D(Vector3 values, float drag = 0)
-    : base(values, values, values, values, values, values, values, values, drag) { }
-    // *** Pass on base constructors
-    public KVariableSetExt3D(
-        Vector3 variableIn,
-        Vector3 derivativeIn,
-        Vector3 secondDerivativeIn,
-        Vector3 thirdDerivativeIn,
-        Vector3 appliedForceIn,
-        Vector3 appliedForceDerivativeIn,
-        Vector3 impulseForceIn,
-        Vector3 impulseForceDerivativeIn,
-        float dragIn = 0
-    ) : base (
-        variableIn,
-        derivativeIn,
-        secondDerivativeIn,
-        thirdDerivativeIn,
-        appliedForceIn,
-        appliedForceDerivativeIn,
-        impulseForceIn,
-        impulseForceDerivativeIn,
-        dragIn
-    ) { }
-    public KVariableSetExt3D(Dictionary<string, Vector3> vDict, Dictionary<string, float> fDict) {
-        if (vDict != null) {
-            ReadVectorDict(vDict);
-        }
-        if (fDict != null) {
-            ReadScalarDict(fDict);
-        }
-    }
-    public KVariableSetExt3D() { }
-}
-public class KVariableSetExt3DRot : KVariableSetExt<Quaternion, Vector3> {
-    // *** New constructors
-    public KVariableSetExt3DRot(Quaternion rotation, Vector3 values, float drag = 0)
-    : base(rotation, values, values, values, values, values, values, values, drag) { }
-    // *** Pass on base constructors
-    public KVariableSetExt3DRot(
-        Quaternion variableIn,
-        Vector3 derivativeIn,
-        Vector3 secondDerivativeIn,
-        Vector3 thirdDerivativeIn,
-        Vector3 appliedForceIn,
-        Vector3 appliedForceDerivativeIn,
-        Vector3 impulseForceIn,
-        Vector3 impulseForceDerivativeIn,
-        float dragIn = 0
-    ) : base (
-        variableIn,
-        derivativeIn,
-        secondDerivativeIn,
-        thirdDerivativeIn,
-        appliedForceIn,
-        appliedForceDerivativeIn,
-        impulseForceIn,
-        impulseForceDerivativeIn,
-        dragIn
-    ) { }
-    public KVariableSetExt3DRot(
-        Dictionary<string, Quaternion> qDict,
-        Dictionary<string, Vector3> vDict,
-        Dictionary<string, float> fDict
-    ) {
-        if (qDict != null) {
-            ReadQuaternionDict(qDict);
-        }
-        if (vDict != null) {
-            ReadVectorDict(vDict);
-        }
-        if (fDict != null) {
-            ReadScalarDict(fDict);
-        }
-    }
-    public KVariableSetExt3DRot() { }
 }

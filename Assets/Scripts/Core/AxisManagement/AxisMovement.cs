@@ -7,6 +7,7 @@ using System.Collections.Generic;
 public abstract class AxisMovement<T> : KVariableLimits {
     // WARNING - m_inputRange is null in some classes
     protected InputRange<T> m_inputRange;
+    KVariableTypeSet m_controlledVariable;
     Dictionary<string, AxisSource> m_axisSources;
     bool m_smoothingEnabled;
     float m_smoothingTime;
@@ -59,7 +60,11 @@ public abstract class AxisMovement<T> : KVariableLimits {
             return null;
         }
     }
-    public abstract KVariableTypeSet IndependentVariable { get; }
+    public virtual KVariableTypeSet ControlledVariable { get => m_controlledVariable; }
+    /// <summary>
+    /// Output of this class - this is the value I want for my controlled variables
+    /// </summary>
+    /// <value></value>
     public abstract T Target { get; }
     // /// <summary>
     // /// Perform kinematic calculations on provided variables
@@ -75,10 +80,14 @@ public abstract class AxisMovement<T> : KVariableLimits {
     //     Dictionary<string, AxisSource> sources
     // );
 
+    // *** Special properties
+    /// <summary>
+    /// Returns how this controller interacts with a RigidBody|2D - either by applying force, or by setting kinematic variables
+    /// </summary>
     public RigidBodyActorType ActorType {
         get {
-            bool forceUser = KVariableTypeInfo.AllForceTypes.Contains(IndependentVariable);
-            bool stateSetter = KVariableTypeInfo.AllStateSetterTypes.Contains(IndependentVariable);
+            bool forceUser = KVariableTypeInfo.AllForceTypes.Contains(ControlledVariable);
+            bool stateSetter = KVariableTypeInfo.AllStateSetterTypes.Contains(ControlledVariable);
             if (forceUser) {
                 if (stateSetter) {
                     return RigidBodyActorType.Both;
@@ -93,13 +102,11 @@ public abstract class AxisMovement<T> : KVariableLimits {
         }
     }
     public bool ForceUser() {
-        return IndependentVariable.ForceUser();
+        return ControlledVariable.ForceUser();
     }
     public bool StateSetter() {
-        return IndependentVariable.StateSetter();
+        return ControlledVariable.StateSetter();
     }
-
-
     public bool SmoothingEnabled
     {
         get => m_smoothingEnabled;
@@ -110,15 +117,8 @@ public abstract class AxisMovement<T> : KVariableLimits {
         get => m_smoothingTime;
         set { m_smoothingTime = InternalSmoothingAllowed() ? value : 0;}
     }
-    protected AxisMovement(KVariableLimits limits, InputRange<T> inputRange)
-        : base (limits) {
-        m_inputRange = inputRange;
-    }
-    // protected InputRange<T> m_inputRange;
-    // Dictionary<string, AxisSource> m_axisSources;
-    // bool m_smoothingEnabled;
-    // float m_smoothingTime;
 
+    // *** Internal functions
     /// <summary>
     /// Enforces no smoothing for Instantaneous movement control
     /// </summary>
@@ -131,13 +131,38 @@ public abstract class AxisMovement<T> : KVariableLimits {
         }
         return true;
     }
+
+    // *** Constructors
+    protected AxisMovement(KVariableLimits limits, InputRange<T> inputRange)
+        : base (limits) {
+        m_inputRange = inputRange;
+        m_controlledVariable = KVariableTypeInfo.None;
+    }
+    protected AxisMovement(KVariableLimits limits, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
+        : base (limits) {
+        m_inputRange = inputRange;
+
+        if (controlledVariable.Contains(KVariableTypeInfo.ExcludedFromControl)) {
+            Debug.LogError
+            (
+                "Attempting to make axis with Kinematic Variables that cannot be applied to control.\n" +
+                "Requesting:\n" +
+                "\t" + controlledVariable + "\n" +
+                "Cannot contain:\n" +
+                "\t" + KVariableTypeInfo.ExcludedFromControl + "\n" +
+                "Removing disallowed variable flags."
+            );
+            m_controlledVariable = controlledVariable & ~KVariableTypeInfo.ExcludedFromControl;
+        } else {
+            m_controlledVariable = controlledVariable;
+        }
+    }
 }
 
 
 public class UncontrolledAxisMovement<T> : AxisMovement<T>
 {
     public override void ApplyControlValue(T value) { /* Do nothing */ }
-    public override KVariableTypeSet IndependentVariable { get => KVariableTypeInfo.None; }
     public override T Target => throw new System.NotImplementedException();
     public UncontrolledAxisMovement(KVariableLimits limits) : base(limits, null) {}
 }
@@ -145,27 +170,15 @@ public class UncontrolledAxisMovement<T> : AxisMovement<T>
 
 public class ControlledAxisMovement<T> : AxisMovement<T>
 {
-    KVariableTypeSet m_kinematicVariable;
-    public override KVariableTypeSet IndependentVariable { get => m_kinematicVariable; }
     public override T Target { get { return m_inputRange.InputValue; } }
-    public ControlledAxisMovement(KVariableLimits limits, InputRange<T> inputRange, KVariableTypeSet kinematicVariable)
-        : base(limits, inputRange)
-    {
-        // Filter out non-controllable variables
-        if (kinematicVariable.Contains(KVariableTypeInfo.ExcludedFromControl)) {
-            Debug.LogError("Attempting to make axis with Kinematic Variables that cannot be applied to control: " + kinematicVariable);
-            m_kinematicVariable = kinematicVariable & ~KVariableTypeInfo.ExcludedFromControl;
-        } else {
-            m_kinematicVariable = kinematicVariable;
-        }
-    }
+    public ControlledAxisMovement(KVariableLimits limits, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
+        : base(limits, inputRange, controlledVariable) {}
 }
 
 
 public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
 {
     // *** Protected fields
-    protected KVariableTypeSet m_kinematicVariable;
     protected float m_maxDuration = 0;
     protected float m_startTime = -1;
     protected bool m_enabled = true;
@@ -173,9 +186,7 @@ public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
     protected bool m_interruptable = false;
 
     // *** AxisMovement interface
-    public override KVariableTypeSet IndependentVariable { get => m_kinematicVariable; }
     public override T Target { get { return m_inputRange.InputValue; } }
-
 
     /// <summary>
     /// Set to true when Impulse is ready to use, false when it cannot be used
@@ -206,9 +217,14 @@ public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
     }
 
     // *** Constructors
-    public ImpulseAxisMovement(KVariableLimits limits, InputRange<T> inputRange, float maxDuration, bool interruptable, bool enabled = true)
-        : base(limits, inputRange)
-    {
+    public ImpulseAxisMovement(
+        KVariableLimits limits,
+        InputRange<T> inputRange,
+        KVariableTypeSet controlledVariable,
+        float maxDuration,
+        bool interruptable,
+        bool enabled = true
+    ) : base(limits, inputRange, controlledVariable) {
         m_maxDuration = maxDuration;
         m_interruptable = interruptable;
         m_enabled = enabled;
@@ -220,8 +236,7 @@ public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
     /// <summary>
     /// Returns true if valA equals valB. Work-around for C# generic class limitations.
     /// </summary>
-    public static bool Equals(T param1, T param2)
-    {
+    public static bool Equals(T param1, T param2) {
         return EqualityComparer<T>.Default.Equals(param1, param2);
     }
 
@@ -229,10 +244,8 @@ public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
     /// Performs bookkeeping actions to activate this impulse.  Can be used when already active - resets the start timer.
     /// </summary>
     /// <returns>true if activated successfully, false if it wasn't enabled</returns>
-    protected virtual bool Activate()
-    {
-        if (!m_enabled)
-        {
+    protected virtual bool Activate() {
+        if (!m_enabled) {
             return false;
         }
         m_enabled = false;
@@ -244,46 +257,36 @@ public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
     /// Performs bookkeeping actions to deactivate this impulse
     /// </summary>
     /// <returns>true if successfully deactived, false if it wasn't active</returns>
-    protected virtual bool Deactivate()
-    {
-        if (!m_activated)
-        {
+    protected virtual bool Deactivate() {
+        if (!m_activated) {
             return false;
         }
         m_activated = false;
         m_startTime = 0;
         return true;
     }
-    protected virtual T InternalGetInput()
-    {
-        if (Enabled)
-        {
+    protected virtual T InternalGetInput() {
+        if (Enabled) {
             // Ready to fire, check for max historical input
             T newValue = m_inputRange.UnqueriedMaxMagnitudeInputValue;
-            if (Equals(newValue, (new Traits<T>()).Zero))
-            {
+            if (Equals(newValue, (new Traits<T>()).Zero)) {
                 Activate();
                 m_inputRange.ClearStatistics(m_inputRange.ControlValue);
             }
             return newValue;
         }
-        else if (Activated)
-        {
-            if
-            (
+        else if (Activated) {
+            if (
                 (Interruptable && m_inputRange.UnqueriedZeroInputValue) ||  // Control shut it off
                 (Instantaneous || Time.time - m_startTime > m_maxDuration)          // Timed out
-            )
-            {
+            ) {
                 Deactivate();
                 return (new Traits<T>()).Zero;
             }
             T newValue = m_inputRange.UnqueriedMaxMagnitudeInputValue;
             m_inputRange.ClearStatistics(m_inputRange.ControlValue);
             return newValue;
-        }
-        else
-        {
+        } else {
             return (new Traits<T>()).Zero;
         }
     }
@@ -300,26 +303,44 @@ public class UncontrolledAxisMovement3D : UncontrolledAxisMovement<Vector3> {
     public UncontrolledAxisMovement3D(KVariableLimits limits) : base(limits) {}
 }
 public class ControlledAxisMovement1D : ControlledAxisMovement<float> {
-    public ControlledAxisMovement1D(KVariableLimits limits, InputRange<float> inputRange, KVariableTypeSet kinematicVariable)
-        : base(limits, inputRange, kinematicVariable) {}
+    public ControlledAxisMovement1D(KVariableLimits limits, InputRange<float> inputRange, KVariableTypeSet controlledVariable)
+        : base(limits, inputRange, controlledVariable) {}
 }
 public class ControlledAxisMovement2D : ControlledAxisMovement<Vector2> {
-    public ControlledAxisMovement2D(KVariableLimits limits, InputRange<Vector2> inputRange, KVariableTypeSet kinematicVariable)
-        : base(limits, inputRange, kinematicVariable) {}
+    public ControlledAxisMovement2D(KVariableLimits limits, InputRange<Vector2> inputRange, KVariableTypeSet controlledVariable)
+        : base(limits, inputRange, controlledVariable) {}
 }
 public class ControlledAxisMovement3D : ControlledAxisMovement<Vector3> {
-    public ControlledAxisMovement3D(KVariableLimits limits, InputRange<Vector3> inputRange, KVariableTypeSet kinematicVariable)
-        : base(limits, inputRange, kinematicVariable) {}
+    public ControlledAxisMovement3D(KVariableLimits limits, InputRange<Vector3> inputRange, KVariableTypeSet controlledVariable)
+        : base(limits, inputRange, controlledVariable) {}
 }
 public class ImpulseAxisMovement1D : ImpulseAxisMovement<float> {
-    public ImpulseAxisMovement1D(KVariableLimits limits, InputRange<float> inputRange, float maxDuration, bool interruptable, bool enabled = true)
-        : base(limits, inputRange, maxDuration, interruptable,enabled) {}
+    public ImpulseAxisMovement1D(
+        KVariableLimits limits,
+        InputRange<float> inputRange,
+        KVariableTypeSet controlledVariable,
+        float maxDuration,
+        bool interruptable,
+        bool enabled = true
+    ) : base(limits, inputRange, controlledVariable, maxDuration, interruptable, enabled) {}
 }
 public class ImpulseAxisMovement2D : ImpulseAxisMovement<Vector2> {
-    public ImpulseAxisMovement2D(KVariableLimits limits, InputRange<Vector2> inputRange, float maxDuration, bool interruptable, bool enabled = true)
-        : base(limits, inputRange, maxDuration, interruptable,enabled) {}
+    public ImpulseAxisMovement2D(
+        KVariableLimits limits,
+        InputRange<Vector2> inputRange,
+        KVariableTypeSet controlledVariable,
+        float maxDuration,
+        bool interruptable,
+        bool enabled = true
+    ) : base(limits, inputRange, controlledVariable, maxDuration, interruptable, enabled) {}
 }
 public class ImpulseAxisMovement3D : ImpulseAxisMovement<Vector3> {
-    public ImpulseAxisMovement3D(KVariableLimits limits, InputRange<Vector3> inputRange, float maxDuration, bool interruptable, bool enabled = true)
-        : base(limits, inputRange, maxDuration, interruptable,enabled) {}
+    public ImpulseAxisMovement3D(
+        KVariableLimits limits,
+        InputRange<Vector3> inputRange,
+        KVariableTypeSet controlledVariable,
+        float maxDuration,
+        bool interruptable,
+        bool enabled = true
+    ) : base(limits, inputRange, controlledVariable, maxDuration, interruptable,enabled) {}
 }

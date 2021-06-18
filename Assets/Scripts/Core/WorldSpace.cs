@@ -63,10 +63,10 @@ public class WorldSpace<Q, V, T>
     }
 
     // Axes - controls and sources
-    ControlledAxisManager<Q,V,T> m_controlledAxes;
+    AxisProfileManager<Q,V,T> m_controlledAxes;
     AxisSourceManager m_sources;
 
-    public ControlledAxisManager<Q,V,T> Axes { get => m_controlledAxes; set => m_controlledAxes = value; }
+    public AxisProfileManager<Q,V,T> Axes { get => m_controlledAxes; set => m_controlledAxes = value; }
     public AxisSourceManager Sources { get=> m_sources; set => m_sources = value; }
 
 

@@ -13,7 +13,7 @@ public enum AxisStoredAt {
 
 // 2D : V = Vector3
 // 3D : V = Vector2
-public class ControlledAxisManager<Q, V, T> {
+public class AxisProfileManager<Q, V, T> {
     WorldSpace<Q, V, T> m_entity;
     string m_name; // Name of associated entity's GameObject
     Dictionary<string, AxisStoredAt> m_axisIndex;
@@ -268,7 +268,7 @@ public class ControlledAxisManager<Q, V, T> {
     }
 
     // *** Constructors
-    ControlledAxisManager(WorldSpace<Q,V,T> entity, string name) {
+    AxisProfileManager(WorldSpace<Q,V,T> entity, string name) {
         m_entity = entity;
         m_name = name;
     }

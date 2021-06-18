@@ -2,46 +2,38 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public struct KVariableLimit {
-    public KVariableSingleType Type;
+    public KVariableEnum Type;
     public float Value;
     public bool Max; // true = this is a maximum; false = this is a minimum
 
     //*** Constructors
-    public KVariableLimit(KVariableSingleType kv, float value, bool max) {
+    public KVariableLimit(KVariableEnum kv, float value, bool max) {
         Type = kv;
-        Value = value;
-        Max = max;
-    }
-    public KVariableLimit(KVariableTypeSet kv, float value, bool max) {
-        if (kv.Count > 1) {
-            Debug.LogError("Too many KVariable types in set");
-        }
-        Type = new KVariableSingleType(kv);
         Value = value;
         Max = max;
     }
 }
 
 public class KVariableLimits {
-    KVariableSetExt1D m_maxVars;
-    KVariableSetExt1D m_minVars;
+    KVariableSet1D m_maxVars;
+    KVariableSet1D m_minVars;
 
     // *** Access
-    public KVariableSetExt1D Max { get => m_maxVars; set => m_maxVars = value; }
-    public KVariableSetExt1D Min { get => m_minVars; set => m_minVars = value; }
+    public KVariableSet1D Max { get => m_maxVars; set => m_maxVars = value; }
+    public KVariableSet1D Min { get => m_minVars; set => m_minVars = value; }
 
     // *** Edit
-    public bool AddMax(KVariableTypeSet type, float value) {
+    public bool AddMax(KVariableEnum type, float value) {
         return Add(new KVariableLimit(type, value, true));
     }
-    public bool AddMin(KVariableTypeSet type, float value) {
+    public bool AddMin(KVariableEnum type, float value) {
         return Add(new KVariableLimit(type, value, false));
     }
-    public bool Add(KVariableTypeSet type, float max, float min) {
+    public bool Add(KVariableEnum type, float max, float min) {
         bool ret = Add(new KVariableLimit(type, max, true));
         return ret && Add(new KVariableLimit(type, min, false));
     }
-    public bool Add(KVariableTypeSet type, float value, bool max) {
+    public bool Add(KVariableEnum type, float value, bool max) {
         return Add(new KVariableLimit(type, value, max));
     }
     public bool AddMax(string name, float value) {
@@ -58,67 +50,67 @@ public class KVariableLimits {
         }
     }
     public bool Add(KVariableLimit kvl) {
-        switch (kvl.Type.Value) {
+        switch (kvl.Type) {
             case KVariableTypeInfo.NoneEnum:
                 Debug.LogWarning("Attempting to add None type kinematic variable limit");
                 return false;
-            case KVariableTypeInfo.VariableEnum:
+            case KVariableEnum.Variable:
                 if (kvl.Max) {
                     m_maxVars.Variable = kvl.Value;
                 } else {
                     m_minVars.Variable = kvl.Value;
                 }
                 return true;
-            case KVariableTypeInfo.DerivativeEnum:
+            case KVariableEnum.Derivative:
                 if (kvl.Max) {
                     m_maxVars.Derivative = kvl.Value;
                 } else {
                     m_minVars.Derivative = kvl.Value;
                 }
                 return true;
-            case KVariableTypeInfo.SecondDerivativeEnum:
+            case KVariableEnum.SecondDerivative:
                 if (kvl.Max) {
                     m_maxVars.SecondDerivative = kvl.Value;
                 } else {
                     m_minVars.SecondDerivative = kvl.Value;
                 }
                 return true;
-            case KVariableTypeInfo.AppliedForceEnum:
+            case KVariableEnum.AppliedForce:
                 if (kvl.Max) {
                     m_maxVars.AppliedForce = kvl.Value;
                 } else {
                     m_minVars.AppliedForce = kvl.Value;
                 }
                 return true;
-            case KVariableTypeInfo.ImpulseForceEnum:
+            case KVariableEnum.ImpulseForce:
                 if (kvl.Max) {
                     m_maxVars.ImpulseForce = kvl.Value;
                 } else {
                     m_minVars.ImpulseForce = kvl.Value;
                 }
                 return true;
-            case KVariableTypeInfo.DragEnum:
+            case KVariableEnum.Drag:
                 if (kvl.Max) {
                     m_maxVars.Drag = kvl.Value;
                 } else {
                     m_minVars.Drag = kvl.Value;
                 }
                 return true;
-            case KVariableTypeInfo.ThirdDerivativeEnum:
+            case KVariableEnum.ThirdDerivative:
                 if (kvl.Max) {
                     m_maxVars.ThirdDerivative = kvl.Value;
                 } else {
                     m_minVars.ThirdDerivative = kvl.Value;
                 }
                 return true;
-            case KVariableTypeInfo.AppliedForceDerivativeEnum:
+            case KVariableEnum.AppliedForceDerivative:
                 if (kvl.Max) {
                     m_maxVars.AppliedForceDerivative = kvl.Value;
                 } else {
                     m_minVars.AppliedForceDerivative = kvl.Value;
                 }
                 return true;
-            case KVariableTypeInfo.ImpulseForceDerivativeEnum:
+            case KVariableEnum.ImpulseForceDerivative:
                 if (kvl.Max) {
                     m_maxVars.ImpulseForceDerivative = kvl.Value;
                 } else {
@@ -130,14 +122,14 @@ public class KVariableLimits {
                 return false;
         }
     }
-    public bool Remove(KVariableTypeSet type, bool max) {
+    public bool Remove(KVariableEnum type, bool max) {
         float value = max ? float.PositiveInfinity : float.NegativeInfinity;
         return Add(new KVariableLimit(type, value, max));
     }
-    public bool RemoveMax(KVariableTypeSet type) {
+    public bool RemoveMax(KVariableEnum type) {
         return Add(new KVariableLimit(type, float.PositiveInfinity, true));
     }
-    public bool RemoveMin(KVariableTypeSet type) {
+    public bool RemoveMin(KVariableEnum type) {
         return Add(new KVariableLimit(type, float.NegativeInfinity, false));
     }
     public bool Remove(KVariableLimit kvl) {
@@ -165,28 +157,28 @@ public class KVariableLimits {
 
     // *** Constructors
     public KVariableLimits() {
-        m_maxVars = new KVariableSetExt1D(float.PositiveInfinity);
-        m_minVars = new KVariableSetExt1D(float.NegativeInfinity);
+        m_maxVars = new KVariableSet1D(float.PositiveInfinity);
+        m_minVars = new KVariableSet1D(float.NegativeInfinity);
     }
     public KVariableLimits(KVariableLimits kvl) {
         m_maxVars = kvl.m_maxVars;
         m_minVars = kvl.m_minVars;
     }
     public KVariableLimits(KVariableLimit kvl) {
-        m_maxVars = new KVariableSetExt1D(float.PositiveInfinity);
-        m_minVars = new KVariableSetExt1D(float.NegativeInfinity);
+        m_maxVars = new KVariableSet1D(float.PositiveInfinity);
+        m_minVars = new KVariableSet1D(float.NegativeInfinity);
         Add(kvl);
     }
     public KVariableLimits(KVariableLimit[] kvlArray) {
-        m_maxVars = new KVariableSetExt1D(float.PositiveInfinity);
-        m_minVars = new KVariableSetExt1D(float.NegativeInfinity);
+        m_maxVars = new KVariableSet1D(float.PositiveInfinity);
+        m_minVars = new KVariableSet1D(float.NegativeInfinity);
         foreach (KVariableLimit kvl in kvlArray) {
             Add(kvl);
         }
     }
     public KVariableLimits(List<KVariableLimit> kvlList) {
-        m_maxVars = new KVariableSetExt1D(float.PositiveInfinity);
-        m_minVars = new KVariableSetExt1D(float.NegativeInfinity);
+        m_maxVars = new KVariableSet1D(float.PositiveInfinity);
+        m_minVars = new KVariableSet1D(float.NegativeInfinity);
         foreach (KVariableLimit kvl in kvlList) {
             Add(kvl);
         }
@@ -202,7 +194,7 @@ public class KVariableLimits {
         float impulseForceDerivativeMax, float impulseForceDerivativeMin,
         float dragMax, float dragMin
     ) {
-        m_maxVars = new KVariableSetExt1D (
+        m_maxVars = new KVariableSet1D (
             variableMax,
             derivativeMax,
             secondDerivativeMax,
@@ -213,7 +205,7 @@ public class KVariableLimits {
             impulseForceDerivativeMax,
             dragMax
         );
-        m_minVars = new KVariableSetExt1D (
+        m_minVars = new KVariableSet1D (
             variableMin,
             derivativeMin,
             secondDerivativeMin,
