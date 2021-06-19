@@ -31,6 +31,7 @@ public class WorldSpace<Q, V, T>
     protected V m_velocity0;
     protected V m_acceleration0;
     protected Q m_rotation0;
+    protected T m_rotationComponents0;
     protected T m_angularVelocity0;
     protected T m_angularAcceleration0;
 
@@ -40,22 +41,26 @@ public class WorldSpace<Q, V, T>
     protected V m_appliedForceActual;
     protected V m_appliedForceDesired;
 
+    protected T m_rotationComponentsActual;
+    protected T m_rotationComponentsDesired;
     protected T m_angularAccelerationActual;
     protected T m_angularAccelerationDesired;
     protected T m_appliedTorqueActual;
     protected T m_appliedTorqueDesired;
 
     // Local workspace - temporary variables used during Move()
-    float m_localMass;          // Update with m_rigidBody.Mass;
-    float m_localDrag;          // Update with m_rigidBody.Drag;
-    V m_localPosition;          // Update with m_rigidBody.Position;
-    V m_localVelocity;          // Update with m_rigidBody.Velocity;
-    V m_localAcceleration;      // Update with m_acceleration0;
-    V m_localAppliedForce;      // Update with m_appliedForceActual;
-    float m_localAngularDrag;   // Update with m_rigidBody.AngularDrag;
-    Q m_localRotation;          // Update with m_rigidBody.Rotation;
-    T m_localAngularVelocity;   // Update with m_rigidBody.AngularVelocity;
-    T m_localAppliedTorque;     // Update with m_appliedTorqueActual;
+    float m_localMass;            // Update with m_rigidBody.Mass;
+    float m_localDrag;            // Update with m_rigidBody.Drag;
+    V m_localPosition;            // Update with m_rigidBody.Position;
+    V m_localVelocity;            // Update with m_rigidBody.Velocity;
+    V m_localAcceleration;        // Update with m_acceleration0;
+    V m_localAppliedForce;        // Update with m_appliedForceActual;
+    float m_localAngularDrag;     // Update with m_rigidBody.AngularDrag;
+    Q m_localRotation;            // Update with m_rigidBody.Rotation;
+    T m_localRotationComponents;  // Update with m_rotationComponentsActual;
+    T m_localAngularVelocity;     // Update with m_rigidBody.AngularVelocity;
+    T m_localAngularAcceleration; // Update with m_angularAcceleration0;
+    T m_localAppliedTorque;       // Update with m_appliedTorqueActual;
 
     public bool ThreeD { get => GeneralTools.ThreeD<V>(); }
     public bool TwoD { get => GeneralTools.TwoD<V>(); }
@@ -104,38 +109,76 @@ public class WorldSpace<Q, V, T>
         UpdateLocalFields();
 
         // Create local working copies of kinematic variables
-        //      We need current value to feed SmoothDamp functions, but need to apply limits before changing the real things
-        Traits<V> traitsV = new Traits<V>();
-        float mass = m_rigidBody.Mass;
+        //  These are now member fields: 'Local workspace'
 
-        // Current values to feed axes
-        float drag = m_rigidBody.Drag;
-        V position = m_rigidBody.Position;
-        V velocity = m_rigidBody.Velocity;
-        V acceleration = m_acceleration0;
-        V appliedForce = m_appliedForceActual;
+        // Sum all sources
+        // TODO
 
-        float angularDrag = m_rigidBody.AngularDrag;
-        Q rotation = m_rigidBody.Rotation;
-        T angularVelocity = m_rigidBody.AngularVelocity;
-        T appliedTorque = m_appliedTorqueActual;
-
+        //  - For each active axis:
+        //      - Assemble kvarSet, project variables if needed
+        //      - Call update on axis
+        //      - Add changes back to local working variables
         foreach(AxisProfile<float, V> axis in m_controlledAxes.ActiveAxes1D) {
             KVariableSet<float> varSet;
-            InitialiseVarSet<float>(out varSet, axis);
-            if (axis.Projecting) {
-
-            }
+            InitialiseVarSet(out varSet, axis);
+            // TODO
+            // axis.Update(varSet);
         }
     }
 
     // *** Internal functions
 
-    protected virtual bool InitialiseVarSet<V1>(out KVariableSet<V1> varSet, AxisProfile<V1, V> axis) {
-        Debug.LogError("Not implemented");
-        varSet = new KVariableSet<V1>();
+    // protected virtual bool InitialiseVarSet<V1>(out KVariableSet<V1> varSet, AxisProfile<V1, V> axis) {
+    //     Debug.LogError("Not implemented");
+    //     varSet = new KVariableSet<V1>();
+    //     return false;
+    // }
+// WorldSpace3D (Rigidbody)   : Q = Quaternion, V = Vector3, T = Vector3
+//      Axis alignment Vector3
+// WorldSpace2D (Rigidbody2D) : Q = float, V = Vector2, T = float
+//      Axis alignment Vector2
+    protected virtual bool InitialiseVarSet(out KVariableSet<float> varSet, AxisProfile<float, V> axis) {
+        if (axis.Type == AxisType.Rotational) {
+            KVariableSet<T> srcVars = new KVariableSet<T>(
+                m_localRotationComponents,
+                m_localAngularVelocity,
+                m_localAngularAcceleration,
+                m_localAppliedTorque,
+                new Traits<T>().Zero
+            );
+            if (axis.Projecting) {
+                return ProjectToAxis(out varSet, srcVars, axis.Direction);
+            } else {
+                return SubstituteToAxis(out varSet, srcVars, axis.Alignment);
+            }
+        } else {
+            KVariableSet<V> srcVars = new KVariableSet<V>(
+                m_localPosition,
+                m_localVelocity,
+                m_localAcceleration,
+                m_localAppliedForce,
+                new Traits<V>().Zero
+            );
+            if (axis.Projecting) {
+                return ProjectToAxis(out varSet, srcVars, axis.Direction);
+            } else {
+                return SubstituteToAxis(out varSet, srcVars, axis.Alignment);
+            }
+        }
+    }
+
+    // TODO Fill in for types
+    protected bool ProjectToAxis<V1, TorV>(out KVariableSet<V1> varSet, KVariableSet<TorV> srcVars, V direction) {
+        varSet = default(KVariableSet<V1>);
         return false;
     }
+    // TODO Fill in for types
+    protected bool SubstituteToAxis<V1, TorV>(out KVariableSet<V1> varSet, KVariableSet<TorV> srcVars, AxisPlaneSpace alignment) {
+        varSet = default(KVariableSet<V1>);
+        return false;
+    }
+
+
 
     protected virtual void UpdateLocalFields() {
         // Update invDeltaT
@@ -163,6 +206,7 @@ public class WorldSpace<Q, V, T>
         m_localAngularDrag = m_rigidBody.AngularDrag;
         m_localRotation = m_rigidBody.Rotation;
         m_localAngularVelocity = m_rigidBody.AngularVelocity;
+        m_localAngularAcceleration = m_angularAcceleration0;
         m_localAppliedTorque = m_appliedTorqueActual;
     }
 
@@ -186,9 +230,11 @@ public class WorldSpace3D : WorldSpace<Quaternion, Vector3, Vector3> {
     protected override void UpdateLocalFields() {
         base.UpdateLocalFields();
         // Linear scheme
+        m_rotationComponents0 = m_rotationComponentsActual;
         m_acceleration0 = m_accelerationActual;
         m_angularAcceleration0 = m_angularAccelerationActual;
         m_accelerationActual = (m_rigidBody.Velocity - m_velocity0)*m_invDeltaT;
         m_angularAccelerationActual = (m_rigidBody.AngularVelocity - m_angularAcceleration0)*m_invDeltaT;
+        
     }
 }

@@ -69,16 +69,7 @@ public abstract class AxisMovement<T> : KVariableLimits {
     // /// <summary>
     // /// Perform kinematic calculations on provided variables
     // /// </summary>
-    // public abstract void Update
-    // (
-    //     ref T position,
-    //     ref T velocity,
-    //     ref T acceleration,
-    //     ref T appliedForce,
-    //     ref T instantaneousForce,
-    //     ref KVariableTypeSet involvedVariables,
-    //     Dictionary<string, AxisSource> sources
-    // );
+    public abstract void Update(KVariableSet<T> vars);
 
     // *** Special properties
     /// <summary>
@@ -164,6 +155,7 @@ public class UncontrolledAxisMovement<T> : AxisMovement<T>
 {
     public override void ApplyControlValue(T value) { /* Do nothing */ }
     public override T Target => throw new System.NotImplementedException();
+    public override void Update(KVariableSet<T> vars) { /* Do nothing */ }
     public UncontrolledAxisMovement(KVariableLimits limits) : base(limits, null) {}
 }
 
@@ -171,6 +163,9 @@ public class UncontrolledAxisMovement<T> : AxisMovement<T>
 public class ControlledAxisMovement<T> : AxisMovement<T>
 {
     public override T Target { get { return m_inputRange.InputValue; } }
+    public override void Update(KVariableSet<T> vars) {
+        
+    }
     public ControlledAxisMovement(KVariableLimits limits, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
         : base(limits, inputRange, controlledVariable) {}
 }
@@ -293,54 +288,70 @@ public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
 }
 
 // *** Concrete classes
-public class UncontrolledAxisMovement1D : UncontrolledAxisMovement<float> {
-    public UncontrolledAxisMovement1D(KVariableLimits limits) : base(limits) {}
-}
-public class UncontrolledAxisMovement2D : UncontrolledAxisMovement<Vector2> {
-    public UncontrolledAxisMovement2D(KVariableLimits limits) : base(limits) {}
-}
-public class UncontrolledAxisMovement3D : UncontrolledAxisMovement<Vector3> {
-    public UncontrolledAxisMovement3D(KVariableLimits limits) : base(limits) {}
-}
-public class ControlledAxisMovement1D : ControlledAxisMovement<float> {
-    public ControlledAxisMovement1D(KVariableLimits limits, InputRange<float> inputRange, KVariableTypeSet controlledVariable)
-        : base(limits, inputRange, controlledVariable) {}
-}
-public class ControlledAxisMovement2D : ControlledAxisMovement<Vector2> {
-    public ControlledAxisMovement2D(KVariableLimits limits, InputRange<Vector2> inputRange, KVariableTypeSet controlledVariable)
-        : base(limits, inputRange, controlledVariable) {}
-}
-public class ControlledAxisMovement3D : ControlledAxisMovement<Vector3> {
-    public ControlledAxisMovement3D(KVariableLimits limits, InputRange<Vector3> inputRange, KVariableTypeSet controlledVariable)
-        : base(limits, inputRange, controlledVariable) {}
-}
-public class ImpulseAxisMovement1D : ImpulseAxisMovement<float> {
-    public ImpulseAxisMovement1D(
-        KVariableLimits limits,
-        InputRange<float> inputRange,
-        KVariableTypeSet controlledVariable,
-        float maxDuration,
-        bool interruptable,
-        bool enabled = true
-    ) : base(limits, inputRange, controlledVariable, maxDuration, interruptable, enabled) {}
-}
-public class ImpulseAxisMovement2D : ImpulseAxisMovement<Vector2> {
-    public ImpulseAxisMovement2D(
-        KVariableLimits limits,
-        InputRange<Vector2> inputRange,
-        KVariableTypeSet controlledVariable,
-        float maxDuration,
-        bool interruptable,
-        bool enabled = true
-    ) : base(limits, inputRange, controlledVariable, maxDuration, interruptable, enabled) {}
-}
-public class ImpulseAxisMovement3D : ImpulseAxisMovement<Vector3> {
-    public ImpulseAxisMovement3D(
-        KVariableLimits limits,
-        InputRange<Vector3> inputRange,
-        KVariableTypeSet controlledVariable,
-        float maxDuration,
-        bool interruptable,
-        bool enabled = true
-    ) : base(limits, inputRange, controlledVariable, maxDuration, interruptable,enabled) {}
-}
+// TODO - I don't think this pattern works - C# can't seem to figure out generics like this:
+//      public class base<T> {}
+//      public class derived : base<float> {}
+//      public class usesBaseOnly {
+//          public Update<T>(base<T> b) {
+//              // Do something with base
+//          }
+//      }
+//      main() {
+//          derived d = new derived();
+//          usesBaseOnly.Update(d);  // <----- Error here
+//      }
+//      // C# can't seem to use derived through a base<T> reference
+//      // Further testing and I cannot duplicate the problem
+// \TODO
+//
+// public class UncontrolledAxisMovement1D : UncontrolledAxisMovement<float> {
+//     public UncontrolledAxisMovement1D(KVariableLimits limits) : base(limits) {}
+// }
+// public class UncontrolledAxisMovement2D : UncontrolledAxisMovement<Vector2> {
+//     public UncontrolledAxisMovement2D(KVariableLimits limits) : base(limits) {}
+// }
+// public class UncontrolledAxisMovement3D : UncontrolledAxisMovement<Vector3> {
+//     public UncontrolledAxisMovement3D(KVariableLimits limits) : base(limits) {}
+// }
+// public class ControlledAxisMovement1D : ControlledAxisMovement<float> {
+//     public ControlledAxisMovement1D(KVariableLimits limits, InputRange<float> inputRange, KVariableTypeSet controlledVariable)
+//         : base(limits, inputRange, controlledVariable) {}
+// }
+// public class ControlledAxisMovement2D : ControlledAxisMovement<Vector2> {
+//     public ControlledAxisMovement2D(KVariableLimits limits, InputRange<Vector2> inputRange, KVariableTypeSet controlledVariable)
+//         : base(limits, inputRange, controlledVariable) {}
+// }
+// public class ControlledAxisMovement3D : ControlledAxisMovement<Vector3> {
+//     public ControlledAxisMovement3D(KVariableLimits limits, InputRange<Vector3> inputRange, KVariableTypeSet controlledVariable)
+//         : base(limits, inputRange, controlledVariable) {}
+// }
+// public class ImpulseAxisMovement1D : ImpulseAxisMovement<float> {
+//     public ImpulseAxisMovement1D(
+//         KVariableLimits limits,
+//         InputRange<float> inputRange,
+//         KVariableTypeSet controlledVariable,
+//         float maxDuration,
+//         bool interruptable,
+//         bool enabled = true
+//     ) : base(limits, inputRange, controlledVariable, maxDuration, interruptable, enabled) {}
+// }
+// public class ImpulseAxisMovement2D : ImpulseAxisMovement<Vector2> {
+//     public ImpulseAxisMovement2D(
+//         KVariableLimits limits,
+//         InputRange<Vector2> inputRange,
+//         KVariableTypeSet controlledVariable,
+//         float maxDuration,
+//         bool interruptable,
+//         bool enabled = true
+//     ) : base(limits, inputRange, controlledVariable, maxDuration, interruptable, enabled) {}
+// }
+// public class ImpulseAxisMovement3D : ImpulseAxisMovement<Vector3> {
+//     public ImpulseAxisMovement3D(
+//         KVariableLimits limits,
+//         InputRange<Vector3> inputRange,
+//         KVariableTypeSet controlledVariable,
+//         float maxDuration,
+//         bool interruptable,
+//         bool enabled = true
+//     ) : base(limits, inputRange, controlledVariable, maxDuration, interruptable,enabled) {}
+// }

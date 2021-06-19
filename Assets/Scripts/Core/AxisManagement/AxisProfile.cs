@@ -1,7 +1,32 @@
+using System.Collections;
 using UnityEngine;
 
 public enum Axis {None, X, Y, Z}
 public enum AxisType{Unknown, Spatial, Rotational}
+public enum AxisPlaneSpace {
+    None    = 0b_0000_0000,
+    X       = 0b_0000_0001,
+    Y       = 0b_0000_0010,
+    Z       = 0b_0000_0100,
+    XY      = 0b_0000_0011,
+    XZ      = 0b_0000_0101,
+    YZ      = 0b_0000_0110,
+    XYZ     = 0b_0000_0111
+}
+
+// AxisPlaneSpace switch
+// switch (m_alignment) {
+//     case AxisPlaneSpace.None:
+//     case AxisPlaneSpace.X:
+//     case AxisPlaneSpace.Y:
+//     case AxisPlaneSpace.Z:
+//     case AxisPlaneSpace.XY:
+//     case AxisPlaneSpace.XZ:
+//     case AxisPlaneSpace.YZ:
+//     case AxisPlaneSpace.XYZ:
+//         break;
+// }
+
 
 // T is based on what we control : 1 axis = float, 2 axes = Vector2, 3 axes = Vector3
 // D is based on Rigidbody model : 2D = Vector2, 3D = Vector3
@@ -27,7 +52,7 @@ public abstract class AxisProfile<T, D> {
     ///     2D Spatial      - None|Z    = normal aligned with Z     *** AUTOMATIC
     ///                     - X,Y       = not allowed               *** IGNORED
     /// </summary>
-    protected Axis m_alignment;
+    protected AxisPlaneSpace m_alignment;
     protected AxisMovement<T> m_control;
     protected D m_direction;
     protected bool m_projecting; // true if kvars need to be projected to axial directions
@@ -39,7 +64,7 @@ public abstract class AxisProfile<T, D> {
     public bool TwoD { get => GeneralTools.TwoD<D>(); }
     public abstract int NControlledDimensions { get; }
     public AxisType Type { get => m_type; }
-    public Axis Alignment { get => m_alignment; }
+    public AxisPlaneSpace Alignment { get => m_alignment; }
     public AxisMovement<T> Control { get => m_control; set => m_control = value; }
     public D Direction { get => m_direction; set => m_direction = value; }
     public bool Projecting { get => m_projecting; }
@@ -47,10 +72,14 @@ public abstract class AxisProfile<T, D> {
     public Vector3Int CheckUsedSpatialAxes { get => m_usedSpatialAxes; }
 
     // *** Constructors
-    public AxisProfile(string name, Transform owner, AxisType type, Axis alignment, AxisMovement<T> control) {
+    public AxisProfile(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, AxisMovement<T> control) {
         m_name = name;
         m_owner = owner;
         m_type = type;
+        if ((int)alignment > 7) {
+            Debug.LogError("Out-of-range setting for axis alignment: " + alignment + ", setting to " + AxisPlaneSpace.None);
+            alignment = AxisPlaneSpace.None;
+        }
         m_alignment = alignment;
         m_control = control;
         m_direction = (new Traits<D>()).Zero;
@@ -68,55 +97,53 @@ public abstract class AxisProfile<T, D> {
                 return false;
             }
             if (m_type == AxisType.Rotational) {
-                m_alignment = Axis.Z;
+                // Automatic, ignore user input
+                m_alignment = AxisPlaneSpace.Z;
                 if (m_control.StateSetter()) { ++m_usedRotationalAxes[2]; }
                 return true;
             }
             switch (NControlledDimensions) {
                 case 0: {
                     // Uncontrolled
-                    m_alignment = Axis.None;
+                    m_alignment = AxisPlaneSpace.None;
                     return true;
                 }
                 case 1: {
-                    switch (m_alignment) {
-                        case Axis.None:
-                            m_projecting = true;
-                            return true;
-                        case Axis.X:
-                            if (m_control.StateSetter()) { ++m_usedSpatialAxes[0]; }
-                            return true;
-                        case Axis.Y:
-                            if (m_control.StateSetter()) { ++m_usedSpatialAxes[1]; }
-                            return true;
-                        case Axis.Z:
-                            Debug.LogError("Spatial Z-axis alignment specified in 2D space for AxisProfile " + m_name);
-                            return false;
-                        default:
-                            Debug.LogError("Unhandled case");
-                            return false;
+                    int nAxes = 0;
+                    nAxes += (m_alignment & AxisPlaneSpace.X) == AxisPlaneSpace.X ? 1 : 0;
+                    nAxes += (m_alignment & AxisPlaneSpace.Y) == AxisPlaneSpace.Y ? 1 : 0;
+                    nAxes += (m_alignment & AxisPlaneSpace.Z) == AxisPlaneSpace.Z ? 1 : 0;
+                    if (nAxes == 0) {
+                        m_projecting = true;
+                        return true;
+                    } else if (nAxes == 1) {
+                        if (m_control.StateSetter()) { ++m_usedSpatialAxes[(int)m_alignment]; }
+                        return true;
+                    } else {
+                        Debug.LogError("Attempting to align 1 dimensional control axis with " + nAxes + " world axes");
+                        return false;
                     }
                 }
                 case 2: {
-                    switch (m_alignment) {
-                        case Axis.None:
-                        case Axis.Z:
-                            // Z and None both are okay
-                            m_alignment = Axis.None;
-                            if (m_control.StateSetter()) {
-                                ++m_usedSpatialAxes[0];
-                                ++m_usedSpatialAxes[1];
-                            }
-                            return true;
-                        case Axis.X:
-                        case Axis.Y:
-                            Debug.LogError("Cannot align 2D control axes with X or Y in 2D space, problem in AxisProfiel " + m_name);
-                            return false;
-                        default:
-                            Debug.LogError("Unhandled case");
-                            return false;
+                    // It can still be free or fixed
+                    if (m_alignment == AxisPlaneSpace.XY) {
+                        if (m_control.StateSetter()) {
+                            ++m_usedSpatialAxes[0];
+                            ++m_usedSpatialAxes[1];
+                        }
+                        return true;
+                    } else if (m_alignment == AxisPlaneSpace.None) {
+                        // m_direction points along x
+                        m_projecting = true;
+                        return true;
+                    } else {
+                        Debug.LogError("Unhandled alignment setting - 2D control plane in 2D space can either be XY or None");
+                        return false;
                     }
                 }
+                case 3:
+                    Debug.LogError("Attempting to control more dimensions than world space");
+                    return false;
                 default: {
                     Debug.LogError("Unhandled case");
                     return false;
@@ -127,76 +154,77 @@ public abstract class AxisProfile<T, D> {
             switch(NControlledDimensions) {
                 case 0: {
                     // Uncontrolled
-                    m_alignment = Axis.None;
+                    m_alignment = AxisPlaneSpace.None;
                     return true;
                 }
                 case 1: {
-                    switch (m_alignment) {
-                        case Axis.None: {
-                            m_projecting = true;
-                            return true;
+                    int nAxes = 0;
+                    nAxes += (m_alignment & AxisPlaneSpace.X) == AxisPlaneSpace.X ? 1 : 0;
+                    nAxes += (m_alignment & AxisPlaneSpace.Y) == AxisPlaneSpace.Y ? 1 : 0;
+                    nAxes += (m_alignment & AxisPlaneSpace.Z) == AxisPlaneSpace.Z ? 1 : 0;
+                    if (nAxes == 0) {
+                        m_projecting = true;
+                        break;
+                    } else if (nAxes == 1) {
+                        if (m_control.StateSetter()) {
+                            ++usedAxisDelta[(int)m_alignment];
                         }
-                        case Axis.X: {
-                            if (m_control.StateSetter()) { ++usedAxisDelta[0]; }
-                            break;
-                        }
-                        case Axis.Y: {
-                            if (m_control.StateSetter()) { ++usedAxisDelta[1]; }
-                            break;
-                        }
-                        case Axis.Z: {
-                            if (m_control.StateSetter()) { ++usedAxisDelta[2]; }
-                            break;
-                        }
-                        default: {
-                            Debug.LogError("Unhandled case");
-                            return false;
-                        }
+                        break;
+                    } else {
+                        Debug.LogError("Attempting to align a control axis with more than one dimension");
+                        return false;
                     }
-                    break;
                 }
                 case 2: {
+                    // We only allow fully fixed or fully floating
                     switch (m_alignment) {
-                        case Axis.None: {
+                        case AxisPlaneSpace.None:
                             m_projecting = true;
-                            return true;
-                        }
-                        case Axis.X: {
-                            if (m_control.StateSetter()) {
-                                ++usedAxisDelta[1];
-                                ++usedAxisDelta[2];
-                            }
                             break;
-                        }
-                        case Axis.Y: {
-                            if (m_control.StateSetter()) {
-                                ++usedAxisDelta[0];
-                                ++usedAxisDelta[2];
-                            }
-                            break;
-                        }
-                        case Axis.Z: {
-                            if (m_control.StateSetter()) {
-                                ++usedAxisDelta[0];
-                                ++usedAxisDelta[1];
-                            }
-                            break;
-                        }
-                        default: {
-                            Debug.LogError("Unhandled case");
+                        case AxisPlaneSpace.X:
+                        case AxisPlaneSpace.Y:
+                        case AxisPlaneSpace.Z:
+                            Debug.LogError("Attempting to align 2D control plane with 1D axis");
                             return false;
-                        }
+                        case AxisPlaneSpace.XY:
+                            if (m_control.StateSetter()) {
+                                ++usedAxisDelta[0];
+                                ++usedAxisDelta[1];
+                            }
+                            break;
+                        case AxisPlaneSpace.XZ:
+                            if (m_control.StateSetter()) {
+                                ++usedAxisDelta[0];
+                                ++usedAxisDelta[2];
+                            }
+                            break;
+                        case AxisPlaneSpace.YZ:
+                            if (m_control.StateSetter()) {
+                                ++usedAxisDelta[1];
+                                ++usedAxisDelta[2];
+                            }
+                            break;
+                        case AxisPlaneSpace.XYZ:
+                            Debug.LogError("Attempting to align 2D control plane to 3D world space.");
+                            break;
                     }
                     break;
                 }
                 case 3: {
-                    m_alignment = Axis.None;
-                    if (m_control.StateSetter()) {
-                        ++usedAxisDelta[0];
-                        ++usedAxisDelta[1];
-                        ++usedAxisDelta[2];
+                    // Can be floating or fixed
+                    if (m_alignment == AxisPlaneSpace.XYZ) {
+                        if (m_control.StateSetter()) {
+                            usedAxisDelta += new Vector3Int(1, 1, 1);
+                        }
+                        break;
+                    } else if (m_alignment == AxisPlaneSpace.None) {
+                        // m_direction points along X axis
+                        m_projecting = true;
+                        break;
+                    } else {
+                        Debug.LogError("Unhandled alignment setting - 3D control space in 3D world space can align to either XYZ or None");
+                        return false;
                     }
-                    break;
                 }
                 default: {
                     Debug.LogError("Unhandled case");
@@ -214,7 +242,7 @@ public abstract class AxisProfile<T, D> {
                 return false;
             }
         } else {
-            Debug.LogError("Unknown number of spatial dimensions");
+            Debug.LogError("Unhandled number of spatial dimensions");
             return false;
         }
     }
@@ -223,37 +251,37 @@ public abstract class AxisProfile<T, D> {
 // *** Concrete types - AxisProfile
 public class AxisProfile1D_2 : AxisProfile<float, Vector2> {
     public override int NControlledDimensions { get => 1; }
-    public AxisProfile1D_2(string name, Transform owner, AxisType type, Axis alignment, AxisMovement<float> control)
+    public AxisProfile1D_2(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, AxisMovement<float> control)
     : base (name, owner, type, alignment, control)
     {}
 }
 public class AxisProfile1D_3 : AxisProfile<float, Vector3> {
     public override int NControlledDimensions { get => 1; }
-    public AxisProfile1D_3(string name, Transform owner, AxisType type, Axis alignment, AxisMovement<float> control)
+    public AxisProfile1D_3(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, AxisMovement<float> control)
     : base (name, owner, type, alignment, control)
     {}
 }
 public class AxisProfile2D_2 : AxisProfile<float, Vector2> {
     public override int NControlledDimensions { get => 2; }
-    public AxisProfile2D_2(string name, Transform owner, AxisType type, Axis alignment, AxisMovement<float> control)
+    public AxisProfile2D_2(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, AxisMovement<float> control)
     : base (name, owner, type, alignment, control)
     {}
 }
 public class AxisProfile2D_3 : AxisProfile<float, Vector3> {
     public override int NControlledDimensions { get => 2; }
-    public AxisProfile2D_3(string name, Transform owner, AxisType type, Axis alignment, AxisMovement<float> control)
+    public AxisProfile2D_3(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, AxisMovement<float> control)
     : base (name, owner, type, alignment, control)
     {}
 }
 public class AxisProfile3D_2 : AxisProfile<float, Vector2> {
     public override int NControlledDimensions { get => 3; }
-    public AxisProfile3D_2(string name, Transform owner, AxisType type, Axis alignment, AxisMovement<float> control)
+    public AxisProfile3D_2(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, AxisMovement<float> control)
     : base (name, owner, type, alignment, control)
     {}
 }
 public class AxisProfile3D_3 : AxisProfile<float, Vector3> {
     public override int NControlledDimensions { get => 3; }
-    public AxisProfile3D_3(string name, Transform owner, AxisType type, Axis alignment, AxisMovement<float> control)
+    public AxisProfile3D_3(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, AxisMovement<float> control)
     : base (name, owner, type, alignment, control)
     {}
 }

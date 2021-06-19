@@ -298,7 +298,7 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
                 // Change direction
                 state = PatrolBotState.TurnStart;
                 m_targetSpeed = -m_patrolSpeed;
-                Debug.Log("Moving right, turning, set m_targetSpeed to " + m_targetSpeed);
+                // Debug.Log("Moving right, turning, set m_targetSpeed to " + m_targetSpeed);
             }
         }
         else
@@ -308,7 +308,7 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
                 // Change direction
                 state = PatrolBotState.TurnStart;
                 m_targetSpeed = m_patrolSpeed;
-                Debug.Log("Moving left, turning, set m_targetSpeed to " + m_targetSpeed);
+                // Debug.Log("Moving left, turning, set m_targetSpeed to " + m_targetSpeed);
             }
         }
         float delta = m_currVelocity - m_targetSpeed;
@@ -339,7 +339,7 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
         m_facingLeft = !m_facingLeft;
         m_direction *= -1;
         transform.Rotate(0f, 180f, 0f);
-        Debug.Log("Flip : now facingLeft is " + m_facingLeft);
+        // Debug.Log("Flip : now facingLeft is " + m_facingLeft);
     }
 
     /// <summary>
@@ -355,7 +355,7 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
         float m_totalDist = m_leftwards + m_rightwards;
         m_direction = m_facingLeft ? -1 : 1;
         m_targetSpeed = m_direction * m_patrolSpeed;
-        Debug.Log("Initialised m_targetSpeed to " + m_targetSpeed);
+        // Debug.Log("Initialised m_targetSpeed to " + m_targetSpeed);
         m_currVelocity = m_targetSpeed;
         if (m_acceleration < Mathf.Epsilon)
         {
