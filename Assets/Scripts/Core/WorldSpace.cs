@@ -45,6 +45,18 @@ public class WorldSpace<Q, V, T>
     protected T m_appliedTorqueActual;
     protected T m_appliedTorqueDesired;
 
+    // Local workspace - temporary variables used during Move()
+    float m_localMass;          // Update with m_rigidBody.Mass;
+    float m_localDrag;          // Update with m_rigidBody.Drag;
+    V m_localPosition;          // Update with m_rigidBody.Position;
+    V m_localVelocity;          // Update with m_rigidBody.Velocity;
+    V m_localAcceleration;      // Update with m_acceleration0;
+    V m_localAppliedForce;      // Update with m_appliedForceActual;
+    float m_localAngularDrag;   // Update with m_rigidBody.AngularDrag;
+    Q m_localRotation;          // Update with m_rigidBody.Rotation;
+    T m_localAngularVelocity;   // Update with m_rigidBody.AngularVelocity;
+    T m_localAppliedTorque;     // Update with m_appliedTorqueActual;
+
     public bool ThreeD { get => GeneralTools.ThreeD<V>(); }
     public bool TwoD { get => GeneralTools.TwoD<V>(); }
     public int NSpatialFreedoms {
@@ -88,14 +100,14 @@ public class WorldSpace<Q, V, T>
         //  - Apply forces to RigidBody
         //  - Save variables into old variables
 
-        // Update locally tracked fields (accelerations)
+        // Update locally tracked accelerations and working variables
         UpdateLocalFields();
 
         // Create local working copies of kinematic variables
         //      We need current value to feed SmoothDamp functions, but need to apply limits before changing the real things
         Traits<V> traitsV = new Traits<V>();
         float mass = m_rigidBody.Mass;
-        
+
         // Current values to feed axes
         float drag = m_rigidBody.Drag;
         V position = m_rigidBody.Position;
@@ -109,6 +121,8 @@ public class WorldSpace<Q, V, T>
         T appliedTorque = m_appliedTorqueActual;
 
         foreach(AxisProfile<float, V> axis in m_controlledAxes.ActiveAxes1D) {
+            KVariableSet<float> varSet;
+            InitialiseVarSet<float>(out varSet, axis);
             if (axis.Projecting) {
 
             }
@@ -117,7 +131,14 @@ public class WorldSpace<Q, V, T>
 
     // *** Internal functions
 
+    protected virtual bool InitialiseVarSet<V1>(out KVariableSet<V1> varSet, AxisProfile<V1, V> axis) {
+        Debug.LogError("Not implemented");
+        varSet = new KVariableSet<V1>();
+        return false;
+    }
+
     protected virtual void UpdateLocalFields() {
+        // Update invDeltaT
         float dt;
         if (m_time.inFixedTimeStep) {
             dt = m_time.fixedDeltaTime;
@@ -129,6 +150,20 @@ public class WorldSpace<Q, V, T>
         } else {
             m_invDeltaT = float.PositiveInfinity;
         }
+
+        // Update accelerations using linear scheme --> this work is done in derived/concrete function
+
+        // Update working variables
+        m_localMass = m_rigidBody.Mass;
+        m_localDrag = m_rigidBody.Drag;
+        m_localPosition = m_rigidBody.Position;
+        m_localVelocity = m_rigidBody.Velocity;
+        m_localAcceleration = m_acceleration0;
+        m_localAppliedForce = m_appliedForceActual;
+        m_localAngularDrag = m_rigidBody.AngularDrag;
+        m_localRotation = m_rigidBody.Rotation;
+        m_localAngularVelocity = m_rigidBody.AngularVelocity;
+        m_localAppliedTorque = m_appliedTorqueActual;
     }
 
     // *** Constructors

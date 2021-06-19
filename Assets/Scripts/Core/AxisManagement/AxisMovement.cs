@@ -7,10 +7,10 @@ using System.Collections.Generic;
 public abstract class AxisMovement<T> : KVariableLimits {
     // WARNING - m_inputRange is null in some classes
     protected InputRange<T> m_inputRange;
-    KVariableTypeSet m_controlledVariable;
-    Dictionary<string, AxisSource> m_axisSources;
-    bool m_smoothingEnabled;
-    float m_smoothingTime;
+    protected KVariableTypeSet m_controlledVariable;
+    protected Dictionary<string, AxisSource> m_axisSources;
+    protected bool m_smoothingEnabled;
+    protected float m_smoothingTime;
 
     /// <summary>
     /// Change the control value
@@ -196,11 +196,11 @@ public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
     /// When true, impulse movement is underway (enabled is now false)
     /// </summary>
     public virtual bool Activated { get {return m_activated; } }
+    public virtual bool Instantaneous { get => m_maxDuration <= 0; }
     /// <summary>
     /// Can the impulse be controlled to stop early?
     /// </summary>
     /// <value></value>
-    public virtual bool Instantaneous { get => m_maxDuration <= 0; }
     public virtual bool Interruptable { get => m_interruptable; }
     public virtual float StartTime { get => m_startTime; }
     public virtual float MaxDuration { get => m_maxDuration; }
