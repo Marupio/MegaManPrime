@@ -44,7 +44,7 @@ public abstract class ControlField<T> : KVariableLimits {
     // /// <summary>
     // /// Perform kinematic calculations on provided variables
     // /// </summary>
-    public abstract void Update(KVariableSet<T> vars);
+    public abstract void Update(KVariables<T> vars);
 
     // *** Special properties
     /// <summary>
@@ -130,7 +130,7 @@ public class UncontrolledField<T> : ControlField<T>
 {
     public override void ApplyControlValue(T value) { /* Do nothing */ }
     public override T Target => throw new System.NotImplementedException();
-    public override void Update(KVariableSet<T> vars) { /* Do nothing */ }
+    public override void Update(KVariables<T> vars) { /* Do nothing */ }
     public UncontrolledField(KVariableLimits limits) : base(limits, null) {}
 }
 
@@ -138,7 +138,7 @@ public class UncontrolledField<T> : ControlField<T>
 public class ContinuousControlField<T> : ControlField<T>
 {
     public override T Target { get { return m_inputRange.InputValue; } }
-    public override void Update(KVariableSet<T> vars) {
+    public override void Update(KVariables<T> vars) {
         
     }
     public ContinuousControlField(KVariableLimits limits, InputRange<T> inputRange, KVariableTypeSet controlledVariable)

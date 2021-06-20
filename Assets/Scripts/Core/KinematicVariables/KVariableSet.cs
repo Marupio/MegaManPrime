@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class KVariableSet<V> {
+public class KVariables<V> {
     protected V m_variable;
     protected V m_derivative;
     protected V m_secondDerivative;
@@ -98,7 +98,7 @@ public class KVariableSet<V> {
     }
 
     // *** Constructors
-    public KVariableSet(
+    public KVariables(
         V variable,
         V derivative,
         V secondDerivative,
@@ -111,17 +111,17 @@ public class KVariableSet<V> {
         m_appliedForce = appliedForce;
         m_impulseForce = impulseForce;
     }
-    public KVariableSet(V allVars) {
+    public KVariables(V allVars) {
         m_variable = allVars;
         m_derivative = allVars;
         m_secondDerivative = allVars;
         m_appliedForce = allVars;
         m_impulseForce = allVars;
     }
-    public KVariableSet() {}
+    public KVariables() {}
 }
 
-public class KVariableSetExtended<V> : KVariableSet<V> {
+public class KVariablesExt<V> : KVariables<V> {
     protected V m_thirdDerivative;
     protected V m_appliedForceDerivative;
     protected V m_impulseForceDerivative;
@@ -206,7 +206,7 @@ public class KVariableSetExtended<V> : KVariableSet<V> {
     }
 
     // *** Constructors
-    public KVariableSetExtended(
+    public KVariablesExt(
         V variable,
         V derivative,
         V secondDerivative,
@@ -220,11 +220,11 @@ public class KVariableSetExtended<V> : KVariableSet<V> {
         m_appliedForceDerivative = appliedForceDerivative;
         m_impulseForceDerivative = impulseForceDerivative;
     }
-    public KVariableSetExtended(V allVars)
+    public KVariablesExt(V allVars)
     : base(allVars) {
         m_thirdDerivative = allVars;
         m_appliedForceDerivative = allVars;
         m_impulseForceDerivative = allVars;
     }
-    public KVariableSetExtended() {}
+    public KVariablesExt() {}
 }

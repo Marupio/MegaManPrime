@@ -119,7 +119,7 @@ public class WorldSpace<Q, V, T>
         //      - Call update on axis
         //      - Add changes back to local working variables
         foreach(ControlFieldProfile<float, V> axis in m_controlledAxes.ActiveAxes1D) {
-            KVariableSet<float> varSet;
+            KVariables<float> varSet;
             InitialiseVarSet(out varSet, axis);
             axis.Update(varSet);
         }
@@ -136,9 +136,9 @@ public class WorldSpace<Q, V, T>
 //      Axis alignment Vector3
 // WorldSpace2D (Rigidbody2D) : Q = float, V = Vector2, T = float
 //      Axis alignment Vector2
-    protected virtual bool InitialiseVarSet(out KVariableSet<float> varSet, ControlFieldProfile<float, V> axis) {
+    protected virtual bool InitialiseVarSet(out KVariables<float> varSet, ControlFieldProfile<float, V> axis) {
         if (axis.Type == AxisType.Rotational) {
-            KVariableSet<T> srcVars = new KVariableSet<T>(
+            KVariables<T> srcVars = new KVariables<T>(
                 m_localRotationComponents,
                 m_localAngularVelocity,
                 m_localAngularAcceleration,
@@ -151,7 +151,7 @@ public class WorldSpace<Q, V, T>
                 return SubstituteToAxis(out varSet, srcVars, axis.Alignment);
             }
         } else {
-            KVariableSet<V> srcVars = new KVariableSet<V>(
+            KVariables<V> srcVars = new KVariables<V>(
                 m_localPosition,
                 m_localVelocity,
                 m_localAcceleration,
@@ -167,13 +167,13 @@ public class WorldSpace<Q, V, T>
     }
 
     // TODO Fill in for types
-    protected bool ProjectToAxis<V1, TorV>(out KVariableSet<V1> varSet, KVariableSet<TorV> srcVars, V direction) {
-        varSet = default(KVariableSet<V1>);
+    protected bool ProjectToAxis<V1, TorV>(out KVariables<V1> varSet, KVariables<TorV> srcVars, V direction) {
+        varSet = default(KVariables<V1>);
         return false;
     }
     // TODO Fill in for types
-    protected bool SubstituteToAxis<V1, TorV>(out KVariableSet<V1> varSet, KVariableSet<TorV> srcVars, AxisPlaneSpace alignment) {
-        varSet = default(KVariableSet<V1>);
+    protected bool SubstituteToAxis<V1, TorV>(out KVariables<V1> varSet, KVariables<TorV> srcVars, AxisPlaneSpace alignment) {
+        varSet = default(KVariables<V1>);
         return false;
     }
 
