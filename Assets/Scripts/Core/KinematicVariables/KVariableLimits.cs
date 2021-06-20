@@ -15,12 +15,12 @@ public struct KVariableLimit {
 }
 
 public class KVariableLimits {
-    KVariableSetExtended<float> m_maxVars;
-    KVariableSetExtended<float> m_minVars;
+    KVariablesExt<float> m_maxVars;
+    KVariablesExt<float> m_minVars;
 
     // *** Access
-    public KVariableSetExtended<float> Max { get => m_maxVars; set => m_maxVars = value; }
-    public KVariableSetExtended<float> Min { get => m_minVars; set => m_minVars = value; }
+    public KVariablesExt<float> Max { get => m_maxVars; set => m_maxVars = value; }
+    public KVariablesExt<float> Min { get => m_minVars; set => m_minVars = value; }
 
     // *** Edit
     public void AddMax(KVariableEnum type, float value) {
@@ -151,28 +151,28 @@ public class KVariableLimits {
     }
     // *** Constructors
     public KVariableLimits() {
-        m_maxVars = new KVariableSetExtended<float>(float.PositiveInfinity);
-        m_minVars = new KVariableSetExtended<float>(float.NegativeInfinity);
+        m_maxVars = new KVariablesExt<float>(float.PositiveInfinity);
+        m_minVars = new KVariablesExt<float>(float.NegativeInfinity);
     }
     public KVariableLimits(KVariableLimits kvl) {
         m_maxVars = kvl.m_maxVars;
         m_minVars = kvl.m_minVars;
     }
     public KVariableLimits(KVariableLimit kvl) {
-        m_maxVars = new KVariableSetExtended<float>(float.PositiveInfinity);
-        m_minVars = new KVariableSetExtended<float>(float.NegativeInfinity);
+        m_maxVars = new KVariablesExt<float>(float.PositiveInfinity);
+        m_minVars = new KVariablesExt<float>(float.NegativeInfinity);
         Add(kvl);
     }
     public KVariableLimits(KVariableLimit[] kvlArray) {
-        m_maxVars = new KVariableSetExtended<float>(float.PositiveInfinity);
-        m_minVars = new KVariableSetExtended<float>(float.NegativeInfinity);
+        m_maxVars = new KVariablesExt<float>(float.PositiveInfinity);
+        m_minVars = new KVariablesExt<float>(float.NegativeInfinity);
         foreach (KVariableLimit kvl in kvlArray) {
             Add(kvl);
         }
     }
     public KVariableLimits(List<KVariableLimit> kvlList) {
-        m_maxVars = new KVariableSetExtended<float>(float.PositiveInfinity);
-        m_minVars = new KVariableSetExtended<float>(float.NegativeInfinity);
+        m_maxVars = new KVariablesExt<float>(float.PositiveInfinity);
+        m_minVars = new KVariablesExt<float>(float.NegativeInfinity);
         foreach (KVariableLimit kvl in kvlList) {
             Add(kvl);
         }
@@ -187,7 +187,7 @@ public class KVariableLimits {
         float impulseForceMax, float impulseForceMin,
         float impulseForceDerivativeMax, float impulseForceDerivativeMin
     ) {
-        m_maxVars = new KVariableSetExtended<float> (
+        m_maxVars = new KVariablesExt<float> (
             variableMax,
             derivativeMax,
             secondDerivativeMax,
@@ -197,7 +197,7 @@ public class KVariableLimits {
             impulseForceMax,
             impulseForceDerivativeMax
         );
-        m_minVars = new KVariableSetExtended<float> (
+        m_minVars = new KVariablesExt<float> (
             variableMin,
             derivativeMin,
             secondDerivativeMin,
