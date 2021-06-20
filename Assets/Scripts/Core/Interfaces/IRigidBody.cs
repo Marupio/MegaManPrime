@@ -42,7 +42,7 @@ public class WrappedRigidbody : IRigidbody<Quaternion, Vector3, Vector3> {
     public bool ThreeD { get=>true; }
     public Vector3 Position { get=>m_rigidBody.position; set=>m_rigidBody.position = value; }
     public Quaternion Rotation { get=>m_rigidBody.rotation; set=>m_rigidBody.rotation = value; }
-    public T RotationComponents { get=>Rotation.eulerAngles; set {m_rigidBody.rotation = Quaternion.Euler(value);} }
+    public Vector3 RotationComponents { get=>Rotation.eulerAngles; set {m_rigidBody.rotation = Quaternion.Euler(value);} }
     public Vector3 Velocity { get=>m_rigidBody.velocity; set=>m_rigidBody.velocity = value; }
     public Vector3 AngularVelocity { get=>m_rigidBody.angularVelocity; set=>m_rigidBody.angularVelocity = value; }
     public float Mass { get=>m_rigidBody.mass; set=>m_rigidBody.mass = value; }

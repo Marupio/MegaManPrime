@@ -5,7 +5,7 @@ public class DirectionalSourceManager {
     Dictionary<string, DirectionalSource> m_sources;
 
     // *** Access
-    Dictionary<string, DirectionalSource> Sources {get => m_sources; set => m_sources = value;}
+    public Dictionary<string, DirectionalSource> Sources {get => m_sources; set => m_sources = value;}
     public DirectionalSource GetSource(string name) { return m_sources[name]; }
 
 

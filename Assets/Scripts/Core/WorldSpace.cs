@@ -132,11 +132,10 @@ public class WorldSpace<Q, V, T>
         KVariables<T> rotationalVarsUpdate = new KVariables<T>(new Traits<T>().Zero);
         KVariables<Vector3Int> rotationalVarsUsedAxis = new KVariables<Vector3Int>(Vector3Int.zero);
 
-        // Create local working copies of kinematic variables
-        //  These are now member fields: 'Local workspace'
-
         // Sum all sources
-        // TODO
+        KVariables<V> spatialSource;
+        KVariables<T> rotationalSource;
+        SumSources(out spatialSource, out rotationalSource);
 
         //  - For each active axis:
         //      - Assemble kvarSet, project variables if needed
@@ -145,36 +144,39 @@ public class WorldSpace<Q, V, T>
         foreach(ControlFieldProfile<float, V> controlField in m_controlFields.ActiveAxes1D) {
             KVariables<float> varSet;
             InitialiseVarSet(out varSet, spatialVarsInit, rotationalVarsInit, controlField);
-            controlField.Update(varSet);
+            controlField.Control.Update(ref varSet);
         }
         foreach(ControlFieldProfile<Vector2, V> controlField in m_controlFields.ActiveAxes2D) {
             KVariables<Vector2> varSet;
             InitialiseVarSet(out varSet, spatialVarsInit, rotationalVarsInit, controlField);
-            controlField.Update(varSet);
+            controlField.Control.Update(ref varSet);
         }
         foreach(ControlFieldProfile<Vector3, V> controlField in m_controlFields.ActiveAxes3D) {
             KVariables<Vector3> varSet;
             InitialiseVarSet(out varSet, spatialVarsInit, rotationalVarsInit, controlField);
-            controlField.Update(varSet);
+            controlField.Control.Update(ref varSet);
         }
     }
 
     // *** Internal functions
 
-    // protected virtual bool InitialiseVarSet<V1>(out KVariableSet<V1> varSet, AxisProfile<V1, V> axis) {
-    //     Debug.LogError("Not implemented");
-    //     varSet = new KVariableSet<V1>();
-    //     return false;
-    // }
+    void SumSources(out KVariables<V> spatialSource, out KVariables<T> rotationalSource) {
+        spatialSource = new KVariables<V>(new Traits<V>().Zero);
+        rotationalSource = new KVariables<T>(new Traits<T>().Zero);
+        foreach(KeyValuePair<string, DirectionalSource> sourceEntry in m_sources.Sources) {
+            sourceEntry.Value.AddSource(m_owner, ref spatialSource, ref rotationalSource);
+        }
+    }
+
 // WorldSpace3D (Rigidbody)   : Q = Quaternion, V = Vector3, T = Vector3
 //      Axis alignment Vector3
 // WorldSpace2D (Rigidbody2D) : Q = float, V = Vector2, T = float
 //      Axis alignment Vector2
-    protected virtual bool InitialiseVarSet(
-        out KVariables<float> varSet,
+    protected virtual bool InitialiseVarSet<S>(
+        out KVariables<S> varSet,
         KVariables<V> spatialVarsInit,
         KVariables<T> rotationalVarsInit,
-        ControlFieldProfile<float, V> axis
+        ControlFieldProfile<S, V> axis
     ) {
         if (axis.Type == AxisType.Rotational) {
             KVariables<T> srcVars = new KVariables<T>(

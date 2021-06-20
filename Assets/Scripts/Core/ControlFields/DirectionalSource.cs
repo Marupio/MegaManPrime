@@ -27,6 +27,104 @@ public class DirectionalSource
     public bool Rotating { get => m_rotating; set => m_rotating = value; }
     public bool FixedToWorldSpace { get => m_fixedToWorldSpace; set => m_fixedToWorldSpace = value; }
 
+    // AddSource<V, T> based on RigidBody dimensions, will only ever see:
+    //  * WorldSpace3D (Rigidbody)   : V = Vector3, T = Vector3
+    //  * WorldSpace2D (Rigidbody2D) : V = Vector2, T = float
+    // AddSource<Vector3, Vector3> and AddSource<Vector2, float>
+    public void AddSource<V, T>(Transform owner, ref KVariables<V> spatialSource, ref KVariables<T> rotationalSource) {
+        throw new System.NotImplementedException();
+    }
+    public void AddSource(Transform owner, ref KVariables<Vector3> spatialSource, ref KVariables<Vector3> rotationalSource) {
+        Vector3 globalDirection;
+        if (m_fixedToWorldSpace) {
+            globalDirection = m_direction;
+        } else {
+            globalDirection = owner.TransformDirection(m_direction);
+        }
+        Vector3 sourceDelta = globalDirection * m_value;
+        if (m_rotating) {
+            switch(m_sourceType) {
+                case DirectionalSourceType.None:
+                    break;
+                case DirectionalSourceType.ConstantSpeed:
+                    rotationalSource.Variable += sourceDelta;
+                    break;
+                case DirectionalSourceType.ConstantAcceleration:
+                    rotationalSource.Derivative += sourceDelta;
+                    break;
+                case DirectionalSourceType.ConstantForce:
+                    rotationalSource.AppliedForce += sourceDelta;                    
+                    break;
+                default:
+                    Debug.LogError("Unhandled case");
+                    break;
+            }
+        } else {
+            switch(m_sourceType) {
+                case DirectionalSourceType.None:
+                    break;
+                case DirectionalSourceType.ConstantSpeed:
+                    spatialSource.Variable += sourceDelta;
+                    break;
+                case DirectionalSourceType.ConstantAcceleration:
+                    spatialSource.Derivative += sourceDelta;
+                    break;
+                case DirectionalSourceType.ConstantForce:
+                    spatialSource.AppliedForce += sourceDelta;                    
+                    break;
+                default:
+                    Debug.LogError("Unhandled case");
+                    break;
+            }
+        }
+    }
+    public void AddSource(Transform owner, ref KVariables<Vector2> spatialSource, ref KVariables<float> rotationalSource) {
+        if (m_rotating) {
+            float sourceDelta = m_value;
+            switch(m_sourceType) {
+                case DirectionalSourceType.None:
+                    break;
+                case DirectionalSourceType.ConstantSpeed:
+                    rotationalSource.Variable += sourceDelta;
+                    break;
+                case DirectionalSourceType.ConstantAcceleration:
+                    rotationalSource.Derivative += sourceDelta;
+                    break;
+                case DirectionalSourceType.ConstantForce:
+                    rotationalSource.AppliedForce += sourceDelta;                    
+                    break;
+                default:
+                    Debug.LogError("Unhandled case");
+                    break;
+            }
+        } else {
+            Vector3 globalDirection;
+            if (m_fixedToWorldSpace) {
+                globalDirection = m_direction;
+            } else {
+                globalDirection = owner.TransformDirection(m_direction);
+            }
+            // Ignore Z direction
+            Vector2 sourceDelta = (Vector2)(globalDirection * m_value);
+            switch(m_sourceType) {
+                case DirectionalSourceType.None:
+                    break;
+                case DirectionalSourceType.ConstantSpeed:
+                    spatialSource.Variable += sourceDelta;
+                    break;
+                case DirectionalSourceType.ConstantAcceleration:
+                    spatialSource.Derivative += sourceDelta;
+                    break;
+                case DirectionalSourceType.ConstantForce:
+                    spatialSource.AppliedForce += sourceDelta;                    
+                    break;
+                default:
+                    Debug.LogError("Unhandled case");
+                    break;
+            }
+        }
+    }
+
     public DirectionalSource(string name, DirectionalSourceType sourceType, float value, Vector3 direction, bool rotating, bool fixToWorld) {
         m_name = name;
         m_sourceType = sourceType;

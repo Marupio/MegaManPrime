@@ -44,7 +44,7 @@ public abstract class ControlField<T> : KVariableLimits {
     // /// <summary>
     // /// Perform kinematic calculations on provided variables
     // /// </summary>
-    public abstract void Update(KVariables<T> vars);
+    public abstract void Update(ref KVariables<T> vars);
 
     // *** Special properties
     /// <summary>
@@ -138,7 +138,7 @@ public class UncontrolledField<T> : ControlField<T>
 {
     public override void ApplyControlValue(T value) { /* Do nothing */ }
     public override T Target => throw new System.NotImplementedException();
-    public override void Update(KVariables<T> vars) { /* Do nothing */ }
+    public override void Update(ref KVariables<T> vars) { /* Do nothing */ }
     public UncontrolledField(KVariableLimits limits) : base(limits, null) {}
 }
 
@@ -146,7 +146,7 @@ public class UncontrolledField<T> : ControlField<T>
 public class ContinuousControlField<T> : ControlField<T>
 {
     public override T Target { get { return m_inputRange.InputValue; } }
-    public override void Update(KVariables<T> vars) {
+    public override void Update(ref KVariables<T> vars) {
         
     }
     public ContinuousControlField(KVariableLimits limits, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
@@ -275,13 +275,13 @@ public abstract class ImpulseControlField<T> : ControlField<T>
 //      public class base<T> {}
 //      public class derived : base<float> {}
 //      public class usesBaseOnly {
-//          public Update<T>(base<T> b) {
+//          public Update<T>(ref base<T> b) {
 //              // Do something with base
 //          }
 //      }
 //      main() {
 //          derived d = new derived();
-//          usesBaseOnly.Update(d);  // <----- Error here
+//          usesBaseOnly.Update(ref d);  // <----- Error here
 //      }
 //      // C# can't seem to use derived through a base<T> reference
 //      // Further testing and I cannot duplicate the problem... it may work afterall...
