@@ -88,6 +88,10 @@ public class KVariableTypeSet {
         KVariableTypeSet kvts = new KVariableTypeSet(kve);
         return Contains(kvts);
     }
+    public bool Contains(KVariableControllableEnum kve) {
+        KVariableTypeSet kvts = new KVariableTypeSet(kve);
+        return Contains(kvts);
+    }
 
     // *** Edit
     public int Add(KVariableTypeSet kv) {
@@ -239,6 +243,10 @@ public class KVariableTypeSet {
         Add(value);
     }
     public KVariableTypeSet(KVariableEnum enumValue, KVariableRestriction restriction = KVariableRestriction.None) {
+        m_restriction = restriction;
+        Add(enumValue);
+    }
+    public KVariableTypeSet(KVariableControllableEnum enumValue, KVariableRestriction restriction = KVariableRestriction.None) {
         m_restriction = restriction;
         Add(enumValue);
     }
