@@ -49,18 +49,20 @@ public class WorldSpace<Q, V, T>
     protected T m_appliedTorqueDesired;
 
     // Local workspace - temporary variables used during Move()
+    // TODO - I want to refactor how it works to remove most of these - reduce memory footprint
     float m_localMass;            // Update with m_rigidBody.Mass;
     float m_localDrag;            // Update with m_rigidBody.Drag;
-    V m_localPosition;            // Update with m_rigidBody.Position;
-    V m_localVelocity;            // Update with m_rigidBody.Velocity;
-    V m_localAcceleration;        // Update with m_acceleration0;
-    V m_localAppliedForce;        // Update with m_appliedForceActual;
     float m_localAngularDrag;     // Update with m_rigidBody.AngularDrag;
-    Q m_localRotation;            // Update with m_rigidBody.Rotation;
-    T m_localRotationComponents;  // Update with m_rotationComponentsActual;
-    T m_localAngularVelocity;     // Update with m_rigidBody.AngularVelocity;
-    T m_localAngularAcceleration; // Update with m_angularAcceleration0;
-    T m_localAppliedTorque;       // Update with m_appliedTorqueActual;
+
+    // V m_localPosition;            // Update with m_rigidBody.Position;
+    // V m_localVelocity;            // Update with m_rigidBody.Velocity;
+    // V m_localAcceleration;        // Update with m_acceleration0;
+    // V m_localAppliedForce;        // Update with m_appliedForceActual;
+    // Q m_localRotation;            // Update with m_rigidBody.Rotation;
+    // T m_localRotationComponents;  // Update with m_rotationComponentsActual;
+    // T m_localAngularVelocity;     // Update with m_rigidBody.AngularVelocity;
+    // T m_localAngularAcceleration; // Update with m_angularAcceleration0;
+    // T m_localAppliedTorque;       // Update with m_appliedTorqueActual;
 
     public bool ThreeD { get => GeneralTools.ThreeD<V>(); }
     public bool TwoD { get => GeneralTools.TwoD<V>(); }
@@ -84,10 +86,10 @@ public class WorldSpace<Q, V, T>
     }
 
     // Axes - controls and sources
-    ControlFieldProfileManager<Q,V,T> m_controlledAxes;
+    ControlFieldProfileManager<Q,V,T> m_controlFields;
     DirectionalSourceManager m_sources;
 
-    public ControlFieldProfileManager<Q,V,T> Axes { get => m_controlledAxes; set => m_controlledAxes = value; }
+    public ControlFieldProfileManager<Q,V,T> ControlFields { get => m_controlFields; set => m_controlFields = value; }
     public DirectionalSourceManager Sources { get=> m_sources; set => m_sources = value; }
 
 
@@ -108,6 +110,28 @@ public class WorldSpace<Q, V, T>
         // Update locally tracked accelerations and working variables
         UpdateLocalFields();
 
+        // These hold the actual current state at the start of this iteration
+        KVariables<V> spatialVarsInit = new KVariables<V>(
+            m_rigidBody.Position,
+            m_rigidBody.Velocity,
+            m_accelerationActual,
+            m_appliedForceActual,
+            default(V)
+        );
+        KVariables<T> rotationalVarsInit = new KVariables<T>(
+            m_rigidBody.RotationComponents,
+            m_rigidBody.AngularVelocity,
+            m_angularAccelerationActual,
+            m_appliedTorqueActual,
+            default(T)
+        );
+
+        // The V types hold any updated components of each kvariable type, the Vi types hold 0|1 indicating which component has been updated
+        KVariables<V> spatialVarsUpdate = new KVariables<V>(new Traits<V>().Zero);
+        KVariables<Vector3Int> spatialVarsUsedAxis = new KVariables<Vector3Int>(Vector3Int.zero);
+        KVariables<T> rotationalVarsUpdate = new KVariables<T>(new Traits<T>().Zero);
+        KVariables<Vector3Int> rotationalVarsUsedAxis = new KVariables<Vector3Int>(Vector3Int.zero);
+
         // Create local working copies of kinematic variables
         //  These are now member fields: 'Local workspace'
 
@@ -118,10 +142,20 @@ public class WorldSpace<Q, V, T>
         //      - Assemble kvarSet, project variables if needed
         //      - Call update on axis
         //      - Add changes back to local working variables
-        foreach(ControlFieldProfile<float, V> axis in m_controlledAxes.ActiveAxes1D) {
+        foreach(ControlFieldProfile<float, V> controlField in m_controlFields.ActiveAxes1D) {
             KVariables<float> varSet;
-            InitialiseVarSet(out varSet, axis);
-            axis.Update(varSet);
+            InitialiseVarSet(out varSet, spatialVarsInit, rotationalVarsInit, controlField);
+            controlField.Update(varSet);
+        }
+        foreach(ControlFieldProfile<Vector2, V> controlField in m_controlFields.ActiveAxes2D) {
+            KVariables<Vector2> varSet;
+            InitialiseVarSet(out varSet, spatialVarsInit, rotationalVarsInit, controlField);
+            controlField.Update(varSet);
+        }
+        foreach(ControlFieldProfile<Vector3, V> controlField in m_controlFields.ActiveAxes3D) {
+            KVariables<Vector3> varSet;
+            InitialiseVarSet(out varSet, spatialVarsInit, rotationalVarsInit, controlField);
+            controlField.Update(varSet);
         }
     }
 
@@ -136,48 +170,51 @@ public class WorldSpace<Q, V, T>
 //      Axis alignment Vector3
 // WorldSpace2D (Rigidbody2D) : Q = float, V = Vector2, T = float
 //      Axis alignment Vector2
-    protected virtual bool InitialiseVarSet(out KVariables<float> varSet, ControlFieldProfile<float, V> axis) {
+    protected virtual bool InitialiseVarSet(
+        out KVariables<float> varSet,
+        KVariables<V> spatialVarsInit,
+        KVariables<T> rotationalVarsInit,
+        ControlFieldProfile<float, V> axis
+    ) {
         if (axis.Type == AxisType.Rotational) {
             KVariables<T> srcVars = new KVariables<T>(
-                m_localRotationComponents,
-                m_localAngularVelocity,
-                m_localAngularAcceleration,
-                m_localAppliedTorque,
+                rotationalVarsInit.Variable,            // m_localRotationComponents,
+                rotationalVarsInit.Derivative,          // m_localAngularVelocity,
+                rotationalVarsInit.SecondDerivative,    // m_localAngularAcceleration,
+                rotationalVarsInit.AppliedForce,        // m_localAppliedTorque,
                 new Traits<T>().Zero
             );
             if (axis.Projecting) {
-                return ProjectToAxis(out varSet, srcVars, axis.Direction);
+                return ProjectToSubspace(out varSet, srcVars, axis.Direction);
             } else {
-                return SubstituteToAxis(out varSet, srcVars, axis.Alignment);
+                return SubstituteToSubspace(out varSet, srcVars, axis.Alignment);
             }
         } else {
             KVariables<V> srcVars = new KVariables<V>(
-                m_localPosition,
-                m_localVelocity,
-                m_localAcceleration,
-                m_localAppliedForce,
+                spatialVarsInit.Variable,           // m_localPosition,
+                spatialVarsInit.Derivative,         // m_localVelocity,
+                spatialVarsInit.SecondDerivative,   // m_localAcceleration,
+                spatialVarsInit.AppliedForce,       // m_localAppliedForce,
                 new Traits<V>().Zero
             );
             if (axis.Projecting) {
-                return ProjectToAxis(out varSet, srcVars, axis.Direction);
+                return ProjectToSubspace(out varSet, srcVars, axis.Direction);
             } else {
-                return SubstituteToAxis(out varSet, srcVars, axis.Alignment);
+                return SubstituteToSubspace(out varSet, srcVars, axis.Alignment);
             }
         }
     }
 
     // TODO Fill in for types
-    protected bool ProjectToAxis<V1, TorV>(out KVariables<V1> varSet, KVariables<TorV> srcVars, V direction) {
+    protected bool ProjectToSubspace<V1, TorV>(out KVariables<V1> varSet, KVariables<TorV> srcVars, V direction) {
         varSet = default(KVariables<V1>);
         return false;
     }
     // TODO Fill in for types
-    protected bool SubstituteToAxis<V1, TorV>(out KVariables<V1> varSet, KVariables<TorV> srcVars, AxisPlaneSpace alignment) {
+    protected bool SubstituteToSubspace<V1, TorV>(out KVariables<V1> varSet, KVariables<TorV> srcVars, AxisPlaneSpace alignment) {
         varSet = default(KVariables<V1>);
         return false;
     }
-
-
 
     protected virtual void UpdateLocalFields() {
         // Update invDeltaT
@@ -198,15 +235,15 @@ public class WorldSpace<Q, V, T>
         // Update working variables
         m_localMass = m_rigidBody.Mass;
         m_localDrag = m_rigidBody.Drag;
-        m_localPosition = m_rigidBody.Position;
-        m_localVelocity = m_rigidBody.Velocity;
-        m_localAcceleration = m_acceleration0;
-        m_localAppliedForce = m_appliedForceActual;
         m_localAngularDrag = m_rigidBody.AngularDrag;
-        m_localRotation = m_rigidBody.Rotation;
-        m_localAngularVelocity = m_rigidBody.AngularVelocity;
-        m_localAngularAcceleration = m_angularAcceleration0;
-        m_localAppliedTorque = m_appliedTorqueActual;
+        // m_localPosition = m_rigidBody.Position;
+        // m_localVelocity = m_rigidBody.Velocity;
+        // m_localAcceleration = m_acceleration0;
+        // m_localAppliedForce = m_appliedForceActual;
+        // m_localRotation = m_rigidBody.Rotation;
+        // m_localAngularVelocity = m_rigidBody.AngularVelocity;
+        // m_localAngularAcceleration = m_angularAcceleration0;
+        // m_localAppliedTorque = m_appliedTorqueActual;
     }
 
     // *** Constructors

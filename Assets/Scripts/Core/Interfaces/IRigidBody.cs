@@ -16,6 +16,7 @@ public interface IRigidbody<Q, V, T>
     public bool ThreeD { get; }
     public V Position { get; set; }
     public Q Rotation { get; set; }
+    public T RotationComponents { get; set; }
     public V Velocity { get; set; }
     public T AngularVelocity { get; set; }
     public float Mass { get; set; }
@@ -41,6 +42,7 @@ public class WrappedRigidbody : IRigidbody<Quaternion, Vector3, Vector3> {
     public bool ThreeD { get=>true; }
     public Vector3 Position { get=>m_rigidBody.position; set=>m_rigidBody.position = value; }
     public Quaternion Rotation { get=>m_rigidBody.rotation; set=>m_rigidBody.rotation = value; }
+    public T RotationComponents { get=>Rotation.eulerAngles; set {m_rigidBody.rotation = Quaternion.Euler(value);} }
     public Vector3 Velocity { get=>m_rigidBody.velocity; set=>m_rigidBody.velocity = value; }
     public Vector3 AngularVelocity { get=>m_rigidBody.angularVelocity; set=>m_rigidBody.angularVelocity = value; }
     public float Mass { get=>m_rigidBody.mass; set=>m_rigidBody.mass = value; }
@@ -137,6 +139,7 @@ public class WrappedRigidbody2D : IRigidbody<float, Vector2, float> {
     public bool ThreeD { get=>false; }
     public Vector2 Position { get=>m_rigidBody.position; set=>m_rigidBody.position = value; }
     public float Rotation { get=>m_rigidBody.rotation; set=>m_rigidBody.rotation = value; }
+    public float RotationComponents { get=>m_rigidBody.rotation; set=>m_rigidBody.rotation = value; }
     public Vector2 Velocity { get=>m_rigidBody.velocity; set=>m_rigidBody.velocity = value; }
     public float AngularVelocity { get=>m_rigidBody.angularVelocity; set=>m_rigidBody.angularVelocity = value; }
     public float Mass { get=>m_rigidBody.mass; set=>m_rigidBody.mass = value; }

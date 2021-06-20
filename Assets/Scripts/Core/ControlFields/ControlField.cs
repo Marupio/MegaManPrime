@@ -5,15 +5,15 @@ using System.Collections.Generic;
 /// I take an n-dimensional control input (InputRange), and produce an n-dimensional target for a kinematic variable, such as position or velocity.
 /// I can control any number of dimensions, I don't care which dimensions they are, nor do I care where they are in world space.  I don't even know
 /// if I'm controlling linear movement or rotational movement.  All I know is the type of variable, e.g.:
-///     * 'variable' - position or rotation angle
-///     * 'firstDerivative' - velocity or angular velocity
-/// The full list is: all KVariableEnum types, excluding KVariableTypeInfo.ExcludedFromControl.
-/// These can be either linear or rotating type variables.
+///     * 'variable' - position or rotation angle,
+///     * 'firstDerivative' - velocity or angular velocity,
+/// and so on. The full list is: all KVariableControllableEnum types. These can be either linear or rotating type variables.
 /// </summary>
 public abstract class ControlField<T> : KVariableLimits {
     // WARNING - m_inputRange is null in some classes
     protected InputRange<T> m_inputRange;
-    protected KVariableTypeSet m_controlledVariable;
+    protected KVariableControllableEnum m_controlledVariable;
+    private KVariableTypeSet m_controlledVariableAsTypeSet;
     protected bool m_smoothingEnabled;
     protected float m_smoothingTime;
 
@@ -35,7 +35,7 @@ public abstract class ControlField<T> : KVariableLimits {
             return null;
         }
     }
-    public virtual KVariableTypeSet ControlledVariable { get => m_controlledVariable; }
+    public virtual KVariableTypeSet ControlledVariable { get => m_controlledVariableAsTypeSet; }
     /// <summary>
     /// Output of this class - this is the value I want for my controlled variables
     /// </summary>
@@ -98,11 +98,18 @@ public abstract class ControlField<T> : KVariableLimits {
         return true;
     }
 
+    protected void InitControlledVariableTypeSet() {
+        m_controlledVariableAsTypeSet = new KVariableTypeSet(m_controlledVariable);
+        m_controlledVariableAsTypeSet.SetRestrictionToControllable();
+        m_controlledVariableAsTypeSet.SetRestrictionToSingular();
+    }
+
     // *** Constructors
     protected ControlField(KVariableLimits limits, InputRange<T> inputRange)
         : base (limits) {
         m_inputRange = inputRange;
         m_controlledVariable = KVariableTypeInfo.None;
+        InitControlledVariableTypeSet();
     }
     protected ControlField(KVariableLimits limits, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
         : base (limits) {
@@ -122,6 +129,7 @@ public abstract class ControlField<T> : KVariableLimits {
         } else {
             m_controlledVariable = controlledVariable;
         }
+        InitControlledVariableTypeSet();
     }
 }
 
