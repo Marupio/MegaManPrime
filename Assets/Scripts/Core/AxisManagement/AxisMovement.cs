@@ -2,13 +2,18 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// I turn a controlValue input into a target position/velocity/acceleration
+/// I take an n-dimensional control input (InputRange), and produce an n-dimensional target for a kinematic variable, such as position or velocity.
+/// I can control any number of dimensions, I don't care which dimensions they are, nor do I care where they are in world space.  I don't even know
+/// if I'm controlling linear movement or rotational movement.  All I know is the type of variable, e.g.:
+///     * 'variable' - position or rotation angle
+///     * 'firstDerivative' - velocity or angular velocity
+/// The full list is: all KVariableEnum types, excluding KVariableTypeInfo.ExcludedFromControl.
+/// These can be either linear or rotating type variables.
 /// </summary>
-public abstract class AxisMovement<T> : KVariableLimits {
+public abstract class ControlField<T> : KVariableLimits {
     // WARNING - m_inputRange is null in some classes
     protected InputRange<T> m_inputRange;
     protected KVariableTypeSet m_controlledVariable;
-    protected Dictionary<string, AxisSource> m_axisSources;
     protected bool m_smoothingEnabled;
     protected float m_smoothingTime;
 
@@ -19,43 +24,13 @@ public abstract class AxisMovement<T> : KVariableLimits {
         m_inputRange.ControlValue = value;
     }
 
-    public AxisSource GetSource(string name) { return m_axisSources[name]; }
-    /// <summary>
-    /// Add a new axis source, by name
-    /// </summary>
-    /// <returns>True if source already existed and was overwritten</returns>
-    public bool AddSource(string name, AxisSource newSource) {
-        bool overwritten = false;
-        if (m_axisSources.ContainsKey(name)) {
-            overwritten = true;
-        }
-        m_axisSources.Add(name, newSource);
-        return overwritten;
-    }
-    /// <summary>
-    /// Remove an axis source, by name
-    /// </summary>
-    /// <returns>True if the source existed and was removed</returns>
-    public bool RemoveSource(string name) {
-        if (m_axisSources.ContainsKey(name)) {
-            m_axisSources.Remove(name);
-            return true;
-        }
-        return false;
-    }
-    public int RemoveAllSources() {
-        int nRemoved = m_axisSources.Count;
-        m_axisSources.Clear();
-        return nRemoved;
-    }
-
     /// <summary>
     /// Returns the 'ImpulseMovement' class for this, if it is one.  ImpulseMovement is the base class for impulse axis movement types.
     /// </summary>
     /// <returns></returns>
-    public virtual ImpulseAxisMovement<T> ImpulseType() {
-        if (this is ImpulseAxisMovement<T>) {
-            return (ImpulseAxisMovement<T>)this;
+    public virtual ImpulseControlField<T> ImpulseType() {
+        if (this is ImpulseControlField<T>) {
+            return (ImpulseControlField<T>)this;
         } else {
             return null;
         }
@@ -115,7 +90,7 @@ public abstract class AxisMovement<T> : KVariableLimits {
     /// </summary>
     protected bool InternalSmoothingAllowed()
     {
-        ImpulseAxisMovement<T> impulseType = ImpulseType();
+        ImpulseControlField<T> impulseType = ImpulseType();
         if (impulseType != null && impulseType.Instantaneous)
         {
             return false;
@@ -124,19 +99,19 @@ public abstract class AxisMovement<T> : KVariableLimits {
     }
 
     // *** Constructors
-    protected AxisMovement(KVariableLimits limits, InputRange<T> inputRange)
+    protected ControlField(KVariableLimits limits, InputRange<T> inputRange)
         : base (limits) {
         m_inputRange = inputRange;
         m_controlledVariable = KVariableTypeInfo.None;
     }
-    protected AxisMovement(KVariableLimits limits, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
+    protected ControlField(KVariableLimits limits, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
         : base (limits) {
         m_inputRange = inputRange;
 
         if (controlledVariable.Contains(KVariableTypeInfo.ExcludedFromControl)) {
             Debug.LogError
             (
-                "Attempting to make axis with Kinematic Variables that cannot be applied to control.\n" +
+                "Attempting to make ControlField with KVariables that cannot be applied to control.\n" +
                 "Requesting:\n" +
                 "\t" + controlledVariable + "\n" +
                 "Cannot contain:\n" +
@@ -151,27 +126,27 @@ public abstract class AxisMovement<T> : KVariableLimits {
 }
 
 
-public class UncontrolledAxisMovement<T> : AxisMovement<T>
+public class UncontrolledField<T> : ControlField<T>
 {
     public override void ApplyControlValue(T value) { /* Do nothing */ }
     public override T Target => throw new System.NotImplementedException();
     public override void Update(KVariableSet<T> vars) { /* Do nothing */ }
-    public UncontrolledAxisMovement(KVariableLimits limits) : base(limits, null) {}
+    public UncontrolledField(KVariableLimits limits) : base(limits, null) {}
 }
 
 
-public class ControlledAxisMovement<T> : AxisMovement<T>
+public class ContinuousControlField<T> : ControlField<T>
 {
     public override T Target { get { return m_inputRange.InputValue; } }
     public override void Update(KVariableSet<T> vars) {
         
     }
-    public ControlledAxisMovement(KVariableLimits limits, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
+    public ContinuousControlField(KVariableLimits limits, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
         : base(limits, inputRange, controlledVariable) {}
 }
 
 
-public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
+public abstract class ImpulseControlField<T> : ControlField<T>
 {
     // *** Protected fields
     protected float m_maxDuration = 0;
@@ -180,7 +155,7 @@ public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
     protected bool m_activated = false;
     protected bool m_interruptable = false;
 
-    // *** AxisMovement interface
+    // *** ControlField Interface
     public override T Target { get { return m_inputRange.InputValue; } }
 
     /// <summary>
@@ -212,7 +187,7 @@ public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
     }
 
     // *** Constructors
-    public ImpulseAxisMovement(
+    public ImpulseControlField(
         KVariableLimits limits,
         InputRange<T> inputRange,
         KVariableTypeSet controlledVariable,
@@ -301,32 +276,32 @@ public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
 //          usesBaseOnly.Update(d);  // <----- Error here
 //      }
 //      // C# can't seem to use derived through a base<T> reference
-//      // Further testing and I cannot duplicate the problem
+//      // Further testing and I cannot duplicate the problem... it may work afterall...
 // \TODO
 //
-// public class UncontrolledAxisMovement1D : UncontrolledAxisMovement<float> {
-//     public UncontrolledAxisMovement1D(KVariableLimits limits) : base(limits) {}
+// public class UncontrolledField1D : UncontrolledField<float> {
+//     public UncontrolledField1D(KVariableLimits limits) : base(limits) {}
 // }
-// public class UncontrolledAxisMovement2D : UncontrolledAxisMovement<Vector2> {
-//     public UncontrolledAxisMovement2D(KVariableLimits limits) : base(limits) {}
+// public class UncontrolledField2D : UncontrolledField<Vector2> {
+//     public UncontrolledField2D(KVariableLimits limits) : base(limits) {}
 // }
-// public class UncontrolledAxisMovement3D : UncontrolledAxisMovement<Vector3> {
-//     public UncontrolledAxisMovement3D(KVariableLimits limits) : base(limits) {}
+// public class UncontrolledField3D : UncontrolledField<Vector3> {
+//     public UncontrolledField3D(KVariableLimits limits) : base(limits) {}
 // }
-// public class ControlledAxisMovement1D : ControlledAxisMovement<float> {
-//     public ControlledAxisMovement1D(KVariableLimits limits, InputRange<float> inputRange, KVariableTypeSet controlledVariable)
+// public class ContinuousControlField1D : ContinuousControlField<float> {
+//     public ContinuousControlField1D(KVariableLimits limits, InputRange<float> inputRange, KVariableTypeSet controlledVariable)
 //         : base(limits, inputRange, controlledVariable) {}
 // }
-// public class ControlledAxisMovement2D : ControlledAxisMovement<Vector2> {
-//     public ControlledAxisMovement2D(KVariableLimits limits, InputRange<Vector2> inputRange, KVariableTypeSet controlledVariable)
+// public class ContinuousControlField2D : ContinuousControlField<Vector2> {
+//     public ContinuousControlField2D(KVariableLimits limits, InputRange<Vector2> inputRange, KVariableTypeSet controlledVariable)
 //         : base(limits, inputRange, controlledVariable) {}
 // }
-// public class ControlledAxisMovement3D : ControlledAxisMovement<Vector3> {
-//     public ControlledAxisMovement3D(KVariableLimits limits, InputRange<Vector3> inputRange, KVariableTypeSet controlledVariable)
+// public class ContinuousControlField3D : ContinuousControlField<Vector3> {
+//     public ContinuousControlField3D(KVariableLimits limits, InputRange<Vector3> inputRange, KVariableTypeSet controlledVariable)
 //         : base(limits, inputRange, controlledVariable) {}
 // }
-// public class ImpulseAxisMovement1D : ImpulseAxisMovement<float> {
-//     public ImpulseAxisMovement1D(
+// public class ImpulseControlField1D : ImpulseControlField<float> {
+//     public ImpulseControlField1D(
 //         KVariableLimits limits,
 //         InputRange<float> inputRange,
 //         KVariableTypeSet controlledVariable,
@@ -335,8 +310,8 @@ public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
 //         bool enabled = true
 //     ) : base(limits, inputRange, controlledVariable, maxDuration, interruptable, enabled) {}
 // }
-// public class ImpulseAxisMovement2D : ImpulseAxisMovement<Vector2> {
-//     public ImpulseAxisMovement2D(
+// public class ImpulseControlField2D : ImpulseControlField<Vector2> {
+//     public ImpulseControlField2D(
 //         KVariableLimits limits,
 //         InputRange<Vector2> inputRange,
 //         KVariableTypeSet controlledVariable,
@@ -345,8 +320,8 @@ public abstract class ImpulseAxisMovement<T> : AxisMovement<T>
 //         bool enabled = true
 //     ) : base(limits, inputRange, controlledVariable, maxDuration, interruptable, enabled) {}
 // }
-// public class ImpulseAxisMovement3D : ImpulseAxisMovement<Vector3> {
-//     public ImpulseAxisMovement3D(
+// public class ImpulseControlField3D : ImpulseControlField<Vector3> {
+//     public ImpulseControlField3D(
 //         KVariableLimits limits,
 //         InputRange<Vector3> inputRange,
 //         KVariableTypeSet controlledVariable,

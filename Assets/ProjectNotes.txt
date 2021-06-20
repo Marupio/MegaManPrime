@@ -1,8 +1,11 @@
 TODO
 Simplify control axes to handled only a single variable
 
-Remove all Min restrictions? - this will change MagMinMax, InputRange, etc
+Remove all Min restrictions?
+    They are not useful to 2D, 3D, and 1D can assume Max restriction is Negative also.
+    But having Max and Min limits makes sense, and I can apply them anywhere.
 
+Rename AxisMovement to something about Control - ControlField.
 
 
 Axis can change frequently

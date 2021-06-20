@@ -30,7 +30,7 @@ public enum AxisPlaneSpace {
 
 // T is based on what we control : 1 axis = float, 2 axes = Vector2, 3 axes = Vector3
 // D is based on Rigidbody model : 2D = Vector2, 3D = Vector3
-public abstract class AxisProfile<T, D> {
+public abstract class ControlFieldProfile<T, D> {
     protected Transform m_owner;
     protected string m_name;
     protected AxisType m_type;
@@ -53,7 +53,7 @@ public abstract class AxisProfile<T, D> {
     ///                     - X,Y       = not allowed               *** IGNORED
     /// </summary>
     protected AxisPlaneSpace m_alignment;
-    protected AxisMovement<T> m_control;
+    protected ControlField<T> m_control;
     protected D m_direction;
     protected bool m_projecting; // true if kvars need to be projected to axial directions
     protected Vector3Int m_usedRotationalAxes;
@@ -65,14 +65,14 @@ public abstract class AxisProfile<T, D> {
     public abstract int NControlledDimensions { get; }
     public AxisType Type { get => m_type; }
     public AxisPlaneSpace Alignment { get => m_alignment; }
-    public AxisMovement<T> Control { get => m_control; set => m_control = value; }
+    public ControlField<T> Control { get => m_control; set => m_control = value; }
     public D Direction { get => m_direction; set => m_direction = value; }
     public bool Projecting { get => m_projecting; }
     public Vector3Int CheckUsedRotationalAxes { get => m_usedRotationalAxes; }
     public Vector3Int CheckUsedSpatialAxes { get => m_usedSpatialAxes; }
 
     // *** Constructors
-    public AxisProfile(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, AxisMovement<T> control) {
+    public ControlFieldProfile(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, ControlField<T> control) {
         m_name = name;
         m_owner = owner;
         m_type = type;
@@ -93,7 +93,7 @@ public abstract class AxisProfile<T, D> {
     protected bool CheckAxes() {
         if (TwoD) {
             if (NControlledDimensions > 2) {
-                Debug.LogError("Too many controlled dimensions in 2D space on AxisProfile " + m_name);
+                Debug.LogError("Too many controlled dimensions in 2D space on ControlField " + m_name);
                 return false;
             }
             if (m_type == AxisType.Rotational) {
@@ -238,7 +238,7 @@ public abstract class AxisProfile<T, D> {
                 m_usedSpatialAxes += usedAxisDelta;
                 return true;
             } else {
-                Debug.LogError("Unknown axis type - expecting rotational / spatial, problem in AxisProfile " + m_name);
+                Debug.LogError("Unknown axis type - expecting rotational / spatial, problem in ControlField " + m_name);
                 return false;
             }
         } else {
@@ -248,40 +248,40 @@ public abstract class AxisProfile<T, D> {
     }
 }
 
-// *** Concrete types - AxisProfile
-public class AxisProfile1D_2 : AxisProfile<float, Vector2> {
+// *** Concrete types - ControlField
+public class ControlField1D_2 : ControlFieldProfile<float, Vector2> {
     public override int NControlledDimensions { get => 1; }
-    public AxisProfile1D_2(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, AxisMovement<float> control)
+    public ControlField1D_2(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, ControlField<float> control)
     : base (name, owner, type, alignment, control)
     {}
 }
-public class AxisProfile1D_3 : AxisProfile<float, Vector3> {
+public class ControlField1D_3 : ControlFieldProfile<float, Vector3> {
     public override int NControlledDimensions { get => 1; }
-    public AxisProfile1D_3(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, AxisMovement<float> control)
+    public ControlField1D_3(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, ControlField<float> control)
     : base (name, owner, type, alignment, control)
     {}
 }
-public class AxisProfile2D_2 : AxisProfile<float, Vector2> {
+public class ControlField2D_2 : ControlFieldProfile<float, Vector2> {
     public override int NControlledDimensions { get => 2; }
-    public AxisProfile2D_2(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, AxisMovement<float> control)
+    public ControlField2D_2(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, ControlField<float> control)
     : base (name, owner, type, alignment, control)
     {}
 }
-public class AxisProfile2D_3 : AxisProfile<float, Vector3> {
+public class ControlField2D_3 : ControlFieldProfile<float, Vector3> {
     public override int NControlledDimensions { get => 2; }
-    public AxisProfile2D_3(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, AxisMovement<float> control)
+    public ControlField2D_3(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, ControlField<float> control)
     : base (name, owner, type, alignment, control)
     {}
 }
-public class AxisProfile3D_2 : AxisProfile<float, Vector2> {
+public class ControlField3D_2 : ControlFieldProfile<float, Vector2> {
     public override int NControlledDimensions { get => 3; }
-    public AxisProfile3D_2(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, AxisMovement<float> control)
+    public ControlField3D_2(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, ControlField<float> control)
     : base (name, owner, type, alignment, control)
     {}
 }
-public class AxisProfile3D_3 : AxisProfile<float, Vector3> {
+public class ControlField3D_3 : ControlFieldProfile<float, Vector3> {
     public override int NControlledDimensions { get => 3; }
-    public AxisProfile3D_3(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, AxisMovement<float> control)
+    public ControlField3D_3(string name, Transform owner, AxisType type, AxisPlaneSpace alignment, ControlField<float> control)
     : base (name, owner, type, alignment, control)
     {}
 }

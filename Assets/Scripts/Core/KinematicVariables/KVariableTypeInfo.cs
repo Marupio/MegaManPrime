@@ -14,6 +14,21 @@ public enum KVariableEnum {
     Drag                   = 0b_0000_0001_0000_0000   // 256
 }
 
+public enum KVariableControllableEnum{
+    None                   = 0b_0000_0000_0000_0000,  //   0
+    Variable               = 0b_0000_0000_0000_0001,  //   1
+    Derivative             = 0b_0000_0000_0000_0010,  //   2
+    AppliedForce           = 0b_0000_0000_0001_0000,  //  16
+    ImpulseForce           = 0b_0000_0000_0010_0000   //  32
+}
+
+public enum KVariableRestriction {
+    None                 = 0b_0000_0000,
+    Singular             = 0b_0000_0001,
+    Controllable         = 0b_0000_0010,
+    SingularControllable = 0b_0000_0011
+}
+
 public class KVariableTypeInfo {
     // None
     public static KVariableTypeSet None                   = new KVariableTypeSet(KVariableEnum.None);
@@ -40,10 +55,13 @@ public class KVariableTypeInfo {
         );
     public static KVariableTypeSet ExcludedFromControl = 
         new KVariableTypeSet(
-            ThirdDerivative | AppliedForceDerivative | ImpulseForceDerivative | Drag
+            SecondDerivative | ThirdDerivative | AppliedForceDerivative | ImpulseForceDerivative | Drag
+        );
+    public static KVariableTypeSet AllControllableTypes =
+        new KVariableTypeSet(
+            Variable | Derivative | AppliedForce | ImpulseForce
         );
     public static KVariableTypeSet AllTypes = new KVariableTypeSet(
-        None |
         Variable |
         Derivative |
         SecondDerivative |

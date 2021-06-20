@@ -13,27 +13,27 @@ public enum AxisStoredAt {
 
 // 2D : V = Vector3
 // 3D : V = Vector2
-public class AxisProfileManager<Q, V, T> {
+public class ControlFieldProfileManager<Q, V, T> {
     WorldSpace<Q, V, T> m_entity;
     string m_name; // Name of associated entity's GameObject
     Dictionary<string, AxisStoredAt> m_axisIndex;
-    Dictionary<string, AxisProfile<float, V>> m_axes1D;
-    Dictionary<string, AxisProfile<Vector2, V>> m_axes2D;
-    Dictionary<string, AxisProfile<Vector3, V>> m_axes3D;
-    List<AxisProfile<float, V>> m_activeAxes1D;
-    List<AxisProfile<Vector2, V>> m_activeAxes2D;
-    List<AxisProfile<Vector3, V>> m_activeAxes3D;
+    Dictionary<string, ControlFieldProfile<float, V>> m_axes1D;
+    Dictionary<string, ControlFieldProfile<Vector2, V>> m_axes2D;
+    Dictionary<string, ControlFieldProfile<Vector3, V>> m_axes3D;
+    List<ControlFieldProfile<float, V>> m_activeAxes1D;
+    List<ControlFieldProfile<Vector2, V>> m_activeAxes2D;
+    List<ControlFieldProfile<Vector3, V>> m_activeAxes3D;
 
     // *** Access
     public Dictionary<string, AxisStoredAt> AxisIndex { get => m_axisIndex; }
-    public Dictionary<string, AxisProfile<float, V>> Axes1D { get => m_axes1D; }
-    public Dictionary<string, AxisProfile<Vector2, V>> Axes2D { get => m_axes2D; }
-    public Dictionary<string, AxisProfile<Vector3, V>> Axes3D { get => m_axes3D; }
-    public List<AxisProfile<float, V>> ActiveAxes1D { get => m_activeAxes1D; }
-    public List<AxisProfile<Vector2, V>> ActiveAxes2D { get => m_activeAxes2D; }
-    public List<AxisProfile<Vector3, V>> ActiveAxes3D { get => m_activeAxes3D; }
+    public Dictionary<string, ControlFieldProfile<float, V>> Axes1D { get => m_axes1D; }
+    public Dictionary<string, ControlFieldProfile<Vector2, V>> Axes2D { get => m_axes2D; }
+    public Dictionary<string, ControlFieldProfile<Vector3, V>> Axes3D { get => m_axes3D; }
+    public List<ControlFieldProfile<float, V>> ActiveAxes1D { get => m_activeAxes1D; }
+    public List<ControlFieldProfile<Vector2, V>> ActiveAxes2D { get => m_activeAxes2D; }
+    public List<ControlFieldProfile<Vector3, V>> ActiveAxes3D { get => m_activeAxes3D; }
 
-    public bool AddAxis(AxisProfile<float, V> newAxis, bool makeActive, bool overwrite = true) {
+    public bool AddAxis(ControlFieldProfile<float, V> newAxis, bool makeActive, bool overwrite = true) {
         if (!overwrite && m_axisIndex.ContainsKey(newAxis.Name)) {
             Debug.LogError("AxisManager " + m_name + " - axis name collision: " + newAxis.Name);
             return false;
@@ -46,7 +46,7 @@ public class AxisProfileManager<Q, V, T> {
         m_axisIndex.Add(newAxis.Name, asa);
         return true;
     }
-    public bool AddAxis(AxisProfile<Vector2, V> newAxis, bool makeActive, bool overwrite = true) {
+    public bool AddAxis(ControlFieldProfile<Vector2, V> newAxis, bool makeActive, bool overwrite = true) {
         if (!overwrite && m_axisIndex.ContainsKey(newAxis.Name)) {
             Debug.LogError("AxisManager " + m_name + " - axis name collision: " + newAxis.Name);
             return false;
@@ -59,7 +59,7 @@ public class AxisProfileManager<Q, V, T> {
         m_axisIndex.Add(newAxis.Name, asa);
         return true;
     }
-    public bool AddAxis(AxisProfile<Vector3, V> newAxis, bool makeActive, bool overwrite = true) {
+    public bool AddAxis(ControlFieldProfile<Vector3, V> newAxis, bool makeActive, bool overwrite = true) {
         if (!overwrite && m_axisIndex.ContainsKey(newAxis.Name)) {
             Debug.LogError("AxisManager " + m_name + " - axis name collision: " + newAxis.Name);
             return false;
@@ -118,19 +118,19 @@ public class AxisProfileManager<Q, V, T> {
         }
         switch (storedAt) {
             case AxisStoredAt.Dict1D: {
-                AxisProfile<float, V> activeAxis = m_axes1D[name];
+                ControlFieldProfile<float, V> activeAxis = m_axes1D[name];
                 m_activeAxes1D.Add(activeAxis);
                 m_axisIndex.Add(name, AxisStoredAt.Active1D);
                 return true;
             }
             case AxisStoredAt.Dict2D: {
-                AxisProfile<Vector2, V> activeAxis = m_axes2D[name];
+                ControlFieldProfile<Vector2, V> activeAxis = m_axes2D[name];
                 m_activeAxes2D.Add(activeAxis);
                 m_axisIndex.Add(name, AxisStoredAt.Active2D);
                 return true;
             }
             case AxisStoredAt.Dict3D: {
-                AxisProfile<Vector3, V> activeAxis = m_axes3D[name];
+                ControlFieldProfile<Vector3, V> activeAxis = m_axes3D[name];
                 m_activeAxes3D.Add(activeAxis);
                 m_axisIndex.Add(name, AxisStoredAt.Active3D);
                 return true;
@@ -166,19 +166,19 @@ public class AxisProfileManager<Q, V, T> {
                 return true;
             }
             case AxisStoredAt.Active1D: {
-                AxisProfile<float, V> activeAxis = m_axes1D[name];
+                ControlFieldProfile<float, V> activeAxis = m_axes1D[name];
                 m_activeAxes1D.Remove(activeAxis);
                 m_axisIndex.Add(name, AxisStoredAt.Dict1D);
                 return true;
             }
             case AxisStoredAt.Active2D: {
-                AxisProfile<Vector2, V> activeAxis = m_axes2D[name];
+                ControlFieldProfile<Vector2, V> activeAxis = m_axes2D[name];
                 m_activeAxes2D.Remove(activeAxis);
                 m_axisIndex.Add(name, AxisStoredAt.Dict1D);
                 return true;
             }
             case AxisStoredAt.Active3D: {
-                AxisProfile<Vector3, V> activeAxis = m_axes3D[name];
+                ControlFieldProfile<Vector3, V> activeAxis = m_axes3D[name];
                 m_activeAxes3D.Remove(activeAxis);
                 m_axisIndex.Add(name, AxisStoredAt.Dict1D);
                 return true;
@@ -203,7 +203,7 @@ public class AxisProfileManager<Q, V, T> {
         Vector3Int fixedRotational = Vector3Int.zero;
         int nSpatial = m_entity.NSpatialFreedoms;
         int nRotational = m_entity.NRotationalFreedoms;
-        foreach (AxisProfile<float, V> axis in m_activeAxes1D) {
+        foreach (ControlFieldProfile<float, V> axis in m_activeAxes1D) {
             fixedSpatial += axis.CheckUsedSpatialAxes;
             fixedRotational += axis.CheckUsedRotationalAxes;
             if (axis.Control.StateSetter()) {
@@ -214,7 +214,7 @@ public class AxisProfileManager<Q, V, T> {
                 }
             }
         }
-        foreach (AxisProfile<Vector2, V> axis in m_activeAxes2D) {
+        foreach (ControlFieldProfile<Vector2, V> axis in m_activeAxes2D) {
             fixedSpatial += axis.CheckUsedSpatialAxes;
             fixedRotational += axis.CheckUsedRotationalAxes;
             if (axis.Control.StateSetter()) {
@@ -225,7 +225,7 @@ public class AxisProfileManager<Q, V, T> {
                 }
             }
         }
-        foreach (AxisProfile<Vector3, V> axis in m_activeAxes3D) {
+        foreach (ControlFieldProfile<Vector3, V> axis in m_activeAxes3D) {
             fixedSpatial += axis.CheckUsedSpatialAxes;
             fixedRotational += axis.CheckUsedRotationalAxes;
             if (axis.Control.StateSetter()) {
@@ -268,7 +268,7 @@ public class AxisProfileManager<Q, V, T> {
     }
 
     // *** Constructors
-    AxisProfileManager(WorldSpace<Q,V,T> entity, string name) {
+    ControlFieldProfileManager(WorldSpace<Q,V,T> entity, string name) {
         m_entity = entity;
         m_name = name;
     }

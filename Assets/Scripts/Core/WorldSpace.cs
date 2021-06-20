@@ -84,11 +84,11 @@ public class WorldSpace<Q, V, T>
     }
 
     // Axes - controls and sources
-    AxisProfileManager<Q,V,T> m_controlledAxes;
-    AxisSourceManager m_sources;
+    ControlFieldProfileManager<Q,V,T> m_controlledAxes;
+    DirectionalSourceManager m_sources;
 
-    public AxisProfileManager<Q,V,T> Axes { get => m_controlledAxes; set => m_controlledAxes = value; }
-    public AxisSourceManager Sources { get=> m_sources; set => m_sources = value; }
+    public ControlFieldProfileManager<Q,V,T> Axes { get => m_controlledAxes; set => m_controlledAxes = value; }
+    public DirectionalSourceManager Sources { get=> m_sources; set => m_sources = value; }
 
 
     public void Move() {
@@ -118,11 +118,10 @@ public class WorldSpace<Q, V, T>
         //      - Assemble kvarSet, project variables if needed
         //      - Call update on axis
         //      - Add changes back to local working variables
-        foreach(AxisProfile<float, V> axis in m_controlledAxes.ActiveAxes1D) {
+        foreach(ControlFieldProfile<float, V> axis in m_controlledAxes.ActiveAxes1D) {
             KVariableSet<float> varSet;
             InitialiseVarSet(out varSet, axis);
-            // TODO
-            // axis.Update(varSet);
+            axis.Update(varSet);
         }
     }
 
@@ -137,7 +136,7 @@ public class WorldSpace<Q, V, T>
 //      Axis alignment Vector3
 // WorldSpace2D (Rigidbody2D) : Q = float, V = Vector2, T = float
 //      Axis alignment Vector2
-    protected virtual bool InitialiseVarSet(out KVariableSet<float> varSet, AxisProfile<float, V> axis) {
+    protected virtual bool InitialiseVarSet(out KVariableSet<float> varSet, ControlFieldProfile<float, V> axis) {
         if (axis.Type == AxisType.Rotational) {
             KVariableSet<T> srcVars = new KVariableSet<T>(
                 m_localRotationComponents,
