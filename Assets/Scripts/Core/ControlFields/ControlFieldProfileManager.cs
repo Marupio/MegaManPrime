@@ -11,8 +11,8 @@ public enum AxisStoredAt {
     Active3D
 }
 
-// 2D : V = Vector3
-// 3D : V = Vector2
+// 3D : Q = Quaternion, V = Vector3, T = Vector3
+// 2D : Q = float ,     V = Vector2, T = float
 public class ControlFieldProfileManager<Q, V, T> {
     WorldSpace<Q, V, T> m_entity;
     string m_name; // Name of associated entity's GameObject

@@ -110,7 +110,7 @@ public class WorldSpace<Q, V, T>
         // Update locally tracked accelerations and working variables
         UpdateLocalFields();
 
-        // These hold the actual current state at the start of this iteration
+        // Local working variables, initialised to hold the actual current state at the start of this iteration
         KVariables<V> spatialVarsInit = new KVariables<V>(
             m_rigidBody.Position,
             m_rigidBody.Velocity,
@@ -127,9 +127,9 @@ public class WorldSpace<Q, V, T>
         );
 
         // The V types hold any updated components of each kvariable type, the Vi types hold 0|1 indicating which component has been updated
-        KVariables<V> spatialVarsUpdate = new KVariables<V>(new Traits<V>().Zero);
+        KVariables<V> spatialVarsUpdate = new KVariables<V>(new Traits<V>().Zero(default(V)));
         KVariables<Vector3Int> spatialVarsUsedAxis = new KVariables<Vector3Int>(Vector3Int.zero);
-        KVariables<T> rotationalVarsUpdate = new KVariables<T>(new Traits<T>().Zero);
+        KVariables<T> rotationalVarsUpdate = new KVariables<T>(new Traits<T>().Zero(default(T)));
         KVariables<Vector3Int> rotationalVarsUsedAxis = new KVariables<Vector3Int>(Vector3Int.zero);
 
         // Sum all sources
@@ -143,26 +143,33 @@ public class WorldSpace<Q, V, T>
         //      - Add changes back to local working variables
         foreach(ControlFieldProfile<float, V> controlField in m_controlFields.ActiveAxes1D) {
             KVariables<float> varSet;
-            InitialiseVarSet(out varSet, spatialVarsInit, rotationalVarsInit, controlField);
-            controlField.Control.Update(ref varSet);
+            Dictionary<int, List<int>> controlSpaceToWorldSpace;
+            InitialiseVarSet(out varSet, out controlSpaceToWorldSpace, spatialVarsInit, rotationalVarsInit, controlField);
+            controlField.Control.Update(ref varSet, m_time.deltaTime);
         }
         foreach(ControlFieldProfile<Vector2, V> controlField in m_controlFields.ActiveAxes2D) {
             KVariables<Vector2> varSet;
-            InitialiseVarSet(out varSet, spatialVarsInit, rotationalVarsInit, controlField);
-            controlField.Control.Update(ref varSet);
+            Dictionary<int, List<int>> controlSpaceToWorldSpace;
+            InitialiseVarSet(out varSet, out controlSpaceToWorldSpace, spatialVarsInit, rotationalVarsInit, controlField);
+            controlField.Control.Update(ref varSet, m_time.deltaTime);
         }
         foreach(ControlFieldProfile<Vector3, V> controlField in m_controlFields.ActiveAxes3D) {
             KVariables<Vector3> varSet;
-            InitialiseVarSet(out varSet, spatialVarsInit, rotationalVarsInit, controlField);
-            controlField.Control.Update(ref varSet);
+            Dictionary<int, List<int>> controlSpaceToWorldSpace;
+            InitialiseVarSet(out varSet, out controlSpaceToWorldSpace, spatialVarsInit, rotationalVarsInit, controlField);
+            controlField.Control.Update(ref varSet, m_time.deltaTime);
         }
+        // Apply limits to local working variables
+        // Apply sources
+        // Make changes to m_rigidBody variables
+        // Apply forces
     }
 
     // *** Internal functions
 
     void SumSources(out KVariables<V> spatialSource, out KVariables<T> rotationalSource) {
-        spatialSource = new KVariables<V>(new Traits<V>().Zero);
-        rotationalSource = new KVariables<T>(new Traits<T>().Zero);
+        spatialSource = new KVariables<V>(new Traits<V>().Zero(default(V)));
+        rotationalSource = new KVariables<T>(new Traits<T>().Zero(default(T)));
         foreach(KeyValuePair<string, DirectionalSource> sourceEntry in m_sources.Sources) {
             sourceEntry.Value.AddSource(m_owner, ref spatialSource, ref rotationalSource);
         }
@@ -174,6 +181,7 @@ public class WorldSpace<Q, V, T>
 //      Axis alignment Vector2
     protected virtual bool InitialiseVarSet<S>(
         out KVariables<S> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
         KVariables<V> spatialVarsInit,
         KVariables<T> rotationalVarsInit,
         ControlFieldProfile<S, V> axis
@@ -184,12 +192,12 @@ public class WorldSpace<Q, V, T>
                 rotationalVarsInit.Derivative,          // m_localAngularVelocity,
                 rotationalVarsInit.SecondDerivative,    // m_localAngularAcceleration,
                 rotationalVarsInit.AppliedForce,        // m_localAppliedTorque,
-                new Traits<T>().Zero
+                new Traits<T>().Zero(default(T))
             );
             if (axis.Projecting) {
-                return ProjectToSubspace(out varSet, srcVars, axis.Direction);
+                return ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, axis.Direction);
             } else {
-                return SubstituteToSubspace(out varSet, srcVars, axis.Alignment);
+                return SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, axis.Alignment);
             }
         } else {
             KVariables<V> srcVars = new KVariables<V>(
@@ -197,24 +205,46 @@ public class WorldSpace<Q, V, T>
                 spatialVarsInit.Derivative,         // m_localVelocity,
                 spatialVarsInit.SecondDerivative,   // m_localAcceleration,
                 spatialVarsInit.AppliedForce,       // m_localAppliedForce,
-                new Traits<V>().Zero
+                new Traits<V>().Zero(default(V))
             );
             if (axis.Projecting) {
-                return ProjectToSubspace(out varSet, srcVars, axis.Direction);
+                return ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, axis.Direction);
             } else {
-                return SubstituteToSubspace(out varSet, srcVars, axis.Alignment);
+                return SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, axis.Alignment);
             }
         }
     }
 
     // TODO Fill in for types
-    protected bool ProjectToSubspace<V1, TorV>(out KVariables<V1> varSet, KVariables<TorV> srcVars, V direction) {
+    // Also needs to produce a mapping for varSet axes to worldSpace axes, including:
+    // 1D projecting to 2D would map both 2D axes for the 1D
+    protected bool ProjectToSubspace<V1, TorV>(
+        out KVariables<V1> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        KVariables<TorV> srcVars,
+        V direction
+    ) {
         varSet = default(KVariables<V1>);
+        controlSpaceToWorldSpace = default(Dictionary<int, List<int>>);
         return false;
     }
+
     // TODO Fill in for types
-    protected bool SubstituteToSubspace<V1, TorV>(out KVariables<V1> varSet, KVariables<TorV> srcVars, AxisPlaneSpace alignment) {
+    // Also needs to produce a mapping for varSet axes to worldSpace axes
+    // varSet can be float, Vec2, Vec3
+    // srcVars can be T : 2d = float, 3d = Vec3
+    //             or V : 2d = Vec2, 3d = Vec3
+    // 2D - <float, float>, <float, Vec2>, <Vec2, Vec2>
+    // 3D - <float, Vec3>, <Vec2, Vec3>, <Vec3, Vec3>
+    protected bool SubstituteToSubspace<V1, TorV>(
+        out KVariables<V1> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        KVariables<TorV> srcVars,
+        AxisPlaneSpace alignment
+    ) {
+        
         varSet = default(KVariables<V1>);
+        controlSpaceToWorldSpace = default(Dictionary<int, List<int>>);
         return false;
     }
 

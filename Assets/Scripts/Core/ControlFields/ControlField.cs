@@ -44,7 +44,7 @@ public abstract class ControlField<T> : KVariableLimits {
     // /// <summary>
     // /// Perform kinematic calculations on provided variables
     // /// </summary>
-    public abstract void Update(ref KVariables<T> vars);
+    public abstract void Update(ref KVariables<T> vars, float deltaTime);
 
     // *** Special properties
     /// <summary>
@@ -138,7 +138,7 @@ public class UncontrolledField<T> : ControlField<T>
 {
     public override void ApplyControlValue(T value) { /* Do nothing */ }
     public override T Target => throw new System.NotImplementedException();
-    public override void Update(ref KVariables<T> vars) { /* Do nothing */ }
+    public override void Update(ref KVariables<T> vars, float deltaTime) { /* Do nothing */ }
     public UncontrolledField(KVariableLimits limits) : base(limits, null) {}
 }
 
@@ -146,9 +146,67 @@ public class UncontrolledField<T> : ControlField<T>
 public class ContinuousControlField<T> : ControlField<T>
 {
     public override T Target { get { return m_inputRange.InputValue; } }
-    public override void Update(ref KVariables<T> vars) {
-        
+    public override void Update(ref KVariables<T> vars, float deltaTime) {
+        T target = Target;
+        if (
+            m_smoothingEnabled &&
+            m_smoothingTime > 0 &&
+            m_controlledVariable != KVariableControllableEnum.ImpulseForce
+        ) {
+            // Use smoothing algorithm
+            Traits<T> traitsT = new Traits<T>();
+            switch (m_controlledVariable) {
+                case KVariableControllableEnum.None:
+                    break;
+                case KVariableControllableEnum.Variable:
+                    T derivative = vars.Derivative;
+                    vars.Variable = traitsT.SmoothDamp(
+                        vars.Variable,
+                        target,
+                        ref derivative,
+                        m_smoothingTime,
+                        Max.Derivative,
+                        deltaTime
+                    );
+                    vars.Derivative = derivative;
+                    break;
+                case KVariableControllableEnum.Derivative:
+                    T secondDerivative = vars.SecondDerivative;
+                    vars.Derivative = traitsT.SmoothDamp(
+                        vars.Derivative,
+                        target,
+                        ref secondDerivative,
+                        m_smoothingTime,
+                        Max.SecondDerivative,
+                        deltaTime
+                    );
+                    vars.SecondDerivative = secondDerivative;
+                    break;
+                case KVariableControllableEnum.AppliedForce:
+                    T forceDerivative = traitsT.Zero(default(T));
+                    vars.AppliedForce = traitsT.SmoothDamp(
+                        vars.AppliedForce,
+                        target,
+                        ref forceDerivative,
+                        m_smoothingTime,
+                        Max.AppliedForceDerivative,
+                        deltaTime
+                    );
+                    // No variable to feed forceDerivative back
+                    break;
+                case KVariableControllableEnum.ImpulseForce:
+                    // Not possible
+                    break;
+                default:
+                    Debug.LogError("Unhandled case");
+                    break;
+            }
+        } else {
+            // Use setting algorithm
+        }
     }
+        
+    // }
     public ContinuousControlField(KVariableLimits limits, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
         : base(limits, inputRange, controlledVariable) {}
 }
@@ -247,7 +305,7 @@ public abstract class ImpulseControlField<T> : ControlField<T>
         if (Enabled) {
             // Ready to fire, check for max historical input
             T newValue = m_inputRange.UnqueriedMaxMagnitudeInputValue;
-            if (Equals(newValue, (new Traits<T>()).Zero)) {
+            if (Equals(newValue, (new Traits<T>()).Zero(default(T)))) {
                 Activate();
                 m_inputRange.ClearStatistics(m_inputRange.ControlValue);
             }
@@ -259,13 +317,13 @@ public abstract class ImpulseControlField<T> : ControlField<T>
                 (Instantaneous || Time.time - m_startTime > m_maxDuration)          // Timed out
             ) {
                 Deactivate();
-                return (new Traits<T>()).Zero;
+                return (new Traits<T>()).Zero(default(T));
             }
             T newValue = m_inputRange.UnqueriedMaxMagnitudeInputValue;
             m_inputRange.ClearStatistics(m_inputRange.ControlValue);
             return newValue;
         } else {
-            return (new Traits<T>()).Zero;
+            return (new Traits<T>()).Zero(default(T));
         }
     }
 }

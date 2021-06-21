@@ -103,18 +103,86 @@ public static class GeneralTools {
     }
 }
 
-public class Traits<T> {
-    public virtual T Zero { get; }
+public interface ITraits<T> {
+    public T Zero(T dummy);
+    public T SmoothDamp(T current, T target, ref T currentVelocity, float smoothTime, float maxSpeed, float deltaTime);
 }
-public class TraitsFloat : Traits<float> {
-    public override float Zero { get=>0f; }
+
+public class Traits<T> : ITraits<T> {
+    public static readonly ITraits<T> P = Traits.P as ITraits<T> ?? new Traits<T>();
+    public T Zero(T dummy) { throw new System.NotImplementedException(); }
+    public T SmoothDamp(T current, T target, ref T currentVelocity, float smoothTime, float maxSpeed, float deltaTime) {
+        throw new System.NotImplementedException();
+    }
 }
-public class TraitsVector2 : Traits<Vector2> {
-    public override Vector2 Zero { get=>Vector2.zero; }
+class Traits : ITraits<float> , ITraits<Vector2>, ITraits<Vector3> {
+    public static Traits P = new Traits(); 
+    public float Zero(float dummy) { return 0f; }
+    public Vector2 Zero(Vector2 dummy) { return Vector2.zero; }
+    public Vector3 Zero(Vector3 dummy) { return Vector3.zero; }
+    public float SmoothDamp(float current, float target, ref float currentVelocity, float smoothTime, float maxSpeed, float deltaTime) {
+        Debug.Log("Float SmoothDamp");
+        return Mathf.SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
+    }
+    public Vector2 SmoothDamp(Vector2 current, Vector2 target, ref Vector2 currentVelocity, float smoothTime, float maxSpeed, float deltaTime) {
+        Debug.Log("Vector2 SmoothDamp");
+        return Vector2.SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
+    }
+    public Vector3 SmoothDamp(Vector3 current, Vector3 target, ref Vector3 currentVelocity, float smoothTime, float maxSpeed, float deltaTime) {
+        Debug.Log("Vector3 SmoothDamp");
+        return Vector3.SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
+    }
 }
-public class TraitsVector3 : Traits<Vector3> {
-    public override Vector3 Zero { get=>Vector3.zero; }
-}
-public class TraitsQuaternion : Traits<Quaternion> {
-    public override Quaternion Zero { get=>Quaternion.identity; }
-}
+// class Traits : ITraits<Vector2> {
+//     public static Traits P = new Traits(); 
+//     public Vector2 Zero {get { return Vector2.zero; } }
+//     public Vector2 SmoothDamp(Vector2 current, Vector2 target, ref Vector2 currentVelocity, float smoothTime, float maxSpeed, float deltaTime) {
+//         return Vector2.SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
+//     }
+// }
+// public class Traits<T> {
+//     public virtual T Zero { get; }
+//     public virtual T SmoothDamp(
+//         T current,
+//         T target,
+//         ref T currentVelocity,
+//         float smoothTime,
+//         float maxSpeed,
+//         float deltaTime
+//     ) {
+//         throw new System.NotImplementedException();
+//     }
+// }
+
+// public class TraitsFloat : Traits<float> {
+//     public override float Zero { get=>0f; }
+//     public override float SmoothDamp(
+//         float current,
+//         float target,
+//         ref float currentVelocity,
+//         float smoothTime,
+//         float maxSpeed,
+//         float deltaTime
+//     ) {
+//         return Mathf.SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
+//     }
+// }
+// public class TraitsVector2 : Traits<Vector2> {
+//     public override Vector2 Zero { get=>Vector2.zero; }
+//     public override Vector2 SmoothDamp(
+//         Vector2 current,
+//         Vector2 target,
+//         ref Vector2 currentVelocity,
+//         float smoothTime,
+//         float maxSpeed,
+//         float deltaTime
+//     ) {
+//         return Vector2.SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
+//     }
+// }
+// public class TraitsVector3 : Traits<Vector3> {
+//     public override Vector3 Zero { get=>Vector3.zero; }
+// }
+// public class TraitsQuaternion : Traits<Quaternion> {
+//     public override Quaternion Zero { get=>Quaternion.identity; }
+// }

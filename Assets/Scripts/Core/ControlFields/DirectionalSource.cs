@@ -80,7 +80,7 @@ public class DirectionalSource
     }
     public void AddSource(Transform owner, ref KVariables<Vector2> spatialSource, ref KVariables<float> rotationalSource) {
         if (m_rotating) {
-            float sourceDelta = m_value;
+            float sourceDelta = m_direction.z > 0 ? m_value : -m_value;
             switch(m_sourceType) {
                 case DirectionalSourceType.None:
                     break;
