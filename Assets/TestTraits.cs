@@ -2,49 +2,30 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class THolder<T> {
-    T data;
-    public T Data {get=>data; set=>data = value;}
-    // public void DoSomething<S>() {
-    //     S otherType;
-    //     GenericOperation(out otherType, data);
-    //     // Debug.Log("Return we have " + otherType);
-    // }
-    public void GenericOperation<S>(out S otherType, T templateType) {
-        //throw new System.NotImplementedException();
-        otherType = default(S);
-        Second(templateType);
-        Type t = typeof(T);
-        Type s = typeof(S);
-        Debug.Log("NOT IMPLEMENTED:" + s + "," + t);
-    }
-    public void GenericOperation(out int otherType, T templateType) {
-        otherType = 5;
-        Second(templateType);
-        Debug.Log("GO int, T");
-    }
-    public void GenericOperation(out Vector2 otherType, T templateType) {
-        otherType = Vector2.left;
-        Second(templateType);
-        Debug.Log("GO Vector2, T");
-    }
-    public void GenericOperation(out Vector2 otherType, float templateType) {
-        otherType = Vector2.down;
-        Second(templateType);
-        Debug.Log("GO Vector2, float");
-    }
-    public void Second<S>(S sIn) {
-        Type t = typeof(S);
-        Debug.Log("SecondNotImplemented " + t);
-    }
-    public void Second(int sIn) {
-        Debug.Log("Second int");
-    }
-    public void Second(float sIn) {
-        Debug.Log("Second float");
-    }
-    public void Second(Vector3 sIn) {
-        Debug.Log("Second Vector3");
+public interface IMoveOps<T> {
+    public T SmoothDamp(T variable, ref T refVar, out T outVar, float fixedType);
+}
+public class MoveOpsFloat : IMoveOps<float> {
+    public float SmoothDamp(float variable, ref float refVar, out float outVar, float fixedType) {
+        Debug.Log("SmoothDamp Float");
+        outVar = 3.14f;
+        return 0.5f;
+    }    
+}
+public class MoveOpsVector2 : IMoveOps<Vector2> {
+    public Vector2 SmoothDamp(Vector2 variable, ref Vector2 refVar, out Vector2 outVar, float fixedType) {
+        Debug.Log("SmoothDamp Vector2");
+        outVar = new Vector2(3.14f, 6.28f);
+        return Vector2.left;
+    }    
+}
+public class HasMoveOps<T> {
+    IMoveOps<T> moveOps;
+    public IMoveOps<T> MoveOps {get => moveOps; set => moveOps = value;}
+    public void Function(T variable, ref T refVar, float fixedType) {
+        T outVar;
+        variable = moveOps.SmoothDamp(variable, ref refVar, out outVar, fixedType);
+        Debug.Log("Output : " + outVar + ", refVar = " + refVar + ", outVar = " + outVar + ", fixedType = " + fixedType );
     }
 }
 
@@ -52,50 +33,28 @@ public class TestTraits : MonoBehaviour
 {
     void Start()
     {
-        int intType = -7;
-        float floatType = 5.6f;
-        Vector2 v2Type = Vector2.down;
-        Vector3 v3Type = Vector3.zero;
+        IMoveOps<float> opFloat = new MoveOpsFloat();
+        HasMoveOps<float> floaty = new HasMoveOps<float>();
+        floaty.MoveOps = opFloat;
+        
+        IMoveOps<Vector2> opVecty = new MoveOpsVector2();
+        HasMoveOps<Vector2> vecty = new HasMoveOps<Vector2>();
+        vecty.MoveOps = opVecty;
 
-        THolder<Vector3> thVec3 = new THolder<Vector3>();
-        thVec3.Data = Vector3.forward;
-        // thVec3.GenericOperation(out intType, v3Type);
+        float fv = 0.4f;
+        float fref = 0.8f;
+        float fixedType = 6.28f;
 
-        Debug.Log("GenericOperation");
-        thVec3.GenericOperation(out v2Type, v3Type);
-        thVec3.GenericOperation(out floatType, v3Type);
-        // thVec3.GenericOperation(out v2Type, floatType);
+        Vector2 vv = new Vector2(0.4f, 0.4f);
+        Vector2 vref = new Vector2(0.8f, 0.8f);
+        Vector2 vout;
 
-        Debug.Log("Now manually going Second...");
-        thVec3.Second(floatType);
-        thVec3.Second(v2Type);
-        thVec3.Second(v3Type);
+        Debug.Log("floaty.Function...");
+        floaty.Function(fv, ref fref, fixedType);
 
-        // THolder<float> thFloat = new THolder<float>();
-        // thFloat.Data = -4.8f;
-        // thFloat.GenericOperation(); // I expect GO int, T
-        // thFloat.GenericOperation(); // I expect GO Vector2, float
+        Debug.Log("vecty.Function...");
+        vecty.Function(vv, ref vref, fixedType);
 
-
-
-
-        // float tf;
-        // Vector2 tv2;
-        // Vector3 tv3;
-        // Traits traits = new Traits();
-        // tv2 = traits.Zero(default(Vector2));
-        // tv3 = Vector3.up;
-        // tv3 = traits.Zero(default(Vector3));
-        // tf = 3;
-        // tf = traits.Zero(default(float));
-
-        // THolder<Vector2> th = new THolder<Vector2>();
-        // th.Data = Vector2.up;
-        // Debug.Log("tf = " + tf + ", tv2 = " + tv2 + ", tv3 = " + tv3 + ", th.Data = " + th.Data);
-
-
-        // Traits<Vector2> traitsVector2 = new Traits<Vector2>();
-        // Traits<Vector3> traitsVector3 = new Traits<Vector3>();
     }
 
     void Update()
