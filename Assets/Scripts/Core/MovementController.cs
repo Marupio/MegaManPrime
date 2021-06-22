@@ -12,6 +12,133 @@ public enum ControlAxis {None, U, V, W} public enum Plane {None, XY, XZ, YZ}
 // 3 - Set Acceleration | AngularAcceleration
 // 4 - Apply Force | Torque
 
+
+
+//   SS<<  <float,  float  >   >>S
+//         <float,  Vector2>
+//         <float,  Vector3>
+//         <Vector2,Vector2>
+//         <Vector2,Vector3>
+//         <Vector3,Vector3>
+// Projections/Substitutions between SubSpace <SS> and Space
+public interface IProjections<SS, S> {
+    public void ProjectToSubspace(
+        out KVariables<SS> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        KVariables<S> srcVars,
+        Vector3 DirectionX,
+        Vector3 DirectionY
+    );
+    public void SubstituteToSubspace(
+        out KVariables<SS> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        KVariables<S> srcVars,
+        AxisPlaneSpace alignment
+    );
+}
+public class ProjectionsFloatFloat : IProjections<float, float> {
+    // 2D rotational only
+    public void ProjectToSubspace(
+        out KVariables<float> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        KVariables<float> srcVars,
+        Vector3 DirectionX,
+        Vector3 DirectionY
+    );
+    public void SubstituteToSubspace(
+        out KVariables<float> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        KVariables<float> srcVars,
+        AxisPlaneSpace alignment
+    ) {
+        switch (alignment) {
+
+        }
+    }
+}
+public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
+    // 2D spatial only
+    public void ProjectToSubspace(
+        out KVariables<float> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        KVariables<Vector2> srcVars,
+        Vector3 DirectionX,
+        Vector3 DirectionY
+    );
+    public void SubstituteToSubspace(
+        out KVariables<float> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        KVariables<Vector2> srcVars,
+        AxisPlaneSpace alignment
+    );
+}
+public class ProjectionsFloatVector3 : IProjections<float, Vector3> {
+    // 3D spatial or rotational
+    public void ProjectToSubspace(
+        out KVariables<float> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        KVariables<Vector3> srcVars,
+        Vector3 DirectionX,
+        Vector3 DirectionY
+    );
+    public void SubstituteToSubspace(
+        out KVariables<float> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        KVariables<Vector3> srcVars,
+        AxisPlaneSpace alignment
+    );
+}
+public class ProjectionsVector2Vector2 : IProjections<Vector2, Vector2> {
+    // 2D spatial only
+    public void ProjectToSubspace(
+        out KVariables<Vector2> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        KVariables<Vector2> srcVars,
+        Vector3 DirectionX,
+        Vector3 DirectionY
+    );
+    public void SubstituteToSubspace(
+        out KVariables<Vector2> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        KVariables<Vector2> srcVars,
+        AxisPlaneSpace alignment
+    );
+}
+public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
+    // 3D spatial or rotational
+    public void ProjectToSubspace(
+        out KVariables<Vector2> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        KVariables<Vector3> srcVars,
+        Vector3 DirectionX,
+        Vector3 DirectionY
+    );
+    public void SubstituteToSubspace(
+        out KVariables<Vector2> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        KVariables<Vector3> srcVars,
+        AxisPlaneSpace alignment
+    );
+}
+public class ProjectionsVector3Vector3 : IProjections<Vector3, Vector3> {
+    // 3D spatial or rotational
+    public void ProjectToSubspace(
+        out KVariables<Vector3> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        KVariables<Vector3> srcVars,
+        Vector3 DirectionX,
+        Vector3 DirectionY
+    );
+    public void SubstituteToSubspace(
+        out KVariables<Vector3> varSet,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        KVariables<Vector3> srcVars,
+        AxisPlaneSpace alignment
+    );
+}
+
+
+
 // MovementController3D (Rigidbody)   : Q = Quaternion, V = Vector3, T = Vector3
 //      Axis alignment Vector3
 // MovementController2D (Rigidbody2D) : Q = float, V = Vector2, T = float
@@ -23,34 +150,50 @@ public interface IMovementControllerToolset<Q, V, T> {
         IRigidbody<Q, V, T> rigidbody,
         float invDeltaT,
         V velocity0,
-        T rotationComponents0,
-        ref T rotationComponentsActual,
-        ref V accelerationActual,
         ref V acceleration0,
-        ref T angularAccelerationActual,
-        ref T angularAcceleration0
+        ref V accelerationActual,
+        T rotationComponents0,
+        ref T angularAcceleration0,
+        ref T angularAccelerationActual
+    );
+    public void SumDirectionalSource(
+        DirectionalSourceManager sources,
+        Transform owner,
+        out KVariables<V> spatialSource,
+        out KVariables<T> rotationalSource
     );
 }
 
 public class MovementControllerToolset3D : IMovementControllerToolset<Quaternion, Vector3, Vector3> {
     public Vector3 ZeroV { get=>Vector3.zero; }
     public Vector3 ZeroT { get=>Vector3.zero; }
+    public void SumDirectionalSource(
+        DirectionalSourceManager sources,
+        Transform owner,
+        out KVariables<Vector3> spatialSource,
+        out KVariables<Vector3> rotationalSource
+    ) {
+        spatialSource = new KVariables<Vector3>(Vector3.zero);
+        rotationalSource = new KVariables<Vector3>(Vector3.zero);
+        foreach(KeyValuePair<string, DirectionalSource> sourceEntry in sources.Sources) {
+            sourceEntry.Value.AddSource(owner, ref spatialSource, ref rotationalSource);
+        }
+    }
     public void UpdateAccelerations(
         IRigidbody<Quaternion, Vector3, Vector3> rigidbody,
         float invDeltaT,
         Vector3 velocity0,
-        Vector3 rotationComponents0,
-        ref Vector3 rotationComponentsActual,
-        ref Vector3 accelerationActual,
         ref Vector3 acceleration0,
-        ref Vector3 angularAccelerationActual,
-        ref Vector3 angularAcceleration0
+        ref Vector3 accelerationActual,
+        Vector3 rotationComponents0,
+        ref Vector3 angularAcceleration0,
+        ref Vector3 angularAccelerationActual
     ) {
         // Linear scheme
-        rotationComponents0 = rotationComponentsActual;
         acceleration0 = accelerationActual;
-        angularAcceleration0 = angularAccelerationActual;
         accelerationActual = (rigidbody.Velocity - velocity0)*invDeltaT;
+
+        angularAcceleration0 = angularAccelerationActual;
         angularAccelerationActual = (rigidbody.AngularVelocity - angularAcceleration0)*invDeltaT;
     }
 }
@@ -58,22 +201,32 @@ public class MovementControllerToolset3D : IMovementControllerToolset<Quaternion
 public class MovementControllerToolset2D : IMovementControllerToolset<float, Vector2, float> {
     public Vector2 ZeroV { get=>Vector2.zero; }
     public float ZeroT { get=>0f; }
+    public void SumDirectionalSource(
+        DirectionalSourceManager sources,
+        Transform owner,
+        out KVariables<Vector2> spatialSource,
+        out KVariables<float> rotationalSource
+    ) {
+        spatialSource = new KVariables<Vector2>(Vector2.zero);
+        rotationalSource = new KVariables<float>(0f);
+        foreach(KeyValuePair<string, DirectionalSource> sourceEntry in sources.Sources) {
+            sourceEntry.Value.AddSource(owner, ref spatialSource, ref rotationalSource);
+        }
+    }
     public void UpdateAccelerations(
         IRigidbody<float, Vector2, float> rigidbody,
         float invDeltaT,
         Vector2 velocity0,
-        float rotationComponents0,
-        ref float rotationComponentsActual,
-        ref Vector2 accelerationActual,
         ref Vector2 acceleration0,
-        ref float angularAccelerationActual,
-        ref float angularAcceleration0
+        ref Vector2 accelerationActual,
+        float rotationComponents0,
+        ref float angularAcceleration0,
+        ref float angularAccelerationActual
     ) {
         // Linear scheme
-        rotationComponents0 = rotationComponentsActual;
-        rotationComponentsActual = rigidbody.RotationComponents;
         acceleration0 = accelerationActual;
         angularAcceleration0 = angularAccelerationActual;
+
         accelerationActual = (rigidbody.Velocity - velocity0)*invDeltaT;
         angularAccelerationActual = (rigidbody.AngularVelocity - angularAcceleration0)*invDeltaT;
     }
@@ -82,7 +235,10 @@ public class MovementControllerToolset2D : IMovementControllerToolset<float, Vec
 public class MovementController<Q, V, T>
 {
     protected IMovementControllerToolset<Q, V, T> m_toolset;
-    protected IRigidbody<Q, V, T> m_rigidBody;
+    protected IProjections<float, V> m_subspaceFloat;
+    protected IProjections<Vector2, V> m_subspaceVector2;
+    protected IProjections<Vector3, V> m_subspaceVector3;
+    protected IRigidbody<Q, V, T> m_rigidbody;
     protected ITime m_time;
     protected Transform m_owner;
 
@@ -93,10 +249,12 @@ public class MovementController<Q, V, T>
     protected V m_position0;
     protected V m_velocity0;
     protected V m_acceleration0;
+    protected V m_appliedForce0;
     protected Q m_rotation0;
     protected T m_rotationComponents0;
     protected T m_angularVelocity0;
     protected T m_angularAcceleration0;
+    protected T m_appliedTorque0;
 
     // Extra kinematic variables that rigidBody doesn't track
     protected V m_accelerationActual;
@@ -128,24 +286,27 @@ public class MovementController<Q, V, T>
     // T m_localAppliedTorque;       // Update with m_appliedTorqueActual;
 
     public IMovementControllerToolset<Q, V, T> Toolset { get=>m_toolset; set=>m_toolset=value; }
+    public IProjections<float, V> SubspaceFloat { get=>m_subspaceFloat; set=>m_subspaceFloat=value; }
+    public IProjections<Vector2, V> SubspaceVector2 { get=>m_subspaceVector2; set=>m_subspaceVector2=value; }
+    public IProjections<Vector3, V> SubspaceVector3 { get=>m_subspaceVector3; set=>m_subspaceVector3=value; }
 
     public bool ThreeD { get => GeneralTools.ThreeD<V>(); }
     public bool TwoD { get => GeneralTools.TwoD<V>(); }
     public int NSpatialFreedoms {
         get {
             int dof = 3;
-            dof -= m_rigidBody.SpatialConstraint(Axis.X) == true ? 1 : 0;
-            dof -= m_rigidBody.SpatialConstraint(Axis.Y) == true ? 1 : 0;
-            dof -= m_rigidBody.SpatialConstraint(Axis.Z) == true ? 1 : 0;
+            dof -= m_rigidbody.SpatialConstraint(Axis.X) == true ? 1 : 0;
+            dof -= m_rigidbody.SpatialConstraint(Axis.Y) == true ? 1 : 0;
+            dof -= m_rigidbody.SpatialConstraint(Axis.Z) == true ? 1 : 0;
             return dof;
         }
     }
     public int NRotationalFreedoms {
         get {
             int dof = 3;
-            dof -= m_rigidBody.RotationalConstraint(Axis.X) == true ? 1 : 0;
-            dof -= m_rigidBody.RotationalConstraint(Axis.Y) == true ? 1 : 0;
-            dof -= m_rigidBody.RotationalConstraint(Axis.Z) == true ? 1 : 0;
+            dof -= m_rigidbody.RotationalConstraint(Axis.X) == true ? 1 : 0;
+            dof -= m_rigidbody.RotationalConstraint(Axis.Y) == true ? 1 : 0;
+            dof -= m_rigidbody.RotationalConstraint(Axis.Z) == true ? 1 : 0;
             return dof;
         }
     }
@@ -177,15 +338,15 @@ public class MovementController<Q, V, T>
 
         // Local working variables, initialised to hold the actual current state at the start of this iteration
         KVariables<V> spatialVarsInit = new KVariables<V>(
-            m_rigidBody.Position,
-            m_rigidBody.Velocity,
+            m_rigidbody.Position,
+            m_rigidbody.Velocity,
             m_accelerationActual,
             m_appliedForceActual,
             default(V)
         );
         KVariables<T> rotationalVarsInit = new KVariables<T>(
-            m_rigidBody.RotationComponents,
-            m_rigidBody.AngularVelocity,
+            m_rigidbody.RotationComponents,
+            m_rigidbody.AngularVelocity,
             m_angularAccelerationActual,
             m_appliedTorqueActual,
             default(T)
@@ -200,7 +361,7 @@ public class MovementController<Q, V, T>
         // Sum all sources
         KVariables<V> spatialSource;
         KVariables<T> rotationalSource;
-        SumSources(out spatialSource, out rotationalSource);
+        m_toolset.SumDirectionalSource(m_sources, m_owner, out spatialSource, out rotationalSource);
 
         //  - For each active axis:
         //      - Assemble kvarSet, project variables if needed
@@ -209,36 +370,30 @@ public class MovementController<Q, V, T>
         foreach(ControlFieldProfile<float, V> controlField in m_controlFields.ActiveAxes1D) {
             KVariables<float> varSet;
             Dictionary<int, List<int>> controlSpaceToWorldSpace;
-            InitialiseVarSet(out varSet, out controlSpaceToWorldSpace, spatialVarsInit, rotationalVarsInit, controlField);
+            InitialiseVarSet(out varSet, out controlSpaceToWorldSpace, spatialVarsInit, rotationalVarsInit, m_subspaceFloat, controlField);
             controlField.Control.Update(ref varSet, m_time.deltaTime);
         }
         foreach(ControlFieldProfile<Vector2, V> controlField in m_controlFields.ActiveAxes2D) {
             KVariables<Vector2> varSet;
             Dictionary<int, List<int>> controlSpaceToWorldSpace;
-            InitialiseVarSet(out varSet, out controlSpaceToWorldSpace, spatialVarsInit, rotationalVarsInit, controlField);
+            InitialiseVarSet(out varSet, out controlSpaceToWorldSpace, spatialVarsInit, rotationalVarsInit, m_subspaceVector2, controlField);
             controlField.Control.Update(ref varSet, m_time.deltaTime);
         }
         foreach(ControlFieldProfile<Vector3, V> controlField in m_controlFields.ActiveAxes3D) {
             KVariables<Vector3> varSet;
             Dictionary<int, List<int>> controlSpaceToWorldSpace;
-            InitialiseVarSet(out varSet, out controlSpaceToWorldSpace, spatialVarsInit, rotationalVarsInit, controlField);
+            InitialiseVarSet(out varSet, out controlSpaceToWorldSpace, spatialVarsInit, rotationalVarsInit, m_subspaceVector3, controlField);
             controlField.Control.Update(ref varSet, m_time.deltaTime);
         }
         // Apply limits to local working variables
         // Apply sources
         // Make changes to m_rigidBody variables
         // Apply forces
+        // Save current variables to previous time step variables (variables0)
+        ArchiveVariables();
     }
 
     // *** Internal functions
-
-    void SumSources(out KVariables<V> spatialSource, out KVariables<T> rotationalSource) {
-        spatialSource = new KVariables<V>(m_toolset.ZeroV);
-        rotationalSource = new KVariables<T>(m_toolset.ZeroT);
-        foreach(KeyValuePair<string, DirectionalSource> sourceEntry in m_sources.Sources) {
-            sourceEntry.Value.AddSource(m_owner, ref spatialSource, ref rotationalSource);
-        }
-    }
 
 // WorldSpace3D (Rigidbody)   : Q = Quaternion, V = Vector3, T = Vector3
 //      Axis alignment Vector3
@@ -249,9 +404,10 @@ public class MovementController<Q, V, T>
         out Dictionary<int, List<int>> controlSpaceToWorldSpace,
         KVariables<V> spatialVarsInit,
         KVariables<T> rotationalVarsInit,
-        ControlFieldProfile<S, V> axis
+        IProjections<S, V> projectionToolset,
+        ControlFieldProfile<S, V> controlField
     ) {
-        if (axis.Type == AxisType.Rotational) {
+        if (controlField.Type == AxisType.Rotational) {
             KVariables<T> srcVars = new KVariables<T>(
                 rotationalVarsInit.Variable,            // m_localRotationComponents,
                 rotationalVarsInit.Derivative,          // m_localAngularVelocity,
@@ -259,10 +415,10 @@ public class MovementController<Q, V, T>
                 rotationalVarsInit.AppliedForce,        // m_localAppliedTorque,
                 m_toolset.ZeroT
             );
-            if (axis.Projecting) {
-                return ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, axis.Direction);
+            if (controlField.Projecting) {
+                return projectionToolset.ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.DirectionX, controlField.DirectionY);
             } else {
-                return SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, axis.Alignment);
+                return SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Alignment);
             }
         } else {
             KVariables<V> srcVars = new KVariables<V>(
@@ -272,10 +428,10 @@ public class MovementController<Q, V, T>
                 spatialVarsInit.AppliedForce,       // m_localAppliedForce,
                 m_toolset.ZeroV
             );
-            if (axis.Projecting) {
-                return ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, axis.Direction);
+            if (controlField.Projecting) {
+                return ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.DirectionX);
             } else {
-                return SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, axis.Alignment);
+                return SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Alignment);
             }
         }
     }
@@ -312,7 +468,9 @@ public class MovementController<Q, V, T>
         controlSpaceToWorldSpace = default(Dictionary<int, List<int>>);
         return false;
     }
-
+    /// <summary>
+    /// Update locally carried kinematic variables, always call base first
+    /// </summary>
     protected virtual void UpdateLocalFields() {
         // Update invDeltaT
         float dt;
@@ -326,25 +484,37 @@ public class MovementController<Q, V, T>
         } else {
             m_invDeltaT = float.PositiveInfinity;
         }
-
-        // Update accelerations using linear scheme --> this work is done in derived/concrete function
-
         // Update working variables
-        m_localMass = m_rigidBody.Mass;
-        m_localDrag = m_rigidBody.Drag;
-        m_localAngularDrag = m_rigidBody.AngularDrag;
-        // m_localPosition = m_rigidBody.Position;
-        // m_localVelocity = m_rigidBody.Velocity;
-        // m_localAcceleration = m_acceleration0;
-        // m_localAppliedForce = m_appliedForceActual;
-        // m_localRotation = m_rigidBody.Rotation;
-        // m_localAngularVelocity = m_rigidBody.AngularVelocity;
-        // m_localAngularAcceleration = m_angularAcceleration0;
-        // m_localAppliedTorque = m_appliedTorqueActual;
+        m_localMass = m_rigidbody.Mass;
+        m_localDrag = m_rigidbody.Drag;
+        m_localAngularDrag = m_rigidbody.AngularDrag;
+
+        // Update accelerations using linear scheme
+        m_toolset.UpdateAccelerations(
+            m_rigidbody,
+            m_invDeltaT,
+            m_velocity0,
+            ref m_acceleration0,
+            ref m_accelerationActual,
+            m_rotationComponents0,
+            ref m_angularAcceleration0,
+            ref m_angularAccelerationActual
+        );
+    }
+    protected void ArchiveVariables() {
+        m_position0 = m_rigidbody.Position;
+        m_velocity0 = m_rigidbody.Velocity;
+        m_acceleration0 = m_accelerationActual;
+        m_appliedForce0 = m_appliedForceActual;
+
+        m_rotationComponents0 = m_rigidbody.RotationComponents;
+        m_angularVelocity0 = m_rigidbody.AngularVelocity;
+        m_angularAcceleration0 = m_angularAccelerationActual;
+        m_appliedTorque0 = m_appliedTorqueActual;
     }
 
     // *** Constructors
-
+    // Need to initialise previous timestep variables with appropriate values
 }
 
 // WorldSpace3D (Rigidbody)   : Q = Quaternion, V = Vector3, T = Vector3
@@ -355,8 +525,8 @@ public class WorldSpace2D : MovementController<float, Vector2, float> {
         // Linear scheme
         m_acceleration0 = m_accelerationActual;
         m_angularAcceleration0 = m_angularAccelerationActual;
-        m_accelerationActual = (m_rigidBody.Velocity - m_velocity0)*m_invDeltaT;
-        m_angularAccelerationActual = (m_rigidBody.AngularVelocity - m_angularAcceleration0)*m_invDeltaT;
+        m_accelerationActual = (m_rigidbody.Velocity - m_velocity0)*m_invDeltaT;
+        m_angularAccelerationActual = (m_rigidbody.AngularVelocity - m_angularAcceleration0)*m_invDeltaT;
     }
 }
 public class WorldSpace3D : MovementController<Quaternion, Vector3, Vector3> {
@@ -366,8 +536,8 @@ public class WorldSpace3D : MovementController<Quaternion, Vector3, Vector3> {
         m_rotationComponents0 = m_rotationComponentsActual;
         m_acceleration0 = m_accelerationActual;
         m_angularAcceleration0 = m_angularAccelerationActual;
-        m_accelerationActual = (m_rigidBody.Velocity - m_velocity0)*m_invDeltaT;
-        m_angularAccelerationActual = (m_rigidBody.AngularVelocity - m_angularAcceleration0)*m_invDeltaT;
+        m_accelerationActual = (m_rigidbody.Velocity - m_velocity0)*m_invDeltaT;
+        m_angularAccelerationActual = (m_rigidbody.AngularVelocity - m_angularAcceleration0)*m_invDeltaT;
         
     }
 }

@@ -37,7 +37,7 @@ public abstract class ControlFieldProfile<T, D> {
     /// <summary>
     /// Axis alignment - how is this control axes aligned with the entity (player/enemy)'s position
     /// 3D World Space
-    ///     1D Spatial|Rotational   - None  = free, axis aligns with m_direction
+    ///     1D Spatial|Rotational   - None  = free, X and Y axes align with m_directionX and m_directionY, expressed relative to entity
     ///                             - X|Y|Z = aligned with entity's X,Y,Z
     ///     2D Spatial|Rotational   - None  = free, normal aligns with m_direction
     ///                             - X|Y|Z = plane normal aligned with axes
@@ -54,7 +54,8 @@ public abstract class ControlFieldProfile<T, D> {
     /// </summary>
     protected AxisPlaneSpace m_alignment;
     protected ControlField<T> m_control;
-    protected D m_direction;
+    protected D m_directionX; // direction X axis is facing within its subspace, relative to entity's axes
+    protected D m_directionY; // direction Y axis is facing within its subspace, relative to entity's axes
     protected bool m_projecting; // true if kvars need to be projected to axial directions
     protected Vector3Int m_usedRotationalAxes;
     protected Vector3Int m_usedSpatialAxes;
@@ -66,7 +67,8 @@ public abstract class ControlFieldProfile<T, D> {
     public AxisType Type { get => m_type; }
     public AxisPlaneSpace Alignment { get => m_alignment; }
     public ControlField<T> Control { get => m_control; set => m_control = value; }
-    public D Direction { get => m_direction; set => m_direction = value; }
+    public D DirectionX { get => m_directionX; set => m_directionX = value; }
+    public D DirectionY { get => m_directionY; set => m_directionY = value; }
     public bool Projecting { get => m_projecting; }
     public Vector3Int CheckUsedRotationalAxes { get => m_usedRotationalAxes; }
     public Vector3Int CheckUsedSpatialAxes { get => m_usedSpatialAxes; }
@@ -82,7 +84,8 @@ public abstract class ControlFieldProfile<T, D> {
         }
         m_alignment = alignment;
         m_control = control;
-        m_direction = default(D);
+        m_directionX = default(D); // These will be null
+        m_directionY = default(D); // These will be null
         m_projecting = false;
         m_usedRotationalAxes = Vector3Int.zero;
         m_usedSpatialAxes = Vector3Int.zero;
@@ -133,7 +136,7 @@ public abstract class ControlFieldProfile<T, D> {
                         }
                         return true;
                     } else if (m_alignment == AxisPlaneSpace.None) {
-                        // m_direction points along x
+                        // m_directionX points along x
                         m_projecting = true;
                         return true;
                     } else {
@@ -218,7 +221,7 @@ public abstract class ControlFieldProfile<T, D> {
                         }
                         break;
                     } else if (m_alignment == AxisPlaneSpace.None) {
-                        // m_direction points along X axis
+                        // m_directionX points along X axis
                         m_projecting = true;
                         break;
                     } else {

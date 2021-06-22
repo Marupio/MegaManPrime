@@ -10,6 +10,7 @@ public enum DirectionalSourceType
     ConstantForce           // Rocket (includes constant torque)
 }
 
+//public interface IDirectionalSourceToolset<
 
 public class DirectionalSource
 {
@@ -31,9 +32,6 @@ public class DirectionalSource
     //  * WorldSpace3D (Rigidbody)   : V = Vector3, T = Vector3
     //  * WorldSpace2D (Rigidbody2D) : V = Vector2, T = float
     // AddSource<Vector3, Vector3> and AddSource<Vector2, float>
-    public void AddSource<V, T>(Transform owner, ref KVariables<V> spatialSource, ref KVariables<T> rotationalSource) {
-        throw new System.NotImplementedException();
-    }
     public void AddSource(Transform owner, ref KVariables<Vector3> spatialSource, ref KVariables<Vector3> rotationalSource) {
         Vector3 globalDirection;
         if (m_fixedToWorldSpace) {

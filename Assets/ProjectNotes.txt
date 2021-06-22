@@ -1,8 +1,8 @@
 TODO
-Nearly done Removing 'local' variables (position, velocity, rotation, etc) from WorldSpace.
-* Update functions in ControlFields
-* SumSources in WorldSpace
 * [Project|Substitute][To|From]SubSpace in WorldSpace
+    Working on this one now, it is getting ugly with templates, toolset, and now the subspace projection functions.
+    I think I need to bring it all into one function.  Not initialiseVariables, project/substitute, Call control.Update, backsubstitute/project.
+    Clean this up and make it pretty.
 * Apply limits
 * Apply changes to rigidBody
 
