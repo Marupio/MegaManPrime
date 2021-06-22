@@ -19,16 +19,64 @@ public enum ControlAxis {None, U, V, W} public enum Plane {None, XY, XZ, YZ}
 public interface IMovementControllerToolset<Q, V, T> {
     public V ZeroV { get; }
     public T ZeroT { get; }
+    public void UpdateAccelerations(
+        IRigidbody<Q, V, T> rigidbody,
+        float invDeltaT,
+        V velocity0,
+        T rotationComponents0,
+        ref T rotationComponentsActual,
+        ref V accelerationActual,
+        ref V acceleration0,
+        ref T angularAccelerationActual,
+        ref T angularAcceleration0
+    );
 }
 
 public class MovementControllerToolset3D : IMovementControllerToolset<Quaternion, Vector3, Vector3> {
     public Vector3 ZeroV { get=>Vector3.zero; }
     public Vector3 ZeroT { get=>Vector3.zero; }
+    public void UpdateAccelerations(
+        IRigidbody<Quaternion, Vector3, Vector3> rigidbody,
+        float invDeltaT,
+        Vector3 velocity0,
+        Vector3 rotationComponents0,
+        ref Vector3 rotationComponentsActual,
+        ref Vector3 accelerationActual,
+        ref Vector3 acceleration0,
+        ref Vector3 angularAccelerationActual,
+        ref Vector3 angularAcceleration0
+    ) {
+        // Linear scheme
+        rotationComponents0 = rotationComponentsActual;
+        acceleration0 = accelerationActual;
+        angularAcceleration0 = angularAccelerationActual;
+        accelerationActual = (rigidbody.Velocity - velocity0)*invDeltaT;
+        angularAccelerationActual = (rigidbody.AngularVelocity - angularAcceleration0)*invDeltaT;
+    }
 }
 
 public class MovementControllerToolset2D : IMovementControllerToolset<float, Vector2, float> {
     public Vector2 ZeroV { get=>Vector2.zero; }
     public float ZeroT { get=>0f; }
+    public void UpdateAccelerations(
+        IRigidbody<float, Vector2, float> rigidbody,
+        float invDeltaT,
+        Vector2 velocity0,
+        float rotationComponents0,
+        ref float rotationComponentsActual,
+        ref Vector2 accelerationActual,
+        ref Vector2 acceleration0,
+        ref float angularAccelerationActual,
+        ref float angularAcceleration0
+    ) {
+        // Linear scheme
+        rotationComponents0 = rotationComponentsActual;
+        rotationComponentsActual = rigidbody.RotationComponents;
+        acceleration0 = accelerationActual;
+        angularAcceleration0 = angularAccelerationActual;
+        accelerationActual = (rigidbody.Velocity - velocity0)*invDeltaT;
+        angularAccelerationActual = (rigidbody.AngularVelocity - angularAcceleration0)*invDeltaT;
+    }
 }
 
 public class MovementController<Q, V, T>
