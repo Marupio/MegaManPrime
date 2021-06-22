@@ -12,16 +12,31 @@ public enum ControlAxis {None, U, V, W} public enum Plane {None, XY, XZ, YZ}
 // 3 - Set Acceleration | AngularAcceleration
 // 4 - Apply Force | Torque
 
-// WorldSpace3D (Rigidbody)   : Q = Quaternion, V = Vector3, T = Vector3
+// MovementController3D (Rigidbody)   : Q = Quaternion, V = Vector3, T = Vector3
 //      Axis alignment Vector3
-// WorldSpace2D (Rigidbody2D) : Q = float, V = Vector2, T = float
+// MovementController2D (Rigidbody2D) : Q = float, V = Vector2, T = float
 //      Axis alignment Vector2
-public class WorldSpace<Q, V, T>
+public interface IMovementControllerToolset<Q, V, T> {
+    public V ZeroV { get; }
+    public T ZeroT { get; }
+}
+
+public class MovementControllerToolset3D : IMovementControllerToolset<Quaternion, Vector3, Vector3> {
+    public Vector3 ZeroV { get=>Vector3.zero; }
+    public Vector3 ZeroT { get=>Vector3.zero; }
+}
+
+public class MovementControllerToolset2D : IMovementControllerToolset<float, Vector2, float> {
+    public Vector2 ZeroV { get=>Vector2.zero; }
+    public float ZeroT { get=>0f; }
+}
+
+public class MovementController<Q, V, T>
 {
+    protected IMovementControllerToolset<Q, V, T> m_toolset;
     protected IRigidbody<Q, V, T> m_rigidBody;
     protected ITime m_time;
     protected Transform m_owner;
-
 
     // Convenience
     protected float m_invDeltaT;
@@ -63,6 +78,8 @@ public class WorldSpace<Q, V, T>
     // T m_localAngularVelocity;     // Update with m_rigidBody.AngularVelocity;
     // T m_localAngularAcceleration; // Update with m_angularAcceleration0;
     // T m_localAppliedTorque;       // Update with m_appliedTorqueActual;
+
+    public IMovementControllerToolset<Q, V, T> Toolset { get=>m_toolset; set=>m_toolset=value; }
 
     public bool ThreeD { get => GeneralTools.ThreeD<V>(); }
     public bool TwoD { get => GeneralTools.TwoD<V>(); }
@@ -127,9 +144,9 @@ public class WorldSpace<Q, V, T>
         );
 
         // The V types hold any updated components of each kvariable type, the Vi types hold 0|1 indicating which component has been updated
-        KVariables<V> spatialVarsUpdate = new KVariables<V>(new Traits<V>().Zero(default(V)));
+        KVariables<V> spatialVarsUpdate = new KVariables<V>(m_toolset.ZeroV);
         KVariables<Vector3Int> spatialVarsUsedAxis = new KVariables<Vector3Int>(Vector3Int.zero);
-        KVariables<T> rotationalVarsUpdate = new KVariables<T>(new Traits<T>().Zero(default(T)));
+        KVariables<T> rotationalVarsUpdate = new KVariables<T>(m_toolset.ZeroT);
         KVariables<Vector3Int> rotationalVarsUsedAxis = new KVariables<Vector3Int>(Vector3Int.zero);
 
         // Sum all sources
@@ -168,8 +185,8 @@ public class WorldSpace<Q, V, T>
     // *** Internal functions
 
     void SumSources(out KVariables<V> spatialSource, out KVariables<T> rotationalSource) {
-        spatialSource = new KVariables<V>(new Traits<V>().Zero(default(V)));
-        rotationalSource = new KVariables<T>(new Traits<T>().Zero(default(T)));
+        spatialSource = new KVariables<V>(m_toolset.ZeroV);
+        rotationalSource = new KVariables<T>(m_toolset.ZeroT);
         foreach(KeyValuePair<string, DirectionalSource> sourceEntry in m_sources.Sources) {
             sourceEntry.Value.AddSource(m_owner, ref spatialSource, ref rotationalSource);
         }
@@ -192,7 +209,7 @@ public class WorldSpace<Q, V, T>
                 rotationalVarsInit.Derivative,          // m_localAngularVelocity,
                 rotationalVarsInit.SecondDerivative,    // m_localAngularAcceleration,
                 rotationalVarsInit.AppliedForce,        // m_localAppliedTorque,
-                new Traits<T>().Zero(default(T))
+                m_toolset.ZeroT
             );
             if (axis.Projecting) {
                 return ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, axis.Direction);
@@ -205,7 +222,7 @@ public class WorldSpace<Q, V, T>
                 spatialVarsInit.Derivative,         // m_localVelocity,
                 spatialVarsInit.SecondDerivative,   // m_localAcceleration,
                 spatialVarsInit.AppliedForce,       // m_localAppliedForce,
-                new Traits<V>().Zero(default(V))
+                m_toolset.ZeroV
             );
             if (axis.Projecting) {
                 return ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, axis.Direction);
@@ -284,7 +301,7 @@ public class WorldSpace<Q, V, T>
 
 // WorldSpace3D (Rigidbody)   : Q = Quaternion, V = Vector3, T = Vector3
 // WorldSpace2D (Rigidbody2D) : Q = float, V = Vector2, T = float
-public class WorldSpace2D : WorldSpace<float, Vector2, float> {
+public class WorldSpace2D : MovementController<float, Vector2, float> {
     protected override void UpdateLocalFields() {
         base.UpdateLocalFields();
         // Linear scheme
@@ -294,7 +311,7 @@ public class WorldSpace2D : WorldSpace<float, Vector2, float> {
         m_angularAccelerationActual = (m_rigidBody.AngularVelocity - m_angularAcceleration0)*m_invDeltaT;
     }
 }
-public class WorldSpace3D : WorldSpace<Quaternion, Vector3, Vector3> {
+public class WorldSpace3D : MovementController<Quaternion, Vector3, Vector3> {
     protected override void UpdateLocalFields() {
         base.UpdateLocalFields();
         // Linear scheme

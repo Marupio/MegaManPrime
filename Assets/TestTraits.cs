@@ -41,13 +41,13 @@ public class TestTraits : MonoBehaviour
         HasMoveOps<Vector2> vecty = new HasMoveOps<Vector2>();
         vecty.MoveOps = opVecty;
 
+        float fixedType = 6.28f;
+
         float fv = 0.4f;
         float fref = 0.8f;
-        float fixedType = 6.28f;
 
         Vector2 vv = new Vector2(0.4f, 0.4f);
         Vector2 vref = new Vector2(0.8f, 0.8f);
-        Vector2 vout;
 
         Debug.Log("floaty.Function...");
         floaty.Function(fv, ref fref, fixedType);

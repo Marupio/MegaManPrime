@@ -1,6 +1,32 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+public interface IControlFieldToolset<T> {
+    public T Zero {get;}
+    public T SmoothDamp(T current, T target, ref T currentVelocity, float smoothTime, float maxSpeed, float deltaTime);
+}
+
+public class ControlFieldToolsetFloat : IControlFieldToolset<float> {
+    public float Zero { get=>0f; }
+    public float SmoothDamp(float current, float target, ref float currentVelocity, float smoothTime, float maxSpeed, float deltaTime) {
+        return Mathf.SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
+    }
+}
+
+public class ControlFieldToolsetVector2 : IControlFieldToolset<Vector2> {
+    public Vector2 Zero { get=>Vector2.zero; }
+    public Vector2 SmoothDamp(Vector2 current, Vector2 target, ref Vector2 currentVelocity, float smoothTime, float maxSpeed, float deltaTime) {
+        return Vector2.SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
+    }
+}
+
+public class ControlFieldToolsetVector3 : IControlFieldToolset<Vector3> {
+    public Vector3 Zero { get=>Vector3.zero; }
+    public Vector3 SmoothDamp(Vector3 current, Vector3 target, ref Vector3 currentVelocity, float smoothTime, float maxSpeed, float deltaTime) {
+        return Vector3.SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
+    }
+}
+
 /// <summary>
 /// I take an n-dimensional control input (InputRange), and produce an n-dimensional target for a kinematic variable, such as position or velocity.
 /// I can control any number of dimensions, I don't care which dimensions they are, nor do I care where they are in world space.  I don't even know
@@ -10,12 +36,19 @@ using System.Collections.Generic;
 /// and so on. The full list is: all KVariableControllableEnum types. These can be either linear or rotating type variables.
 /// </summary>
 public abstract class ControlField<T> : KVariableLimits {
+    protected IControlFieldToolset<T> m_toolset;
+
     // WARNING - m_inputRange is null in some classes
     protected InputRange<T> m_inputRange;
     protected KVariableControllableEnum m_controlledVariable;
     private KVariableTypeSet m_controlledVariableAsTypeSet;
     protected bool m_smoothingEnabled;
     protected float m_smoothingTime;
+
+    /// <summary>
+    /// Access to internal type-specific toolset
+    /// </summary>
+    public IControlFieldToolset<T> Toolset {get=>m_toolset; set=>m_toolset=value;}
 
     /// <summary>
     /// Change the control value
@@ -105,14 +138,16 @@ public abstract class ControlField<T> : KVariableLimits {
     }
 
     // *** Constructors
-    protected ControlField(KVariableLimits limits, InputRange<T> inputRange)
+    protected ControlField(KVariableLimits limits, IControlFieldToolset<T> toolset, InputRange<T> inputRange)
         : base (limits) {
+        m_toolset = toolset;
         m_inputRange = inputRange;
         m_controlledVariable = KVariableTypeInfo.None;
         InitControlledVariableTypeSet();
     }
-    protected ControlField(KVariableLimits limits, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
+    protected ControlField(KVariableLimits limits, IControlFieldToolset<T> toolset, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
         : base (limits) {
+        m_toolset = toolset;
         m_inputRange = inputRange;
 
         if (controlledVariable.Contains(KVariableTypeInfo.ExcludedFromControl)) {
@@ -139,7 +174,7 @@ public class UncontrolledField<T> : ControlField<T>
     public override void ApplyControlValue(T value) { /* Do nothing */ }
     public override T Target => throw new System.NotImplementedException();
     public override void Update(ref KVariables<T> vars, float deltaTime) { /* Do nothing */ }
-    public UncontrolledField(KVariableLimits limits) : base(limits, null) {}
+    public UncontrolledField(KVariableLimits limits, IControlFieldToolset<T> toolset) : base(limits, toolset, null) {}
 }
 
 
@@ -154,13 +189,12 @@ public class ContinuousControlField<T> : ControlField<T>
             m_controlledVariable != KVariableControllableEnum.ImpulseForce
         ) {
             // Use smoothing algorithm
-            Traits<T> traitsT = new Traits<T>();
             switch (m_controlledVariable) {
                 case KVariableControllableEnum.None:
                     break;
                 case KVariableControllableEnum.Variable:
                     T derivative = vars.Derivative;
-                    vars.Variable = traitsT.SmoothDamp(
+                    vars.Variable = m_toolset.SmoothDamp(
                         vars.Variable,
                         target,
                         ref derivative,
@@ -172,7 +206,7 @@ public class ContinuousControlField<T> : ControlField<T>
                     break;
                 case KVariableControllableEnum.Derivative:
                     T secondDerivative = vars.SecondDerivative;
-                    vars.Derivative = traitsT.SmoothDamp(
+                    vars.Derivative = m_toolset.SmoothDamp(
                         vars.Derivative,
                         target,
                         ref secondDerivative,
@@ -183,8 +217,8 @@ public class ContinuousControlField<T> : ControlField<T>
                     vars.SecondDerivative = secondDerivative;
                     break;
                 case KVariableControllableEnum.AppliedForce:
-                    T forceDerivative = traitsT.Zero(default(T));
-                    vars.AppliedForce = traitsT.SmoothDamp(
+                    T forceDerivative = m_toolset.Zero;
+                    vars.AppliedForce = m_toolset.SmoothDamp(
                         vars.AppliedForce,
                         target,
                         ref forceDerivative,
@@ -207,8 +241,8 @@ public class ContinuousControlField<T> : ControlField<T>
     }
         
     // }
-    public ContinuousControlField(KVariableLimits limits, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
-        : base(limits, inputRange, controlledVariable) {}
+    public ContinuousControlField(KVariableLimits limits, IControlFieldToolset<T> toolset, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
+        : base(limits, toolset, inputRange, controlledVariable) {}
 }
 
 
@@ -255,12 +289,13 @@ public abstract class ImpulseControlField<T> : ControlField<T>
     // *** Constructors
     public ImpulseControlField(
         KVariableLimits limits,
+        IControlFieldToolset<T> toolset,
         InputRange<T> inputRange,
         KVariableTypeSet controlledVariable,
         float maxDuration,
         bool interruptable,
         bool enabled = true
-    ) : base(limits, inputRange, controlledVariable) {
+    ) : base(limits, toolset, inputRange, controlledVariable) {
         m_maxDuration = maxDuration;
         m_interruptable = interruptable;
         m_enabled = enabled;
@@ -305,7 +340,7 @@ public abstract class ImpulseControlField<T> : ControlField<T>
         if (Enabled) {
             // Ready to fire, check for max historical input
             T newValue = m_inputRange.UnqueriedMaxMagnitudeInputValue;
-            if (Equals(newValue, (new Traits<T>()).Zero(default(T)))) {
+            if (Equals(newValue, m_toolset.Zero)) {
                 Activate();
                 m_inputRange.ClearStatistics(m_inputRange.ControlValue);
             }
@@ -317,13 +352,13 @@ public abstract class ImpulseControlField<T> : ControlField<T>
                 (Instantaneous || Time.time - m_startTime > m_maxDuration)          // Timed out
             ) {
                 Deactivate();
-                return (new Traits<T>()).Zero(default(T));
+                return (m_toolset.Zero);
             }
             T newValue = m_inputRange.UnqueriedMaxMagnitudeInputValue;
             m_inputRange.ClearStatistics(m_inputRange.ControlValue);
             return newValue;
         } else {
-            return (new Traits<T>()).Zero(default(T));
+            return (m_toolset.Zero);
         }
     }
 }

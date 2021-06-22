@@ -82,7 +82,7 @@ public abstract class ControlFieldProfile<T, D> {
         }
         m_alignment = alignment;
         m_control = control;
-        m_direction = (new Traits<D>()).Zero(default(D));
+        m_direction = default(D);
         m_projecting = false;
         m_usedRotationalAxes = Vector3Int.zero;
         m_usedSpatialAxes = Vector3Int.zero;

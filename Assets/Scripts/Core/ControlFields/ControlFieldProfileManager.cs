@@ -14,7 +14,7 @@ public enum AxisStoredAt {
 // 3D : Q = Quaternion, V = Vector3, T = Vector3
 // 2D : Q = float ,     V = Vector2, T = float
 public class ControlFieldProfileManager<Q, V, T> {
-    WorldSpace<Q, V, T> m_entity;
+    MovementController<Q, V, T> m_entity;
     string m_name; // Name of associated entity's GameObject
     Dictionary<string, AxisStoredAt> m_axisIndex;
     Dictionary<string, ControlFieldProfile<float, V>> m_axes1D;
@@ -268,7 +268,7 @@ public class ControlFieldProfileManager<Q, V, T> {
     }
 
     // *** Constructors
-    ControlFieldProfileManager(WorldSpace<Q,V,T> entity, string name) {
+    ControlFieldProfileManager(MovementController<Q,V,T> entity, string name) {
         m_entity = entity;
         m_name = name;
     }
