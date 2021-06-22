@@ -26,8 +26,7 @@ public interface IProjections<SS, S> {
         out KVariables<SS> varSet,
         out Dictionary<int, List<int>> controlSpaceToWorldSpace,
         KVariables<S> srcVars,
-        Vector3 DirectionX,
-        Vector3 DirectionY
+        Quaternion direction
     );
     public void SubstituteToSubspace(
         out KVariables<SS> varSet,
@@ -42,18 +41,22 @@ public class ProjectionsFloatFloat : IProjections<float, float> {
         out KVariables<float> varSet,
         out Dictionary<int, List<int>> controlSpaceToWorldSpace,
         KVariables<float> srcVars,
-        Vector3 DirectionX,
-        Vector3 DirectionY
-    );
+        Quaternion direction
+    ) {
+        // I don't think this is ever possible
+        throw new System.NotImplementedException();
+    }
     public void SubstituteToSubspace(
         out KVariables<float> varSet,
         out Dictionary<int, List<int>> controlSpaceToWorldSpace,
         KVariables<float> srcVars,
         AxisPlaneSpace alignment
     ) {
-        switch (alignment) {
-
-        }
+        // Do I set varSet = srcVars?  Or do I manually set each variable equal?
+        varSet = srcVars;
+        controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
+        List<int> zeroOnly = new List<int>{0};
+        controlSpaceToWorldSpace.Add(0, zeroOnly);
     }
 }
 public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
@@ -62,9 +65,17 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
         out KVariables<float> varSet,
         out Dictionary<int, List<int>> controlSpaceToWorldSpace,
         KVariables<Vector2> srcVars,
-        Vector3 DirectionX,
-        Vector3 DirectionY
-    );
+        Quaternion direction
+    ) {
+        float theta;
+        { // Variable clear scope
+            Vector3 eulerAngles = direction.eulerAngles;
+            GeneralTools.Assert(eulerAngles.y*eulerAngles.y < Mathf.Epsilon && eulerAngles.y*eulerAngles.y < Mathf.Epsilon);
+            theta = eulerAngles.z;
+        }
+        
+    }
+
     public void SubstituteToSubspace(
         out KVariables<float> varSet,
         out Dictionary<int, List<int>> controlSpaceToWorldSpace,
@@ -78,8 +89,7 @@ public class ProjectionsFloatVector3 : IProjections<float, Vector3> {
         out KVariables<float> varSet,
         out Dictionary<int, List<int>> controlSpaceToWorldSpace,
         KVariables<Vector3> srcVars,
-        Vector3 DirectionX,
-        Vector3 DirectionY
+        Quaternion direction
     );
     public void SubstituteToSubspace(
         out KVariables<float> varSet,
@@ -94,8 +104,7 @@ public class ProjectionsVector2Vector2 : IProjections<Vector2, Vector2> {
         out KVariables<Vector2> varSet,
         out Dictionary<int, List<int>> controlSpaceToWorldSpace,
         KVariables<Vector2> srcVars,
-        Vector3 DirectionX,
-        Vector3 DirectionY
+        Quaternion direction
     );
     public void SubstituteToSubspace(
         out KVariables<Vector2> varSet,
@@ -110,8 +119,7 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
         out KVariables<Vector2> varSet,
         out Dictionary<int, List<int>> controlSpaceToWorldSpace,
         KVariables<Vector3> srcVars,
-        Vector3 DirectionX,
-        Vector3 DirectionY
+        Quaternion Direction
     );
     public void SubstituteToSubspace(
         out KVariables<Vector2> varSet,
@@ -126,8 +134,7 @@ public class ProjectionsVector3Vector3 : IProjections<Vector3, Vector3> {
         out KVariables<Vector3> varSet,
         out Dictionary<int, List<int>> controlSpaceToWorldSpace,
         KVariables<Vector3> srcVars,
-        Vector3 DirectionX,
-        Vector3 DirectionY
+        Quaternion Direction
     );
     public void SubstituteToSubspace(
         out KVariables<Vector3> varSet,
@@ -416,7 +423,7 @@ public class MovementController<Q, V, T>
                 m_toolset.ZeroT
             );
             if (controlField.Projecting) {
-                return projectionToolset.ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.DirectionX, controlField.DirectionY);
+                return projectionToolset.ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Direction);
             } else {
                 return SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Alignment);
             }
@@ -429,7 +436,7 @@ public class MovementController<Q, V, T>
                 m_toolset.ZeroV
             );
             if (controlField.Projecting) {
-                return ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.DirectionX);
+                return ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Direction);
             } else {
                 return SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Alignment);
             }
@@ -443,7 +450,7 @@ public class MovementController<Q, V, T>
         out KVariables<V1> varSet,
         out Dictionary<int, List<int>> controlSpaceToWorldSpace,
         KVariables<TorV> srcVars,
-        V direction
+        Quaternion direction
     ) {
         varSet = default(KVariables<V1>);
         controlSpaceToWorldSpace = default(Dictionary<int, List<int>>);
