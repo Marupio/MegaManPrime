@@ -96,6 +96,13 @@ public class KVariables<V> {
             Debug.LogError("Unrecognized variable type string: " + variableName);
         }
     }
+    public virtual void SetEqual(KVariables<V> varIn) {
+        m_variable = varIn.m_variable;
+        m_derivative = varIn.m_derivative;
+        m_secondDerivative = varIn.m_derivative;
+        m_appliedForce = varIn.m_appliedForce;
+        m_impulseForce = varIn.m_impulseForce;
+    }
 
     // *** Constructors
     public KVariables(

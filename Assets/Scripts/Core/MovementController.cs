@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum ControlAxis {None, U, V, W} public enum Plane {None, XY, XZ, YZ}
-// public enum AlignmentType {None, X, Y, Z, XY, XZ, YZ}
 
 // Ways to interact with RigidBody
 // 0 - Do nothing - lets its own physics model handle things
@@ -11,140 +10,6 @@ public enum ControlAxis {None, U, V, W} public enum Plane {None, XY, XZ, YZ}
 // 2 - Set Velocity | AngularVelocity
 // 3 - Set Acceleration | AngularAcceleration
 // 4 - Apply Force | Torque
-
-
-
-//   SS<<  <float,  float  >   >>S
-//         <float,  Vector2>
-//         <float,  Vector3>
-//         <Vector2,Vector2>
-//         <Vector2,Vector3>
-//         <Vector3,Vector3>
-// Projections/Substitutions between SubSpace <SS> and Space
-public interface IProjections<SS, S> {
-    public void ProjectToSubspace(
-        out KVariables<SS> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-        KVariables<S> srcVars,
-        Quaternion direction
-    );
-    public void SubstituteToSubspace(
-        out KVariables<SS> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-        KVariables<S> srcVars,
-        AxisPlaneSpace alignment
-    );
-}
-public class ProjectionsFloatFloat : IProjections<float, float> {
-    // 2D rotational only
-    public void ProjectToSubspace(
-        out KVariables<float> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-        KVariables<float> srcVars,
-        Quaternion direction
-    ) {
-        // I don't think this is ever possible
-        throw new System.NotImplementedException();
-    }
-    public void SubstituteToSubspace(
-        out KVariables<float> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-        KVariables<float> srcVars,
-        AxisPlaneSpace alignment
-    ) {
-        // Do I set varSet = srcVars?  Or do I manually set each variable equal?
-        varSet = srcVars;
-        controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-        List<int> zeroOnly = new List<int>{0};
-        controlSpaceToWorldSpace.Add(0, zeroOnly);
-    }
-}
-public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
-    // 2D spatial only
-    public void ProjectToSubspace(
-        out KVariables<float> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-        KVariables<Vector2> srcVars,
-        Quaternion direction
-    ) {
-        float theta;
-        { // Variable clear scope
-            Vector3 eulerAngles = direction.eulerAngles;
-            GeneralTools.Assert(eulerAngles.y*eulerAngles.y < Mathf.Epsilon && eulerAngles.y*eulerAngles.y < Mathf.Epsilon);
-            theta = eulerAngles.z;
-        }
-        
-    }
-
-    public void SubstituteToSubspace(
-        out KVariables<float> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-        KVariables<Vector2> srcVars,
-        AxisPlaneSpace alignment
-    );
-}
-public class ProjectionsFloatVector3 : IProjections<float, Vector3> {
-    // 3D spatial or rotational
-    public void ProjectToSubspace(
-        out KVariables<float> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-        KVariables<Vector3> srcVars,
-        Quaternion direction
-    );
-    public void SubstituteToSubspace(
-        out KVariables<float> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-        KVariables<Vector3> srcVars,
-        AxisPlaneSpace alignment
-    );
-}
-public class ProjectionsVector2Vector2 : IProjections<Vector2, Vector2> {
-    // 2D spatial only
-    public void ProjectToSubspace(
-        out KVariables<Vector2> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-        KVariables<Vector2> srcVars,
-        Quaternion direction
-    );
-    public void SubstituteToSubspace(
-        out KVariables<Vector2> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-        KVariables<Vector2> srcVars,
-        AxisPlaneSpace alignment
-    );
-}
-public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
-    // 3D spatial or rotational
-    public void ProjectToSubspace(
-        out KVariables<Vector2> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-        KVariables<Vector3> srcVars,
-        Quaternion Direction
-    );
-    public void SubstituteToSubspace(
-        out KVariables<Vector2> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-        KVariables<Vector3> srcVars,
-        AxisPlaneSpace alignment
-    );
-}
-public class ProjectionsVector3Vector3 : IProjections<Vector3, Vector3> {
-    // 3D spatial or rotational
-    public void ProjectToSubspace(
-        out KVariables<Vector3> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-        KVariables<Vector3> srcVars,
-        Quaternion Direction
-    );
-    public void SubstituteToSubspace(
-        out KVariables<Vector3> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-        KVariables<Vector3> srcVars,
-        AxisPlaneSpace alignment
-    );
-}
-
-
 
 // MovementController3D (Rigidbody)   : Q = Quaternion, V = Vector3, T = Vector3
 //      Axis alignment Vector3
@@ -242,9 +107,13 @@ public class MovementControllerToolset2D : IMovementControllerToolset<float, Vec
 public class MovementController<Q, V, T>
 {
     protected IMovementControllerToolset<Q, V, T> m_toolset;
-    protected IProjections<float, V> m_subspaceFloat;
-    protected IProjections<Vector2, V> m_subspaceVector2;
-    protected IProjections<Vector3, V> m_subspaceVector3;
+    // Projection toolsets
+    protected IProjections<float, V> m_subspaceFloatV;     // Project between 1D axis and spatial space
+    protected IProjections<Vector2, V> m_subspaceVector2V; // Project between 2D axis and spatial space
+    protected IProjections<Vector3, V> m_subspaceVector3V; // Project between 3D axis and spatial space
+    protected IProjections<float, T> m_subspaceFloatT;     // Project between 1D axis and rotational space
+    protected IProjections<Vector2, T> m_subspaceVector2T; // Project between 2D axis and rotational space
+    protected IProjections<Vector3, T> m_subspaceVector3T; // Project between 3D axis and rotational space
     protected IRigidbody<Q, V, T> m_rigidbody;
     protected ITime m_time;
     protected Transform m_owner;
@@ -277,25 +146,17 @@ public class MovementController<Q, V, T>
     protected T m_appliedTorqueDesired;
 
     // Local workspace - temporary variables used during Move()
-    // TODO - I want to refactor how it works to remove most of these - reduce memory footprint
     float m_localMass;            // Update with m_rigidBody.Mass;
     float m_localDrag;            // Update with m_rigidBody.Drag;
     float m_localAngularDrag;     // Update with m_rigidBody.AngularDrag;
 
-    // V m_localPosition;            // Update with m_rigidBody.Position;
-    // V m_localVelocity;            // Update with m_rigidBody.Velocity;
-    // V m_localAcceleration;        // Update with m_acceleration0;
-    // V m_localAppliedForce;        // Update with m_appliedForceActual;
-    // Q m_localRotation;            // Update with m_rigidBody.Rotation;
-    // T m_localRotationComponents;  // Update with m_rotationComponentsActual;
-    // T m_localAngularVelocity;     // Update with m_rigidBody.AngularVelocity;
-    // T m_localAngularAcceleration; // Update with m_angularAcceleration0;
-    // T m_localAppliedTorque;       // Update with m_appliedTorqueActual;
-
     public IMovementControllerToolset<Q, V, T> Toolset { get=>m_toolset; set=>m_toolset=value; }
-    public IProjections<float, V> SubspaceFloat { get=>m_subspaceFloat; set=>m_subspaceFloat=value; }
-    public IProjections<Vector2, V> SubspaceVector2 { get=>m_subspaceVector2; set=>m_subspaceVector2=value; }
-    public IProjections<Vector3, V> SubspaceVector3 { get=>m_subspaceVector3; set=>m_subspaceVector3=value; }
+    public IProjections<float, V> SubspaceFloatV { get=>m_subspaceFloatV; set=>m_subspaceFloatV=value; }
+    public IProjections<Vector2, V> SubspaceVector2V { get=>m_subspaceVector2V; set=>m_subspaceVector2V=value; }
+    public IProjections<Vector3, V> SubspaceVector3V { get=>m_subspaceVector3V; set=>m_subspaceVector3V=value; }
+    public IProjections<float, T> SubspaceFloatT { get=>m_subspaceFloatT; set=>m_subspaceFloatT=value; }
+    public IProjections<Vector2, T> SubspaceVector2T { get=>m_subspaceVector2T; set=>m_subspaceVector2T=value; }
+    public IProjections<Vector3, T> SubspaceVector3T { get=>m_subspaceVector3T; set=>m_subspaceVector3T=value; }
 
     public bool ThreeD { get => GeneralTools.ThreeD<V>(); }
     public bool TwoD { get => GeneralTools.TwoD<V>(); }
@@ -376,20 +237,20 @@ public class MovementController<Q, V, T>
         //      - Add changes back to local working variables
         foreach(ControlFieldProfile<float, V> controlField in m_controlFields.ActiveAxes1D) {
             KVariables<float> varSet;
-            Dictionary<int, List<int>> controlSpaceToWorldSpace;
-            InitialiseVarSet(out varSet, out controlSpaceToWorldSpace, spatialVarsInit, rotationalVarsInit, m_subspaceFloat, controlField);
+            Dictionary<List<int>, List<int>> controlSpaceToWorldSpace;
+            InitialiseVarSet(out varSet, out controlSpaceToWorldSpace, spatialVarsInit, rotationalVarsInit, m_subspaceFloatV, m_subspaceFloatT, controlField);
             controlField.Control.Update(ref varSet, m_time.deltaTime);
         }
         foreach(ControlFieldProfile<Vector2, V> controlField in m_controlFields.ActiveAxes2D) {
             KVariables<Vector2> varSet;
-            Dictionary<int, List<int>> controlSpaceToWorldSpace;
-            InitialiseVarSet(out varSet, out controlSpaceToWorldSpace, spatialVarsInit, rotationalVarsInit, m_subspaceVector2, controlField);
+            Dictionary<List<int>, List<int>> controlSpaceToWorldSpace;
+            InitialiseVarSet(out varSet, out controlSpaceToWorldSpace, spatialVarsInit, rotationalVarsInit, m_subspaceVector2V, m_subspaceVector2T, controlField);
             controlField.Control.Update(ref varSet, m_time.deltaTime);
         }
         foreach(ControlFieldProfile<Vector3, V> controlField in m_controlFields.ActiveAxes3D) {
             KVariables<Vector3> varSet;
-            Dictionary<int, List<int>> controlSpaceToWorldSpace;
-            InitialiseVarSet(out varSet, out controlSpaceToWorldSpace, spatialVarsInit, rotationalVarsInit, m_subspaceVector3, controlField);
+            Dictionary<List<int>, List<int>> controlSpaceToWorldSpace;
+            InitialiseVarSet(out varSet, out controlSpaceToWorldSpace, spatialVarsInit, rotationalVarsInit, m_subspaceVector3V, m_subspaceVector3T, controlField);
             controlField.Control.Update(ref varSet, m_time.deltaTime);
         }
         // Apply limits to local working variables
@@ -406,12 +267,13 @@ public class MovementController<Q, V, T>
 //      Axis alignment Vector3
 // WorldSpace2D (Rigidbody2D) : Q = float, V = Vector2, T = float
 //      Axis alignment Vector2
-    protected virtual bool InitialiseVarSet<S>(
+    protected virtual void InitialiseVarSet<S>(
         out KVariables<S> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        out Dictionary<List<int>, List<int>> controlSpaceToWorldSpace,
         KVariables<V> spatialVarsInit,
         KVariables<T> rotationalVarsInit,
-        IProjections<S, V> projectionToolset,
+        IProjections<S, V> projectionToolsetV,
+        IProjections<S, T> projectionToolsetT,
         ControlFieldProfile<S, V> controlField
     ) {
         if (controlField.Type == AxisType.Rotational) {
@@ -423,9 +285,9 @@ public class MovementController<Q, V, T>
                 m_toolset.ZeroT
             );
             if (controlField.Projecting) {
-                return projectionToolset.ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Direction);
+                projectionToolsetT.ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Direction);
             } else {
-                return SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Alignment);
+                projectionToolsetT.SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Alignment);
             }
         } else {
             KVariables<V> srcVars = new KVariables<V>(
@@ -436,9 +298,9 @@ public class MovementController<Q, V, T>
                 m_toolset.ZeroV
             );
             if (controlField.Projecting) {
-                return ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Direction);
+                projectionToolsetV.ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Direction);
             } else {
-                return SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Alignment);
+                projectionToolsetV.SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Alignment);
             }
         }
     }
@@ -448,12 +310,12 @@ public class MovementController<Q, V, T>
     // 1D projecting to 2D would map both 2D axes for the 1D
     protected bool ProjectToSubspace<V1, TorV>(
         out KVariables<V1> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        out Dictionary<List<int>, List<int>> controlSpaceToWorldSpace,
         KVariables<TorV> srcVars,
         Quaternion direction
     ) {
         varSet = default(KVariables<V1>);
-        controlSpaceToWorldSpace = default(Dictionary<int, List<int>>);
+        controlSpaceToWorldSpace = default(Dictionary<List<int>, List<int>>);
         return false;
     }
 
@@ -466,13 +328,13 @@ public class MovementController<Q, V, T>
     // 3D - <float, Vec3>, <Vec2, Vec3>, <Vec3, Vec3>
     protected bool SubstituteToSubspace<V1, TorV>(
         out KVariables<V1> varSet,
-        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        out Dictionary<List<int>, List<int>> controlSpaceToWorldSpace,
         KVariables<TorV> srcVars,
         AxisPlaneSpace alignment
     ) {
         
         varSet = default(KVariables<V1>);
-        controlSpaceToWorldSpace = default(Dictionary<int, List<int>>);
+        controlSpaceToWorldSpace = default(Dictionary<List<int>, List<int>>);
         return false;
     }
     /// <summary>
