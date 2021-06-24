@@ -29,6 +29,20 @@ public interface IProjections<SS, S> {
         KVariables<S> srcVars,
         AxisPlaneSpace alignment
     );
+    // public void ProjectFromSubspace(
+    //     ControlFieldProfile<SS, S> controlFieldProfile,
+    //     Dictionary<List<int>, List<int>> controlSpaceToWorldSpace,
+    //     KVariables<SS> outputFromControlField,
+    //     KVariables<S> varsUpdate,
+    //     KVariables<Vector3Int> varsUsedAxis
+    // );
+    // public void SubstituteFromSubspace(
+    //     ControlFieldProfile<SS, S> controlFieldProfile,
+    //     Dictionary<List<int>, List<int>> controlSpaceToWorldSpace,
+    //     KVariables<SS> outputFromControlField,
+    //     KVariables<S> varsUpdate,
+    //     KVariables<Vector3Int> varsUsedAxis
+    // );
 }
 public class ProjectionsFloatFloat : IProjections<float, float> {
     // 2D rotational only

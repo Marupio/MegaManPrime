@@ -105,6 +105,13 @@ public class KVariables<V> {
     }
 
     // *** Constructors
+    public KVariables(KVariables<V> kvIn) {
+        m_variable = kvIn.m_variable;
+        m_derivative = kvIn.m_derivative;
+        m_secondDerivative = kvIn.m_secondDerivative;
+        m_appliedForce = kvIn.m_appliedForce;
+        m_impulseForce = kvIn.m_impulseForce;
+    }
     public KVariables(
         V variable,
         V derivative,
@@ -213,6 +220,18 @@ public class KVariablesExt<V> : KVariables<V> {
     }
 
     // *** Constructors
+    public KVariablesExt(KVariables<V> kvIn, V others)
+    : base (kvIn) {
+        m_thirdDerivative = others;
+        m_appliedForceDerivative = others;
+        m_impulseForceDerivative = others;
+    }
+    public KVariablesExt(KVariablesExt<V> kvIn)
+    : base (kvIn) {
+        m_thirdDerivative = kvIn.m_thirdDerivative;
+        m_appliedForceDerivative = kvIn.m_appliedForceDerivative;
+        m_impulseForceDerivative = kvIn.m_impulseForceDerivative;
+    }
     public KVariablesExt(
         V variable,
         V derivative,

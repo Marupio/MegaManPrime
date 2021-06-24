@@ -1,4 +1,5 @@
 TODO
+Still working on below.  I've changed template stuff to simplify things.  But didn't finish.
 * [Project|Substitute][To|From]SubSpace in WorldSpace
     Working on this one now, it is getting ugly with templates, toolset, and now the subspace projection functions.
     I think I need to bring it all into one function.  Not initialiseVariables, project/substitute, Call control.Update, backsubstitute/project.

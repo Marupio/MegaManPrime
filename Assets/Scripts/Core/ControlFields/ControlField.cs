@@ -37,6 +37,7 @@ public class ControlFieldToolsetVector3 : IControlFieldToolset<Vector3> {
 /// </summary>
 public abstract class ControlField<T> : KVariableLimits {
     protected IControlFieldToolset<T> m_toolset;
+    protected string m_name;
 
     // WARNING - m_inputRange is null in some classes
     protected InputRange<T> m_inputRange;
@@ -49,6 +50,11 @@ public abstract class ControlField<T> : KVariableLimits {
     /// Access to internal type-specific toolset
     /// </summary>
     public IControlFieldToolset<T> Toolset {get=>m_toolset; set=>m_toolset=value;}
+
+    /// <summary>
+    /// Access the name of this controlField
+    /// </summary>
+    public string Name { get=>m_name; set=>m_name=value; }
 
     /// <summary>
     /// Change the control value
@@ -138,16 +144,18 @@ public abstract class ControlField<T> : KVariableLimits {
     }
 
     // *** Constructors
-    protected ControlField(KVariableLimits limits, IControlFieldToolset<T> toolset, InputRange<T> inputRange)
+    protected ControlField(KVariableLimits limits, IControlFieldToolset<T> toolset, string name, InputRange<T> inputRange)
         : base (limits) {
         m_toolset = toolset;
         m_inputRange = inputRange;
+        m_name = name;
         m_controlledVariable = KVariableTypeInfo.None;
         InitControlledVariableTypeSet();
     }
-    protected ControlField(KVariableLimits limits, IControlFieldToolset<T> toolset, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
+    protected ControlField(KVariableLimits limits, IControlFieldToolset<T> toolset, string name, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
         : base (limits) {
         m_toolset = toolset;
+        m_name = name;
         m_inputRange = inputRange;
 
         if (controlledVariable.Contains(KVariableTypeInfo.ExcludedFromControl)) {
@@ -174,7 +182,7 @@ public class UncontrolledField<T> : ControlField<T>
     public override void ApplyControlValue(T value) { /* Do nothing */ }
     public override T Target => throw new System.NotImplementedException();
     public override void Update(ref KVariables<T> vars, float deltaTime) { /* Do nothing */ }
-    public UncontrolledField(KVariableLimits limits, IControlFieldToolset<T> toolset) : base(limits, toolset, null) {}
+    public UncontrolledField(KVariableLimits limits, IControlFieldToolset<T> toolset, string name) : base(limits, toolset, name, null) {}
 }
 
 
@@ -241,8 +249,8 @@ public class ContinuousControlField<T> : ControlField<T>
     }
         
     // }
-    public ContinuousControlField(KVariableLimits limits, IControlFieldToolset<T> toolset, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
-        : base(limits, toolset, inputRange, controlledVariable) {}
+    public ContinuousControlField(KVariableLimits limits, IControlFieldToolset<T> toolset, InputRange<T> inputRange, string name, KVariableTypeSet controlledVariable)
+        : base(limits, toolset, name, inputRange, controlledVariable) {}
 }
 
 
@@ -290,12 +298,13 @@ public abstract class ImpulseControlField<T> : ControlField<T>
     public ImpulseControlField(
         KVariableLimits limits,
         IControlFieldToolset<T> toolset,
+        string name,
         InputRange<T> inputRange,
         KVariableTypeSet controlledVariable,
         float maxDuration,
         bool interruptable,
         bool enabled = true
-    ) : base(limits, toolset, inputRange, controlledVariable) {
+    ) : base(limits, toolset, name, inputRange, controlledVariable) {
         m_maxDuration = maxDuration;
         m_interruptable = interruptable;
         m_enabled = enabled;

@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public enum AxisStoredAt {
+public enum ContlolFieldStoredAt {
     Dict1D,
     Dict2D,
     Dict3D,
@@ -11,137 +12,232 @@ public enum AxisStoredAt {
     Active3D
 }
 
+public interface IControlFieldProfileManager {
+    public string Name { get; set; }
+    public int SpatialDimensions { get; }
+    public int RotationalDimensions { get; }
+    public int NControlFields { get; }
+    public Dictionary<string, ContlolFieldStoredAt> ControlFieldIndex { get; }
+}
+
 // 3D : Q = Quaternion, V = Vector3, T = Vector3
 // 2D : Q = float ,     V = Vector2, T = float
-public class ControlFieldProfileManager<Q, V, T> {
-    MovementController<Q, V, T> m_entity;
-    string m_name; // Name of associated entity's GameObject
-    Dictionary<string, AxisStoredAt> m_axisIndex;
-    Dictionary<string, ControlFieldProfile<float, V>> m_axes1D;
-    Dictionary<string, ControlFieldProfile<Vector2, V>> m_axes2D;
-    Dictionary<string, ControlFieldProfile<Vector3, V>> m_axes3D;
-    List<ControlFieldProfile<float, V>> m_activeAxes1D;
-    List<ControlFieldProfile<Vector2, V>> m_activeAxes2D;
-    List<ControlFieldProfile<Vector3, V>> m_activeAxes3D;
+public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
+    protected MovementController<Q, V, T> m_entity;
+    protected string m_name; // Name of associated entity's GameObject
+    protected int m_spatialDimensions;
+    protected int m_rotationalDimensions;
+    protected Dictionary<string, ContlolFieldStoredAt> m_controlFieldIndex;
+    protected Dictionary<string, ControlFieldProfile<float>> m_controlFields1D;
+    protected Dictionary<string, ControlFieldProfile<Vector2>> m_controlFields2D;
+    protected Dictionary<string, ControlFieldProfile<Vector3>> m_controlFields3D;
+    protected List<ControlFieldProfile<float>> m_activeControlFields1D;
+    protected List<ControlFieldProfile<Vector2>> m_activeControlFields2D;
+    protected List<ControlFieldProfile<Vector3>> m_activeControlFields3D;
 
     // *** Access
-    public Dictionary<string, AxisStoredAt> AxisIndex { get => m_axisIndex; }
-    public Dictionary<string, ControlFieldProfile<float, V>> Axes1D { get => m_axes1D; }
-    public Dictionary<string, ControlFieldProfile<Vector2, V>> Axes2D { get => m_axes2D; }
-    public Dictionary<string, ControlFieldProfile<Vector3, V>> Axes3D { get => m_axes3D; }
-    public List<ControlFieldProfile<float, V>> ActiveAxes1D { get => m_activeAxes1D; }
-    public List<ControlFieldProfile<Vector2, V>> ActiveAxes2D { get => m_activeAxes2D; }
-    public List<ControlFieldProfile<Vector3, V>> ActiveAxes3D { get => m_activeAxes3D; }
+    public string Name { get=>m_name; set=>m_name=value; }
+    public int SpatialDimensions { get=>m_spatialDimensions; }
+    public int RotationalDimensions { get=>m_rotationalDimensions; }
+    public int NControlFields { get=>ControlFieldIndex.Count; }
+    public Dictionary<string, ContlolFieldStoredAt> ControlFieldIndex { get => m_controlFieldIndex; }
+    public Dictionary<string, ControlFieldProfile<float>> ControlFields1D { get => m_controlFields1D; }
+    public Dictionary<string, ControlFieldProfile<Vector2>> ControlFields2D { get => m_controlFields2D; }
+    public Dictionary<string, ControlFieldProfile<Vector3>> ControlFields3D { get => m_controlFields3D; }
+    public List<ControlFieldProfile<float>> ActiveControlFields1D { get => m_activeControlFields1D; }
+    public List<ControlFieldProfile<Vector2>> ActiveControlFields2D { get => m_activeControlFields2D; }
+    public List<ControlFieldProfile<Vector3>> ActiveControlFields3D { get => m_activeControlFields3D; }
 
-    public bool AddAxis(ControlFieldProfile<float, V> newAxis, bool makeActive, bool overwrite = true) {
-        if (!overwrite && m_axisIndex.ContainsKey(newAxis.Name)) {
-            Debug.LogError("AxisManager " + m_name + " - axis name collision: " + newAxis.Name);
+    public bool AddControlField(ControlFieldProfile<float> newControlField, bool makeActive, bool overwrite = true) {
+        if (!overwrite && m_controlFieldIndex.ContainsKey(newControlField.Name)) {
+            Debug.LogError("ControlFieldManager " + m_name + " - controlField name collision: " + newControlField.Name);
             return false;
         }
-        AxisStoredAt asa = AxisStoredAt.Dict1D;
+        ContlolFieldStoredAt asa = ContlolFieldStoredAt.Dict1D;
         if (makeActive) {
-            m_activeAxes1D.Add(newAxis);
-            asa = AxisStoredAt.Active1D;
+            m_activeControlFields1D.Add(newControlField);
+            asa = ContlolFieldStoredAt.Active1D;
+            newControlField.InternalActivate();
         }
-        m_axisIndex.Add(newAxis.Name, asa);
-        return true;
-    }
-    public bool AddAxis(ControlFieldProfile<Vector2, V> newAxis, bool makeActive, bool overwrite = true) {
-        if (!overwrite && m_axisIndex.ContainsKey(newAxis.Name)) {
-            Debug.LogError("AxisManager " + m_name + " - axis name collision: " + newAxis.Name);
+        m_controlFields1D.Add(newControlField.Name, newControlField);
+        m_controlFieldIndex.Add(newControlField.Name, asa);
+        newControlField.InternalSetManager(this);
+        int nDimsCompare = newControlField.Type == ControlFieldType.Rotational ? m_rotationalDimensions : m_spatialDimensions;
+        if (newControlField.NAvailableDimensions != nDimsCompare) {
+            Debug.LogError(
+                "nDimensions mismatch, newControlField " + newControlField.Name + " expects " + newControlField.NAvailableDimensions +
+                " available dimensions, but there are " + nDimsCompare + " " + newControlField.Type + " dimensions"
+            );
             return false;
         }
-        AxisStoredAt asa = AxisStoredAt.Dict2D;
-        if (makeActive) {
-            m_activeAxes2D.Add(newAxis);
-            asa = AxisStoredAt.Active2D;
-        }
-        m_axisIndex.Add(newAxis.Name, asa);
         return true;
     }
-    public bool AddAxis(ControlFieldProfile<Vector3, V> newAxis, bool makeActive, bool overwrite = true) {
-        if (!overwrite && m_axisIndex.ContainsKey(newAxis.Name)) {
-            Debug.LogError("AxisManager " + m_name + " - axis name collision: " + newAxis.Name);
+    public bool AddControlField(ControlFieldProfile<Vector2> newControlField, bool makeActive, bool overwrite = true) {
+        if (!overwrite && m_controlFieldIndex.ContainsKey(newControlField.Name)) {
+            Debug.LogError("ControlFieldManager " + m_name + " - controlField name collision: " + newControlField.Name);
             return false;
         }
-        AxisStoredAt asa = AxisStoredAt.Dict3D;
+        ContlolFieldStoredAt asa = ContlolFieldStoredAt.Dict2D;
         if (makeActive) {
-            m_activeAxes3D.Add(newAxis);
-            asa = AxisStoredAt.Active3D;
+            m_activeControlFields2D.Add(newControlField);
+            asa = ContlolFieldStoredAt.Active2D;
+            newControlField.InternalActivate();
         }
-        m_axisIndex.Add(newAxis.Name, asa);
+        m_controlFields2D.Add(newControlField.Name, newControlField);
+        m_controlFieldIndex.Add(newControlField.Name, asa);
+        newControlField.InternalSetManager(this);
+        int nDimsCompare = newControlField.Type == ControlFieldType.Rotational ? m_rotationalDimensions : m_spatialDimensions;
+        if (newControlField.NAvailableDimensions != nDimsCompare) {
+            Debug.LogError(
+                "nDimensions mismatch, newControlField " + newControlField.Name + " expects " + newControlField.NAvailableDimensions +
+                " available dimensions, but there are " + nDimsCompare + " " + newControlField.Type + " dimensions"
+            );
+            return false;
+        }
         return true;
     }
-    public bool RemoveAxis(string name) {
-        AxisStoredAt storedAt;
-        if (!m_axisIndex.TryGetValue(name, out storedAt)) {
+    public bool AddControlField(ControlFieldProfile<Vector3> newControlField, bool makeActive, bool overwrite = true) {
+        if (!overwrite && m_controlFieldIndex.ContainsKey(newControlField.Name)) {
+            Debug.LogError("ControlFieldManager " + m_name + " - controlField name collision: " + newControlField.Name);
+            return false;
+        }
+        ContlolFieldStoredAt asa = ContlolFieldStoredAt.Dict3D;
+        if (makeActive) {
+            m_activeControlFields3D.Add(newControlField);
+            asa = ContlolFieldStoredAt.Active3D;
+            newControlField.InternalActivate();
+        }
+        m_controlFields3D.Add(newControlField.Name, newControlField);
+        m_controlFieldIndex.Add(newControlField.Name, asa);
+        newControlField.InternalSetManager(this);
+        int nDimsCompare = newControlField.Type == ControlFieldType.Rotational ? m_rotationalDimensions : m_spatialDimensions;
+        if (newControlField.NAvailableDimensions != nDimsCompare) {
+            Debug.LogError(
+                "nDimensions mismatch, newControlField " + newControlField.Name + " expects " + newControlField.NAvailableDimensions +
+                " available dimensions, but there are " + nDimsCompare + " " + newControlField.Type + " dimensions"
+            );
+            return false;
+        }
+        return true;
+    }
+    public bool RemoveControlField(string name) {
+        ContlolFieldStoredAt storedAt;
+        if (!m_controlFieldIndex.TryGetValue(name, out storedAt)) {
             return false;
         }
         switch (storedAt) {
-            case AxisStoredAt.Dict1D:
-                m_axes1D.Remove(name);
+            case ContlolFieldStoredAt.Dict1D: {
+                ControlFieldProfile<float> controlField;
+                if (m_controlFields1D.TryGetValue(name, out controlField)) {
+                    m_controlFields1D.Remove(name);
+                    controlField.InternalSetManager(null);
+                }
                 break;
-            case AxisStoredAt.Dict2D:
-                m_axes2D.Remove(name);
+            }
+            case ContlolFieldStoredAt.Dict2D: {
+                ControlFieldProfile<Vector2> controlField;
+                if (m_controlFields2D.TryGetValue(name, out controlField)) {
+                    m_controlFields2D.Remove(name);
+                    controlField.InternalSetManager(null);
+                }
                 break;
-            case AxisStoredAt.Dict3D:
-                m_axes3D.Remove(name);
+            }
+            case ContlolFieldStoredAt.Dict3D: {
+                ControlFieldProfile<Vector3> controlField;
+                if (m_controlFields3D.TryGetValue(name, out controlField)) {
+                    m_controlFields3D.Remove(name);
+                    controlField.InternalSetManager(null);
+                }
                 break;
-            case AxisStoredAt.Active1D:
-                m_axes1D.Remove(name);
-                m_activeAxes1D.RemoveAll(axis => axis.Name == name);
+            }
+            case ContlolFieldStoredAt.Active1D: {
+                ControlFieldProfile<float> controlField;
+                if (m_controlFields1D.TryGetValue(name, out controlField)) {
+                    m_controlFields1D.Remove(name);
+                    controlField.InternalSetManager(null);
+                    m_activeControlFields1D.Remove(controlField);
+                } else {
+                    m_activeControlFields1D.RemoveAll(controlField => controlField.Name == name);
+                }
                 break;
-            case AxisStoredAt.Active2D:
-                m_axes2D.Remove(name);
-                m_activeAxes2D.RemoveAll(axis => axis.Name == name);
+            }
+            case ContlolFieldStoredAt.Active2D: {
+                ControlFieldProfile<Vector2> controlField;
+                if (m_controlFields2D.TryGetValue(name, out controlField)) {
+                    m_controlFields2D.Remove(name);
+                    controlField.InternalSetManager(null);
+                    m_activeControlFields2D.Remove(controlField);
+                } else {
+                    m_activeControlFields2D.RemoveAll(controlField => controlField.Name == name);
+                }
                 break;
-            case AxisStoredAt.Active3D:
-                m_axes3D.Remove(name);
-                m_activeAxes3D.RemoveAll(axis => axis.Name == name);
+            }
+            case ContlolFieldStoredAt.Active3D: {
+                ControlFieldProfile<Vector3> controlField;
+                if (m_controlFields3D.TryGetValue(name, out controlField)) {
+                    m_controlFields3D.Remove(name);
+                    controlField.InternalSetManager(null);
+                    m_activeControlFields3D.Remove(controlField);
+                } else {
+                    m_activeControlFields3D.RemoveAll(controlField => controlField.Name == name);
+                }
                 break;
+            }
         }
         return true;
     }
     public void RemoveAllAxes() {
-        m_axes1D.Clear();
-        m_axes2D.Clear();
-        m_axes3D.Clear();
-        m_activeAxes1D.Clear();
-        m_activeAxes2D.Clear();
-        m_activeAxes3D.Clear();
-        m_axisIndex.Clear();
+        for (int i = 0; i < m_controlFields1D.Count; ++i) {
+            m_controlFields1D.ElementAt(i).Value.InternalSetManager(null);
+        }
+        m_controlFields1D.Clear();
+        for (int i = 0; i < m_controlFields2D.Count; ++i) {
+            m_controlFields2D.ElementAt(i).Value.InternalSetManager(null);
+        }
+        m_controlFields2D.Clear();
+        for (int i = 0; i < m_controlFields3D.Count; ++i) {
+            m_controlFields3D.ElementAt(i).Value.InternalSetManager(null);
+        }
+        m_controlFields3D.Clear();
+        m_activeControlFields1D.Clear();
+        m_activeControlFields2D.Clear();
+        m_activeControlFields3D.Clear();
+        m_controlFieldIndex.Clear();
     }
-    public bool ActivateAxis(string name) {
-        AxisStoredAt storedAt;
-        if (!m_axisIndex.TryGetValue(name, out storedAt)) {
+    public bool ActivateControlField(string name) {
+        ContlolFieldStoredAt storedAt;
+        if (!m_controlFieldIndex.TryGetValue(name, out storedAt)) {
             return false;
         }
         switch (storedAt) {
-            case AxisStoredAt.Dict1D: {
-                ControlFieldProfile<float, V> activeAxis = m_axes1D[name];
-                m_activeAxes1D.Add(activeAxis);
-                m_axisIndex.Add(name, AxisStoredAt.Active1D);
+            case ContlolFieldStoredAt.Dict1D: {
+                ControlFieldProfile<float> activeControlField = m_controlFields1D[name];
+                m_activeControlFields1D.Add(activeControlField);
+                m_controlFieldIndex.Add(name, ContlolFieldStoredAt.Active1D);
+                activeControlField.InternalActivate();
                 return true;
             }
-            case AxisStoredAt.Dict2D: {
-                ControlFieldProfile<Vector2, V> activeAxis = m_axes2D[name];
-                m_activeAxes2D.Add(activeAxis);
-                m_axisIndex.Add(name, AxisStoredAt.Active2D);
+            case ContlolFieldStoredAt.Dict2D: {
+                ControlFieldProfile<Vector2> activeControlField = m_controlFields2D[name];
+                m_activeControlFields2D.Add(activeControlField);
+                m_controlFieldIndex.Add(name, ContlolFieldStoredAt.Active2D);
+                activeControlField.InternalActivate();
                 return true;
             }
-            case AxisStoredAt.Dict3D: {
-                ControlFieldProfile<Vector3, V> activeAxis = m_axes3D[name];
-                m_activeAxes3D.Add(activeAxis);
-                m_axisIndex.Add(name, AxisStoredAt.Active3D);
+            case ContlolFieldStoredAt.Dict3D: {
+                ControlFieldProfile<Vector3> activeControlField = m_controlFields3D[name];
+                m_activeControlFields3D.Add(activeControlField);
+                m_controlFieldIndex.Add(name, ContlolFieldStoredAt.Active3D);
+                activeControlField.InternalActivate();
                 return true;
             }
-            case AxisStoredAt.Active1D: {
+            case ContlolFieldStoredAt.Active1D: {
                 return true;
             }
-            case AxisStoredAt.Active2D: {
+            case ContlolFieldStoredAt.Active2D: {
                 return true;
             }
-            case AxisStoredAt.Active3D: {
+            case ContlolFieldStoredAt.Active3D: {
                 return true;
             }
             default: {
@@ -150,37 +246,40 @@ public class ControlFieldProfileManager<Q, V, T> {
             }
         }
     }
-    public bool DeactivateAxis(string name) {
-        AxisStoredAt storedAt;
-        if (!m_axisIndex.TryGetValue(name, out storedAt)) {
+    public bool DeactivateControlField(string name) {
+        ContlolFieldStoredAt storedAt;
+        if (!m_controlFieldIndex.TryGetValue(name, out storedAt)) {
             return false;
         }
         switch (storedAt) {
-            case AxisStoredAt.Dict1D: {
+            case ContlolFieldStoredAt.Dict1D: {
                 return true;
             }
-            case AxisStoredAt.Dict2D: {
+            case ContlolFieldStoredAt.Dict2D: {
                 return true;
             }
-            case AxisStoredAt.Dict3D: {
+            case ContlolFieldStoredAt.Dict3D: {
                 return true;
             }
-            case AxisStoredAt.Active1D: {
-                ControlFieldProfile<float, V> activeAxis = m_axes1D[name];
-                m_activeAxes1D.Remove(activeAxis);
-                m_axisIndex.Add(name, AxisStoredAt.Dict1D);
+            case ContlolFieldStoredAt.Active1D: {
+                ControlFieldProfile<float> activeControlField = m_controlFields1D[name];
+                m_activeControlFields1D.Remove(activeControlField);
+                m_controlFieldIndex.Add(name, ContlolFieldStoredAt.Dict1D);
+                activeControlField.InternalDeactivate();
                 return true;
             }
-            case AxisStoredAt.Active2D: {
-                ControlFieldProfile<Vector2, V> activeAxis = m_axes2D[name];
-                m_activeAxes2D.Remove(activeAxis);
-                m_axisIndex.Add(name, AxisStoredAt.Dict1D);
+            case ContlolFieldStoredAt.Active2D: {
+                ControlFieldProfile<Vector2> activeControlField = m_controlFields2D[name];
+                m_activeControlFields2D.Remove(activeControlField);
+                m_controlFieldIndex.Add(name, ContlolFieldStoredAt.Dict1D);
+                activeControlField.InternalDeactivate();
                 return true;
             }
-            case AxisStoredAt.Active3D: {
-                ControlFieldProfile<Vector3, V> activeAxis = m_axes3D[name];
-                m_activeAxes3D.Remove(activeAxis);
-                m_axisIndex.Add(name, AxisStoredAt.Dict1D);
+            case ContlolFieldStoredAt.Active3D: {
+                ControlFieldProfile<Vector3> activeControlField = m_controlFields3D[name];
+                m_activeControlFields3D.Remove(activeControlField);
+                m_controlFieldIndex.Add(name, ContlolFieldStoredAt.Dict1D);
+                activeControlField.InternalDeactivate();
                 return true;
             }
             default: {
@@ -193,7 +292,7 @@ public class ControlFieldProfileManager<Q, V, T> {
     // *** Internal functions
     bool CheckSetup() {
         int nFreedoms = m_entity.NSpatialFreedoms + m_entity.NRotationalFreedoms;
-        int nControls = m_activeAxes1D.Count + 2*m_activeAxes2D.Count + 3*m_activeAxes3D.Count;
+        int nControls = m_activeControlFields1D.Count + 2*m_activeControlFields2D.Count + 3*m_activeControlFields3D.Count;
         // This check is not informative, because some control axes may be ForceUsers, which can overlap with other ForceUsers and one StateSetters
         // if (nFreedoms - nControls < 0) {
         //     Debug.LogError("Overconstrained system: " + nFreedoms + " freedoms, " + nControls + " controls.");
@@ -203,37 +302,49 @@ public class ControlFieldProfileManager<Q, V, T> {
         Vector3Int fixedRotational = Vector3Int.zero;
         int nSpatial = m_entity.NSpatialFreedoms;
         int nRotational = m_entity.NRotationalFreedoms;
-        foreach (ControlFieldProfile<float, V> axis in m_activeAxes1D) {
-            fixedSpatial += axis.CheckUsedSpatialAxes;
-            fixedRotational += axis.CheckUsedRotationalAxes;
-            if (axis.Control.StateSetter()) {
-                if (axis.Type == AxisType.Spatial) {
-                    nSpatial -= axis.NControlledDimensions;
-                } else if (axis.Type == AxisType.Rotational) {
-                    nRotational -= axis.NControlledDimensions;
+        foreach (ControlFieldProfile<float> controlField in m_activeControlFields1D) {
+            if (controlField.Type == ControlFieldType.Spatial) {
+                fixedSpatial += controlField.InternalCheckUsedAxes;
+                if (controlField.Control.StateSetter()) {
+                    nSpatial -= controlField.NControlledDimensions;
                 }
+            } else if (controlField.Type == ControlFieldType.Rotational) {
+                fixedRotational += controlField.InternalCheckUsedAxes;
+                if (controlField.Control.StateSetter()) {
+                    nRotational -= controlField.NControlledDimensions;
+                }
+            } else {
+                Debug.LogError("ControlField " + controlField.Name + " has no Type");
             }
         }
-        foreach (ControlFieldProfile<Vector2, V> axis in m_activeAxes2D) {
-            fixedSpatial += axis.CheckUsedSpatialAxes;
-            fixedRotational += axis.CheckUsedRotationalAxes;
-            if (axis.Control.StateSetter()) {
-                if (axis.Type == AxisType.Spatial) {
-                    nSpatial -= axis.NControlledDimensions;
-                } else if (axis.Type == AxisType.Rotational) {
-                    nRotational -= axis.NControlledDimensions;
+        foreach (ControlFieldProfile<Vector2> controlField in m_activeControlFields2D) {
+            if (controlField.Type == ControlFieldType.Spatial) {
+                fixedSpatial += controlField.InternalCheckUsedAxes;
+                if (controlField.Control.StateSetter()) {
+                    nSpatial -= controlField.NControlledDimensions;
                 }
+            } else if (controlField.Type == ControlFieldType.Rotational) {
+                fixedRotational += controlField.InternalCheckUsedAxes;
+                if (controlField.Control.StateSetter()) {
+                    nRotational -= controlField.NControlledDimensions;
+                }
+            } else {
+                Debug.LogError("ControlField " + controlField.Name + " has no Type");
             }
         }
-        foreach (ControlFieldProfile<Vector3, V> axis in m_activeAxes3D) {
-            fixedSpatial += axis.CheckUsedSpatialAxes;
-            fixedRotational += axis.CheckUsedRotationalAxes;
-            if (axis.Control.StateSetter()) {
-                if (axis.Type == AxisType.Spatial) {
-                    nSpatial -= axis.NControlledDimensions;
-                } else if (axis.Type == AxisType.Rotational) {
-                    nRotational -= axis.NControlledDimensions;
+        foreach (ControlFieldProfile<Vector3> controlField in m_activeControlFields3D) {
+            if (controlField.Type == ControlFieldType.Spatial) {
+                fixedSpatial += controlField.InternalCheckUsedAxes;
+                if (controlField.Control.StateSetter()) {
+                    nSpatial -= controlField.NControlledDimensions;
                 }
+            } else if (controlField.Type == ControlFieldType.Rotational) {
+                fixedRotational += controlField.InternalCheckUsedAxes;
+                if (controlField.Control.StateSetter()) {
+                    nRotational -= controlField.NControlledDimensions;
+                }
+            } else {
+                Debug.LogError("ControlField " + controlField.Name + " has no Type");
             }
         }
         // Now check results of summations
@@ -263,12 +374,14 @@ public class ControlFieldProfileManager<Q, V, T> {
         if (!passRotate) {
             rotateFail = " Rotation assignment = " + fixedRotational;
         }
-        Debug.Log("Number of StateSetter type axis controllers aligned to each axis cannot exceed 1." + spaceFail + rotateFail);
+        Debug.Log("Number of StateSetter type controlFields aligned to each axis cannot exceed 1." + spaceFail + rotateFail);
         return false;
     }
 
     // *** Constructors
-    ControlFieldProfileManager(MovementController<Q,V,T> entity, string name) {
+    ControlFieldProfileManager(MovementController<Q, V, T> entity, string name) {
+        m_spatialDimensions = GeneralTools.NDimensions<V>();
+        m_rotationalDimensions = GeneralTools.NDimensions<T>();
         m_entity = entity;
         m_name = name;
     }
