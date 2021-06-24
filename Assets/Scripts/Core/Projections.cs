@@ -52,7 +52,7 @@ public class ProjectionsFloatFloat : IProjections<float, float> {
         KVariables<float> srcVars,
         Quaternion direction
     ) {
-        // Projecting flag should never be set when space and subspace have the same number of dimensions
+        // Projecting flag should never be set in this case
         throw new System.NotImplementedException();
     }
     public void SubstituteToSubspace(
@@ -205,8 +205,18 @@ public class ProjectionsVector2Vector2 : IProjections<Vector2, Vector2> {
         KVariables<Vector2> srcVars,
         Quaternion direction
     ) {
-        // Projecting flag should never be set when space and subspace have the same number of dimensions
-        throw new System.NotImplementedException();
+        varSet = new KVariables<Vector2>(Vector2.zero);
+        
+        // Rotate the axis from X
+        Vector2 unitVectorX = (Vector2)(direction*Vector3.right);
+        Vector2 unitVectorY = (Vector2)(direction*Vector3.up);
+        varSet.Variable = new Vector2(Vector2.Dot(srcVars.Variable, unitVectorX), Vector2.Dot(srcVars.Variable, unitVectorY));
+        varSet.Derivative = new Vector2(Vector2.Dot(srcVars.Derivative, unitVectorX), Vector2.Dot(srcVars.Derivative, unitVectorY));
+        varSet.SecondDerivative = new Vector2(Vector2.Dot(srcVars.SecondDerivative, unitVectorX), Vector2.Dot(srcVars.SecondDerivative, unitVectorY));
+        varSet.AppliedForce = new Vector2(Vector2.Dot(srcVars.AppliedForce, unitVectorX), Vector2.Dot(srcVars.AppliedForce, unitVectorY));
+        controlSpaceToWorldSpace = new Dictionary<List<int>, List<int>>();
+        controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{-2, -1, 0, 1});
+        controlSpaceToWorldSpace.Add(new List<int>{1}, new List<int>{-2, -1, 0, 1});
     }
     public void SubstituteToSubspace(
         out KVariables<Vector2> varSet,
@@ -325,6 +335,7 @@ public class ProjectionsVector3Vector3 : IProjections<Vector3, Vector3> {
         KVariables<Vector3> srcVars,
         Quaternion Direction
     ) {
+        // TODO - this is an encounterable case
         // Projecting flag should never be set when space and subspace have the same number of dimensions
         throw new System.NotImplementedException();
     }
