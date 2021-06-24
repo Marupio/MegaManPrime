@@ -220,7 +220,7 @@ public class MovementController<Q, V, T>
             default(T)
         );
 
-        // The V types hold any updated components of each kvariable type, the Vi types hold 0|1 indicating which component has been updated
+        // The float types hold any updated components of each kvariable type, the int types hold 0|1 indicating which component has been updated
         KVariables<V> spatialVarsUpdate = new KVariables<V>(m_toolset.ZeroV);
         KVariables<Vector3Int> spatialVarsUsedAxis = new KVariables<Vector3Int>(Vector3Int.zero);
         KVariables<T> rotationalVarsUpdate = new KVariables<T>(m_toolset.ZeroT);
@@ -235,11 +235,31 @@ public class MovementController<Q, V, T>
         //      - Assemble kvarSet, project variables if needed
         //      - Call update on axis
         //      - Add changes back to local working variables
-        foreach(ControlFieldProfile<float, V> controlField in m_controlFields.ActiveAxes1D) {
+        foreach(ControlFieldProfile<float, V> controlFieldProfile in m_controlFields.ActiveAxes1D) {
             KVariables<float> varSet;
             Dictionary<List<int>, List<int>> controlSpaceToWorldSpace;
-            InitialiseVarSet(out varSet, out controlSpaceToWorldSpace, spatialVarsInit, rotationalVarsInit, m_subspaceFloatV, m_subspaceFloatT, controlField);
-            controlField.Control.Update(ref varSet, m_time.deltaTime);
+            InitialiseVarSet(
+                out varSet,
+                out controlSpaceToWorldSpace,
+                spatialVarsInit,
+                rotationalVarsInit,
+                m_subspaceFloatV,
+                m_subspaceFloatT,
+                controlFieldProfile
+            );
+            controlFieldProfile.Control.Update(ref varSet, m_time.deltaTime);
+            SaveResults(
+                controlFieldProfile,
+                m_subspaceFloatV,
+                m_subspaceFloatT,
+                controlSpaceToWorldSpace,
+                ref spatialVarsUpdate,
+                ref spatialVarsUsedAxis,
+                ref rotationalVarsUpdate,
+                ref rotationalVarsUsedAxis
+            );
+            // Take varSet and move results into [spatial|rotational]VarsUpdate
+            // Add flag to [spatial|rotational]VarsUsedAxis
         }
         foreach(ControlFieldProfile<Vector2, V> controlField in m_controlFields.ActiveAxes2D) {
             KVariables<Vector2> varSet;
@@ -267,6 +287,23 @@ public class MovementController<Q, V, T>
 //      Axis alignment Vector3
 // WorldSpace2D (Rigidbody2D) : Q = float, V = Vector2, T = float
 //      Axis alignment Vector2
+    protected virtual void SaveResults<S>(
+        ControlFieldProfile<S, V> controlFieldProfile,
+        Dictionary<List<int>, List<int>> controlSpaceToWorldSpace,
+        IProjections<S, V> projectionToolsetV,
+        IProjections<S, T> projectionToolsetT,
+        ref KVariables<V> spatialVarsUpdate,
+        ref KVariables<Vector3Int> spatialVarsUsedAxis,
+        ref KVariables<T> rotationalVarsUpdate,
+        ref KVariables<Vector3Int> rotationalVarsUsedAxis
+    ) {
+        if (controlFieldProfile.Type == AxisType.Rotational) {
+            
+        } else {
+
+        }
+    }
+
     protected virtual void InitialiseVarSet<S>(
         out KVariables<S> varSet,
         out Dictionary<List<int>, List<int>> controlSpaceToWorldSpace,
@@ -274,9 +311,9 @@ public class MovementController<Q, V, T>
         KVariables<T> rotationalVarsInit,
         IProjections<S, V> projectionToolsetV,
         IProjections<S, T> projectionToolsetT,
-        ControlFieldProfile<S, V> controlField
+        ControlFieldProfile<S, V> controlFieldProfile
     ) {
-        if (controlField.Type == AxisType.Rotational) {
+        if (controlFieldProfile.Type == AxisType.Rotational) {
             KVariables<T> srcVars = new KVariables<T>(
                 rotationalVarsInit.Variable,            // m_localRotationComponents,
                 rotationalVarsInit.Derivative,          // m_localAngularVelocity,
@@ -284,10 +321,10 @@ public class MovementController<Q, V, T>
                 rotationalVarsInit.AppliedForce,        // m_localAppliedTorque,
                 m_toolset.ZeroT
             );
-            if (controlField.Projecting) {
-                projectionToolsetT.ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Direction);
+            if (controlFieldProfile.Projecting) {
+                projectionToolsetT.ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlFieldProfile.Direction);
             } else {
-                projectionToolsetT.SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Alignment);
+                projectionToolsetT.SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlFieldProfile.Alignment);
             }
         } else {
             KVariables<V> srcVars = new KVariables<V>(
@@ -297,10 +334,10 @@ public class MovementController<Q, V, T>
                 spatialVarsInit.AppliedForce,       // m_localAppliedForce,
                 m_toolset.ZeroV
             );
-            if (controlField.Projecting) {
-                projectionToolsetV.ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Direction);
+            if (controlFieldProfile.Projecting) {
+                projectionToolsetV.ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlFieldProfile.Direction);
             } else {
-                projectionToolsetV.SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlField.Alignment);
+                projectionToolsetV.SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlFieldProfile.Alignment);
             }
         }
     }

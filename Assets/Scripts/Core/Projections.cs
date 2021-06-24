@@ -9,6 +9,13 @@ using UnityEngine;
 //          <Vector2,Vector3>
 //          <Vector3,Vector3>
 // Projections/Substitutions between SubSpace <SS> and Space <S>
+/// ControlSpaceToWorldSpace
+///     * key = a single 'from' subspace axis,
+///     * value = complete list of 'from' axes and 'to' axes in a single projection group.
+///         The 'from' axes are encoded negatively: value = -1-axisId.
+///         The 'to' axes are encoded positively: value = axisId.
+///         AxisId is 0,1,2 for X,Y,Z
+///         e.g. encoding a projection from 2D to 3D would be: (-2, -1, 0, 1, 2)
 public interface IProjections<SS, S> {
     public void ProjectToSubspace(
         out KVariables<SS> varSet,
@@ -43,7 +50,7 @@ public class ProjectionsFloatFloat : IProjections<float, float> {
         varSet = new KVariables<float>(0f);
         varSet.SetEqual(srcVars);
         controlSpaceToWorldSpace = new Dictionary<List<int>, List<int>>();
-        controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{0});
+        controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{-1,0});
     }
 }
 public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
@@ -63,7 +70,7 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
         varSet.SecondDerivative = Vector2.Dot(srcVars.SecondDerivative, unitVector);
         varSet.AppliedForce = Vector2.Dot(srcVars.AppliedForce, unitVector);
         controlSpaceToWorldSpace = new Dictionary<List<int>, List<int>>();
-        controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{0, 1});
+        controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{-1, 0, 1});
     }
     public void SubstituteToSubspace(
         out KVariables<float> varSet,
@@ -79,7 +86,7 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
                 varSet.SecondDerivative = srcVars.SecondDerivative.x;
                 varSet.AppliedForce = srcVars.AppliedForce.x;
                 controlSpaceToWorldSpace = new Dictionary<List<int>, List<int>>();
-                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{0});
+                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{-1, 0});
                 break;
             case AxisPlaneSpace.Y:
                 varSet = new KVariables<float>(0f);
@@ -88,7 +95,7 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
                 varSet.SecondDerivative = srcVars.SecondDerivative.y;
                 varSet.AppliedForce = srcVars.AppliedForce.y;
                 controlSpaceToWorldSpace = new Dictionary<List<int>, List<int>>();
-                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{1});
+                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{-1, 1});
                 break;
             case AxisPlaneSpace.Z:
             case AxisPlaneSpace.XYZ:
@@ -123,7 +130,7 @@ public class ProjectionsFloatVector3 : IProjections<float, Vector3> {
         varSet.SecondDerivative = Vector3.Dot(srcVars.SecondDerivative, unitDirection);
         varSet.AppliedForce = Vector3.Dot(srcVars.AppliedForce, unitDirection);
         controlSpaceToWorldSpace = new Dictionary<List<int>, List<int>>();
-        controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{0, 1, 2});
+        controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{-1, 0, 1, 2});
     }
     public void SubstituteToSubspace(
         out KVariables<float> varSet,
@@ -139,7 +146,7 @@ public class ProjectionsFloatVector3 : IProjections<float, Vector3> {
                 varSet.SecondDerivative = srcVars.SecondDerivative.x;
                 varSet.AppliedForce = srcVars.AppliedForce.x;
                 controlSpaceToWorldSpace = new Dictionary<List<int>, List<int>>();
-                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{0});
+                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{-1, 0});
                 break;
             case AxisPlaneSpace.Y:
                 varSet = new KVariables<float>(0f);
@@ -148,7 +155,7 @@ public class ProjectionsFloatVector3 : IProjections<float, Vector3> {
                 varSet.SecondDerivative = srcVars.SecondDerivative.y;
                 varSet.AppliedForce = srcVars.AppliedForce.y;
                 controlSpaceToWorldSpace = new Dictionary<List<int>, List<int>>();
-                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{1});
+                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{-1, 1});
                 break;
             case AxisPlaneSpace.Z:
                 varSet = new KVariables<float>(0f);
@@ -157,7 +164,7 @@ public class ProjectionsFloatVector3 : IProjections<float, Vector3> {
                 varSet.SecondDerivative = srcVars.SecondDerivative.z;
                 varSet.AppliedForce = srcVars.AppliedForce.z;
                 controlSpaceToWorldSpace = new Dictionary<List<int>, List<int>>();
-                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{2});
+                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{-1, 2});
                 break;
             case AxisPlaneSpace.XYZ:
             case AxisPlaneSpace.YZ:
@@ -201,8 +208,8 @@ public class ProjectionsVector2Vector2 : IProjections<Vector2, Vector2> {
                 varSet.SecondDerivative = srcVars.SecondDerivative;
                 varSet.AppliedForce = srcVars.AppliedForce;
                 controlSpaceToWorldSpace = new Dictionary<List<int>, List<int>>();
-                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{0});
-                controlSpaceToWorldSpace.Add(new List<int>{1}, new List<int>{1});
+                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{-1, 0});
+                controlSpaceToWorldSpace.Add(new List<int>{1}, new List<int>{-2, 1});
                 break;
             case AxisPlaneSpace.YZ:
             case AxisPlaneSpace.XZ:
@@ -239,7 +246,8 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
         varSet.SecondDerivative = new Vector2(Vector3.Dot(srcVars.SecondDerivative, unitX), Vector3.Dot(srcVars.SecondDerivative, unitY));
         varSet.AppliedForce = new Vector2(Vector3.Dot(srcVars.AppliedForce, unitX), Vector3.Dot(srcVars.AppliedForce, unitY));
         controlSpaceToWorldSpace = new Dictionary<List<int>, List<int>>();
-        controlSpaceToWorldSpace.Add(new List<int>{0, 1}, new List<int>{0, 1, 2});
+        controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{-2, -1, 0, 1, 2});
+        controlSpaceToWorldSpace.Add(new List<int>{1}, new List<int>{-2, -1, 0, 1, 2});
     }
     public void SubstituteToSubspace(
         out KVariables<Vector2> varSet,
@@ -255,8 +263,8 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
                 varSet.SecondDerivative = (Vector2)srcVars.SecondDerivative;
                 varSet.AppliedForce = (Vector2)srcVars.AppliedForce;
                 controlSpaceToWorldSpace = new Dictionary<List<int>, List<int>>();
-                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{0});
-                controlSpaceToWorldSpace.Add(new List<int>{1}, new List<int>{1});
+                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{-1, 0});
+                controlSpaceToWorldSpace.Add(new List<int>{1}, new List<int>{-2, 1});
                 break;
             case AxisPlaneSpace.YZ: // X-->Y, Y-->Z
                 varSet = new KVariables<Vector2>(Vector2.zero);
@@ -265,8 +273,8 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
                 varSet.SecondDerivative = new Vector2(srcVars.SecondDerivative.y, srcVars.SecondDerivative.z);
                 varSet.AppliedForce = new Vector2(srcVars.AppliedForce.y, srcVars.AppliedForce.z);
                 controlSpaceToWorldSpace = new Dictionary<List<int>, List<int>>();
-                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{1});
-                controlSpaceToWorldSpace.Add(new List<int>{1}, new List<int>{2});
+                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{-1, 1});
+                controlSpaceToWorldSpace.Add(new List<int>{1}, new List<int>{-2, 2});
                 break;
             case AxisPlaneSpace.XZ: // X-->X, Y-->Z
                 varSet = new KVariables<Vector2>(Vector2.zero);
@@ -275,8 +283,8 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
                 varSet.SecondDerivative = new Vector2(srcVars.SecondDerivative.x, srcVars.SecondDerivative.z);
                 varSet.AppliedForce = new Vector2(srcVars.AppliedForce.x, srcVars.AppliedForce.z);
                 controlSpaceToWorldSpace = new Dictionary<List<int>, List<int>>();
-                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{0});
-                controlSpaceToWorldSpace.Add(new List<int>{1}, new List<int>{2});
+                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{-1, 0});
+                controlSpaceToWorldSpace.Add(new List<int>{1}, new List<int>{-2, 2});
                 break;
             case AxisPlaneSpace.X:
             case AxisPlaneSpace.Y:
@@ -320,9 +328,9 @@ public class ProjectionsVector3Vector3 : IProjections<Vector3, Vector3> {
                 varSet.SecondDerivative = srcVars.SecondDerivative;
                 varSet.AppliedForce = srcVars.AppliedForce;
                 controlSpaceToWorldSpace = new Dictionary<List<int>, List<int>>();
-                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{0});
-                controlSpaceToWorldSpace.Add(new List<int>{1}, new List<int>{1});
-                controlSpaceToWorldSpace.Add(new List<int>{2}, new List<int>{2});
+                controlSpaceToWorldSpace.Add(new List<int>{0}, new List<int>{-1, 0});
+                controlSpaceToWorldSpace.Add(new List<int>{1}, new List<int>{-2, 1});
+                controlSpaceToWorldSpace.Add(new List<int>{2}, new List<int>{-3, 2});
                 break;
             case AxisPlaneSpace.X:
             case AxisPlaneSpace.Y:
