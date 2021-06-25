@@ -30,9 +30,10 @@ public enum KVariableRestriction {
 }
 
 public class KVariableTypeInfo {
-    // None
+    // *** Statically constructed types
+    // *** None
     public static KVariableTypeSet None                   = new KVariableTypeSet(KVariableEnum.None);
-    // Base types
+    // *** Base types
     public static KVariableTypeSet Variable               = new KVariableTypeSet(KVariableEnum.Variable);
     public static KVariableTypeSet Derivative             = new KVariableTypeSet(KVariableEnum.Derivative);
     public static KVariableTypeSet SecondDerivative       = new KVariableTypeSet(KVariableEnum.SecondDerivative);
@@ -42,7 +43,7 @@ public class KVariableTypeInfo {
     public static KVariableTypeSet AppliedForceDerivative = new KVariableTypeSet(KVariableEnum.AppliedForceDerivative);
     public static KVariableTypeSet ImpulseForceDerivative = new KVariableTypeSet(KVariableEnum.ImpulseForceDerivative);
     public static KVariableTypeSet Drag                   = new KVariableTypeSet(KVariableEnum.Drag);
-    // Mixed types
+    // *** Mixed types
     public static KVariableTypeSet AllForceTypes = AppliedForce|ImpulseForce|AppliedForceDerivative|ImpulseForceDerivative;
     public static KVariableTypeSet AllStateSetterTypes = ~AllForceTypes;
     public static KVariableTypeSet AllBaseTypes =

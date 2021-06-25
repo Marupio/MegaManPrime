@@ -2,11 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class KVariables<V> {
-    protected V m_variable;
-    protected V m_derivative;
-    protected V m_secondDerivative;
-    protected V m_appliedForce;
-    protected V m_impulseForce;
+    // *** Direct access to variables if you need it
+    public V m_variable;
+    public V m_derivative;
+    public V m_secondDerivative;
+    public V m_appliedForce;
+    public V m_impulseForce;
 
     // *** Access
     public V Variable { get => m_variable; set => m_variable = value; }

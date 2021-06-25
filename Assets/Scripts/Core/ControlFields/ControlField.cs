@@ -75,6 +75,7 @@ public abstract class ControlField<T> : KVariableLimits {
         }
     }
     public virtual KVariableTypeSet ControlledVariable { get => m_controlledVariableAsTypeSet; }
+    public virtual KVariableControllableEnum ControlledVariableEnum { get => m_controlledVariable; }
     /// <summary>
     /// Output of this class - this is the value I want for my controlled variables
     /// </summary>

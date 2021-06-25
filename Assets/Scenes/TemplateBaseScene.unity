@@ -153,14 +153,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputAngles: {x: 0, y: 0, z: 15}
-  inputVelocity: {x: 1, y: 2, z: 0}
-  inputThetaDegrees: 15
+  inputVelocity: {x: 1, y: 1, z: 0}
   inputAxisDirection: {x: 1, y: 0, z: 0}
-  rotatedVelocity: {x: 0, y: 0, z: 0}
-  thetaUnitVector: {x: 0, y: 0, z: 0}
+  velocityMagnitude: 0
+  qForward: {x: 0, y: 0, z: 0, w: 0}
+  qReverse: {x: 0, y: 0, z: 0, w: 0}
+  reverseAngles: {x: 0, y: 0, z: 0}
   projectedMagnitude: 0
-  rotatedAxisDirection: {x: 0, y: 0, z: 0}
-  rotatedAxisDirectionDotInputVelocity: 0
+  unprojectedVelocity: {x: 0, y: 0, z: 0}
+  outputMagnitude: 0
 --- !u!4 &421946842
 Transform:
   m_ObjectHideFlags: 0

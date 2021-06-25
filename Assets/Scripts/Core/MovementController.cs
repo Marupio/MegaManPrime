@@ -110,10 +110,10 @@ public class MovementController<Q, V, T>
     // Projection toolsets
     protected IProjections<float, V> m_subspaceFloatV;     // Project between 1D axis and spatial space
     protected IProjections<Vector2, V> m_subspaceVector2V; // Project between 2D axis and spatial space
-    protected IProjections<Vector3, V> m_subspaceVector3V; // Project between 3D axis and spatial space
+    protected IProjections<Vector3, V> m_subspaceVector3V; // Project between 3D axis and spatial space (3D only)
     protected IProjections<float, T> m_subspaceFloatT;     // Project between 1D axis and rotational space
-    protected IProjections<Vector2, T> m_subspaceVector2T; // Project between 2D axis and rotational space
-    protected IProjections<Vector3, T> m_subspaceVector3T; // Project between 3D axis and rotational space
+    protected IProjections<Vector2, T> m_subspaceVector2T; // Project between 2D axis and rotational space (3D only)
+    protected IProjections<Vector3, T> m_subspaceVector3T; // Project between 3D axis and rotational space (3D only)
     protected IRigidbody<Q, V, T> m_rigidbody;
     protected ITime m_time;
     protected Transform m_owner;
@@ -222,8 +222,10 @@ public class MovementController<Q, V, T>
 
         // The float types hold any updated components of each kvariable type, the int types hold 0|1 indicating which component has been updated
         KVariables<V> spatialVarsUpdate = new KVariables<V>(spatialVarsInit);
+        spatialVarsUpdate.AppliedForce = m_toolset.ZeroV; // Zero the forces - they are controlled with +=, not =
         KVariables<Vector3Int> spatialVarsUsedAxis = new KVariables<Vector3Int>(Vector3Int.zero);
         KVariables<T> rotationalVarsUpdate = new KVariables<T>(rotationalVarsInit);
+        rotationalVarsUpdate.AppliedForce = m_toolset.ZeroT; // Zero the forces - they are controlled with +=, not =
         KVariables<Vector3Int> rotationalVarsUsedAxis = new KVariables<Vector3Int>(Vector3Int.zero);
 
         // Sum all sources
@@ -237,7 +239,7 @@ public class MovementController<Q, V, T>
         //      - Add changes back to local working variables
         foreach(ControlFieldProfile<float> controlFieldProfile in m_controlFields.ActiveControlFields1D) {
             KVariables<float> varSet;
-            Dictionary<List<int>, List<int>> controlSpaceToWorldSpace;
+            Dictionary<int, List<int>> controlSpaceToWorldSpace;
             InitialiseVarSet(
                 out varSet,
                 out controlSpaceToWorldSpace,
@@ -248,23 +250,23 @@ public class MovementController<Q, V, T>
                 controlFieldProfile
             );
             controlFieldProfile.Control.Update(ref varSet, m_time.deltaTime);
-            // SaveResults(
-            //     controlFieldProfile,
-            //     controlSpaceToWorldSpace,
-            //     m_subspaceFloatV,
-            //     m_subspaceFloatT,
-            //     varSet,
-            //     ref spatialVarsUpdate,
-            //     ref spatialVarsUsedAxis,
-            //     ref rotationalVarsUpdate,
-            //     ref rotationalVarsUsedAxis
-            // );
+            SaveResults(
+                controlFieldProfile,
+                controlSpaceToWorldSpace,
+                m_subspaceFloatV,
+                m_subspaceFloatT,
+                varSet,
+                ref spatialVarsUpdate,
+                ref spatialVarsUsedAxis,
+                ref rotationalVarsUpdate,
+                ref rotationalVarsUsedAxis
+            );
             // Take varSet and move results into [spatial|rotational]VarsUpdate
             // Add flag to [spatial|rotational]VarsUsedAxis
         }
         foreach(ControlFieldProfile<Vector2> controlFieldProfile in m_controlFields.ActiveControlFields2D) {
             KVariables<Vector2> varSet;
-            Dictionary<List<int>, List<int>> controlSpaceToWorldSpace;
+            Dictionary<int, List<int>> controlSpaceToWorldSpace;
             InitialiseVarSet(
                 out varSet,
                 out controlSpaceToWorldSpace,
@@ -278,7 +280,7 @@ public class MovementController<Q, V, T>
         }
         foreach(ControlFieldProfile<Vector3> controlFieldProfile in m_controlFields.ActiveControlFields3D) {
             KVariables<Vector3> varSet;
-            Dictionary<List<int>, List<int>> controlSpaceToWorldSpace;
+            Dictionary<int, List<int>> controlSpaceToWorldSpace;
             InitialiseVarSet(
                 out varSet,
                 out controlSpaceToWorldSpace,
@@ -306,7 +308,7 @@ public class MovementController<Q, V, T>
 //      Axis alignment Vector2
     protected virtual void InitialiseVarSet<S>(
         out KVariables<S> varSet,
-        out Dictionary<List<int>, List<int>> controlSpaceToWorldSpace,
+        out Dictionary<int, List<int>> controlSpaceToWorldSpace,
         KVariables<V> spatialVarsInit,
         KVariables<T> rotationalVarsInit,
         IProjections<S, V> projectionToolsetV,
@@ -322,9 +324,15 @@ public class MovementController<Q, V, T>
                 m_toolset.ZeroT
             );
             if (controlFieldProfile.Projecting) {
-                projectionToolsetT.ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlFieldProfile.Direction);
+                projectionToolsetT.ProjectToSubspace(controlFieldProfile, out varSet, out controlSpaceToWorldSpace, srcVars);
             } else {
-                projectionToolsetT.SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlFieldProfile.Alignment);
+                projectionToolsetT.SubstituteToSubspace(
+                    controlFieldProfile,
+                    out varSet,
+                    out controlSpaceToWorldSpace,
+                    srcVars,
+                    controlFieldProfile.Alignment
+                );
             }
         } else {
             KVariables<V> srcVars = new KVariables<V>(
@@ -335,43 +343,68 @@ public class MovementController<Q, V, T>
                 m_toolset.ZeroV
             );
             if (controlFieldProfile.Projecting) {
-                projectionToolsetV.ProjectToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlFieldProfile.Direction);
+                projectionToolsetV.ProjectToSubspace(controlFieldProfile, out varSet, out controlSpaceToWorldSpace, srcVars);
             } else {
-                projectionToolsetV.SubstituteToSubspace(out varSet, out controlSpaceToWorldSpace, srcVars, controlFieldProfile.Alignment);
+                projectionToolsetV.SubstituteToSubspace(
+                    controlFieldProfile,
+                    out varSet,
+                    out controlSpaceToWorldSpace,
+                    srcVars,
+                    controlFieldProfile.Alignment
+                );
             }
         }
     }
 
-    // protected virtual void SaveSpatialResults<S>(
-    //     ControlFieldProfile<S, V> controlFieldProfile,
-    //     Dictionary<List<int>, List<int>> controlSpaceToWorldSpace,
-    //     IProjections<S, V> projectionToolsetV,
-    //     IProjections<S, T> projectionToolsetT,
-    //     KVariables<S> outputFromControlField,
-    //     ref KVariables<V> spatialVarsUpdate,
-    //     ref KVariables<Vector3Int> spatialVarsUsedAxis
-    // ) {
-    //     if (controlFieldProfile.Projecting) {
-    //         projectionToolsetV.ProjectFromSubspace(controlFieldProfile, controlSpaceToWorldSpace, outputFromControlField, spatialVarsUpdate, spatialVarsUsedAxis);
-    //     } else {
-    //         projectionToolsetV.SubstituteFromSubspace(controlFieldProfile, controlSpaceToWorldSpace, outputFromControlField, spatialVarsUpdate, spatialVarsUsedAxis);
-    //     }
-    // }
-    // protected virtual void SaveRotationalResults<S>(
-    //     ControlFieldProfile<S, T> controlFieldProfile,
-    //     Dictionary<List<int>, List<int>> controlSpaceToWorldSpace,
-    //     IProjections<S, V> projectionToolsetV,
-    //     IProjections<S, T> projectionToolsetT,
-    //     KVariables<S> outputFromControlField,
-    //     ref KVariables<T> rotationalVarsUpdate,
-    //     ref KVariables<Vector3Int> rotationalVarsUsedAxis
-    // ) {
-    //     if (controlFieldProfile.Projecting) {
-    //         projectionToolsetT.ProjectFromSubspace(controlFieldProfile, controlSpaceToWorldSpace, outputFromControlField, rotationalVarsUpdate, rotationalVarsUsedAxis);
-    //     } else {
-    //         projectionToolsetT.SubstituteFromSubspace(controlFieldProfile, controlSpaceToWorldSpace, outputFromControlField, rotationalVarsUpdate, rotationalVarsUsedAxis);
-    //     }
-    // }
+    protected virtual void SaveResults<S>(
+        ControlFieldProfile<S> controlFieldProfile,
+        Dictionary<int, List<int>> controlSpaceToWorldSpace,
+        IProjections<S, V> projectionToolsetV,
+        IProjections<S, T> projectionToolsetT,
+        KVariables<S> outputFromControlField,
+        ref KVariables<V> spatialVarsUpdate,
+        ref KVariables<Vector3Int> spatialVarsUsedAxis,
+        ref KVariables<T> rotationalVarsUpdate,
+        ref KVariables<Vector3Int> rotationalVarsUsedAxis
+    ) {
+        if (controlFieldProfile.Type == ControlFieldType.Spatial) {
+            if (controlFieldProfile.Projecting) {
+                projectionToolsetV.ProjectFromSubspace(
+                    controlFieldProfile,
+                    controlSpaceToWorldSpace,
+                    outputFromControlField,
+                    spatialVarsUpdate,
+                    spatialVarsUsedAxis
+                );
+            } else {
+                projectionToolsetV.SubstituteFromSubspace(
+                    controlFieldProfile,
+                    controlSpaceToWorldSpace,
+                    outputFromControlField,
+                    spatialVarsUpdate,
+                    spatialVarsUsedAxis
+                );
+            }
+        } else {
+            if (controlFieldProfile.Projecting) {
+                projectionToolsetT.ProjectFromSubspace(
+                    controlFieldProfile,
+                    controlSpaceToWorldSpace,
+                    outputFromControlField,
+                    rotationalVarsUpdate,
+                    rotationalVarsUsedAxis
+                );
+            } else {
+                projectionToolsetT.SubstituteFromSubspace(
+                    controlFieldProfile,
+                    controlSpaceToWorldSpace,
+                    outputFromControlField,
+                    rotationalVarsUpdate,
+                    rotationalVarsUsedAxis
+                );
+            }
+        }
+    }
 
     /// <summary>
     /// Update locally carried kinematic variables, always call base first
