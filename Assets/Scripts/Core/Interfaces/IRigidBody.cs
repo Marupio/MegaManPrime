@@ -3,6 +3,14 @@ using UnityEngine;
 // Rigidbody   : Q = Quaternion, V = Vector3, T = vector3
 // Rigidbody2D : Q = float, V = Vector2, T = float
 
+// Name       Exclusive, RB Action
+// Variable       Yes     Setter
+// Derivative     Yes     Setter
+// SecondDer      Yes     Additive
+// Force          No      Additive
+// Impulse        No      Additive
+
+
 public enum RigidBodyActorType {
     None,
     ForceUser,      // These actors interact by applying a force / forceDerivative

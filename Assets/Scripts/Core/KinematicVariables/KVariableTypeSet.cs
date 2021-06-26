@@ -1,15 +1,21 @@
+using System;
 using UnityEngine;
+
+public enum KVariableRestriction {
+    None                 = 0b_0000_0000,
+    Single             = 0b_0000_0001,
+    Controllable         = 0b_0000_0010,
+    SingleControllable = 0b_0000_0011
+}
 
 public class KVariableTypeSet {
     KVariableRestriction m_restriction;
-    // bool m_singularOnly = false;
-    // bool m_controllableOnly = false;
     System.Int32 m_value;
 
     public System.Int32 Value {
         get => m_value;
         set {
-            if ((m_restriction & KVariableRestriction.Singular) == KVariableRestriction.Singular) {
+            if ((m_restriction & KVariableRestriction.Single) == KVariableRestriction.Single) {
                 KVariableTypeSet kv = new KVariableTypeSet(value);
                 if (kv.Count > 1) {
                     Debug.LogError("Attempting to set value to multiple variable types for a single-only type, ignoring");
@@ -32,22 +38,22 @@ public class KVariableTypeSet {
         return (KVariableTypeInfo.AllForceTypes & this).Count > 0;
     }
     public bool StateSetter() {
-        return (KVariableTypeInfo.AllStateSetterTypes & this).Count > 0;
+        return (KVariableTypeInfo.AllNonForceTypes & this).Count > 0;
     }
 
     // *** Restrictions
     // -** Query restrictions
-    public bool RestrictedToSingular { get => (m_restriction & KVariableRestriction.Singular) == KVariableRestriction.Singular; }
+    public bool RestrictedToSingle { get => (m_restriction & KVariableRestriction.Single) == KVariableRestriction.Single; }
     public bool RestrictedToControllable { get => (m_restriction & KVariableRestriction.Controllable) == KVariableRestriction.Controllable; }
 
     // -** Restriction conformity queries
-    public bool IsSingular() { return Count <= 1; }
+    public bool IsSingle() { return Count <= 1; }
     public bool IsMultiple() { return Count > 1; }
     public bool HasControllable() {
         return (this & KVariableTypeInfo.AllControllableTypes) != KVariableTypeInfo.None;
     }
     public bool HasOnlyControllable() {
-        return (this & KVariableTypeInfo.ExcludedFromControl) == KVariableTypeInfo.None;
+        return (this & KVariableTypeInfo.AllNonControllableTypes) == KVariableTypeInfo.None;
     }
     public bool HasNonControllable() {
         return (this & ~KVariableTypeInfo.AllControllableTypes) != KVariableTypeInfo.None;
@@ -57,22 +63,22 @@ public class KVariableTypeSet {
     }
 
     // -** Removing restrictions
-    public void RemoveSingularRestriction() {
+    public void RemoveSingleRestriction() {
         m_restriction = RestrictedToControllable ? KVariableRestriction.Controllable : KVariableRestriction.None;
     }
     public void RemoveControllableRestriction() {
-        m_restriction = RestrictedToSingular ? KVariableRestriction.Singular : KVariableRestriction.None;
+        m_restriction = RestrictedToSingle ? KVariableRestriction.Single : KVariableRestriction.None;
     }
     public void RemoveAllRestrictions() {
         m_restriction = KVariableRestriction.None;
     }
 
     // -** Applying restrictions
-    public void SetRestrictionToSingular() {
+    public void SetRestrictionToSingle() {
         if (Count > 1)  {
-            Debug.LogError("Attempting to enforce Singular when multiple variables already exist");
+            Debug.LogError("Attempting to enforce Single when multiple variables already exist");
         }
-        m_restriction = (m_restriction | KVariableRestriction.Singular);
+        m_restriction = (m_restriction | KVariableRestriction.Single);
     }
     public void SetRestrictionToControllable() {
         if (!HasOnlyControllable())  {
@@ -105,7 +111,7 @@ public class KVariableTypeSet {
         KVariableTypeSet kvts = new KVariableTypeSet(kve);
         return Contains(kvts);
     }
-    public bool Contains(KVariableControllableEnum kve) {
+    public bool Contains(KVariableEnum_Controllable kve) {
         KVariableTypeSet kvts = new KVariableTypeSet(kve);
         return Contains(kvts);
     }
@@ -113,8 +119,8 @@ public class KVariableTypeSet {
     // *** Edit
     public int Add(KVariableTypeSet kv) {
         int countBefore = Count;
-        if (RestrictedToSingular && Count > 0) {
-            Debug.LogError("Attempting to add variable type to singular variable type set. Ignoring.");
+        if (RestrictedToSingle && Count > 0) {
+            Debug.LogError("Attempting to add variable type to Single variable type set. Ignoring.");
             return 0;
         }
         if (RestrictedToControllable && kv.HasNonControllable()) {
@@ -132,8 +138,8 @@ public class KVariableTypeSet {
         }
         KVariableTypeSet kv = new KVariableTypeSet();
         kv.m_value = value + m_value;
-        if (RestrictedToSingular && kv.Count > 1) {
-            Debug.LogError("Attempting to add variable to singular variable typeset and the result would not be singular, ignoring.");
+        if (RestrictedToSingle && kv.Count > 1) {
+            Debug.LogError("Attempting to add variable to Single variable typeset and the result would not be Single, ignoring.");
             return 0;
         }
         if (RestrictedToControllable && kv.HasNonControllable()) {
@@ -146,7 +152,7 @@ public class KVariableTypeSet {
     public int Add(KVariableEnum value) {
         return Add((int)value);
     }
-    public int Add(KVariableControllableEnum value) {
+    public int Add(KVariableEnum_Controllable value) {
         return Add((int)value);
     }
     public int Add(string name) {
@@ -166,7 +172,7 @@ public class KVariableTypeSet {
     public int Remove(KVariableEnum value) {
         return Remove((int)value);
     }
-    public int Remove(KVariableControllableEnum value) {
+    public int Remove(KVariableEnum_Controllable value) {
         return Remove((int)value);
     }
     public int Remove(string name) {
@@ -176,7 +182,7 @@ public class KVariableTypeSet {
     // TODO - add formated methods
     public override string ToString() {
         string outputString = "KVset(" + m_value + "): {";
-        for (System.Int32 i = 1; i < KVariableTypeInfo.NBaseEnums; ++i) {
+        for (System.Int32 i = 1; i < KVariableTypeInfo.NKVariableEnum_Controllable; ++i) {
             KVariableEnum curEnum = (KVariableEnum)i;
             if (Contains(curEnum)) {outputString += curEnum + " ";}
         }
@@ -236,11 +242,11 @@ public class KVariableTypeSet {
         }
         return (KVariableEnum)kv.Value;
     }
-    public static implicit operator KVariableControllableEnum(KVariableTypeSet kv) {
+    public static implicit operator KVariableEnum_Controllable(KVariableTypeSet kv) {
         if (kv.Count > 1) {
             Debug.LogError("Attempting to cast multi-typed KVariableTypeSet to controllable kvariable enumeration");
         }
-        return (KVariableControllableEnum)kv.Value;
+        return (KVariableEnum_Controllable)kv.Value;
     }
     // TODO - I cannot get this one to work
     //public static explicit operator KinematicVariableTypeSet(KinematicVariableEnum enum) => new KinematicVariableTypeSet(enum);
@@ -263,7 +269,7 @@ public class KVariableTypeSet {
         m_restriction = restriction;
         Add(enumValue);
     }
-    public KVariableTypeSet(KVariableControllableEnum enumValue, KVariableRestriction restriction = KVariableRestriction.None) {
+    public KVariableTypeSet(KVariableEnum_Controllable enumValue, KVariableRestriction restriction = KVariableRestriction.None) {
         m_restriction = restriction;
         Add(enumValue);
     }

@@ -126,36 +126,36 @@ public static class GeneralTools {
 
 }
 
-public interface ITraits<T> {
-    public T Zero(T dummy);
-    public T SmoothDamp(T current, T target, ref T currentVelocity, float smoothTime, float maxSpeed, float deltaTime);
-}
+// public interface ITraits<T> {
+//     public T Zero(T dummy);
+//     public T SmoothDamp(T current, T target, ref T currentVelocity, float smoothTime, float maxSpeed, float deltaTime);
+// }
 
-public class Traits<T> : ITraits<T> {
-    public static readonly ITraits<T> P = Traits.P as ITraits<T> ?? new Traits<T>();
-    public T Zero(T dummy) { throw new System.NotImplementedException(); }
-    public T SmoothDamp(T current, T target, ref T currentVelocity, float smoothTime, float maxSpeed, float deltaTime) {
-        throw new System.NotImplementedException();
-    }
-}
-class Traits : ITraits<float> , ITraits<Vector2>, ITraits<Vector3> {
-    public static Traits P = new Traits(); 
-    public float Zero(float dummy) { return 0f; }
-    public Vector2 Zero(Vector2 dummy) { return Vector2.zero; }
-    public Vector3 Zero(Vector3 dummy) { return Vector3.zero; }
-    public float SmoothDamp(float current, float target, ref float currentVelocity, float smoothTime, float maxSpeed, float deltaTime) {
-        Debug.Log("Float SmoothDamp");
-        return Mathf.SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
-    }
-    public Vector2 SmoothDamp(Vector2 current, Vector2 target, ref Vector2 currentVelocity, float smoothTime, float maxSpeed, float deltaTime) {
-        Debug.Log("Vector2 SmoothDamp");
-        return Vector2.SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
-    }
-    public Vector3 SmoothDamp(Vector3 current, Vector3 target, ref Vector3 currentVelocity, float smoothTime, float maxSpeed, float deltaTime) {
-        Debug.Log("Vector3 SmoothDamp");
-        return Vector3.SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
-    }
-}
+// public class Traits<T> : ITraits<T> {
+//     public static readonly ITraits<T> P = Traits.P as ITraits<T> ?? new Traits<T>();
+//     public T Zero(T dummy) { throw new System.NotImplementedException(); }
+//     public T SmoothDamp(T current, T target, ref T currentVelocity, float smoothTime, float maxSpeed, float deltaTime) {
+//         throw new System.NotImplementedException();
+//     }
+// }
+// class Traits : ITraits<float> , ITraits<Vector2>, ITraits<Vector3> {
+//     public static Traits P = new Traits(); 
+//     public float Zero(float dummy) { return 0f; }
+//     public Vector2 Zero(Vector2 dummy) { return Vector2.zero; }
+//     public Vector3 Zero(Vector3 dummy) { return Vector3.zero; }
+//     public float SmoothDamp(float current, float target, ref float currentVelocity, float smoothTime, float maxSpeed, float deltaTime) {
+//         Debug.Log("Float SmoothDamp");
+//         return Mathf.SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
+//     }
+//     public Vector2 SmoothDamp(Vector2 current, Vector2 target, ref Vector2 currentVelocity, float smoothTime, float maxSpeed, float deltaTime) {
+//         Debug.Log("Vector2 SmoothDamp");
+//         return Vector2.SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
+//     }
+//     public Vector3 SmoothDamp(Vector3 current, Vector3 target, ref Vector3 currentVelocity, float smoothTime, float maxSpeed, float deltaTime) {
+//         Debug.Log("Vector3 SmoothDamp");
+//         return Vector3.SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
+//     }
+// }
 // class Traits : ITraits<Vector2> {
 //     public static Traits P = new Traits(); 
 //     public Vector2 Zero {get { return Vector2.zero; } }

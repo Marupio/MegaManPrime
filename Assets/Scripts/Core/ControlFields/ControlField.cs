@@ -41,7 +41,7 @@ public abstract class ControlField<T> : KVariableLimits {
 
     // WARNING - m_inputRange is null in some classes
     protected InputRange<T> m_inputRange;
-    protected KVariableControllableEnum m_controlledVariable;
+    protected KVariableEnum_Controllable m_controlledVariable;
     private KVariableTypeSet m_controlledVariableAsTypeSet;
     protected bool m_smoothingEnabled;
     protected float m_smoothingTime;
@@ -75,7 +75,7 @@ public abstract class ControlField<T> : KVariableLimits {
         }
     }
     public virtual KVariableTypeSet ControlledVariable { get => m_controlledVariableAsTypeSet; }
-    public virtual KVariableControllableEnum ControlledVariableEnum { get => m_controlledVariable; }
+    public virtual KVariableEnum_Controllable ControlledVariableEnum { get => m_controlledVariable; }
     /// <summary>
     /// Output of this class - this is the value I want for my controlled variables
     /// </summary>
@@ -92,19 +92,12 @@ public abstract class ControlField<T> : KVariableLimits {
     /// </summary>
     public RigidBodyActorType ActorType {
         get {
-            bool forceUser = KVariableTypeInfo.AllForceTypes.Contains(ControlledVariable);
-            bool stateSetter = KVariableTypeInfo.AllStateSetterTypes.Contains(ControlledVariable);
-            if (forceUser) {
-                if (stateSetter) {
-                    return RigidBodyActorType.Both;
-                } else {
-                    return RigidBodyActorType.ForceUser;
-                }
-            } else if (stateSetter) {
+            if (KVariableTypeInfo.AllRigidBodyVarSetters.Contains(m_controlledVariable)) {
                 return RigidBodyActorType.StateSetter;
-            } else {
-                return RigidBodyActorType.None;
+            } else if (KVariableTypeInfo.AllRigidBodyVarAdders.Contains(m_controlledVariable)) {
+                return RigidBodyActorType.ForceUser;
             }
+            return RigidBodyActorType.None;
         }
     }
     public bool ForceUser() {
@@ -141,7 +134,7 @@ public abstract class ControlField<T> : KVariableLimits {
     protected void InitControlledVariableTypeSet() {
         m_controlledVariableAsTypeSet = new KVariableTypeSet(m_controlledVariable);
         m_controlledVariableAsTypeSet.SetRestrictionToControllable();
-        m_controlledVariableAsTypeSet.SetRestrictionToSingular();
+        m_controlledVariableAsTypeSet.SetRestrictionToSingle();
     }
 
     // *** Constructors
@@ -159,17 +152,17 @@ public abstract class ControlField<T> : KVariableLimits {
         m_name = name;
         m_inputRange = inputRange;
 
-        if (controlledVariable.Contains(KVariableTypeInfo.ExcludedFromControl)) {
+        if (controlledVariable.Contains(KVariableTypeInfo.AllNonControllableTypes)) {
             Debug.LogError
             (
                 "Attempting to make ControlField with KVariables that cannot be applied to control.\n" +
                 "Requesting:\n" +
                 "\t" + controlledVariable + "\n" +
                 "Cannot contain:\n" +
-                "\t" + KVariableTypeInfo.ExcludedFromControl + "\n" +
+                "\t" + KVariableTypeInfo.AllNonControllableTypes + "\n" +
                 "Removing disallowed variable flags."
             );
-            m_controlledVariable = controlledVariable & ~KVariableTypeInfo.ExcludedFromControl;
+            m_controlledVariable = controlledVariable & ~KVariableTypeInfo.AllNonControllableTypes;
         } else {
             m_controlledVariable = controlledVariable;
         }
@@ -195,13 +188,13 @@ public class ContinuousControlField<T> : ControlField<T>
         if (
             m_smoothingEnabled &&
             m_smoothingTime > 0 &&
-            m_controlledVariable != KVariableControllableEnum.ImpulseForce
+            m_controlledVariable != KVariableEnum_Controllable.ImpulseForce
         ) {
             // Use smoothing algorithm
             switch (m_controlledVariable) {
-                case KVariableControllableEnum.None:
+                case KVariableEnum_Controllable.None:
                     break;
-                case KVariableControllableEnum.Variable:
+                case KVariableEnum_Controllable.Variable:
                     T derivative = vars.Derivative;
                     vars.Variable = m_toolset.SmoothDamp(
                         vars.Variable,
@@ -213,7 +206,7 @@ public class ContinuousControlField<T> : ControlField<T>
                     );
                     vars.Derivative = derivative;
                     break;
-                case KVariableControllableEnum.Derivative:
+                case KVariableEnum_Controllable.Derivative:
                     T secondDerivative = vars.SecondDerivative;
                     vars.Derivative = m_toolset.SmoothDamp(
                         vars.Derivative,
@@ -225,7 +218,7 @@ public class ContinuousControlField<T> : ControlField<T>
                     );
                     vars.SecondDerivative = secondDerivative;
                     break;
-                case KVariableControllableEnum.AppliedForce:
+                case KVariableEnum_Controllable.AppliedForce:
                     T forceDerivative = m_toolset.Zero;
                     vars.AppliedForce = m_toolset.SmoothDamp(
                         vars.AppliedForce,
@@ -237,7 +230,7 @@ public class ContinuousControlField<T> : ControlField<T>
                     );
                     // No variable to feed forceDerivative back
                     break;
-                case KVariableControllableEnum.ImpulseForce:
+                case KVariableEnum_Controllable.ImpulseForce:
                     // Not possible
                     break;
                 default:

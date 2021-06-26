@@ -1,8 +1,43 @@
 using System.Collections.Specialized;
 using UnityEngine;
 
+public interface IKVariablesToolset<T> {
+    public T Zero { get; }
+}
+
+public class KVariablesToolsetBool : IKVariablesToolset<bool> {
+    public bool Zero { get=>false; }
+}
+public class KVariablesToolsetInt : IKVariablesToolset<int> {
+    public int Zero { get=>0; }
+}
+public class KVariablesToolsetFloat : IKVariablesToolset<float> {
+    public float Zero { get=>0f; }
+}
+public class KVariablesToolsetVector2 : IKVariablesToolset<Vector2> {
+    public Vector2 Zero { get=>Vector2.zero; }
+}
+public class KVariablesToolsetVector2Int : IKVariablesToolset<Vector2Int> {
+    public Vector2Int Zero { get=>Vector2Int.zero; }
+}
+public class KVariablesToolsetVector3 : IKVariablesToolset<Vector3> {
+    public Vector3 Zero { get=>Vector3.zero; }
+}
+public class KVariablesToolsetVector3Int : IKVariablesToolset<Vector3Int> {
+    public Vector3Int Zero { get=>Vector3Int.zero; }
+}
+public class KVariablesToolsetVector4 : IKVariablesToolset<Vector4> {
+    public Vector4 Zero { get=>Vector4.zero; }
+}
+public class KVariablesToolsetQuaternion : IKVariablesToolset<Quaternion> {
+    public Quaternion Zero { get=>Quaternion.identity; }
+}
+
+
 // Base class encompasses all variable types included in KVariableControllableEnum
 public class KVariables<V> {
+    public IKVariablesToolset<V> m_toolset;
+
     // *** Direct access to variables if you need it
     public V m_variable;
     public V m_derivative;
@@ -10,10 +45,6 @@ public class KVariables<V> {
     public V m_appliedForce;
     public V m_impulseForce;
     
-    // Keeps track of which variables have (explicitly) been initiated
-    // (Can get around it by accessing and allocating manually)
-    protected KVariableTypeSet m_init = new KVariableTypeSet(KVariableRestriction.Controllable);
-
     // *** Access - no checks
     public V Variable { get => m_variable; set => m_variable = value; }
     public V Derivative { get => m_derivative; set => m_derivative = value; }
@@ -34,44 +65,19 @@ public class KVariables<V> {
     public virtual void Get(KVariableEnum variableEnum, out V value) {
         switch (variableEnum) {
             case KVariableEnum.Variable:
-                if (m_init.Contains(variableEnum)) {
-                    value = m_variable;
-                } else {
-                    Debug.LogError("Attempted access of uninitialized '" + variableEnum + "' type.");
-                    value = default(V);
-                }
+                value = m_variable;
                 break;
             case KVariableEnum.Derivative:
-                if (m_init.Contains(variableEnum)) {
-                    value = m_derivative;
-                } else {
-                    Debug.LogError("Attempted access of uninitialized '" + variableEnum + "' type.");
-                    value = default(V);
-                }
+                value = m_derivative;
                 break;
             case KVariableEnum.SecondDerivative:
-                if (m_init.Contains(variableEnum)) {
-                    value = m_secondDerivative;
-                } else {
-                    Debug.LogError("Attempted access of uninitialized '" + variableEnum + "' type.");
-                    value = default(V);
-                }
+                value = m_secondDerivative;
                 break;
             case KVariableEnum.AppliedForce:
-                if (m_init.Contains(variableEnum)) {
-                    value = m_appliedForce;
-                } else {
-                    Debug.LogError("Attempted access of uninitialized '" + variableEnum + "' type.");
-                    value = default(V);
-                }
+                value = m_appliedForce;
                 break;
             case KVariableEnum.ImpulseForce:
-                if (m_init.Contains(variableEnum)) {
-                    value = m_impulseForce;
-                } else {
-                    Debug.LogError("Attempted access of uninitialized '" + variableEnum + "' type.");
-                    value = default(V);
-                }
+                value = m_impulseForce;
                 break;
             case KVariableEnum.None:
             case KVariableEnum.ThirdDerivative:
@@ -92,7 +98,6 @@ public class KVariables<V> {
     }
     // *** Set functionality - inits updated
     public virtual void Set(KVariableEnum variableEnum, V value) {
-        m_init.Add(variableEnum);
         switch (variableEnum) {
             case KVariableEnum.Variable:
                 m_variable = value;
@@ -143,7 +148,6 @@ public class KVariables<V> {
         m_secondDerivative = kvIn.m_secondDerivative;
         m_appliedForce = kvIn.m_appliedForce;
         m_impulseForce = kvIn.m_impulseForce;
-        m_init.Add
     }
     public KVariables(
         V variable,
@@ -256,14 +260,12 @@ public class KVariablesExt<V> : KVariables<V> {
     // *** Constructors
     public KVariablesExt(KVariables<V> kvIn, V others)
     : base (kvIn) {
-        m_init.RemoveControllableRestriction();
         m_thirdDerivative = others;
         m_appliedForceDerivative = others;
         m_impulseForceDerivative = others;
     }
     public KVariablesExt(KVariablesExt<V> kvIn)
     : base (kvIn) {
-        m_init.RemoveControllableRestriction();
         m_thirdDerivative = kvIn.m_thirdDerivative;
         m_appliedForceDerivative = kvIn.m_appliedForceDerivative;
         m_impulseForceDerivative = kvIn.m_impulseForceDerivative;
@@ -278,19 +280,15 @@ public class KVariablesExt<V> : KVariables<V> {
         V appliedForceDerivative,
         V impulseForceDerivative
     ) : base(variable, derivative, secondDerivative, appliedForce, impulseForce) {
-        m_init.RemoveControllableRestriction();
         m_thirdDerivative = thirdDerivative;
         m_appliedForceDerivative = appliedForceDerivative;
         m_impulseForceDerivative = impulseForceDerivative;
     }
     public KVariablesExt(V allVars)
     : base(allVars) {
-        m_init.RemoveControllableRestriction();
         m_thirdDerivative = allVars;
         m_appliedForceDerivative = allVars;
         m_impulseForceDerivative = allVars;
     }
-    public KVariablesExt() {
-        m_init.RemoveControllableRestriction();
-    }
+    public KVariablesExt() {}
 }

@@ -1,4 +1,29 @@
 TODO
+Need to clarify axis consuming and overlapping.  I think I have it so that position setters and velocity setters can overlap, which they cannot do.
+IRigidBody notes:
+// Name       Exclusive, RB Action
+// Variable       Yes     Setter
+// Derivative     Yes     Setter
+// SecondDer      Yes     Additive   <--- This guy is messing things up
+// Force          No      Additive
+// Impulse        No      Additive
+
+Ways to control RigidBody[2D]
+
+
+A Set position (& velocity if smoothing)
+B Set velocity
+C 'Set' acceleration (we use force applying)
+D Apply force
+E Apply impulse
+
+In any freedom (DOF) we can do only 1 from A, B, or C, in total and any number of D and E.
+A(D,E) B(D,E) C(D,E)
+
+At most, these classes will be working with two controllable variables (can be Vectors, depending on how many DOFs they control)
+
+Refactoring Movement.Move to group init, project, update, project, all together
+
 Still working on below.  I've changed template stuff to simplify things.  But didn't finish.
 * [Project|Substitute][To|From]SubSpace in WorldSpace
     Working on this one now, it is getting ugly with templates, toolset, and now the subspace projection functions.
