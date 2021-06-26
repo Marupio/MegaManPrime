@@ -29,40 +29,36 @@ public enum KVariableRestriction {
     SingularControllable = 0b_0000_0011
 }
 
-public class KVariableTypeInfo {
+public static class KVariableTypeInfo {
     // *** Statically constructed types
     // *** None
-    public static KVariableTypeSet None                   = new KVariableTypeSet(KVariableEnum.None);
+    public static readonly KVariableTypeSet None                    = new KVariableTypeSet(KVariableEnum.None);
     // *** Base types
-    public static KVariableTypeSet Variable               = new KVariableTypeSet(KVariableEnum.Variable);
-    public static KVariableTypeSet Derivative             = new KVariableTypeSet(KVariableEnum.Derivative);
-    public static KVariableTypeSet SecondDerivative       = new KVariableTypeSet(KVariableEnum.SecondDerivative);
-    public static KVariableTypeSet ThirdDerivative        = new KVariableTypeSet(KVariableEnum.ThirdDerivative);
-    public static KVariableTypeSet AppliedForce           = new KVariableTypeSet(KVariableEnum.AppliedForce);
-    public static KVariableTypeSet ImpulseForce           = new KVariableTypeSet(KVariableEnum.ImpulseForce);
-    public static KVariableTypeSet AppliedForceDerivative = new KVariableTypeSet(KVariableEnum.AppliedForceDerivative);
-    public static KVariableTypeSet ImpulseForceDerivative = new KVariableTypeSet(KVariableEnum.ImpulseForceDerivative);
-    public static KVariableTypeSet Drag                   = new KVariableTypeSet(KVariableEnum.Drag);
+    public static readonly KVariableTypeSet Variable                = new KVariableTypeSet(KVariableEnum.Variable);
+    public static readonly KVariableTypeSet Derivative              = new KVariableTypeSet(KVariableEnum.Derivative);
+    public static readonly KVariableTypeSet SecondDerivative        = new KVariableTypeSet(KVariableEnum.SecondDerivative);
+    public static readonly KVariableTypeSet ThirdDerivative         = new KVariableTypeSet(KVariableEnum.ThirdDerivative);
+    public static readonly KVariableTypeSet AppliedForce            = new KVariableTypeSet(KVariableEnum.AppliedForce);
+    public static readonly KVariableTypeSet ImpulseForce            = new KVariableTypeSet(KVariableEnum.ImpulseForce);
+    public static readonly KVariableTypeSet AppliedForceDerivative  = new KVariableTypeSet(KVariableEnum.AppliedForceDerivative);
+    public static readonly KVariableTypeSet ImpulseForceDerivative  = new KVariableTypeSet(KVariableEnum.ImpulseForceDerivative);
+    public static readonly KVariableTypeSet Drag                    = new KVariableTypeSet(KVariableEnum.Drag);
     // *** Mixed types
-    public static KVariableTypeSet AllForceTypes = AppliedForce|ImpulseForce|AppliedForceDerivative|ImpulseForceDerivative;
-    public static KVariableTypeSet AllStateSetterTypes = ~AllForceTypes;
-    public static KVariableTypeSet AllBaseTypes =
+    public static readonly KVariableTypeSet AllForceTypes = AppliedForce|ImpulseForce|AppliedForceDerivative|ImpulseForceDerivative;
+    public static readonly KVariableTypeSet AllStateSetterTypes = ~AllForceTypes;
+    public static readonly KVariableTypeSet AllBaseTypes =
         new KVariableTypeSet(
             None | Variable | Derivative | SecondDerivative | AppliedForce | ImpulseForce | Drag
         );
-    public static KVariableTypeSet AllExtendedTypes =
-        new KVariableTypeSet(
-            
-        );
-    public static KVariableTypeSet ExcludedFromControl = 
+    public static readonly KVariableTypeSet ExcludedFromControl = 
         new KVariableTypeSet(
             SecondDerivative | ThirdDerivative | AppliedForceDerivative | ImpulseForceDerivative | Drag
         );
-    public static KVariableTypeSet AllControllableTypes =
+    public static readonly KVariableTypeSet AllControllableTypes =
         new KVariableTypeSet(
             Variable | Derivative | AppliedForce | ImpulseForce
         );
-    public static KVariableTypeSet AllTypes = new KVariableTypeSet(
+    public static readonly KVariableTypeSet AllTypes = new KVariableTypeSet(
         Variable |
         Derivative |
         SecondDerivative |
@@ -74,9 +70,9 @@ public class KVariableTypeInfo {
         Drag
     );
 
-    public static int MaxValue = 511;
-    public static int NBaseEnums = 7;
-    public static int NExtendedEnums = 4;
+    public const int MaxValue = 511;
+    public const int NBaseEnums = 7;
+    public const int NExtendedEnums = 4;
 
     // c# switch statement hack, look away
     public const System.Int32 NoneEnum = (System.Int32)KVariableEnum.None;
@@ -118,7 +114,7 @@ public class KVariableTypeInfo {
     public static KVariableTypeSet AngularDrag_alias         { get=>Drag; }
 
     // *** String aliases
-    public static Dictionary<string, KVariableEnum> Aliases = new Dictionary<string, KVariableEnum> {
+    public static readonly Dictionary<string, KVariableEnum> Aliases = new Dictionary<string, KVariableEnum> {
         {"Position", KVariableEnum.Variable},
         {"Distance", KVariableEnum.Variable},
         {"Rotation", KVariableEnum.Variable},

@@ -457,7 +457,7 @@ public class MovementController<Q, V, T>
 
 // WorldSpace3D (Rigidbody)   : Q = Quaternion, V = Vector3, T = Vector3
 // WorldSpace2D (Rigidbody2D) : Q = float, V = Vector2, T = float
-public class WorldSpace2D : MovementController<float, Vector2, float> {
+public class MovementController2D : MovementController<float, Vector2, float> {
     protected override void UpdateLocalFields() {
         base.UpdateLocalFields();
         // Linear scheme
@@ -467,7 +467,7 @@ public class WorldSpace2D : MovementController<float, Vector2, float> {
         m_angularAccelerationActual = (m_rigidbody.AngularVelocity - m_angularAcceleration0)*m_invDeltaT;
     }
 }
-public class WorldSpace3D : MovementController<Quaternion, Vector3, Vector3> {
+public class MovementController3D : MovementController<Quaternion, Vector3, Vector3> {
     protected override void UpdateLocalFields() {
         base.UpdateLocalFields();
         // Linear scheme

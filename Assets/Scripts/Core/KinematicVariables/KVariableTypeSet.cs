@@ -34,15 +34,15 @@ public class KVariableTypeSet {
     public bool StateSetter() {
         return (KVariableTypeInfo.AllStateSetterTypes & this).Count > 0;
     }
-    public bool IsSingular() { return Count <= 1; }
+
+    // *** Restrictions
+    // -** Query restrictions
     public bool RestrictedToSingular { get => (m_restriction & KVariableRestriction.Singular) == KVariableRestriction.Singular; }
-    // Once set, cannot be unset
-    public void SetRestrictionToSingular() {
-        if (Count > 1)  {
-            Debug.LogError("Attempting to enforce Singular when multiple variables already exist");
-        }
-        m_restriction = (m_restriction | KVariableRestriction.Singular);
-    }
+    public bool RestrictedToControllable { get => (m_restriction & KVariableRestriction.Controllable) == KVariableRestriction.Controllable; }
+
+    // -** Restriction conformity queries
+    public bool IsSingular() { return Count <= 1; }
+    public bool IsMultiple() { return Count > 1; }
     public bool HasControllable() {
         return (this & KVariableTypeInfo.AllControllableTypes) != KVariableTypeInfo.None;
     }
@@ -55,11 +55,28 @@ public class KVariableTypeSet {
     public bool HasOnlyNonControllable() {
         return (this & KVariableTypeInfo.AllControllableTypes) == KVariableTypeInfo.None;
     }
-    public bool RestrictedToControllable { get => (m_restriction & KVariableRestriction.Controllable) == KVariableRestriction.Controllable; }
-    // Once set, cannot be unset
+
+    // -** Removing restrictions
+    public void RemoveSingularRestriction() {
+        m_restriction = RestrictedToControllable ? KVariableRestriction.Controllable : KVariableRestriction.None;
+    }
+    public void RemoveControllableRestriction() {
+        m_restriction = RestrictedToSingular ? KVariableRestriction.Singular : KVariableRestriction.None;
+    }
+    public void RemoveAllRestrictions() {
+        m_restriction = KVariableRestriction.None;
+    }
+
+    // -** Applying restrictions
+    public void SetRestrictionToSingular() {
+        if (Count > 1)  {
+            Debug.LogError("Attempting to enforce Singular when multiple variables already exist");
+        }
+        m_restriction = (m_restriction | KVariableRestriction.Singular);
+    }
     public void SetRestrictionToControllable() {
         if (!HasOnlyControllable())  {
-            Debug.LogWarning("Attempting to set ControllableONly when non-controllable variables already exist - purging them");
+            Debug.LogWarning("Attempting to set ControllableOnly when non-controllable variables already exist - purging them");
             m_value = (this & KVariableTypeInfo.AllControllableTypes).m_value;
         }
         m_restriction = (m_restriction | KVariableRestriction.Controllable);
@@ -254,8 +271,8 @@ public class KVariableTypeSet {
         m_restriction = restriction;
         Add(name);
     }
-    public KVariableTypeSet() {
+    public KVariableTypeSet(KVariableRestriction restriction = KVariableRestriction.None) {
         m_value = (System.Int32)KVariableEnum.None;
-        m_restriction = KVariableRestriction.None;
+        m_restriction = restriction;
     }
 }
