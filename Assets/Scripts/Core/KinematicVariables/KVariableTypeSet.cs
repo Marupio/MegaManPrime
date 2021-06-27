@@ -92,28 +92,31 @@ public class KVariableTypeSet {
     public int Count {
         get {
             int nFound = 0;
-            nFound += Contains(KVariableTypeInfo.Variable) ? 1 : 0;
-            nFound += Contains(KVariableTypeInfo.Derivative) ? 1 : 0;
-            nFound += Contains(KVariableTypeInfo.SecondDerivative) ? 1 : 0;
-            nFound += Contains(KVariableTypeInfo.AppliedForce) ? 1 : 0;
-            nFound += Contains(KVariableTypeInfo.ImpulseForce) ? 1 : 0;
-            nFound += Contains(KVariableTypeInfo.Drag) ? 1 : 0;
-            nFound += Contains(KVariableTypeInfo.ThirdDerivative) ? 1 : 0;
-            nFound += Contains(KVariableTypeInfo.AppliedForceDerivative) ? 1 : 0;
-            nFound += Contains(KVariableTypeInfo.ImpulseForceDerivative) ? 1 : 0;
+            nFound += ContainsAll(KVariableTypeInfo.Variable) ? 1 : 0;
+            nFound += ContainsAll(KVariableTypeInfo.Derivative) ? 1 : 0;
+            nFound += ContainsAll(KVariableTypeInfo.SecondDerivative) ? 1 : 0;
+            nFound += ContainsAll(KVariableTypeInfo.AppliedForce) ? 1 : 0;
+            nFound += ContainsAll(KVariableTypeInfo.ImpulseForce) ? 1 : 0;
+            nFound += ContainsAll(KVariableTypeInfo.Drag) ? 1 : 0;
+            nFound += ContainsAll(KVariableTypeInfo.ThirdDerivative) ? 1 : 0;
+            nFound += ContainsAll(KVariableTypeInfo.AppliedForceDerivative) ? 1 : 0;
+            nFound += ContainsAll(KVariableTypeInfo.ImpulseForceDerivative) ? 1 : 0;
             return nFound;
         }
     }
-    public bool Contains(KVariableTypeSet kv) {
+    public bool ContainsAny(KVariableTypeSet kv) {
+        return (this & kv).Count > 0;
+    }
+    public bool ContainsAll(KVariableTypeSet kv) {
         return (this & kv) == kv;
     }
     public bool Contains(KVariableEnum kve) {
         KVariableTypeSet kvts = new KVariableTypeSet(kve);
-        return Contains(kvts);
+        return ContainsAll(kvts);
     }
     public bool Contains(KVariableEnum_Controllable kve) {
         KVariableTypeSet kvts = new KVariableTypeSet(kve);
-        return Contains(kvts);
+        return ContainsAll(kvts);
     }
 
     // *** Edit

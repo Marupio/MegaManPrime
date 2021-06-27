@@ -18,6 +18,8 @@ public enum ControlAxis {None, U, V, W} public enum Plane {None, XY, XZ, YZ}
 public interface IMovementControllerToolset<Q, V, T> {
     public V ZeroV { get; }
     public T ZeroT { get; }
+    public V InfiniteV { get; }
+    public T InfiniteT { get; }
     public void UpdateAccelerations(
         IRigidbody<Q, V, T> rigidbody,
         float invDeltaT,
@@ -39,6 +41,8 @@ public interface IMovementControllerToolset<Q, V, T> {
 public class MovementControllerToolset3D : IMovementControllerToolset<Quaternion, Vector3, Vector3> {
     public Vector3 ZeroV { get=>Vector3.zero; }
     public Vector3 ZeroT { get=>Vector3.zero; }
+    public Vector3 InfiniteV { get=>Vector3.positiveInfinity; }
+    public Vector3 InfiniteT { get=>Vector3.positiveInfinity; }
     public void SumDirectionalSource(
         DirectionalSourceManager sources,
         Transform owner,
@@ -73,6 +77,8 @@ public class MovementControllerToolset3D : IMovementControllerToolset<Quaternion
 public class MovementControllerToolset2D : IMovementControllerToolset<float, Vector2, float> {
     public Vector2 ZeroV { get=>Vector2.zero; }
     public float ZeroT { get=>0f; }
+    public Vector2 InfiniteV { get=>Vector2.positiveInfinity; }
+    public float InfiniteT { get=>float.PositiveInfinity; }
     public void SumDirectionalSource(
         DirectionalSourceManager sources,
         Transform owner,
@@ -231,16 +237,21 @@ public class MovementController<Q, V, T>
         // KVariables<Vector3Int> spatialVarsUsedAxis = new KVariables<Vector3Int>(Vector3Int.zero);
         // KVariables<Vector3Int> rotationalVarsUsedAxis = new KVariables<Vector3Int>(Vector3Int.zero);
 
-        KVariables<V> spatialVarsUpdate = new KVariables<V>(spatialVarsInit);
+        // Non-forces start at negative infinite --> acts as a flag 'unused', forces start at zero
+        KVariables<V> spatialVarsUpdate = new KVariables<V>(m_toolset.InfiniteV, m_toolset.ZeroV);
+        KVariables<T> rotationalVarsUpdate = new KVariables<T>(m_toolset.InfiniteT, m_toolset.ZeroT);
+
+
+        // KVariables<V> spatialVarsUpdate = new KVariables<V>(spatialVarsInit);
+        // KVariables<T> rotationalVarsUpdate = new KVariables<T>(rotationalVarsInit);
         spatialVarsUpdate.AppliedForce = m_toolset.ZeroV; // Zero the forces - they are controlled with +=, not =
-        KVariables<T> rotationalVarsUpdate = new KVariables<T>(rotationalVarsInit);
         rotationalVarsUpdate.AppliedForce = m_toolset.ZeroT; // Zero the forces - they are controlled with +=, not =
         
         // Always: 2D => spatial dofsUsed[0,1], rotational dofsUsed[2] | 3D => spatial dofsUsed[0,1,2], rotational dofsUsed[3,4,5]
         int nDims = NSpatialDimensions() + NRotationalDimensions();
-        bool[] dofsUsed = new bool[nDims];
+        int[] dofsUsed = new int[nDims];
         for (int i = 0; i < nDims; ++i) {
-            dofsUsed[i] = false;
+            dofsUsed[i] = 0;
         }
 
         // Sum all sources
@@ -260,7 +271,9 @@ public class MovementController<Q, V, T>
                 spatialVarsInit,
                 rotationalVarsInit,
                 spatialVarsUpdate,
-                rotationalVarsUpdate
+                rotationalVarsUpdate,
+                ref dofsUsed,
+                m_time.fixedDeltaTime
             );
         }
         foreach(ControlFieldProfile<Vector2> controlFieldProfile in m_controlFields.ActiveControlFields2D) {
@@ -271,7 +284,9 @@ public class MovementController<Q, V, T>
                 spatialVarsInit,
                 rotationalVarsInit,
                 spatialVarsUpdate,
-                rotationalVarsUpdate
+                rotationalVarsUpdate,
+                ref dofsUsed,
+                m_time.fixedDeltaTime
             );
         }
         foreach(ControlFieldProfile<Vector3> controlFieldProfile in m_controlFields.ActiveControlFields3D) {
@@ -282,7 +297,9 @@ public class MovementController<Q, V, T>
                 spatialVarsInit,
                 rotationalVarsInit,
                 spatialVarsUpdate,
-                rotationalVarsUpdate
+                rotationalVarsUpdate,
+                ref dofsUsed,
+                m_time.fixedDeltaTime
             );
         }
         // Apply limits to local working variables
@@ -356,12 +373,14 @@ public class MovementController<Q, V, T>
         KVariables<V> spatialVarsInit,
         KVariables<T> rotationalVarsInit,
         KVariables<V> spatialVarsUpdate,
-        KVariables<T> rotationalVarsUpdate
+        KVariables<T> rotationalVarsUpdate,
+        ref int[] dofsUsed,
+        float deltaTime
     ) {
         if (controlFieldProfile.Type == ControlFieldType.Spatial) {
-            projectionToolsetV.ExecuteControlField(controlFieldProfile, spatialVarsInit, spatialVarsUpdate);
+            projectionToolsetV.ExecuteControlField(controlFieldProfile, spatialVarsInit, spatialVarsUpdate, ref dofsUsed, deltaTime);
         } else {
-            projectionToolsetT.ExecuteControlField(controlFieldProfile, rotationalVarsInit, rotationalVarsUpdate);
+            projectionToolsetT.ExecuteControlField(controlFieldProfile, rotationalVarsInit, rotationalVarsUpdate, ref dofsUsed, deltaTime);
         }
     }
 

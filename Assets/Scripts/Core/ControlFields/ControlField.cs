@@ -35,19 +35,21 @@ public class ControlFieldToolsetVector3 : IControlFieldToolset<Vector3> {
 ///     * 'firstDerivative' - velocity or angular velocity,
 /// and so on. The full list is: all KVariableControllableEnum types. These can be either linear or rotating type variables.
 /// </summary>
-public abstract class ControlField<T> : KVariableLimits {
+public abstract class ControlField<T> {
     protected IControlFieldToolset<T> m_toolset;
     protected string m_name;
-
-    // WARNING - m_inputRange is null in some classes
-    protected InputRange<T> m_inputRange;
+    protected InputRange<T> m_inputRange; // null is okay!
     protected KVariableEnum_Controllable m_controlledVariable;
     private KVariableTypeSet m_controlledVariableAsTypeSet;
+
+    protected float m_controlledVariableMax = float.PositiveInfinity;
+    protected float m_controlledVariableDerivativeMax = float.PositiveInfinity; // Only needed when smoothing enabled
+
     protected bool m_smoothingEnabled;
     protected float m_smoothingTime;
 
     /// <summary>
-    /// Access to internal type-specific toolset
+    /// Access to toolset with <T>-specific functionality
     /// </summary>
     public IControlFieldToolset<T> Toolset {get=>m_toolset; set=>m_toolset=value;}
 
@@ -57,25 +59,63 @@ public abstract class ControlField<T> : KVariableLimits {
     public string Name { get=>m_name; set=>m_name=value; }
 
     /// <summary>
-    /// Change the control value
+    /// Change the control value - the main controlling functionality
     /// </summary>
     public virtual void ApplyControlValue(T value) {
         m_inputRange.ControlValue = value;
     }
 
     /// <summary>
+    /// Controlled variable type, as a TypeSet (Single-restricted)
+    /// </summary>
+    public KVariableTypeSet ControlledVariable { get => m_controlledVariableAsTypeSet; }
+    /// <summary>
+    /// Controlled variable type, as an enum (subset that includes only controllable variables)
+    /// </summary>
+    /// <value></value>
+    public KVariableEnum_Controllable ControlledVariableEnum { get => m_controlledVariable; }
+
+    /// <summary>
+    /// True when motion smoothing is enabled (uses SmoothDamp functionality instead of directly setting the variable)
+    /// Not allowed for ImpulseTypes with instantaneous effect.
+    /// </summary>
+    public bool SmoothingEnabled
+    {
+        get => m_smoothingEnabled;
+        set { m_smoothingEnabled = InternalSmoothingAllowed() ? value : false; }
+    }
+
+    /// <summary>
+    /// Smoothing time - larger increases smoothness (and sluggishness)
+    /// </summary>
+    public float SmoothingTime
+    {
+        get => m_smoothingTime;
+        set { m_smoothingTime = InternalSmoothingAllowed() ? value : 0;}
+    }
+    /// <summary>
+    /// Controlled variable specific limits
+    /// </summary>
+    public float OutputVariableMax { get => m_controlledVariableMax; set => m_controlledVariableMax = value; }
+    /// <summary>
+    /// Limit applied to derivative of controlled variable when smoothing.
+    /// Tight restriction here gives an 'ice level' type effect.
+    /// </summary>
+    /// <value></value>
+    public float OutputDerivativeMax { get => m_controlledVariableDerivativeMax; set => m_controlledVariableDerivativeMax = value; }
+
+    /// <summary>
     /// Returns the 'ImpulseMovement' class for this, if it is one.  ImpulseMovement is the base class for impulse axis movement types.
     /// </summary>
     /// <returns></returns>
-    public virtual ImpulseControlField<T> ImpulseType() {
+    public ImpulseControlField<T> ImpulseType() {
         if (this is ImpulseControlField<T>) {
             return (ImpulseControlField<T>)this;
         } else {
             return null;
         }
     }
-    public virtual KVariableTypeSet ControlledVariable { get => m_controlledVariableAsTypeSet; }
-    public virtual KVariableEnum_Controllable ControlledVariableEnum { get => m_controlledVariable; }
+
     /// <summary>
     /// Output of this class - this is the value I want for my controlled variables
     /// </summary>
@@ -84,7 +124,7 @@ public abstract class ControlField<T> : KVariableLimits {
     // /// <summary>
     // /// Perform kinematic calculations on provided variables
     // /// </summary>
-    public abstract void Update(ref KVariables<T> vars, float deltaTime);
+    public abstract void Update(ref T cVar, ref T cVarDeriv, float deltaTime);
 
     // *** Special properties
     /// <summary>
@@ -106,26 +146,15 @@ public abstract class ControlField<T> : KVariableLimits {
     public bool StateSetter() {
         return ControlledVariable.StateSetter();
     }
-    public bool SmoothingEnabled
-    {
-        get => m_smoothingEnabled;
-        set { m_smoothingEnabled = InternalSmoothingAllowed() ? value : false; }
-    }
-    public float SmoothingTime
-    {
-        get => m_smoothingTime;
-        set { m_smoothingTime = InternalSmoothingAllowed() ? value : 0;}
-    }
 
     // *** Internal functions
     /// <summary>
-    /// Enforces no smoothing for Instantaneous movement control
+    /// Enforces no smoothing for ImpulseForce variables, nor for Instantaneous movement control
     /// </summary>
     protected bool InternalSmoothingAllowed()
     {
         ImpulseControlField<T> impulseType = ImpulseType();
-        if (impulseType != null && impulseType.Instantaneous)
-        {
+        if (m_controlledVariable == KVariableEnum_Controllable.ImpulseForce || impulseType != null && impulseType.Instantaneous) {
             return false;
         }
         return true;
@@ -138,21 +167,37 @@ public abstract class ControlField<T> : KVariableLimits {
     }
 
     // *** Constructors
-    protected ControlField(KVariableLimits limits, IControlFieldToolset<T> toolset, string name, InputRange<T> inputRange)
-        : base (limits) {
+    protected ControlField(
+        IControlFieldToolset<T> toolset,
+        string name,
+        InputRange<T> inputRange,
+        float controlledVariableMax = float.PositiveInfinity,
+        float controlledVariableDerivativeMax = float.PositiveInfinity
+    ) {
         m_toolset = toolset;
         m_inputRange = inputRange;
         m_name = name;
         m_controlledVariable = KVariableTypeInfo.None;
+        m_controlledVariableMax = controlledVariableMax;
+        m_controlledVariableDerivativeMax = controlledVariableDerivativeMax;
         InitControlledVariableTypeSet();
     }
-    protected ControlField(KVariableLimits limits, IControlFieldToolset<T> toolset, string name, InputRange<T> inputRange, KVariableTypeSet controlledVariable)
-        : base (limits) {
+    protected ControlField(
+        IControlFieldToolset<T> toolset,
+        string name,
+        InputRange<T> inputRange,
+        KVariableTypeSet controlledVariable,
+        float controlledVariableMax = float.PositiveInfinity,
+        float controlledVariableDerivativeMax = float.PositiveInfinity
+    ) {
         m_toolset = toolset;
         m_name = name;
         m_inputRange = inputRange;
 
-        if (controlledVariable.Contains(KVariableTypeInfo.AllNonControllableTypes)) {
+        if (controlledVariable.IsMultiple()) {
+            Debug.LogError("ControlField cannot contain more than one controlled variable, setting to None.");
+            m_controlledVariable = KVariableEnum_Controllable.None;
+        } else if (controlledVariable.ContainsAny(KVariableTypeInfo.AllNonControllableTypes)) {
             Debug.LogError
             (
                 "Attempting to make ControlField with KVariables that cannot be applied to control.\n" +
@@ -160,12 +205,14 @@ public abstract class ControlField<T> : KVariableLimits {
                 "\t" + controlledVariable + "\n" +
                 "Cannot contain:\n" +
                 "\t" + KVariableTypeInfo.AllNonControllableTypes + "\n" +
-                "Removing disallowed variable flags."
+                "Setting to none."
             );
-            m_controlledVariable = controlledVariable & ~KVariableTypeInfo.AllNonControllableTypes;
+            m_controlledVariable = KVariableEnum_Controllable.None;
         } else {
             m_controlledVariable = controlledVariable;
         }
+        m_controlledVariableMax = controlledVariableMax;
+        m_controlledVariableDerivativeMax = controlledVariableDerivativeMax;
         InitControlledVariableTypeSet();
     }
 }
@@ -175,80 +222,47 @@ public class UncontrolledField<T> : ControlField<T>
 {
     public override void ApplyControlValue(T value) { /* Do nothing */ }
     public override T Target => throw new System.NotImplementedException();
-    public override void Update(ref KVariables<T> vars, float deltaTime) { /* Do nothing */ }
-    public UncontrolledField(KVariableLimits limits, IControlFieldToolset<T> toolset, string name) : base(limits, toolset, name, null) {}
+    public override void Update(ref T cVar, ref T cVarDeriv, float deltaTime) { /* Do nothing */ }
+    public UncontrolledField(
+        IControlFieldToolset<T> toolset,
+        string name,
+        float controlledVariableMax = float.PositiveInfinity,
+        float controlledVariableDerivativeMax = float.PositiveInfinity
+        ) : base(toolset, name, null, controlledVariableMax, controlledVariableDerivativeMax) {}
 }
 
 
 public class ContinuousControlField<T> : ControlField<T>
 {
     public override T Target { get { return m_inputRange.InputValue; } }
-    public override void Update(ref KVariables<T> vars, float deltaTime) {
+    public override void Update(ref T cVar, ref T cVarDeriv, float deltaTime) {
         T target = Target;
-        if (
-            m_smoothingEnabled &&
-            m_smoothingTime > 0 &&
-            m_controlledVariable != KVariableEnum_Controllable.ImpulseForce
-        ) {
+        if (m_smoothingEnabled && m_smoothingTime > 0) {
             // Use smoothing algorithm
-            switch (m_controlledVariable) {
-                case KVariableEnum_Controllable.None:
-                    break;
-                case KVariableEnum_Controllable.Variable:
-                    T derivative = vars.Derivative;
-                    vars.Variable = m_toolset.SmoothDamp(
-                        vars.Variable,
-                        target,
-                        ref derivative,
-                        m_smoothingTime,
-                        Max.Derivative,
-                        deltaTime
-                    );
-                    vars.Derivative = derivative;
-                    break;
-                case KVariableEnum_Controllable.Derivative:
-                    T secondDerivative = vars.SecondDerivative;
-                    vars.Derivative = m_toolset.SmoothDamp(
-                        vars.Derivative,
-                        target,
-                        ref secondDerivative,
-                        m_smoothingTime,
-                        Max.SecondDerivative,
-                        deltaTime
-                    );
-                    vars.SecondDerivative = secondDerivative;
-                    break;
-                case KVariableEnum_Controllable.AppliedForce:
-                    T forceDerivative = m_toolset.Zero;
-                    vars.AppliedForce = m_toolset.SmoothDamp(
-                        vars.AppliedForce,
-                        target,
-                        ref forceDerivative,
-                        m_smoothingTime,
-                        Max.AppliedForceDerivative,
-                        deltaTime
-                    );
-                    // No variable to feed forceDerivative back
-                    break;
-                case KVariableEnum_Controllable.ImpulseForce:
-                    // Not possible
-                    break;
-                default:
-                    Debug.LogError("Unhandled case");
-                    break;
-            }
+            cVar = m_toolset.SmoothDamp(
+                cVar,
+                target,
+                ref cVarDeriv,
+                m_smoothingTime,
+                m_controlledVariableDerivativeMax,
+                deltaTime
+            );
         } else {
-            // Use setting algorithm
+            cVar = Target;
         }
     }
-        
-    // }
-    public ContinuousControlField(KVariableLimits limits, IControlFieldToolset<T> toolset, InputRange<T> inputRange, string name, KVariableTypeSet controlledVariable)
-        : base(limits, toolset, name, inputRange, controlledVariable) {}
+    public ContinuousControlField(
+        IControlFieldToolset<T> toolset,
+        InputRange<T> inputRange,
+        string name,
+        KVariableTypeSet controlledVariable,
+        float controlledVariableMax = float.PositiveInfinity,
+        float controlledVariableDerivativeMax = float.PositiveInfinity
+    ) : base(toolset, name, inputRange, controlledVariable, controlledVariableMax, controlledVariableDerivativeMax) {}
 }
 
 
-public abstract class ImpulseControlField<T> : ControlField<T>
+public class ImpulseControlField<T> : ControlField<T>
 {
     // *** Protected fields
     protected float m_maxDuration = 0;
@@ -258,25 +272,41 @@ public abstract class ImpulseControlField<T> : ControlField<T>
     protected bool m_interruptable = false;
 
     // *** ControlField Interface
-    public override T Target { get { return m_inputRange.InputValue; } }
-
+    public override T Target { get { return InternalGetInput(); } }
+    public override void Update(ref T cVar, ref T cVarDeriv, float deltaTime) {
+        T target = Target;
+        if (m_smoothingEnabled && m_smoothingTime > 0) {
+            // Use smoothing algorithm
+            cVar = m_toolset.SmoothDamp(
+                cVar,
+                target,
+                ref cVarDeriv,
+                m_smoothingTime,
+                m_controlledVariableDerivativeMax,
+                deltaTime
+            );
+        } else {
+            cVar = Target;
+        }
+    }
+    
     /// <summary>
     /// Set to true when Impulse is ready to use, false when it cannot be used
     /// </summary>
-    public virtual bool Enabled { get => m_enabled; set => m_enabled = value; }
+    public bool Enabled { get => m_enabled; set => m_enabled = value; }
     /// <summary>
     /// When true, impulse movement is underway (enabled is now false)
     /// </summary>
-    public virtual bool Activated { get {return m_activated; } }
-    public virtual bool Instantaneous { get => m_maxDuration <= 0; }
+    public bool Activated { get {return m_activated; } }
+    public bool Instantaneous { get => m_maxDuration <= 0; }
     /// <summary>
     /// Can the impulse be controlled to stop early?
     /// </summary>
     /// <value></value>
-    public virtual bool Interruptable { get => m_interruptable; }
-    public virtual float StartTime { get => m_startTime; }
-    public virtual float MaxDuration { get => m_maxDuration; }
-    public virtual float MaxRemaining
+    public bool Interruptable { get => m_interruptable; }
+    public float StartTime { get => m_startTime; }
+    public float MaxDuration { get => m_maxDuration; }
+    public float MaxRemaining
     {
         get
         {
@@ -297,8 +327,10 @@ public abstract class ImpulseControlField<T> : ControlField<T>
         KVariableTypeSet controlledVariable,
         float maxDuration,
         bool interruptable,
-        bool enabled = true
-    ) : base(limits, toolset, name, inputRange, controlledVariable) {
+        bool enabled = true,
+        float controlledVariableMax = float.PositiveInfinity,
+        float controlledVariableDerivativeMax = float.PositiveInfinity
+    ) : base(toolset, name, inputRange, controlledVariable, controlledVariableMax, controlledVariableDerivativeMax) {
         m_maxDuration = maxDuration;
         m_interruptable = interruptable;
         m_enabled = enabled;
@@ -318,7 +350,7 @@ public abstract class ImpulseControlField<T> : ControlField<T>
     /// Performs bookkeeping actions to activate this impulse.  Can be used when already active - resets the start timer.
     /// </summary>
     /// <returns>true if activated successfully, false if it wasn't enabled</returns>
-    protected virtual bool Activate() {
+    protected bool Activate() {
         if (!m_enabled) {
             return false;
         }
@@ -331,7 +363,7 @@ public abstract class ImpulseControlField<T> : ControlField<T>
     /// Performs bookkeeping actions to deactivate this impulse
     /// </summary>
     /// <returns>true if successfully deactived, false if it wasn't active</returns>
-    protected virtual bool Deactivate() {
+    protected bool Deactivate() {
         if (!m_activated) {
             return false;
         }
@@ -339,7 +371,7 @@ public abstract class ImpulseControlField<T> : ControlField<T>
         m_startTime = 0;
         return true;
     }
-    protected virtual T InternalGetInput() {
+    protected T InternalGetInput() {
         if (Enabled) {
             // Ready to fire, check for max historical input
             T newValue = m_inputRange.UnqueriedMaxMagnitudeInputValue;
@@ -365,6 +397,7 @@ public abstract class ImpulseControlField<T> : ControlField<T>
         }
     }
 }
+
 
 // *** Concrete classes
 // TODO - I don't think this pattern works - C# can't seem to figure out generics like this:
