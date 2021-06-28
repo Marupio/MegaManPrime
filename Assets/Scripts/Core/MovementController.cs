@@ -311,61 +311,6 @@ public class MovementController<Q, V, T>
     }
 
     // *** Internal functions
-
-// WorldSpace3D (Rigidbody)   : Q = Quaternion, V = Vector3, T = Vector3
-//      Axis alignment Vector3
-// WorldSpace2D (Rigidbody2D) : Q = float, V = Vector2, T = float
-//      Axis alignment Vector2
-    // protected virtual void InitialiseVarSet<S>(
-    //     out KVariables<S> varSet,
-    //     out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<V> spatialVarsInit,
-    //     KVariables<T> rotationalVarsInit,
-    //     IProjections<S, V> projectionToolsetV,
-    //     IProjections<S, T> projectionToolsetT,
-    //     ControlFieldProfile<S> controlFieldProfile
-    // ) {
-    //     if (controlFieldProfile.Type == ControlFieldType.Rotational) {
-    //         KVariables<T> srcVars = new KVariables<T>(
-    //             rotationalVarsInit.Variable,            // m_localRotationComponents,
-    //             rotationalVarsInit.Derivative,          // m_localAngularVelocity,
-    //             rotationalVarsInit.SecondDerivative,    // m_localAngularAcceleration,
-    //             rotationalVarsInit.AppliedForce,        // m_localAppliedTorque,
-    //             m_toolset.ZeroT
-    //         );
-    //         if (controlFieldProfile.Projecting) {
-    //             projectionToolsetT.ProjectToSubspace(controlFieldProfile, out varSet, out controlSpaceToWorldSpace, srcVars);
-    //         } else {
-    //             projectionToolsetT.SubstituteToSubspace(
-    //                 controlFieldProfile,
-    //                 out varSet,
-    //                 out controlSpaceToWorldSpace,
-    //                 srcVars,
-    //                 controlFieldProfile.Alignment
-    //             );
-    //         }
-    //     } else {
-    //         KVariables<V> srcVars = new KVariables<V>(
-    //             spatialVarsInit.Variable,           // m_localPosition,
-    //             spatialVarsInit.Derivative,         // m_localVelocity,
-    //             spatialVarsInit.SecondDerivative,   // m_localAcceleration,
-    //             spatialVarsInit.AppliedForce,       // m_localAppliedForce,
-    //             m_toolset.ZeroV
-    //         );
-    //         if (controlFieldProfile.Projecting) {
-    //             projectionToolsetV.ProjectToSubspace(controlFieldProfile, out varSet, out controlSpaceToWorldSpace, srcVars);
-    //         } else {
-    //             projectionToolsetV.SubstituteToSubspace(
-    //                 controlFieldProfile,
-    //                 out varSet,
-    //                 out controlSpaceToWorldSpace,
-    //                 srcVars,
-    //                 controlFieldProfile.Alignment
-    //             );
-    //         }
-    //     }
-    // }
-
     protected void ExecuteControlField<S>(
         ControlFieldProfile<S> controlFieldProfile,
         IProjections<S, V> projectionToolsetV,
@@ -378,61 +323,25 @@ public class MovementController<Q, V, T>
         float deltaTime
     ) {
         if (controlFieldProfile.Type == ControlFieldType.Spatial) {
-            projectionToolsetV.ExecuteControlField(controlFieldProfile, spatialVarsInit, spatialVarsUpdate, ref dofsUsed, deltaTime);
+            projectionToolsetV.ExecuteControlField(
+                controlFieldProfile,
+                spatialVarsInit,
+                spatialVarsUpdate,
+                ref dofsUsed,
+                0,
+                deltaTime
+            );
         } else {
-            projectionToolsetT.ExecuteControlField(controlFieldProfile, rotationalVarsInit, rotationalVarsUpdate, ref dofsUsed, deltaTime);
+            projectionToolsetT.ExecuteControlField(
+                controlFieldProfile,
+                rotationalVarsInit,
+                rotationalVarsUpdate,
+                ref dofsUsed,
+                NSpatialDimensions(),
+                deltaTime
+            );
         }
     }
-
-    // protected virtual void SaveResults<S>(
-    //     ControlFieldProfile<S> controlFieldProfile,
-    //     Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     IProjections<S, V> projectionToolsetV,
-    //     IProjections<S, T> projectionToolsetT,
-    //     KVariables<S> outputFromControlField,
-    //     ref KVariables<V> spatialVarsUpdate,
-    //     ref KVariables<Vector3Int> spatialVarsUsedAxis,
-    //     ref KVariables<T> rotationalVarsUpdate,
-    //     ref KVariables<Vector3Int> rotationalVarsUsedAxis
-    // ) {
-    //     if (controlFieldProfile.Type == ControlFieldType.Spatial) {
-    //         if (controlFieldProfile.Projecting) {
-    //             projectionToolsetV.ProjectFromSubspace(
-    //                 controlFieldProfile,
-    //                 controlSpaceToWorldSpace,
-    //                 outputFromControlField,
-    //                 spatialVarsUpdate,
-    //                 spatialVarsUsedAxis
-    //             );
-    //         } else {
-    //             projectionToolsetV.SubstituteFromSubspace(
-    //                 controlFieldProfile,
-    //                 controlSpaceToWorldSpace,
-    //                 outputFromControlField,
-    //                 spatialVarsUpdate,
-    //                 spatialVarsUsedAxis
-    //             );
-    //         }
-    //     } else {
-    //         if (controlFieldProfile.Projecting) {
-    //             projectionToolsetT.ProjectFromSubspace(
-    //                 controlFieldProfile,
-    //                 controlSpaceToWorldSpace,
-    //                 outputFromControlField,
-    //                 rotationalVarsUpdate,
-    //                 rotationalVarsUsedAxis
-    //             );
-    //         } else {
-    //             projectionToolsetT.SubstituteFromSubspace(
-    //                 controlFieldProfile,
-    //                 controlSpaceToWorldSpace,
-    //                 outputFromControlField,
-    //                 rotationalVarsUpdate,
-    //                 rotationalVarsUsedAxis
-    //             );
-    //         }
-    //     }
-    // }
 
     /// <summary>
     /// Update locally carried kinematic variables, always call base first

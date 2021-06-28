@@ -57,23 +57,59 @@ public abstract class ControlFieldProfile<T> {
     ///     2D Spatial      - None|Z    = normal aligned with Z     *** AUTOMATIC
     ///                     - X,Y       = not allowed               *** IGNORED
     /// </summary>
-    protected AxisPlaneSpace m_alignment;
     protected ControlField<T> m_control;
     protected bool m_active; // true when contained in an 'activeControlFields' list in a ControFieldProfileManager
-    protected Quaternion m_direction; // direction X axis is facing within its subspace, relative to entity's axes
+    protected AxisPlaneSpace m_alignment;
     protected bool m_projecting; // true if kvars need to be projected to axial directions
-    protected Vector3Int m_usedAxes;
+    protected Quaternion m_direction; // direction X axis is facing within its subspace, relative to entity's axes
+    // TODO - Test out and add this feature
+    // protected bool m_fixedToWorldSpace;
+    protected Vector3Int m_usedAxes; // Used for DOF checking by manager class
 
+    /// <summary>
+    /// Manager class responsible for this ControlFieldProfile
+    /// </summary>
     public IControlFieldProfileManager Manager { get=>m_manager; }
+    /// <summary>
+    /// Name of this ControlFieldProfile instance
+    /// </summary>
     public string Name { get => m_name; set => m_name = value; }
+    /// <summary>
+    /// Number of physical dimensions that the control exists in - the maximum dimensions it can control here.
+    /// 3D | spatial = 3 | rotational = 3
+    /// 2D | spatial = 2 | rotational = 1
+    /// </summary>
     public int NAvailableDimensions { get => m_nAvailableDimensions; }
+    /// <summary>
+    /// The number of dimensions this object controls.
+    /// </summary>
     public abstract int NControlledDimensions { get; }
+    /// <summary>
+    /// The type of ControlField this is - Spatial or Rotational
+    /// </summary>
     public ControlFieldType Type { get => m_type; }
-    public AxisPlaneSpace Alignment { get => m_alignment; }
+    /// <summary>
+    /// The ControlField
+    /// </summary>
     public ControlField<T> Control { get => m_control; set => m_control = value; }
+    /// <summary>
+    /// True when this ControlFieldProfile is attached to an active input
+    /// </summary>
     public bool Active { get => m_active; }
-    public Quaternion Direction { get => m_direction; set => m_direction = value; }
+    /// <summary>
+    /// Is the ControlField fixed to an axis/plane/space?  If so, that is recorded here.
+    /// </summary>
+    public AxisPlaneSpace Alignment { get => m_alignment; }
+    /// <summary>
+    /// If the Alignment is None (and it NAvailableDimensions is more than just 1), the axis is Projecting
+    /// </summary>
     public bool Projecting { get => m_projecting; }
+    /// <summary>
+    /// The direction of the X axis of this control
+    /// </summary>
+    public Quaternion Direction { get => m_direction; set => m_direction = value; }
+    // TODO - add this feature
+    // protected bool FixedToWorldSpace { get=>m_fixedToWorldSpace; set=>m_fixedToWorldSpace=value; }
 
     // Functions intended to be used internally by controlField machinery
     public Vector3Int InternalCheckUsedAxes { get => m_usedAxes; }
@@ -81,33 +117,7 @@ public abstract class ControlFieldProfile<T> {
     public void InternalActivate() { m_active = true;}
     public void InternalDeactivate() { m_active = false;}
 
-    // *** Constructors
-    public ControlFieldProfile(
-        string name,
-        Transform owner,
-        ControlFieldType type,
-        int nAvailableDimensions,
-        AxisPlaneSpace alignment,
-        ControlField<T> control
-    ) {
-        m_name = name;
-        m_nAvailableDimensions = nAvailableDimensions;
-        m_owner = owner;
-        m_type = type;
-        if ((int)alignment > 7) {
-            Debug.LogError("Out-of-range setting for axis alignment: " + alignment + ", setting to " + AxisPlaneSpace.None);
-            alignment = AxisPlaneSpace.None;
-        }
-        m_alignment = alignment;
-        m_control = control;
-        m_active = false;
-        m_direction = Quaternion.identity;
-        m_projecting = false;
-        m_usedAxes = Vector3Int.zero;
-        CheckAxes();
-    }
-
-    // *** Protected member functions
+    // *** Internal methods
     protected bool CheckAxes() {
         if (m_nAvailableDimensions < NControlledDimensions) {
             Debug.LogError(
@@ -258,6 +268,32 @@ public abstract class ControlFieldProfile<T> {
                 return false;
             }
         }
+    }
+
+    // *** Constructors
+    public ControlFieldProfile(
+        string name,
+        Transform owner,
+        ControlFieldType type,
+        int nAvailableDimensions,
+        AxisPlaneSpace alignment,
+        ControlField<T> control
+    ) {
+        m_name = name;
+        m_nAvailableDimensions = nAvailableDimensions;
+        m_owner = owner;
+        m_type = type;
+        if ((int)alignment > 7) {
+            Debug.LogError("Out-of-range setting for axis alignment: " + alignment + ", setting to " + AxisPlaneSpace.None);
+            alignment = AxisPlaneSpace.None;
+        }
+        m_alignment = alignment;
+        m_control = control;
+        m_active = false;
+        m_direction = Quaternion.identity;
+        m_projecting = false;
+        m_usedAxes = Vector3Int.zero;
+        CheckAxes();
     }
 }
 

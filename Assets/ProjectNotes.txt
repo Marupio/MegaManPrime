@@ -1,4 +1,6 @@
 TODO
+Rotation fixed to world / fixed to entity switch - get this into control / profile / wherever
+
 Need to clarify axis consuming and overlapping.  I think I have it so that position setters and velocity setters can overlap, which they cannot do.
 IRigidBody notes:
 // Name       Exclusive, RB Action

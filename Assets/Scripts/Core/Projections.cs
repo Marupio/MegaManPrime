@@ -1,7 +1,6 @@
-using System.Collections.Generic;
 using UnityEngine;
 
-// Template specialisation pattern for these types:
+// Template specialisation pattern for SUBSPACE to SPACE conversions, back and forth:
 // SUBPSACE <float,  float  > SPACE
 //          <float,  Vector2>
 //          <float,  Vector3>
@@ -9,19 +8,13 @@ using UnityEngine;
 //          <Vector2,Vector3>
 //          <Vector3,Vector3>
 // Projections/Substitutions between SubSpace <SS> and Space <S>
-/// ControlSpaceToWorldSpace
-///     * key = a single 'from' subspace axis,
-///     * value = complete list of 'from' axes and 'to' axes in a single projection group.
-///         The 'from' axes are encoded negatively: value = -1-axisId.
-///         The 'to' axes are encoded positively: value = axisId.
-///         AxisId is 0,1,2 for X,Y,Z
-///         e.g. encoding a projection from 2D to 3D would be: (-2, -1, 0, 1, 2)
 public interface IProjections<SS, S> {
     public void ExecuteControlField(
         ControlFieldProfile<SS> controlFieldProfile,
         KVariables<S> varsInit,
         KVariables<S> varsUpdate,
         ref int[] dofsUsed,
+        int dofStart,
         float deltaTime
     );
 }
@@ -32,9 +25,11 @@ public class ProjectionsFloatFloat : IProjections<float, float> {
         KVariables<float> varsInit,
         KVariables<float> varsUpdate,
         ref int[] dofsUsed,
+        int dofStart,
         float deltaTime
     ) {
         // 2D rotation
+        // No need to check for projection, not possible
         ControlField<float> control = controlFieldProfile.Control;
         switch (control.ControlledVariableEnum) {
             case KVariableEnum_Controllable.None: {
@@ -56,22 +51,22 @@ public class ProjectionsFloatFloat : IProjections<float, float> {
             }
             case KVariableEnum_Controllable.SecondDerivative: {
                 varsUpdate.m_secondDerivative = varsInit.SecondDerivative;
-                float jerk = 0;
-                control.Update(ref varsUpdate.m_secondDerivative, ref jerk, deltaTime);
+                float jerk_unused = 0;
+                control.Update(ref varsUpdate.m_secondDerivative, ref jerk_unused, deltaTime);
                 ++dofsUsed[2];
                 return;
             }
             case KVariableEnum_Controllable.AppliedForce: {
                 varsUpdate.m_appliedForce = varsInit.AppliedForce;
-                float forceRate = 0;
-                control.Update(ref varsUpdate.m_appliedForce, ref forceRate, deltaTime);
+                float forceRate_unused = 0;
+                control.Update(ref varsUpdate.m_appliedForce, ref forceRate_unused, deltaTime);
                 ++dofsUsed[2];
                 return;
             }
             case KVariableEnum_Controllable.ImpulseForce: {
-                varsUpdate.m_secondDerivative = varsInit.SecondDerivative;
-                float forceRate = 0;
-                control.Update(ref varsUpdate.m_secondDerivative, ref forceRate, deltaTime);
+                varsUpdate.m_impulseForce = varsInit.ImpulseForce;
+                float forceRate_unused = 0;
+                control.Update(ref varsUpdate.m_impulseForce, ref forceRate_unused, deltaTime);
                 ++dofsUsed[2];
                 return;
             }
@@ -84,13 +79,69 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
         KVariables<Vector2> varsInit,
         KVariables<Vector2> varsUpdate,
         ref int[] dofsUsed,
+        int dofStart,
         float deltaTime
     ) {
         // 2D spatial
         ControlField<float> control = controlFieldProfile.Control;
         if (controlFieldProfile.Projecting) {
-
+            // Perform projections
+            switch (control.ControlledVariableEnum) {
+                case KVariableEnum_Controllable.None: {
+                    return;
+                }
+                case KVariableEnum_Controllable.Variable: {
+                    Vector3 rotatedVar = controlFieldProfile.Direction*varsInit.Variable;
+                    Vector3 rotatedDer = controlFieldProfile.Direction*varsInit.Derivative;
+                    control.Update(ref rotatedVar.x, ref rotatedDer.x, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_variable = inverseQ*rotatedVar;
+                    varsUpdate.m_derivative = inverseQ*rotatedDer;
+                    break;
+                }
+                case KVariableEnum_Controllable.Derivative: {
+                    Vector3 rotatedVar = controlFieldProfile.Direction*varsInit.Derivative;
+                    Vector3 rotatedDer = controlFieldProfile.Direction*varsInit.SecondDerivative;
+                    control.Update(ref rotatedVar.x, ref rotatedDer.x, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_derivative = inverseQ*rotatedVar;
+                    varsUpdate.m_secondDerivative = inverseQ*rotatedDer;
+                    break;
+                }
+                case KVariableEnum_Controllable.SecondDerivative: {
+                    Vector3 rotatedVar = controlFieldProfile.Direction*varsInit.SecondDerivative;
+                    float jerk_unused = 0f;
+                    control.Update(ref rotatedVar.x, ref jerk_unused, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_secondDerivative = inverseQ*rotatedVar;
+                    break;
+                }
+                case KVariableEnum_Controllable.AppliedForce: {
+                    Vector3 rotatedVar = controlFieldProfile.Direction*varsInit.AppliedForce;
+                    float forceRate_unused = 0f;
+                    control.Update(ref rotatedVar.x, ref forceRate_unused, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_appliedForce = inverseQ*rotatedVar;
+                    break;
+                }
+                case KVariableEnum_Controllable.ImpulseForce: {
+                    Vector3 rotatedImpulseForce = controlFieldProfile.Direction*varsInit.ImpulseForce;
+                    float forceRate_unused = 0f;
+                    control.Update(ref rotatedImpulseForce.x, ref forceRate_unused, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_impulseForce = inverseQ*rotatedImpulseForce;
+                    break;
+                }
+                default: {
+                    Debug.LogError("Unhandled case");
+                    return;
+                }
+            }
+            ++dofsUsed[0];
+            ++dofsUsed[1];
+            return;
         } else {
+            // Perform axis substitutions
             switch (control.ControlledVariableEnum) {
                 case KVariableEnum_Controllable.None: {
                     return;
@@ -114,7 +165,7 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
                         default: {
                             Debug.LogError(
                                 "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
-                                " for 1D control in 2D space.";
+                                " for 1D control in 2D space."
                             );
                             return;
                         }
@@ -139,7 +190,7 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
                         default: {
                             Debug.LogError(
                                 "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
-                                " for 1D control in 2D space.";
+                                " for 1D control in 2D space."
                             );
                             return;
                         }
@@ -149,22 +200,22 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
                     switch (controlFieldProfile.Alignment) {
                         case AxisPlaneSpace.X: {
                             varsUpdate.m_secondDerivative.x = varsInit.SecondDerivative.x;
-                            float jerk = 0;
-                            control.Update(ref varsUpdate.m_secondDerivative.x, ref jerk, deltaTime);
+                            float jerk_unused = 0;
+                            control.Update(ref varsUpdate.m_secondDerivative.x, ref jerk_unused, deltaTime);
                             ++dofsUsed[0];
                             return;
                         }
                         case AxisPlaneSpace.Y: {
                             varsUpdate.m_secondDerivative.y = varsInit.SecondDerivative.y;
-                            float jerk = 0;
-                            control.Update(ref varsUpdate.m_secondDerivative.y, ref jerk, deltaTime);
+                            float jerk_unused = 0;
+                            control.Update(ref varsUpdate.m_secondDerivative.y, ref jerk_unused, deltaTime);
                             ++dofsUsed[1];
                             return;
                         }
                         default: {
                             Debug.LogError(
                                 "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
-                                " for 1D control in 2D space.";
+                                " for 1D control in 2D space."
                             );
                             return;
                         }
@@ -174,22 +225,22 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
                     switch (controlFieldProfile.Alignment) {
                         case AxisPlaneSpace.X: {
                             varsUpdate.m_appliedForce.x = varsInit.AppliedForce.x;
-                            float forceRate = 0;
-                            control.Update(ref varsUpdate.m_appliedForce.x, ref forceRate, deltaTime);
+                            float forceRate_unused = 0;
+                            control.Update(ref varsUpdate.m_appliedForce.x, ref forceRate_unused, deltaTime);
                             ++dofsUsed[0];
                             return;
                         }
                         case AxisPlaneSpace.Y: {
                             varsUpdate.m_appliedForce.y = varsInit.AppliedForce.y;
-                            float forceRate = 0;
-                            control.Update(ref varsUpdate.m_appliedForce.y, ref forceRate, deltaTime);
+                            float forceRate_unused = 0;
+                            control.Update(ref varsUpdate.m_appliedForce.y, ref forceRate_unused, deltaTime);
                             ++dofsUsed[1];
                             return;
                         }
                         default: {
                             Debug.LogError(
                                 "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
-                                " for 1D control in 2D space.";
+                                " for 1D control in 2D space."
                             );
                             return;
                         }
@@ -199,22 +250,22 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
                     switch (controlFieldProfile.Alignment) {
                         case AxisPlaneSpace.X: {
                             varsUpdate.m_impulseForce.x = varsInit.ImpulseForce.x;
-                            float forceRate = 0;
-                            control.Update(ref varsUpdate.m_impulseForce.x, ref forceRate, deltaTime);
+                            float forceRate_unused = 0;
+                            control.Update(ref varsUpdate.m_impulseForce.x, ref forceRate_unused, deltaTime);
                             ++dofsUsed[0];
                             return;
                         }
                         case AxisPlaneSpace.Y: {
                             varsUpdate.m_impulseForce.y = varsInit.ImpulseForce.y;
-                            float forceRate = 0;
-                            control.Update(ref varsUpdate.m_impulseForce.y, ref forceRate, deltaTime);
+                            float forceRate_unused = 0;
+                            control.Update(ref varsUpdate.m_impulseForce.y, ref forceRate_unused, deltaTime);
                             ++dofsUsed[1];
                             return;
                         }
                         default: {
                             Debug.LogError(
                                 "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
-                                " for 1D control in 2D space.";
+                                " for 1D control in 2D space."
                             );
                             return;
                         }
@@ -222,103 +273,7 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
                 }
             }
         }
-        // TODO
-        throw new System.NotImplementedException();
     }
-    // // 2D spatial only
-    // private Dictionary<string, Vector2> m_cachedVectors = new Dictionary<string, Vector2>();
-    // public void ProjectToSubspace(
-    //     ControlFieldProfile<float> controlFieldProfile,
-    //     out KVariables<float> varSet,
-    //     out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<Vector2> srcVars
-    // ) {
-    //     varSet = new KVariables<float>(0f);
-        
-    //     // Rotate the axis from X
-    //     Vector2 unitVector = (Vector2)(controlFieldProfile.Direction*Vector3.right);
-    //     varSet.Variable = Vector2.Dot(srcVars.Variable, unitVector);
-    //     varSet.Derivative = Vector2.Dot(srcVars.Derivative, unitVector);
-    //     varSet.SecondDerivative = Vector2.Dot(srcVars.SecondDerivative, unitVector);
-    //     varSet.AppliedForce = Vector2.Dot(srcVars.AppliedForce, unitVector);
-    //     controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-    //     controlSpaceToWorldSpace.Add(0, new List<int>{-1, 0, 1});
-    // }
-    // public void SubstituteToSubspace(
-    //     ControlFieldProfile<float> controlFieldProfile,
-    //     out KVariables<float> varSet,
-    //     out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<Vector2> srcVars,
-    //     AxisPlaneSpace alignment
-    // ) {
-    //     switch (alignment) {
-    //         case AxisPlaneSpace.X:
-    //             varSet = new KVariables<float>(0f);
-    //             varSet.Variable = srcVars.Variable.x;
-    //             varSet.Derivative = srcVars.Derivative.x;
-    //             varSet.SecondDerivative = srcVars.SecondDerivative.x;
-    //             varSet.AppliedForce = srcVars.AppliedForce.x;
-    //             controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-    //             controlSpaceToWorldSpace.Add(0, new List<int>{-1, 0});
-    //             break;
-    //         case AxisPlaneSpace.Y:
-    //             varSet = new KVariables<float>(0f);
-    //             varSet.Variable = srcVars.Variable.y;
-    //             varSet.Derivative = srcVars.Derivative.y;
-    //             varSet.SecondDerivative = srcVars.SecondDerivative.y;
-    //             varSet.AppliedForce = srcVars.AppliedForce.y;
-    //             controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-    //             controlSpaceToWorldSpace.Add(0, new List<int>{-1, 1});
-    //             break;
-    //         case AxisPlaneSpace.Z:
-    //         case AxisPlaneSpace.XYZ:
-    //         case AxisPlaneSpace.YZ:
-    //         case AxisPlaneSpace.XZ:
-    //         case AxisPlaneSpace.XY:
-    //         case AxisPlaneSpace.None:
-    //             Debug.LogError("Invalid argument - alignment = " + alignment);
-    //             varSet = null;
-    //             controlSpaceToWorldSpace = null;
-    //             break;
-    //         default:
-    //             Debug.LogError("Unhandled case");
-    //             varSet = null;
-    //             controlSpaceToWorldSpace = null;
-    //             break;
-    //     }
-    // }
-    // public void ProjectFromSubspace(
-    //     ControlFieldProfile<float> controlFieldProfile,
-    //     Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<float> outputFromControlField,
-    //     KVariables<Vector2> varsUpdate,
-    //     KVariables<Vector3Int> varsUsedAxis
-    // ) {
-    //     Quaternion inverse = Quaternion.Inverse(controlFieldProfile.Direction);
-
-    //     //Vector2 
-
-    //     // Do the opposite of this:
-    //     // varSet = new KVariables<float>(0f);
-    //     //        
-    //     // // Rotate the axis from X
-    //     // Vector2 unitVector = (Vector2)(controlFieldProfile.Direction*Vector3.right);
-    //     // varSet.Variable = Vector2.Dot(srcVars.Variable, unitVector);
-    //     // varSet.Derivative = Vector2.Dot(srcVars.Derivative, unitVector);
-    //     // varSet.SecondDerivative = Vector2.Dot(srcVars.SecondDerivative, unitVector);
-    //     // varSet.AppliedForce = Vector2.Dot(srcVars.AppliedForce, unitVector);
-    //     // controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-    //     // controlSpaceToWorldSpace.Add(0, new List<int>{-1, 0, 1});
-    // }
-    // public void SubstituteFromSubspace(
-    //     ControlFieldProfile<float> controlFieldProfile,
-    //     Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<float> outputFromControlField,
-    //     KVariables<Vector2> varsUpdate,
-    //     KVariables<Vector3Int> varsUsedAxis
-    // ) {
-    //     throw new System.NotImplementedException();
-    // }
 }
 public class ProjectionsFloatVector3 : IProjections<float, Vector3> {
     public void ExecuteControlField(
@@ -326,96 +281,241 @@ public class ProjectionsFloatVector3 : IProjections<float, Vector3> {
         KVariables<Vector3> varsInit,
         KVariables<Vector3> varsUpdate,
         ref int[] dofsUsed,
+        int dofStart,
         float deltaTime
     ) {
-        // TODO
-        throw new System.NotImplementedException();
+        // 3 dimensionsal spatial or rotational
+        ControlField<float> control = controlFieldProfile.Control;
+        if (controlFieldProfile.Projecting) {
+            // Perform projections
+            switch (control.ControlledVariableEnum)  {
+                case KVariableEnum_Controllable.None: {
+                    return;
+                }
+                case KVariableEnum_Controllable.Variable: {
+                    Vector3 rotatedVar = controlFieldProfile.Direction*varsInit.Variable;
+                    Vector3 rotatedDer = controlFieldProfile.Direction*varsInit.Derivative;
+                    control.Update(ref rotatedVar.x, ref rotatedDer.x, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_variable = inverseQ*rotatedVar;
+                    varsUpdate.m_derivative = inverseQ*rotatedDer;
+                    break;
+                }
+                case KVariableEnum_Controllable.Derivative: {
+                    Vector3 rotatedVar = controlFieldProfile.Direction*varsInit.Derivative;
+                    Vector3 rotatedDer = controlFieldProfile.Direction*varsInit.SecondDerivative;
+                    control.Update(ref rotatedVar.x, ref rotatedDer.x, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_derivative = inverseQ*rotatedVar;
+                    varsUpdate.m_secondDerivative = inverseQ*rotatedDer;
+                    break;
+                }
+                case KVariableEnum_Controllable.SecondDerivative: {
+                    Vector3 rotatedVar = controlFieldProfile.Direction*varsInit.SecondDerivative;
+                    float jerk_unused = 0f;
+                    control.Update(ref rotatedVar.x, ref jerk_unused, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_secondDerivative = inverseQ*rotatedVar;
+                    break;
+                }
+                case KVariableEnum_Controllable.AppliedForce: {
+                    Vector3 rotatedVar = controlFieldProfile.Direction*varsInit.AppliedForce;
+                    float forceRate_unused = 0f;
+                    control.Update(ref rotatedVar.x, ref forceRate_unused, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_appliedForce = inverseQ*rotatedVar;
+                    break;
+                }
+                case KVariableEnum_Controllable.ImpulseForce: {
+                    Vector3 rotatedVar = controlFieldProfile.Direction*varsInit.ImpulseForce;
+                    float forceRate_unused = 0f;
+                    control.Update(ref rotatedVar.x, ref forceRate_unused, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_impulseForce = inverseQ*rotatedVar;
+                    break;
+                }
+                default: {
+                    Debug.LogError("Unhandled case");
+                    return;
+                }
+            }
+            ++dofsUsed[dofStart];
+            ++dofsUsed[dofStart+1];
+            ++dofsUsed[dofStart+2];
+            return;
+        } else {
+            // Perform axis substitutions
+            switch (control.ControlledVariableEnum) {
+                case KVariableEnum_Controllable.None: {
+                    return;
+                }
+                case KVariableEnum_Controllable.Variable: {
+                    switch (controlFieldProfile.Alignment) {
+                        case AxisPlaneSpace.X: {
+                            varsUpdate.m_variable.x = varsInit.Variable.x;
+                            varsUpdate.m_derivative.x = varsInit.Derivative.x;
+                            control.Update(ref varsUpdate.m_variable.x, ref varsUpdate.m_derivative.x, deltaTime);
+                            ++dofsUsed[dofStart];
+                            return;
+                        }
+                        case AxisPlaneSpace.Y: {
+                            varsUpdate.m_variable.y = varsInit.Variable.y;
+                            varsUpdate.m_derivative.y = varsInit.Derivative.y;
+                            control.Update(ref varsUpdate.m_variable.y, ref varsUpdate.m_derivative.y, deltaTime);
+                            ++dofsUsed[dofStart+1];
+                            return;
+                        }
+                        case AxisPlaneSpace.Z: {
+                            varsUpdate.m_variable.z = varsInit.Variable.z;
+                            varsUpdate.m_derivative.z = varsInit.Derivative.z;
+                            control.Update(ref varsUpdate.m_variable.z, ref varsUpdate.m_derivative.z, deltaTime);
+                            ++dofsUsed[dofStart+2];
+                            return;
+                        }
+                        default: {
+                            Debug.LogError(
+                                "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
+                                " for 1D control in 3D space or rotation."
+                            );
+                            return;
+                        }
+                    } // end switch (controlFieldProfile.Alignment)
+                }
+                case KVariableEnum_Controllable.Derivative: {
+                    switch (controlFieldProfile.Alignment) {
+                        case AxisPlaneSpace.X: {
+                            varsUpdate.m_derivative.x = varsInit.Derivative.x;
+                            varsUpdate.m_secondDerivative.x = varsInit.SecondDerivative.x;
+                            control.Update(ref varsUpdate.m_derivative.x, ref varsUpdate.m_secondDerivative.x, deltaTime);
+                            ++dofsUsed[dofStart];
+                            return;
+                        }
+                        case AxisPlaneSpace.Y: {
+                            varsUpdate.m_derivative.y = varsInit.Derivative.y;
+                            varsUpdate.m_secondDerivative.y = varsInit.SecondDerivative.y;
+                            control.Update(ref varsUpdate.m_derivative.y, ref varsUpdate.m_secondDerivative.y, deltaTime);
+                            ++dofsUsed[dofStart+1];
+                            return;
+                        }
+                        case AxisPlaneSpace.Z: {
+                            varsUpdate.m_derivative.z = varsInit.Derivative.z;
+                            varsUpdate.m_secondDerivative.z = varsInit.SecondDerivative.z;
+                            control.Update(ref varsUpdate.m_derivative.z, ref varsUpdate.m_secondDerivative.z, deltaTime);
+                            ++dofsUsed[dofStart+2];
+                            return;
+                        }
+                        default: {
+                            Debug.LogError(
+                                "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
+                                " for 1D control in 3D space or rotation."
+                            );
+                            return;
+                        }
+                    } // end switch (controlFieldProfile.Alignment)
+                }
+                case KVariableEnum_Controllable.SecondDerivative: {
+                    switch (controlFieldProfile.Alignment) {
+                        case AxisPlaneSpace.X: {
+                            varsUpdate.m_secondDerivative.x = varsInit.SecondDerivative.x;
+                            float jerk_unused = 0f;
+                            control.Update(ref varsUpdate.m_secondDerivative.x, ref jerk_unused, deltaTime);
+                            ++dofsUsed[dofStart];
+                            return;
+                        }
+                        case AxisPlaneSpace.Y: {
+                            varsUpdate.m_secondDerivative.y = varsInit.SecondDerivative.y;
+                            float jerk_unused = 0f;
+                            control.Update(ref varsUpdate.m_secondDerivative.y, ref jerk_unused, deltaTime);
+                            ++dofsUsed[dofStart+1];
+                            return;
+                        }
+                        case AxisPlaneSpace.Z: {
+                            varsUpdate.m_secondDerivative.z = varsInit.SecondDerivative.z;
+                            float jerk_unused = 0f;
+                            control.Update(ref varsUpdate.m_secondDerivative.z, ref jerk_unused, deltaTime);
+                            ++dofsUsed[dofStart+2];
+                            return;
+                        }
+                        default: {
+                            Debug.LogError(
+                                "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
+                                " for 1D control in 3D space or rotation."
+                            );
+                            return;
+                        }
+                    } // end switch (controlFieldProfile.Alignment)
+                }
+                case KVariableEnum_Controllable.AppliedForce: {
+                    switch (controlFieldProfile.Alignment) {
+                        case AxisPlaneSpace.X: {
+                            varsUpdate.m_appliedForce.x = varsInit.AppliedForce.x;
+                            float forceRate_unused = 0f;
+                            control.Update(ref varsUpdate.m_appliedForce.x, ref forceRate_unused, deltaTime);
+                            ++dofsUsed[dofStart];
+                            return;
+                        }
+                        case AxisPlaneSpace.Y: {
+                            varsUpdate.m_appliedForce.y = varsInit.AppliedForce.y;
+                            float forceRate_unused = 0f;
+                            control.Update(ref varsUpdate.m_appliedForce.y, ref forceRate_unused, deltaTime);
+                            ++dofsUsed[dofStart+1];
+                            return;
+                        }
+                        case AxisPlaneSpace.Z: {
+                            varsUpdate.m_appliedForce.z = varsInit.AppliedForce.z;
+                            float forceRate_unused = 0f;
+                            control.Update(ref varsUpdate.m_appliedForce.z, ref forceRate_unused, deltaTime);
+                            ++dofsUsed[dofStart+2];
+                            return;
+                        }
+                        default: {
+                            Debug.LogError(
+                                "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
+                                " for 1D control in 3D space or rotation."
+                            );
+                            return;
+                        }
+                    } // end switch (controlFieldProfile.Alignment)
+                }
+                case KVariableEnum_Controllable.ImpulseForce: {
+                    switch (controlFieldProfile.Alignment) {
+                        case AxisPlaneSpace.X: {
+                            varsUpdate.m_impulseForce.x = varsInit.ImpulseForce.x;
+                            float forceRate_unused = 0f;
+                            control.Update(ref varsUpdate.m_impulseForce.x, ref forceRate_unused, deltaTime);
+                            ++dofsUsed[dofStart];
+                            return;
+                        }
+                        case AxisPlaneSpace.Y: {
+                            varsUpdate.m_impulseForce.y = varsInit.ImpulseForce.y;
+                            float forceRate_unused = 0f;
+                            control.Update(ref varsUpdate.m_impulseForce.y, ref forceRate_unused, deltaTime);
+                            ++dofsUsed[dofStart+1];
+                            return;
+                        }
+                        case AxisPlaneSpace.Z: {
+                            varsUpdate.m_impulseForce.z = varsInit.ImpulseForce.z;
+                            float forceRate_unused = 0f;
+                            control.Update(ref varsUpdate.m_impulseForce.z, ref forceRate_unused, deltaTime);
+                            ++dofsUsed[dofStart+2];
+                            return;
+                        }
+                        default: {
+                            Debug.LogError(
+                                "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
+                                " for 1D control in 3D space or rotation."
+                            );
+                            return;
+                        }
+                    } // end switch (controlFieldProfile.Alignment)
+                }
+                default: {
+                    Debug.LogError("Unhandled case");
+                    return;
+                }
+            } // end switch (control.ControlledVariableEnum)
+        }
     }
-    // // 3D spatial or rotational
-    // public void ProjectToSubspace(
-    //     ControlFieldProfile<float> controlFieldProfile,
-    //     out KVariables<float> varSet,
-    //     out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<Vector3> srcVars
-    // ) {
-    //     Vector3 unitDirection = controlFieldProfile.Direction*Vector3.right;
-    //     varSet = new KVariables<float>(0f);
-    //     varSet.Variable = Vector3.Dot(srcVars.Variable, unitDirection);
-    //     varSet.Derivative = Vector3.Dot(srcVars.Derivative, unitDirection);
-    //     varSet.SecondDerivative = Vector3.Dot(srcVars.SecondDerivative, unitDirection);
-    //     varSet.AppliedForce = Vector3.Dot(srcVars.AppliedForce, unitDirection);
-    //     controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-    //     controlSpaceToWorldSpace.Add(0, new List<int>{-1, 0, 1, 2});
-    // }
-    // public void SubstituteToSubspace(
-    //     ControlFieldProfile<float> controlFieldProfile,
-    //     out KVariables<float> varSet,
-    //     out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<Vector3> srcVars,
-    //     AxisPlaneSpace alignment
-    // ) {
-    //     switch (alignment) {
-    //         case AxisPlaneSpace.X:
-    //             varSet = new KVariables<float>(0f);
-    //             varSet.Variable = srcVars.Variable.x;
-    //             varSet.Derivative = srcVars.Derivative.x;
-    //             varSet.SecondDerivative = srcVars.SecondDerivative.x;
-    //             varSet.AppliedForce = srcVars.AppliedForce.x;
-    //             controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-    //             controlSpaceToWorldSpace.Add(0, new List<int>{-1, 0});
-    //             break;
-    //         case AxisPlaneSpace.Y:
-    //             varSet = new KVariables<float>(0f);
-    //             varSet.Variable = srcVars.Variable.y;
-    //             varSet.Derivative = srcVars.Derivative.y;
-    //             varSet.SecondDerivative = srcVars.SecondDerivative.y;
-    //             varSet.AppliedForce = srcVars.AppliedForce.y;
-    //             controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-    //             controlSpaceToWorldSpace.Add(0, new List<int>{-1, 1});
-    //             break;
-    //         case AxisPlaneSpace.Z:
-    //             varSet = new KVariables<float>(0f);
-    //             varSet.Variable = srcVars.Variable.z;
-    //             varSet.Derivative = srcVars.Derivative.z;
-    //             varSet.SecondDerivative = srcVars.SecondDerivative.z;
-    //             varSet.AppliedForce = srcVars.AppliedForce.z;
-    //             controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-    //             controlSpaceToWorldSpace.Add(0, new List<int>{-1, 2});
-    //             break;
-    //         case AxisPlaneSpace.XYZ:
-    //         case AxisPlaneSpace.YZ:
-    //         case AxisPlaneSpace.XZ:
-    //         case AxisPlaneSpace.XY:
-    //         case AxisPlaneSpace.None:
-    //             Debug.LogError("Invalid argument - alignment = " + alignment);
-    //             varSet = null;
-    //             controlSpaceToWorldSpace = null;
-    //             break;
-    //         default:
-    //             Debug.LogError("Unhandled case");
-    //             varSet = null;
-    //             controlSpaceToWorldSpace = null;
-    //             break;
-    //     }
-    // }
-    // public void ProjectFromSubspace(
-    //     ControlFieldProfile<float> controlFieldProfile,
-    //     Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<float> outputFromControlField,
-    //     KVariables<Vector3> varsUpdate,
-    //     KVariables<Vector3Int> varsUsedAxis
-    // ) {
-    //     throw new System.NotImplementedException();
-    // }
-    // public void SubstituteFromSubspace(
-    //     ControlFieldProfile<float> controlFieldProfile,
-    //     Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<float> outputFromControlField,
-    //     KVariables<Vector3> varsUpdate,
-    //     KVariables<Vector3Int> varsUsedAxis
-    // ) {
-    //     throw new System.NotImplementedException();
-    // }
 }
 public class ProjectionsVector2Vector2 : IProjections<Vector2, Vector2> {
     public void ExecuteControlField(
@@ -423,85 +523,105 @@ public class ProjectionsVector2Vector2 : IProjections<Vector2, Vector2> {
         KVariables<Vector2> varsInit,
         KVariables<Vector2> varsUpdate,
         ref int[] dofsUsed,
+        int dofStart,
         float deltaTime
     ) {
-        // TODO
-        throw new System.NotImplementedException();
+        // 2D spatial
+        ControlField<Vector2> control = controlFieldProfile.Control;
+        if (controlFieldProfile.Projecting) {
+            // Perform projections
+            switch (control.ControlledVariableEnum) {
+                case KVariableEnum_Controllable.None: {
+                    return;
+                }
+                case KVariableEnum_Controllable.Variable: {
+                    Vector2 rotatedVariable = (Vector2)(controlFieldProfile.Direction*varsInit.Variable);
+                    Vector2 rotatedDerivative = (Vector2)(controlFieldProfile.Direction*varsInit.Derivative);
+                    control.Update(ref rotatedVariable, ref rotatedDerivative, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_variable = inverseQ*rotatedVariable;
+                    varsUpdate.m_derivative = inverseQ*rotatedDerivative;
+                    break;
+                }
+                case KVariableEnum_Controllable.Derivative: {
+                    Vector2 rotatedDerivative = (Vector2)(controlFieldProfile.Direction*varsInit.Derivative);
+                    Vector2 rotatedSecondDerivative = (Vector2)(controlFieldProfile.Direction*varsInit.SecondDerivative);
+                    control.Update(ref rotatedDerivative, ref rotatedSecondDerivative, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_derivative = inverseQ*rotatedDerivative;
+                    varsUpdate.m_secondDerivative = inverseQ*rotatedSecondDerivative;
+                    break;
+                }
+                case KVariableEnum_Controllable.SecondDerivative: {
+                    Vector2 rotatedSecondDerivative = (Vector2)(controlFieldProfile.Direction*varsInit.SecondDerivative);
+                    Vector2 jerk_unused = Vector2.zero;
+                    control.Update(ref rotatedSecondDerivative, ref jerk_unused, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_secondDerivative = inverseQ*rotatedSecondDerivative;
+                    break;
+                }
+                case KVariableEnum_Controllable.AppliedForce: {
+                    Vector2 rotatedAppliedForce = (Vector2)(controlFieldProfile.Direction*varsInit.AppliedForce);
+                    Vector2 forceRate_unused = Vector2.zero;
+                    control.Update(ref rotatedAppliedForce, ref forceRate_unused, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_appliedForce = inverseQ*rotatedAppliedForce;
+                    break;
+                }
+                case KVariableEnum_Controllable.ImpulseForce: {
+                    Vector2 rotatedImpulseForce = (Vector2)(controlFieldProfile.Direction*varsInit.ImpulseForce);
+                    Vector2 forceRate_unused = Vector2.zero;
+                    control.Update(ref rotatedImpulseForce, ref forceRate_unused, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_impulseForce = inverseQ*rotatedImpulseForce;
+                    break;
+                }
+                default: {
+                    Debug.LogError("Unhandled case");
+                    return;
+                }
+            }
+            ++dofsUsed[0];
+            ++dofsUsed[1];
+            return;
+        } else {
+            // Perform axis substitutions
+            switch (control.ControlledVariableEnum) {
+                case KVariableEnum_Controllable.None: {
+                    return;
+                }
+                case KVariableEnum_Controllable.Variable: {
+                    switch (controlFieldProfile.Alignment) {
+                        case AxisPlaneSpace.XY: { // X->X, Y->Y
+                            varsUpdate.m_variable.x = varsInit.Variable.x;
+                            varsUpdate.m_variable.y = varsInit.Variable.y;
+                            Vector2 workingVec = (Vector2)(varsInit.Variable);
+                            Vector2 workingDer = (Vector2)(varsInit.Derivative);
+                            control.Update(ref workingVec, ref workingDer, deltaTime);
+                            varsUpdate.m_variable.x = workingVec.x;
+                            varsUpdate.m_variable.y = workingVec.y;
+                            varsUpdate.m_derivative.x = workingDer.x;
+                            varsUpdate.m_derivative.y = workingDer.y;
+                            ++dofsUsed[0];
+                            ++dofsUsed[1];
+                            return;
+                        }
+                        default: {
+                            Debug.LogError(
+                                "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
+                                " for 2D control in 2D space."
+                            );
+                            return;
+                        }
+                    }
+                }
+                default: {
+                    Debug.LogError("Unhandled case");
+                    return;
+                }
+            } // end switch (control.ControlledVariableEnum)
+        }
     }
-    // // 2D spatial only
-    // public void ProjectToSubspace(
-    //     ControlFieldProfile<Vector2> controlFieldProfile,
-    //     out KVariables<Vector2> varSet,
-    //     out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<Vector2> srcVars
-    // ) {
-    //     varSet = new KVariables<Vector2>(Vector2.zero);
-        
-    //     // Rotate the axes
-    //     Vector2 unitVectorX = (Vector2)(controlFieldProfile.Direction*Vector3.right);
-    //     Vector2 unitVectorY = (Vector2)(controlFieldProfile.Direction*Vector3.up);
-    //     varSet.Variable = new Vector2(Vector2.Dot(srcVars.Variable, unitVectorX), Vector2.Dot(srcVars.Variable, unitVectorY));
-    //     varSet.Derivative = new Vector2(Vector2.Dot(srcVars.Derivative, unitVectorX), Vector2.Dot(srcVars.Derivative, unitVectorY));
-    //     varSet.SecondDerivative = new Vector2(Vector2.Dot(srcVars.SecondDerivative, unitVectorX), Vector2.Dot(srcVars.SecondDerivative, unitVectorY));
-    //     varSet.AppliedForce = new Vector2(Vector2.Dot(srcVars.AppliedForce, unitVectorX), Vector2.Dot(srcVars.AppliedForce, unitVectorY));
-    //     controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-    //     controlSpaceToWorldSpace.Add(0, new List<int>{-2, -1, 0, 1});
-    //     controlSpaceToWorldSpace.Add(1, new List<int>{-2, -1, 0, 1});
-    // }
-    // public void SubstituteToSubspace(
-    //     ControlFieldProfile<Vector2> controlFieldProfile,
-    //     out KVariables<Vector2> varSet,
-    //     out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<Vector2> srcVars,
-    //     AxisPlaneSpace alignment
-    // ) {
-    //     switch (alignment) {
-    //         case AxisPlaneSpace.XY:
-    //             varSet = new KVariables<Vector2>(Vector2.zero);
-    //             varSet.Variable = srcVars.Variable;
-    //             varSet.Derivative = srcVars.Derivative;
-    //             varSet.SecondDerivative = srcVars.SecondDerivative;
-    //             varSet.AppliedForce = srcVars.AppliedForce;
-    //             controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-    //             controlSpaceToWorldSpace.Add(0, new List<int>{-1, 0});
-    //             controlSpaceToWorldSpace.Add(1, new List<int>{-2, 1});
-    //             break;
-    //         case AxisPlaneSpace.YZ:
-    //         case AxisPlaneSpace.XZ:
-    //         case AxisPlaneSpace.X:
-    //         case AxisPlaneSpace.Y:
-    //         case AxisPlaneSpace.Z:
-    //         case AxisPlaneSpace.XYZ:
-    //         case AxisPlaneSpace.None:
-    //             Debug.LogError("Invalid argument - alignment = " + alignment);
-    //             varSet = null;
-    //             controlSpaceToWorldSpace = null;
-    //             break;
-    //         default:
-    //             Debug.LogError("Unhandled case");
-    //             varSet = null;
-    //             controlSpaceToWorldSpace = null;
-    //             break;
-    //     }
-    // }
-    // public void ProjectFromSubspace(
-    //     ControlFieldProfile<Vector2> controlFieldProfile,
-    //     Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<Vector2> outputFromControlField,
-    //     KVariables<Vector2> varsUpdate,
-    //     KVariables<Vector3Int> varsUsedAxis
-    // ) {
-    //     throw new System.NotImplementedException();
-    // }
-    // public void SubstituteFromSubspace(
-    //     ControlFieldProfile<Vector2> controlFieldProfile,
-    //     Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<Vector2> outputFromControlField,
-    //     KVariables<Vector2> varsUpdate,
-    //     KVariables<Vector3Int> varsUsedAxis
-    // ) {
-    //     throw new System.NotImplementedException();
-    // }
 }
 public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
     public void ExecuteControlField(
@@ -509,100 +629,237 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
         KVariables<Vector3> varsInit,
         KVariables<Vector3> varsUpdate,
         ref int[] dofsUsed,
+        int dofStart,
         float deltaTime
     ) {
-        throw new System.NotImplementedException();
+        // 2D control plan in 3D space / rotation
+        ControlField<Vector2> control = controlFieldProfile.Control;
+        if (controlFieldProfile.Projecting) {
+            // Perform projections
+            switch (control.ControlledVariableEnum) {
+                case KVariableEnum_Controllable.None: {
+                    return;
+                }
+                case KVariableEnum_Controllable.Variable: {
+                    Vector3 rotatedVariable = controlFieldProfile.Direction*varsInit.Variable;
+                    Vector3 rotatedDerivative = controlFieldProfile.Direction*varsInit.Derivative;
+                    Vector2 workingVec = (Vector2)rotatedVariable;
+                    Vector2 workingDer = (Vector2)rotatedDerivative;
+                    control.Update(ref workingVec, ref workingDer, deltaTime);
+                    rotatedVariable.x = workingVec.x;
+                    rotatedVariable.y = workingVec.y;
+                    rotatedDerivative.x = workingDer.x;
+                    rotatedDerivative.y = workingDer.y;
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_variable = inverseQ*rotatedVariable;
+                    varsUpdate.m_derivative = inverseQ*rotatedDerivative;
+                    break;
+                }
+                case KVariableEnum_Controllable.Derivative: {
+                    Vector3 rotatedVariable = controlFieldProfile.Direction*varsInit.Derivative;
+                    Vector3 rotatedDerivative = controlFieldProfile.Direction*varsInit.SecondDerivative;
+                    Vector2 workingVec = (Vector2)rotatedVariable;
+                    Vector2 workingDer = (Vector2)rotatedDerivative;
+                    control.Update(ref workingVec, ref workingDer, deltaTime);
+                    rotatedVariable.x = workingVec.x;
+                    rotatedVariable.y = workingVec.y;
+                    rotatedDerivative.x = workingDer.x;
+                    rotatedDerivative.y = workingDer.y;
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_derivative = inverseQ*rotatedVariable;
+                    varsUpdate.m_secondDerivative = inverseQ*rotatedDerivative;
+                    break;
+                }
+                case KVariableEnum_Controllable.SecondDerivative: {
+                    Vector3 rotatedVariable = controlFieldProfile.Direction*varsInit.SecondDerivative;
+                    Vector2 workingVec = (Vector2)rotatedVariable;
+                    Vector2 workingDer = Vector2.zero;
+                    control.Update(ref workingVec, ref workingDer, deltaTime);
+                    rotatedVariable.x = workingVec.x;
+                    rotatedVariable.y = workingVec.y;
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_secondDerivative = inverseQ*rotatedVariable;
+                    break;
+                }
+                case KVariableEnum_Controllable.AppliedForce: {
+                    Vector3 rotatedVariable = controlFieldProfile.Direction*varsInit.AppliedForce;
+                    Vector2 workingVec = (Vector2)rotatedVariable;
+                    Vector2 workingDer = Vector2.zero;
+                    control.Update(ref workingVec, ref workingDer, deltaTime);
+                    rotatedVariable.x = workingVec.x;
+                    rotatedVariable.y = workingVec.y;
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_appliedForce = inverseQ*rotatedVariable;
+                    break;
+                }
+                case KVariableEnum_Controllable.ImpulseForce: {
+                    Vector3 rotatedVariable = controlFieldProfile.Direction*varsInit.ImpulseForce;
+                    Vector2 workingVec = (Vector2)rotatedVariable;
+                    Vector2 workingDer = Vector2.zero;
+                    control.Update(ref workingVec, ref workingDer, deltaTime);
+                    rotatedVariable.x = workingVec.x;
+                    rotatedVariable.y = workingVec.y;
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_impulseForce = inverseQ*rotatedVariable;
+                    break;
+                }
+                default: {
+                    Debug.LogError("Unhandled case");
+                    return;
+                }
+            }
+            ++dofsUsed[dofStart];
+            ++dofsUsed[dofStart+1];
+            ++dofsUsed[dofStart+2];
+            return;
+        } else {
+            // Perform axis substitutions
+            switch (control.ControlledVariableEnum) {
+                case KVariableEnum_Controllable.None: {
+                    return;
+                }
+                case KVariableEnum_Controllable.Variable: {
+                    switch (controlFieldProfile.Alignment) {
+                        case AxisPlaneSpace.XY: { // X->X, Y->Y
+                            Vector2 workingVar = new Vector2(varsInit.Variable.x, varsInit.Variable.y);
+                            Vector2 workingDer = new Vector2(varsInit.Derivative.x, varsInit.Derivative.y);
+                            control.Update(ref workingVar, ref workingDer, deltaTime);
+                            varsUpdate.m_variable.x = workingVar.x;
+                            varsUpdate.m_variable.y = workingVar.y;
+                            varsUpdate.m_derivative.x = workingDer.x;
+                            varsUpdate.m_derivative.y = workingDer.y;
+                            ++dofsUsed[dofStart];
+                            ++dofsUsed[dofStart+1];
+                            return;
+                        }
+                        case AxisPlaneSpace.XZ: { // X->X, Y->Z
+                            Vector2 workingVar = new Vector2(varsInit.Variable.x, varsInit.Variable.z);
+                            Vector2 workingDer = new Vector2(varsInit.Derivative.x, varsInit.Derivative.z);
+                            control.Update(ref workingVar, ref workingDer, deltaTime);
+                            varsUpdate.m_variable.x = workingVar.x;
+                            varsUpdate.m_variable.z = workingVar.y;
+                            varsUpdate.m_derivative.x = workingDer.x;
+                            varsUpdate.m_derivative.z = workingDer.y;
+                            ++dofsUsed[dofStart];
+                            ++dofsUsed[dofStart+2];
+                            return;
+                        }
+                        case AxisPlaneSpace.YZ: { // X->Y, Y->Z
+                            Vector2 workingVar = new Vector2(varsInit.Variable.y, varsInit.Variable.z);
+                            Vector2 workingDer = new Vector2(varsInit.Derivative.y, varsInit.Derivative.z);
+                            control.Update(ref workingVar, ref workingDer, deltaTime);
+                            varsUpdate.m_variable.y = workingVar.x;
+                            varsUpdate.m_variable.z = workingVar.y;
+                            varsUpdate.m_derivative.y = workingDer.x;
+                            varsUpdate.m_derivative.z = workingDer.y;
+                            ++dofsUsed[dofStart+1];
+                            ++dofsUsed[dofStart+2];
+                            return;
+                        }
+                        default: {
+                            Debug.LogError(
+                                "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
+                                " for 2D control in 3D space / rotation."
+                            );
+                            return;
+                        }
+                    }
+                }
+                case KVariableEnum_Controllable.Derivative: {
+                    switch (controlFieldProfile.Alignment) {
+                        case AxisPlaneSpace.XY: { // X->X, Y->Y
+                            Vector2 workingVar = new Vector2(varsInit.Derivative.x, varsInit.Derivative.y);
+                            Vector2 workingDer = new Vector2(varsInit.SecondDerivative.x, varsInit.SecondDerivative.y);
+                            control.Update(ref workingVar, ref workingDer, deltaTime);
+                            varsUpdate.m_derivative.x = workingVar.x;
+                            varsUpdate.m_derivative.y = workingVar.y;
+                            varsUpdate.m_secondDerivative.x = workingDer.x;
+                            varsUpdate.m_secondDerivative.y = workingDer.y;
+                            ++dofsUsed[dofStart];
+                            ++dofsUsed[dofStart+1];
+                            return;
+                        }
+                        case AxisPlaneSpace.XZ: { // X->X, Y->Z
+                            Vector2 workingVar = new Vector2(varsInit.Derivative.x, varsInit.Derivative.z);
+                            Vector2 workingDer = new Vector2(varsInit.SecondDerivative.x, varsInit.SecondDerivative.z);
+                            control.Update(ref workingVar, ref workingDer, deltaTime);
+                            varsUpdate.m_derivative.x = workingVar.x;
+                            varsUpdate.m_derivative.z = workingVar.y;
+                            varsUpdate.m_secondDerivative.x = workingDer.x;
+                            varsUpdate.m_secondDerivative.z = workingDer.y;
+                            ++dofsUsed[dofStart];
+                            ++dofsUsed[dofStart+2];
+                            return;
+                        }
+                        case AxisPlaneSpace.YZ: { // X->Y, Y->Z
+                            Vector2 workingVar = new Vector2(varsInit.Derivative.y, varsInit.Derivative.z);
+                            Vector2 workingDer = new Vector2(varsInit.SecondDerivative.y, varsInit.SecondDerivative.z);
+                            control.Update(ref workingVar, ref workingDer, deltaTime);
+                            varsUpdate.m_derivative.y = workingVar.x;
+                            varsUpdate.m_derivative.z = workingVar.y;
+                            varsUpdate.m_secondDerivative.y = workingDer.x;
+                            varsUpdate.m_secondDerivative.z = workingDer.y;
+                            ++dofsUsed[dofStart+1];
+                            ++dofsUsed[dofStart+2];
+                            return;
+                        }
+                        default: {
+                            Debug.LogError(
+                                "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
+                                " for 2D control in 3D space / rotation."
+                            );
+                            return;
+                        }
+                    }
+                }
+                case KVariableEnum_Controllable.SecondDerivative: {
+                    switch (controlFieldProfile.Alignment) {
+                        case AxisPlaneSpace.XY: { // X->X, Y->Y
+                            Vector2 workingVar = new Vector2(varsInit.SecondDerivative.x, varsInit.SecondDerivative.y);
+                            Vector2 jerk_unused = Vector2.zero;
+                            control.Update(ref workingVar, ref jerk_unused, deltaTime);
+                            varsUpdate.m_secondDerivative.x = workingVar.x;
+                            varsUpdate.m_secondDerivative.y = workingVar.y;
+                            ++dofsUsed[dofStart];
+                            ++dofsUsed[dofStart+1];
+                            return;
+                        }
+                        case AxisPlaneSpace.XZ: { // X->X, Y->Z
+                            Vector2 workingVar = new Vector2(varsInit.Derivative.x, varsInit.Derivative.z);
+                            Vector2 jerk_unused = Vector2.zero;
+                            control.Update(ref workingVar, ref jerk_unused, deltaTime);
+                            varsUpdate.m_secondDerivative.x = workingVar.x;
+                            varsUpdate.m_secondDerivative.z = workingVar.y;
+                            ++dofsUsed[dofStart];
+                            ++dofsUsed[dofStart+2];
+                            return;
+                        }
+                        case AxisPlaneSpace.YZ: { // X->Y, Y->Z
+                            Vector2 workingVar = new Vector2(varsInit.Derivative.y, varsInit.Derivative.z);
+                            Vector2 jerk_unused = Vector2.zero;
+                            control.Update(ref workingVar, ref jerk_unused, deltaTime);
+                            varsUpdate.m_secondDerivative.y = workingVar.x;
+                            varsUpdate.m_secondDerivative.z = workingVar.y;
+                            ++dofsUsed[dofStart+1];
+                            ++dofsUsed[dofStart+2];
+                            return;
+                        }
+                        default: {
+                            Debug.LogError(
+                                "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
+                                " for 2D control in 3D space / rotation."
+                            );
+                            return;
+                        }
+                    }
+                }
+                default: {
+                    Debug.LogError("Unhandled case");
+                    return;
+                }
+            }
+        }
     }
-    // // 3D spatial or rotational
-    // public void ProjectToSubspace(
-    //     ControlFieldProfile<Vector2> controlFieldProfile,
-    //     out KVariables<Vector2> varSet,
-    //     out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<Vector3> srcVars
-    // ) {
-    //     varSet = new KVariables<Vector2>(Vector2.zero);
-    //     Vector3 unitX = controlFieldProfile.Direction*Vector3.right;
-    //     Vector3 unitY = controlFieldProfile.Direction*Vector3.up;
-    //     varSet.Variable = new Vector2(Vector3.Dot(srcVars.Variable, unitX), Vector3.Dot(srcVars.Variable, unitY));
-    //     varSet.Derivative = new Vector2(Vector3.Dot(srcVars.Derivative, unitX), Vector3.Dot(srcVars.Derivative, unitY));
-    //     varSet.SecondDerivative = new Vector2(Vector3.Dot(srcVars.SecondDerivative, unitX), Vector3.Dot(srcVars.SecondDerivative, unitY));
-    //     varSet.AppliedForce = new Vector2(Vector3.Dot(srcVars.AppliedForce, unitX), Vector3.Dot(srcVars.AppliedForce, unitY));
-    //     controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-    //     controlSpaceToWorldSpace.Add(0, new List<int>{-2, -1, 0, 1, 2});
-    //     controlSpaceToWorldSpace.Add(1, new List<int>{-2, -1, 0, 1, 2});
-    // }
-    // public void SubstituteToSubspace(
-    //     ControlFieldProfile<Vector2> controlFieldProfile,
-    //     out KVariables<Vector2> varSet,
-    //     out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<Vector3> srcVars,
-    //     AxisPlaneSpace alignment
-    // ) {
-    //     switch (alignment) {
-    //         case AxisPlaneSpace.XY:
-    //             varSet = new KVariables<Vector2>(Vector2.zero);
-    //             varSet.Variable = (Vector2)srcVars.Variable;
-    //             varSet.Derivative = (Vector2)srcVars.Derivative;
-    //             varSet.SecondDerivative = (Vector2)srcVars.SecondDerivative;
-    //             varSet.AppliedForce = (Vector2)srcVars.AppliedForce;
-    //             controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-    //             controlSpaceToWorldSpace.Add(0, new List<int>{-1, 0});
-    //             controlSpaceToWorldSpace.Add(1, new List<int>{-2, 1});
-    //             break;
-    //         case AxisPlaneSpace.YZ: // X-->Y, Y-->Z
-    //             varSet = new KVariables<Vector2>(Vector2.zero);
-    //             varSet.Variable = new Vector2(srcVars.Variable.y, srcVars.Variable.z);
-    //             varSet.Derivative = new Vector2(srcVars.Derivative.y, srcVars.Derivative.z);
-    //             varSet.SecondDerivative = new Vector2(srcVars.SecondDerivative.y, srcVars.SecondDerivative.z);
-    //             varSet.AppliedForce = new Vector2(srcVars.AppliedForce.y, srcVars.AppliedForce.z);
-    //             controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-    //             controlSpaceToWorldSpace.Add(0, new List<int>{-1, 1});
-    //             controlSpaceToWorldSpace.Add(1, new List<int>{-2, 2});
-    //             break;
-    //         case AxisPlaneSpace.XZ: // X-->X, Y-->Z
-    //             varSet = new KVariables<Vector2>(Vector2.zero);
-    //             varSet.Variable = new Vector2(srcVars.Variable.x, srcVars.Variable.z);
-    //             varSet.Derivative = new Vector2(srcVars.Derivative.x, srcVars.Derivative.z);
-    //             varSet.SecondDerivative = new Vector2(srcVars.SecondDerivative.x, srcVars.SecondDerivative.z);
-    //             varSet.AppliedForce = new Vector2(srcVars.AppliedForce.x, srcVars.AppliedForce.z);
-    //             controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-    //             controlSpaceToWorldSpace.Add(0, new List<int>{-1, 0});
-    //             controlSpaceToWorldSpace.Add(1, new List<int>{-2, 2});
-    //             break;
-    //         case AxisPlaneSpace.X:
-    //         case AxisPlaneSpace.Y:
-    //         case AxisPlaneSpace.Z:
-    //         case AxisPlaneSpace.XYZ:
-    //         case AxisPlaneSpace.None:
-    //             Debug.LogError("Invalid argument - alignment = " + alignment);
-    //             varSet = null;
-    //             controlSpaceToWorldSpace = null;
-    //             break;
-    //         default:
-    //             Debug.LogError("Unhandled case");
-    //             varSet = null;
-    //             controlSpaceToWorldSpace = null;
-    //             break;
-    //     }
-    // }
-    // public void ProjectFromSubspace(
-    //     ControlFieldProfile<Vector2> controlFieldProfile,
-    //     Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<Vector2> outputFromControlField,
-    //     KVariables<Vector3> varsUpdate,
-    //     KVariables<Vector3Int> varsUsedAxis
-    // ) {
-    //     throw new System.NotImplementedException();
-    // }
-    // public void SubstituteFromSubspace(
-    //     ControlFieldProfile<Vector2> controlFieldProfile,
-    //     Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<Vector2> outputFromControlField,
-    //     KVariables<Vector3> varsUpdate,
-    //     KVariables<Vector3Int> varsUsedAxis
-    // ) {
-    //     throw new System.NotImplementedException();
-    // }
 }
 public class ProjectionsVector3Vector3 : IProjections<Vector3, Vector3> {
     public void ExecuteControlField(
@@ -610,101 +867,177 @@ public class ProjectionsVector3Vector3 : IProjections<Vector3, Vector3> {
         KVariables<Vector3> varsInit,
         KVariables<Vector3> varsUpdate,
         ref int[] dofsUsed,
+        int dofStart,
         float deltaTime
     ) {
-        throw new System.NotImplementedException();
+        ControlField<Vector3> control = controlFieldProfile.Control;
+        if (controlFieldProfile.Projecting) {
+            // Perform projections
+            switch (control.ControlledVariableEnum) {
+                case KVariableEnum_Controllable.None: {
+                    return;
+                }
+                case KVariableEnum_Controllable.Variable: {
+                    Vector3 rotatedVar = controlFieldProfile.Direction*varsInit.Variable;
+                    Vector3 rotatedDer = controlFieldProfile.Direction*varsInit.Derivative;
+                    control.Update(ref rotatedVar, ref rotatedDer, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_variable = inverseQ*rotatedVar;
+                    varsUpdate.m_derivative = inverseQ*rotatedDer;
+                    break;
+                }
+                case KVariableEnum_Controllable.Derivative: {
+                    Vector3 rotatedVar = controlFieldProfile.Direction*varsInit.Derivative;
+                    Vector3 rotatedDer = controlFieldProfile.Direction*varsInit.SecondDerivative;
+                    control.Update(ref rotatedVar, ref rotatedDer, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_derivative = inverseQ*rotatedVar;
+                    varsUpdate.m_secondDerivative = inverseQ*rotatedDer;
+                    break;
+                }
+                case KVariableEnum_Controllable.SecondDerivative: {
+                    Vector3 rotatedVar = controlFieldProfile.Direction*varsInit.SecondDerivative;
+                    Vector3 jerk_unused = Vector3.zero;
+                    control.Update(ref rotatedVar, ref jerk_unused, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_secondDerivative = inverseQ*rotatedVar;
+                    break;
+                }
+                case KVariableEnum_Controllable.AppliedForce: {
+                    Vector3 rotatedVar = controlFieldProfile.Direction*varsInit.AppliedForce;
+                    Vector3 forceRate_unused = Vector3.zero;
+                    control.Update(ref rotatedVar, ref forceRate_unused, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_appliedForce = inverseQ*rotatedVar;
+                    break;
+                }
+                case KVariableEnum_Controllable.ImpulseForce: {
+                    Vector3 rotatedVar = controlFieldProfile.Direction*varsInit.ImpulseForce;
+                    Vector3 forceRate_unused = Vector3.zero;
+                    control.Update(ref rotatedVar, ref forceRate_unused, deltaTime);
+                    Quaternion inverseQ = Quaternion.Inverse(controlFieldProfile.Direction);
+                    varsUpdate.m_impulseForce = inverseQ*rotatedVar;
+                    break;
+                }
+                default: {
+                    Debug.LogError("Unhandled case");
+                    return;
+                }
+            }
+            ++dofsUsed[dofStart];
+            ++dofsUsed[dofStart+1];
+            ++dofsUsed[dofStart+2];
+        } else {
+            // Perform axis substitutions
+            switch (control.ControlledVariableEnum) {
+                case KVariableEnum_Controllable.None: {
+                    return;
+                }
+                case KVariableEnum_Controllable.Variable: {
+                    switch (controlFieldProfile.Alignment) {
+                        case AxisPlaneSpace.XYZ: {
+                            varsUpdate.m_variable = varsInit.m_variable;
+                            varsUpdate.m_derivative = varsInit.m_derivative;
+                            control.Update(ref varsUpdate.m_variable, ref varsUpdate.m_derivative, deltaTime);
+                            ++dofsUsed[dofStart];
+                            ++dofsUsed[dofStart+1];
+                            ++dofsUsed[dofStart+2];
+                            return;
+                        }
+                        default: {
+                            Debug.LogError(
+                                "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
+                                " for 3D control in 3D space / rotation."
+                            );
+                            return;
+                        }
+                    }
+                }
+                case KVariableEnum_Controllable.Derivative: {
+                    switch (controlFieldProfile.Alignment) {
+                        case AxisPlaneSpace.XYZ: {
+                            varsUpdate.m_derivative = varsInit.m_derivative;
+                            varsUpdate.m_secondDerivative = varsInit.m_secondDerivative;
+                            control.Update(ref varsUpdate.m_derivative, ref varsUpdate.m_secondDerivative, deltaTime);
+                            ++dofsUsed[dofStart];
+                            ++dofsUsed[dofStart+1];
+                            ++dofsUsed[dofStart+2];
+                            return;
+                        }
+                        default: {
+                            Debug.LogError(
+                                "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
+                                " for 3D control in 3D space / rotation."
+                            );
+                            return;
+                        }
+                    }
+                }
+                case KVariableEnum_Controllable.SecondDerivative: {
+                    switch (controlFieldProfile.Alignment) {
+                        case AxisPlaneSpace.XYZ: {
+                            varsUpdate.m_secondDerivative = varsInit.m_secondDerivative;
+                            Vector3 jerk_unused = Vector3.zero;
+                            control.Update(ref varsUpdate.m_secondDerivative, ref jerk_unused, deltaTime);
+                            ++dofsUsed[dofStart];
+                            ++dofsUsed[dofStart+1];
+                            ++dofsUsed[dofStart+2];
+                            return;
+                        }
+                        default: {
+                            Debug.LogError(
+                                "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
+                                " for 3D control in 3D space / rotation."
+                            );
+                            return;
+                        }
+                    }
+                }
+                case KVariableEnum_Controllable.AppliedForce: {
+                    switch (controlFieldProfile.Alignment) {
+                        case AxisPlaneSpace.XYZ: {
+                            varsUpdate.m_appliedForce = varsInit.m_appliedForce;
+                            Vector3 forceRate_unused = Vector3.zero;
+                            control.Update(ref varsUpdate.m_appliedForce, ref forceRate_unused, deltaTime);
+                            ++dofsUsed[dofStart];
+                            ++dofsUsed[dofStart+1];
+                            ++dofsUsed[dofStart+2];
+                            return;
+                        }
+                        default: {
+                            Debug.LogError(
+                                "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
+                                " for 3D control in 3D space / rotation."
+                            );
+                            return;
+                        }
+                    }
+                }
+                case KVariableEnum_Controllable.ImpulseForce: {
+                    switch (controlFieldProfile.Alignment) {
+                        case AxisPlaneSpace.XYZ: {
+                            varsUpdate.m_impulseForce = varsInit.m_impulseForce;
+                            Vector3 forceRate_unused = Vector3.zero;
+                            control.Update(ref varsUpdate.m_impulseForce, ref forceRate_unused, deltaTime);
+                            ++dofsUsed[dofStart];
+                            ++dofsUsed[dofStart+1];
+                            ++dofsUsed[dofStart+2];
+                            return;
+                        }
+                        default: {
+                            Debug.LogError(
+                                "ControlFieldProfile: " + controlFieldProfile.Name + " has an invalid alignment: " + controlFieldProfile.Alignment +
+                                " for 3D control in 3D space / rotation."
+                            );
+                            return;
+                        }
+                    }
+                }
+                default: {
+                    Debug.LogError("Unhandled case");
+                    return;
+                }
+            }
+        }
     }
-    // // 3D spatial or rotational
-    // public void ProjectToSubspace(
-    //     ControlFieldProfile<Vector3> controlFieldProfile,
-    //     out KVariables<Vector3> varSet,
-    //     out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<Vector3> srcVars
-    // ) {
-    //     varSet = new KVariables<Vector3>(Vector3.zero);
-        
-    //     // Rotate the axes
-    //     Vector3 unitVectorX = controlFieldProfile.Direction*Vector3.right;
-    //     Vector3 unitVectorY = controlFieldProfile.Direction*Vector3.up;
-    //     Vector3 unitVectorZ = controlFieldProfile.Direction*Vector3.forward;
-    //     varSet.Variable = new Vector3(
-    //         Vector3.Dot(srcVars.Variable, unitVectorX),
-    //         Vector3.Dot(srcVars.Variable, unitVectorY),
-    //         Vector3.Dot(srcVars.Variable, unitVectorZ)
-    //     );
-    //     varSet.Derivative = new Vector3(
-    //         Vector3.Dot(srcVars.Derivative, unitVectorX),
-    //         Vector3.Dot(srcVars.Derivative, unitVectorY),
-    //         Vector3.Dot(srcVars.Derivative, unitVectorZ)
-    //     );
-    //     varSet.SecondDerivative = new Vector3(
-    //         Vector3.Dot(srcVars.SecondDerivative, unitVectorX),
-    //         Vector3.Dot(srcVars.SecondDerivative, unitVectorY),
-    //         Vector3.Dot(srcVars.SecondDerivative, unitVectorZ)
-    //     );
-    //     varSet.AppliedForce = new Vector3(
-    //         Vector3.Dot(srcVars.AppliedForce, unitVectorX),
-    //         Vector3.Dot(srcVars.AppliedForce, unitVectorY),
-    //         Vector3.Dot(srcVars.AppliedForce, unitVectorZ)
-    //     );
-    //     controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-    //     controlSpaceToWorldSpace.Add(0, new List<int>{-3, -2, -1, 0, 1});
-    //     controlSpaceToWorldSpace.Add(1, new List<int>{-3, -2, -1, 0, 1});
-    //     controlSpaceToWorldSpace.Add(2, new List<int>{-3, -2, -1, 0, 1});
-    // }
-    // public void SubstituteToSubspace(
-    //     ControlFieldProfile<Vector3> controlFieldProfile,
-    //     out KVariables<Vector3> varSet,
-    //     out Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<Vector3> srcVars,
-    //     AxisPlaneSpace alignment
-    // ) {
-    //     switch (alignment) {
-    //         case AxisPlaneSpace.XYZ:
-    //             varSet = new KVariables<Vector3>(Vector3.zero);
-    //             varSet.Variable = srcVars.Variable;
-    //             varSet.Derivative = srcVars.Derivative;
-    //             varSet.SecondDerivative = srcVars.SecondDerivative;
-    //             varSet.AppliedForce = srcVars.AppliedForce;
-    //             controlSpaceToWorldSpace = new Dictionary<int, List<int>>();
-    //             controlSpaceToWorldSpace.Add(0, new List<int>{-1, 0});
-    //             controlSpaceToWorldSpace.Add(1, new List<int>{-2, 1});
-    //             controlSpaceToWorldSpace.Add(2, new List<int>{-3, 2});
-    //             break;
-    //         case AxisPlaneSpace.X:
-    //         case AxisPlaneSpace.Y:
-    //         case AxisPlaneSpace.Z:
-    //         case AxisPlaneSpace.XY:
-    //         case AxisPlaneSpace.YZ:
-    //         case AxisPlaneSpace.XZ:
-    //         case AxisPlaneSpace.None:
-    //             Debug.LogError("Invalid argument - alignment = " + alignment);
-    //             varSet = null;
-    //             controlSpaceToWorldSpace = null;
-    //             break;
-    //         default:
-    //             Debug.LogError("Unhandled case");
-    //             varSet = null;
-    //             controlSpaceToWorldSpace = null;
-    //             break;
-    //     }
-    // }
-    // public void ProjectFromSubspace(
-    //     ControlFieldProfile<Vector3> controlFieldProfile,
-    //     Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<Vector3> outputFromControlField,
-    //     KVariables<Vector3> varsUpdate,
-    //     KVariables<Vector3Int> varsUsedAxis
-    // ) {
-    //     throw new System.NotImplementedException();
-    // }
-    // public void SubstituteFromSubspace(
-    //     ControlFieldProfile<Vector3> controlFieldProfile,
-    //     Dictionary<int, List<int>> controlSpaceToWorldSpace,
-    //     KVariables<Vector3> outputFromControlField,
-    //     KVariables<Vector3> varsUpdate,
-    //     KVariables<Vector3Int> varsUsedAxis
-    // ) {
-    //     throw new System.NotImplementedException();
-    // }
 }
