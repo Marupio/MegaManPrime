@@ -4,6 +4,9 @@ using UnityEngine;
 
 public enum ControlAxis {None, U, V, W} public enum Plane {None, XY, XZ, YZ}
 
+public enum AxisNames2D {X, Y, Yaw}
+public enum AxisNames3D {X, Y, Z, Roll, Pitch, Yaw}
+
 // Ways to interact with RigidBody
 // 0 - Do nothing - lets its own physics model handle things
 // 1 - Set Position | Rotation
@@ -124,6 +127,9 @@ public class MovementController<Q, V, T>
     protected ITime m_time;
     protected Transform m_owner;
 
+    // Variable limits
+    KVariableLimits m_varLimitsEntity; // Limits applying to all variables, selectable at the entity level
+
     // Convenience
     protected float m_invDeltaT;
 
@@ -192,10 +198,10 @@ public class MovementController<Q, V, T>
     }
 
     // Axes - controls and sources
-    ControlFieldProfileManager<Q, V, T> m_controlFields;
+    ControlFieldProfileManager<Q, V, T> m_controlFieldManager;
     DirectionalSourceManager m_sources;
 
-    public ControlFieldProfileManager<Q, V, T> ControlFields { get => m_controlFields; set => m_controlFields = value; }
+    public ControlFieldProfileManager<Q, V, T> ControlFieldManager { get => m_controlFieldManager; set => m_controlFieldManager = value; }
     public DirectionalSourceManager Sources { get=> m_sources; set => m_sources = value; }
 
 
@@ -232,27 +238,13 @@ public class MovementController<Q, V, T>
             default(T)
         );
 
-        // The float types hold any updated components of each kvariable type, the int types hold 0|1 indicating which component has been updated
-        // TODO - get rid of these, they are not correct - replaced by dofsUsed
-        // KVariables<Vector3Int> spatialVarsUsedAxis = new KVariables<Vector3Int>(Vector3Int.zero);
-        // KVariables<Vector3Int> rotationalVarsUsedAxis = new KVariables<Vector3Int>(Vector3Int.zero);
-
         // Non-forces start at negative infinite --> acts as a flag 'unused', forces start at zero
         KVariables<V> spatialVarsUpdate = new KVariables<V>(m_toolset.InfiniteV, m_toolset.ZeroV);
         KVariables<T> rotationalVarsUpdate = new KVariables<T>(m_toolset.InfiniteT, m_toolset.ZeroT);
-
-
-        // KVariables<V> spatialVarsUpdate = new KVariables<V>(spatialVarsInit);
-        // KVariables<T> rotationalVarsUpdate = new KVariables<T>(rotationalVarsInit);
-        spatialVarsUpdate.AppliedForce = m_toolset.ZeroV; // Zero the forces - they are controlled with +=, not =
-        rotationalVarsUpdate.AppliedForce = m_toolset.ZeroT; // Zero the forces - they are controlled with +=, not =
         
         // Always: 2D => spatial dofsUsed[0,1], rotational dofsUsed[2] | 3D => spatial dofsUsed[0,1,2], rotational dofsUsed[3,4,5]
         int nDims = NSpatialDimensions() + NRotationalDimensions();
-        int[] dofsUsed = new int[nDims];
-        for (int i = 0; i < nDims; ++i) {
-            dofsUsed[i] = 0;
-        }
+        DegreesOfFreedomChecker dofsUsed = new DegreesOfFreedomChecker(NSpatialDimensions() + NRotationalDimensions(), ThreeD);
 
         // Sum all sources
         KVariables<V> spatialSource;
@@ -263,7 +255,7 @@ public class MovementController<Q, V, T>
         //      - Assemble kvarSet, project variables if needed
         //      - Call update on axis
         //      - Add changes back to local working variables
-        foreach(ControlFieldProfile<float> controlFieldProfile in m_controlFields.ActiveControlFields1D) {
+        foreach(ControlFieldProfile<float> controlFieldProfile in m_controlFieldManager.ActiveControlFields1D) {
             ExecuteControlField(
                 controlFieldProfile,
                 m_subspaceFloatV,
@@ -272,11 +264,11 @@ public class MovementController<Q, V, T>
                 rotationalVarsInit,
                 spatialVarsUpdate,
                 rotationalVarsUpdate,
-                ref dofsUsed,
+                dofsUsed,
                 m_time.fixedDeltaTime
             );
         }
-        foreach(ControlFieldProfile<Vector2> controlFieldProfile in m_controlFields.ActiveControlFields2D) {
+        foreach(ControlFieldProfile<Vector2> controlFieldProfile in m_controlFieldManager.ActiveControlFields2D) {
             ExecuteControlField(
                 controlFieldProfile,
                 m_subspaceVector2V,
@@ -285,11 +277,11 @@ public class MovementController<Q, V, T>
                 rotationalVarsInit,
                 spatialVarsUpdate,
                 rotationalVarsUpdate,
-                ref dofsUsed,
+                dofsUsed,
                 m_time.fixedDeltaTime
             );
         }
-        foreach(ControlFieldProfile<Vector3> controlFieldProfile in m_controlFields.ActiveControlFields3D) {
+        foreach(ControlFieldProfile<Vector3> controlFieldProfile in m_controlFieldManager.ActiveControlFields3D) {
             ExecuteControlField(
                 controlFieldProfile,
                 m_subspaceVector3V,
@@ -298,14 +290,16 @@ public class MovementController<Q, V, T>
                 rotationalVarsInit,
                 spatialVarsUpdate,
                 rotationalVarsUpdate,
-                ref dofsUsed,
+                dofsUsed,
                 m_time.fixedDeltaTime
             );
         }
-        // Apply limits to local working variables
-        // Apply sources
-        // Make changes to m_rigidBody variables
-        // Apply forces
+        dofsUsed.Check();
+
+        // TODO Apply limits to local working variables
+        // TODO Apply sources
+        // TODO Make changes to m_rigidBody variables
+        // TODO Apply forces
         // Save current variables to previous time step variables (variables0)
         ArchiveVariables();
     }
@@ -319,7 +313,7 @@ public class MovementController<Q, V, T>
         KVariables<T> rotationalVarsInit,
         KVariables<V> spatialVarsUpdate,
         KVariables<T> rotationalVarsUpdate,
-        ref int[] dofsUsed,
+        DegreesOfFreedomChecker dofsUsed,
         float deltaTime
     ) {
         if (controlFieldProfile.Type == ControlFieldType.Spatial) {
@@ -327,7 +321,7 @@ public class MovementController<Q, V, T>
                 controlFieldProfile,
                 spatialVarsInit,
                 spatialVarsUpdate,
-                ref dofsUsed,
+                dofsUsed,
                 0,
                 deltaTime
             );
@@ -336,8 +330,12 @@ public class MovementController<Q, V, T>
                 controlFieldProfile,
                 rotationalVarsInit,
                 rotationalVarsUpdate,
-                ref dofsUsed,
+                dofsUsed,
+#if DEBUG
                 NSpatialDimensions(),
+#else
+                0,
+#endif
                 deltaTime
             );
         }
@@ -428,4 +426,35 @@ public class MovementController3D : MovementController<Quaternion, Vector3, Vect
         m_angularAccelerationActual = (m_rigidbody.AngularVelocity - m_angularAcceleration0)*m_invDeltaT;
         
     }
+}
+
+
+// Micro-optimization made me stick this into a class
+public class DegreesOfFreedomChecker {
+#if DEBUG
+    private int[] m_dofsUsed;
+    private bool m_threeD;
+    public void Add(int a) { ++m_dofsUsed[a]; }
+    public void Add(int a, int b) { ++m_dofsUsed[a]; ++m_dofsUsed[b]; }
+    public void Add(int a, int b, int c) { ++m_dofsUsed[a]; ++m_dofsUsed[b]; ++m_dofsUsed[c]; }
+    public void Check() {
+        for (int i = 0; i < m_dofsUsed.Length; ++i) {
+            if (m_threeD) {
+                Debug.LogError(m_dofsUsed[i] + " controlFields attempting to set kinematic variables along " + (AxisNames3D)i + " axis");
+            } else {
+                Debug.LogError(m_dofsUsed[i] + " controlFields attempting to set kinematic variables along " + (AxisNames2D)i + " axis");
+            }
+        }
+    }
+    public DegreesOfFreedomChecker(int size, bool threeD) {
+        m_dofsUsed = new int[size];
+        m_threeD = threeD;
+    }
+#else
+    public void Add(int a) {}
+    public void Add(int a, int b) {}
+    public void Add(int a, int b, int c) {}
+    public void Check() {}
+    public DegreesOfFreedomChecker(int size, bool threeD) {}
+#endif
 }

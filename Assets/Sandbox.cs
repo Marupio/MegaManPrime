@@ -23,11 +23,11 @@ public class Sandbox : MonoBehaviour {
     // public Vector3 twoAxisUndo;
 
     public void Awake() {
-#if DEBUG
-        Debug.Log("Debug is set");
-#else
-        Debug.Log("Debug is not set");
-#endif
+        #if DEBUG
+            Debug.Log("Debug is set");
+        #else
+            Debug.Log("Debug is not set");
+        #endif
     }
 
     // Start is called before the first frame update

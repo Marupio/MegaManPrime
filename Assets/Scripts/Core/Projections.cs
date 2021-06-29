@@ -13,7 +13,7 @@ public interface IProjections<SS, S> {
         ControlFieldProfile<SS> controlFieldProfile,
         KVariables<S> varsInit,
         KVariables<S> varsUpdate,
-        ref int[] dofsUsed,
+        DegreesOfFreedomChecker dofsUsed,
         int dofStart,
         float deltaTime
     );
@@ -24,7 +24,7 @@ public class ProjectionsFloatFloat : IProjections<float, float> {
         ControlFieldProfile<float> controlFieldProfile,
         KVariables<float> varsInit,
         KVariables<float> varsUpdate,
-        ref int[] dofsUsed,
+        DegreesOfFreedomChecker dofsUsed,
         int dofStart,
         float deltaTime
     ) {
@@ -39,38 +39,36 @@ public class ProjectionsFloatFloat : IProjections<float, float> {
                 varsUpdate.m_variable = varsInit.Variable;
                 varsUpdate.m_derivative = varsInit.Derivative;
                 control.Update(ref varsUpdate.m_variable, ref varsUpdate.m_derivative, deltaTime);
-                ++dofsUsed[2];
+                dofsUsed.Add(2);
                 return;
             }
             case KVariableEnum_Controllable.Derivative: {
                 varsUpdate.m_derivative = varsInit.Derivative;
                 varsUpdate.m_secondDerivative = varsInit.SecondDerivative;
                 control.Update(ref varsUpdate.m_derivative, ref varsUpdate.m_secondDerivative, deltaTime);
-                ++dofsUsed[2];
-                return;
+                break;
             }
             case KVariableEnum_Controllable.SecondDerivative: {
                 varsUpdate.m_secondDerivative = varsInit.SecondDerivative;
                 float jerk_unused = 0;
                 control.Update(ref varsUpdate.m_secondDerivative, ref jerk_unused, deltaTime);
-                ++dofsUsed[2];
-                return;
+                break;
             }
             case KVariableEnum_Controllable.AppliedForce: {
                 varsUpdate.m_appliedForce = varsInit.AppliedForce;
                 float forceRate_unused = 0;
                 control.Update(ref varsUpdate.m_appliedForce, ref forceRate_unused, deltaTime);
-                ++dofsUsed[2];
-                return;
+                break;
             }
             case KVariableEnum_Controllable.ImpulseForce: {
                 varsUpdate.m_impulseForce = varsInit.ImpulseForce;
                 float forceRate_unused = 0;
                 control.Update(ref varsUpdate.m_impulseForce, ref forceRate_unused, deltaTime);
-                ++dofsUsed[2];
-                return;
+                break;
             }
         }
+        dofsUsed.Add(2);
+        return;
     }
 }
 public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
@@ -78,7 +76,7 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
         ControlFieldProfile<float> controlFieldProfile,
         KVariables<Vector2> varsInit,
         KVariables<Vector2> varsUpdate,
-        ref int[] dofsUsed,
+        DegreesOfFreedomChecker dofsUsed,
         int dofStart,
         float deltaTime
     ) {
@@ -137,8 +135,7 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
                     return;
                 }
             }
-            ++dofsUsed[0];
-            ++dofsUsed[1];
+            dofsUsed.Add(0, 1);
             return;
         } else {
             // Perform axis substitutions
@@ -152,14 +149,14 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
                             varsUpdate.m_variable.x = varsInit.Variable.x;
                             varsUpdate.m_derivative.x = varsInit.Derivative.x;
                             control.Update(ref varsUpdate.m_variable.x, ref varsUpdate.m_derivative.x, deltaTime);
-                            ++dofsUsed[0];
+                            dofsUsed.Add(0);
                             return;
                         }
                         case AxisPlaneSpace.Y: {
                             varsUpdate.m_variable.y = varsInit.Variable.y;
                             varsUpdate.m_derivative.y = varsInit.Derivative.y;
                             control.Update(ref varsUpdate.m_variable.y, ref varsUpdate.m_derivative.y, deltaTime);
-                            ++dofsUsed[1];
+                            dofsUsed.Add(1);
                             return;
                         }
                         default: {
@@ -177,14 +174,14 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
                             varsUpdate.m_derivative.x = varsInit.Derivative.x;
                             varsUpdate.m_secondDerivative.x = varsInit.SecondDerivative.x;
                             control.Update(ref varsUpdate.m_derivative.x, ref varsUpdate.m_secondDerivative.x, deltaTime);
-                            ++dofsUsed[0];
+                            dofsUsed.Add(0);
                             return;
                         }
                         case AxisPlaneSpace.Y: {
                             varsUpdate.m_derivative.y = varsInit.Derivative.y;
                             varsUpdate.m_secondDerivative.y = varsInit.SecondDerivative.y;
                             control.Update(ref varsUpdate.m_derivative.y, ref varsUpdate.m_secondDerivative.y, deltaTime);
-                            ++dofsUsed[1];
+                            dofsUsed.Add(1);
                             return;
                         }
                         default: {
@@ -202,14 +199,14 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
                             varsUpdate.m_secondDerivative.x = varsInit.SecondDerivative.x;
                             float jerk_unused = 0;
                             control.Update(ref varsUpdate.m_secondDerivative.x, ref jerk_unused, deltaTime);
-                            ++dofsUsed[0];
+                            dofsUsed.Add(0);
                             return;
                         }
                         case AxisPlaneSpace.Y: {
                             varsUpdate.m_secondDerivative.y = varsInit.SecondDerivative.y;
                             float jerk_unused = 0;
                             control.Update(ref varsUpdate.m_secondDerivative.y, ref jerk_unused, deltaTime);
-                            ++dofsUsed[1];
+                            dofsUsed.Add(1);
                             return;
                         }
                         default: {
@@ -227,14 +224,14 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
                             varsUpdate.m_appliedForce.x = varsInit.AppliedForce.x;
                             float forceRate_unused = 0;
                             control.Update(ref varsUpdate.m_appliedForce.x, ref forceRate_unused, deltaTime);
-                            ++dofsUsed[0];
+                            dofsUsed.Add(0);
                             return;
                         }
                         case AxisPlaneSpace.Y: {
                             varsUpdate.m_appliedForce.y = varsInit.AppliedForce.y;
                             float forceRate_unused = 0;
                             control.Update(ref varsUpdate.m_appliedForce.y, ref forceRate_unused, deltaTime);
-                            ++dofsUsed[1];
+                            dofsUsed.Add(1);
                             return;
                         }
                         default: {
@@ -252,14 +249,14 @@ public class ProjectionsFloatVector2 : IProjections<float, Vector2> {
                             varsUpdate.m_impulseForce.x = varsInit.ImpulseForce.x;
                             float forceRate_unused = 0;
                             control.Update(ref varsUpdate.m_impulseForce.x, ref forceRate_unused, deltaTime);
-                            ++dofsUsed[0];
+                            dofsUsed.Add(0);
                             return;
                         }
                         case AxisPlaneSpace.Y: {
                             varsUpdate.m_impulseForce.y = varsInit.ImpulseForce.y;
                             float forceRate_unused = 0;
                             control.Update(ref varsUpdate.m_impulseForce.y, ref forceRate_unused, deltaTime);
-                            ++dofsUsed[1];
+                            dofsUsed.Add(1);
                             return;
                         }
                         default: {
@@ -280,7 +277,7 @@ public class ProjectionsFloatVector3 : IProjections<float, Vector3> {
         ControlFieldProfile<float> controlFieldProfile,
         KVariables<Vector3> varsInit,
         KVariables<Vector3> varsUpdate,
-        ref int[] dofsUsed,
+        DegreesOfFreedomChecker dofsUsed,
         int dofStart,
         float deltaTime
     ) {
@@ -339,9 +336,7 @@ public class ProjectionsFloatVector3 : IProjections<float, Vector3> {
                     return;
                 }
             }
-            ++dofsUsed[dofStart];
-            ++dofsUsed[dofStart+1];
-            ++dofsUsed[dofStart+2];
+            dofsUsed.Add(dofStart, dofStart+1, dofStart+2);
             return;
         } else {
             // Perform axis substitutions
@@ -355,21 +350,21 @@ public class ProjectionsFloatVector3 : IProjections<float, Vector3> {
                             varsUpdate.m_variable.x = varsInit.Variable.x;
                             varsUpdate.m_derivative.x = varsInit.Derivative.x;
                             control.Update(ref varsUpdate.m_variable.x, ref varsUpdate.m_derivative.x, deltaTime);
-                            ++dofsUsed[dofStart];
+                            dofsUsed.Add(dofStart);
                             return;
                         }
                         case AxisPlaneSpace.Y: {
                             varsUpdate.m_variable.y = varsInit.Variable.y;
                             varsUpdate.m_derivative.y = varsInit.Derivative.y;
                             control.Update(ref varsUpdate.m_variable.y, ref varsUpdate.m_derivative.y, deltaTime);
-                            ++dofsUsed[dofStart+1];
+                            dofsUsed.Add(dofStart+1);
                             return;
                         }
                         case AxisPlaneSpace.Z: {
                             varsUpdate.m_variable.z = varsInit.Variable.z;
                             varsUpdate.m_derivative.z = varsInit.Derivative.z;
                             control.Update(ref varsUpdate.m_variable.z, ref varsUpdate.m_derivative.z, deltaTime);
-                            ++dofsUsed[dofStart+2];
+                            dofsUsed.Add(dofStart+2);
                             return;
                         }
                         default: {
@@ -387,21 +382,21 @@ public class ProjectionsFloatVector3 : IProjections<float, Vector3> {
                             varsUpdate.m_derivative.x = varsInit.Derivative.x;
                             varsUpdate.m_secondDerivative.x = varsInit.SecondDerivative.x;
                             control.Update(ref varsUpdate.m_derivative.x, ref varsUpdate.m_secondDerivative.x, deltaTime);
-                            ++dofsUsed[dofStart];
+                            dofsUsed.Add(dofStart);
                             return;
                         }
                         case AxisPlaneSpace.Y: {
                             varsUpdate.m_derivative.y = varsInit.Derivative.y;
                             varsUpdate.m_secondDerivative.y = varsInit.SecondDerivative.y;
                             control.Update(ref varsUpdate.m_derivative.y, ref varsUpdate.m_secondDerivative.y, deltaTime);
-                            ++dofsUsed[dofStart+1];
+                            dofsUsed.Add(dofStart+1);
                             return;
                         }
                         case AxisPlaneSpace.Z: {
                             varsUpdate.m_derivative.z = varsInit.Derivative.z;
                             varsUpdate.m_secondDerivative.z = varsInit.SecondDerivative.z;
                             control.Update(ref varsUpdate.m_derivative.z, ref varsUpdate.m_secondDerivative.z, deltaTime);
-                            ++dofsUsed[dofStart+2];
+                            dofsUsed.Add(dofStart+2);
                             return;
                         }
                         default: {
@@ -419,21 +414,21 @@ public class ProjectionsFloatVector3 : IProjections<float, Vector3> {
                             varsUpdate.m_secondDerivative.x = varsInit.SecondDerivative.x;
                             float jerk_unused = 0f;
                             control.Update(ref varsUpdate.m_secondDerivative.x, ref jerk_unused, deltaTime);
-                            ++dofsUsed[dofStart];
+                            dofsUsed.Add(dofStart);
                             return;
                         }
                         case AxisPlaneSpace.Y: {
                             varsUpdate.m_secondDerivative.y = varsInit.SecondDerivative.y;
                             float jerk_unused = 0f;
                             control.Update(ref varsUpdate.m_secondDerivative.y, ref jerk_unused, deltaTime);
-                            ++dofsUsed[dofStart+1];
+                            dofsUsed.Add(dofStart+1);
                             return;
                         }
                         case AxisPlaneSpace.Z: {
                             varsUpdate.m_secondDerivative.z = varsInit.SecondDerivative.z;
                             float jerk_unused = 0f;
                             control.Update(ref varsUpdate.m_secondDerivative.z, ref jerk_unused, deltaTime);
-                            ++dofsUsed[dofStart+2];
+                            dofsUsed.Add(dofStart+2);
                             return;
                         }
                         default: {
@@ -451,21 +446,21 @@ public class ProjectionsFloatVector3 : IProjections<float, Vector3> {
                             varsUpdate.m_appliedForce.x = varsInit.AppliedForce.x;
                             float forceRate_unused = 0f;
                             control.Update(ref varsUpdate.m_appliedForce.x, ref forceRate_unused, deltaTime);
-                            ++dofsUsed[dofStart];
+                            dofsUsed.Add(dofStart);
                             return;
                         }
                         case AxisPlaneSpace.Y: {
                             varsUpdate.m_appliedForce.y = varsInit.AppliedForce.y;
                             float forceRate_unused = 0f;
                             control.Update(ref varsUpdate.m_appliedForce.y, ref forceRate_unused, deltaTime);
-                            ++dofsUsed[dofStart+1];
+                            dofsUsed.Add(dofStart+1);
                             return;
                         }
                         case AxisPlaneSpace.Z: {
                             varsUpdate.m_appliedForce.z = varsInit.AppliedForce.z;
                             float forceRate_unused = 0f;
                             control.Update(ref varsUpdate.m_appliedForce.z, ref forceRate_unused, deltaTime);
-                            ++dofsUsed[dofStart+2];
+                            dofsUsed.Add(dofStart+2);
                             return;
                         }
                         default: {
@@ -483,21 +478,21 @@ public class ProjectionsFloatVector3 : IProjections<float, Vector3> {
                             varsUpdate.m_impulseForce.x = varsInit.ImpulseForce.x;
                             float forceRate_unused = 0f;
                             control.Update(ref varsUpdate.m_impulseForce.x, ref forceRate_unused, deltaTime);
-                            ++dofsUsed[dofStart];
+                            dofsUsed.Add(dofStart);
                             return;
                         }
                         case AxisPlaneSpace.Y: {
                             varsUpdate.m_impulseForce.y = varsInit.ImpulseForce.y;
                             float forceRate_unused = 0f;
                             control.Update(ref varsUpdate.m_impulseForce.y, ref forceRate_unused, deltaTime);
-                            ++dofsUsed[dofStart+1];
+                            dofsUsed.Add(dofStart+1);
                             return;
                         }
                         case AxisPlaneSpace.Z: {
                             varsUpdate.m_impulseForce.z = varsInit.ImpulseForce.z;
                             float forceRate_unused = 0f;
                             control.Update(ref varsUpdate.m_impulseForce.z, ref forceRate_unused, deltaTime);
-                            ++dofsUsed[dofStart+2];
+                            dofsUsed.Add(dofStart+2);
                             return;
                         }
                         default: {
@@ -522,7 +517,7 @@ public class ProjectionsVector2Vector2 : IProjections<Vector2, Vector2> {
         ControlFieldProfile<Vector2> controlFieldProfile,
         KVariables<Vector2> varsInit,
         KVariables<Vector2> varsUpdate,
-        ref int[] dofsUsed,
+        DegreesOfFreedomChecker dofsUsed,
         int dofStart,
         float deltaTime
     ) {
@@ -581,8 +576,7 @@ public class ProjectionsVector2Vector2 : IProjections<Vector2, Vector2> {
                     return;
                 }
             }
-            ++dofsUsed[0];
-            ++dofsUsed[1];
+            dofsUsed.Add(0, 1);
             return;
         } else {
             // Perform axis substitutions
@@ -602,8 +596,7 @@ public class ProjectionsVector2Vector2 : IProjections<Vector2, Vector2> {
                             varsUpdate.m_variable.y = workingVec.y;
                             varsUpdate.m_derivative.x = workingDer.x;
                             varsUpdate.m_derivative.y = workingDer.y;
-                            ++dofsUsed[0];
-                            ++dofsUsed[1];
+                            dofsUsed.Add(0, 1);
                             return;
                         }
                         default: {
@@ -628,7 +621,7 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
         ControlFieldProfile<Vector2> controlFieldProfile,
         KVariables<Vector3> varsInit,
         KVariables<Vector3> varsUpdate,
-        ref int[] dofsUsed,
+        DegreesOfFreedomChecker dofsUsed,
         int dofStart,
         float deltaTime
     ) {
@@ -708,9 +701,7 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
                     return;
                 }
             }
-            ++dofsUsed[dofStart];
-            ++dofsUsed[dofStart+1];
-            ++dofsUsed[dofStart+2];
+            dofsUsed.Add(dofStart, dofStart+1, dofStart+2);
             return;
         } else {
             // Perform axis substitutions
@@ -728,8 +719,7 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
                             varsUpdate.m_variable.y = workingVar.y;
                             varsUpdate.m_derivative.x = workingDer.x;
                             varsUpdate.m_derivative.y = workingDer.y;
-                            ++dofsUsed[dofStart];
-                            ++dofsUsed[dofStart+1];
+                            dofsUsed.Add(dofStart, dofStart+1);
                             return;
                         }
                         case AxisPlaneSpace.XZ: { // X->X, Y->Z
@@ -740,8 +730,7 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
                             varsUpdate.m_variable.z = workingVar.y;
                             varsUpdate.m_derivative.x = workingDer.x;
                             varsUpdate.m_derivative.z = workingDer.y;
-                            ++dofsUsed[dofStart];
-                            ++dofsUsed[dofStart+2];
+                            dofsUsed.Add(dofStart, dofStart+2);
                             return;
                         }
                         case AxisPlaneSpace.YZ: { // X->Y, Y->Z
@@ -752,8 +741,7 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
                             varsUpdate.m_variable.z = workingVar.y;
                             varsUpdate.m_derivative.y = workingDer.x;
                             varsUpdate.m_derivative.z = workingDer.y;
-                            ++dofsUsed[dofStart+1];
-                            ++dofsUsed[dofStart+2];
+                            dofsUsed.Add(dofStart+1, dofStart+2);
                             return;
                         }
                         default: {
@@ -775,8 +763,7 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
                             varsUpdate.m_derivative.y = workingVar.y;
                             varsUpdate.m_secondDerivative.x = workingDer.x;
                             varsUpdate.m_secondDerivative.y = workingDer.y;
-                            ++dofsUsed[dofStart];
-                            ++dofsUsed[dofStart+1];
+                            dofsUsed.Add(dofStart, dofStart+1);
                             return;
                         }
                         case AxisPlaneSpace.XZ: { // X->X, Y->Z
@@ -787,8 +774,7 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
                             varsUpdate.m_derivative.z = workingVar.y;
                             varsUpdate.m_secondDerivative.x = workingDer.x;
                             varsUpdate.m_secondDerivative.z = workingDer.y;
-                            ++dofsUsed[dofStart];
-                            ++dofsUsed[dofStart+2];
+                            dofsUsed.Add(dofStart, dofStart+2);
                             return;
                         }
                         case AxisPlaneSpace.YZ: { // X->Y, Y->Z
@@ -799,8 +785,7 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
                             varsUpdate.m_derivative.z = workingVar.y;
                             varsUpdate.m_secondDerivative.y = workingDer.x;
                             varsUpdate.m_secondDerivative.z = workingDer.y;
-                            ++dofsUsed[dofStart+1];
-                            ++dofsUsed[dofStart+2];
+                            dofsUsed.Add(dofStart+1, dofStart+2);
                             return;
                         }
                         default: {
@@ -820,8 +805,7 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
                             control.Update(ref workingVar, ref jerk_unused, deltaTime);
                             varsUpdate.m_secondDerivative.x = workingVar.x;
                             varsUpdate.m_secondDerivative.y = workingVar.y;
-                            ++dofsUsed[dofStart];
-                            ++dofsUsed[dofStart+1];
+                            dofsUsed.Add(dofStart, dofStart+1);
                             return;
                         }
                         case AxisPlaneSpace.XZ: { // X->X, Y->Z
@@ -830,8 +814,7 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
                             control.Update(ref workingVar, ref jerk_unused, deltaTime);
                             varsUpdate.m_secondDerivative.x = workingVar.x;
                             varsUpdate.m_secondDerivative.z = workingVar.y;
-                            ++dofsUsed[dofStart];
-                            ++dofsUsed[dofStart+2];
+                            dofsUsed.Add(dofStart, dofStart+2);
                             return;
                         }
                         case AxisPlaneSpace.YZ: { // X->Y, Y->Z
@@ -840,8 +823,7 @@ public class ProjectionsVector2Vector3 : IProjections<Vector2, Vector3> {
                             control.Update(ref workingVar, ref jerk_unused, deltaTime);
                             varsUpdate.m_secondDerivative.y = workingVar.x;
                             varsUpdate.m_secondDerivative.z = workingVar.y;
-                            ++dofsUsed[dofStart+1];
-                            ++dofsUsed[dofStart+2];
+                            dofsUsed.Add(dofStart+1, dofStart+2);
                             return;
                         }
                         default: {
@@ -866,7 +848,7 @@ public class ProjectionsVector3Vector3 : IProjections<Vector3, Vector3> {
         ControlFieldProfile<Vector3> controlFieldProfile,
         KVariables<Vector3> varsInit,
         KVariables<Vector3> varsUpdate,
-        ref int[] dofsUsed,
+        DegreesOfFreedomChecker dofsUsed,
         int dofStart,
         float deltaTime
     ) {
@@ -924,9 +906,7 @@ public class ProjectionsVector3Vector3 : IProjections<Vector3, Vector3> {
                     return;
                 }
             }
-            ++dofsUsed[dofStart];
-            ++dofsUsed[dofStart+1];
-            ++dofsUsed[dofStart+2];
+            dofsUsed.Add(dofStart, dofStart+1, dofStart+2);
         } else {
             // Perform axis substitutions
             switch (control.ControlledVariableEnum) {
@@ -939,9 +919,7 @@ public class ProjectionsVector3Vector3 : IProjections<Vector3, Vector3> {
                             varsUpdate.m_variable = varsInit.m_variable;
                             varsUpdate.m_derivative = varsInit.m_derivative;
                             control.Update(ref varsUpdate.m_variable, ref varsUpdate.m_derivative, deltaTime);
-                            ++dofsUsed[dofStart];
-                            ++dofsUsed[dofStart+1];
-                            ++dofsUsed[dofStart+2];
+                            dofsUsed.Add(dofStart, dofStart+1, dofStart+2);
                             return;
                         }
                         default: {
@@ -959,9 +937,7 @@ public class ProjectionsVector3Vector3 : IProjections<Vector3, Vector3> {
                             varsUpdate.m_derivative = varsInit.m_derivative;
                             varsUpdate.m_secondDerivative = varsInit.m_secondDerivative;
                             control.Update(ref varsUpdate.m_derivative, ref varsUpdate.m_secondDerivative, deltaTime);
-                            ++dofsUsed[dofStart];
-                            ++dofsUsed[dofStart+1];
-                            ++dofsUsed[dofStart+2];
+                            dofsUsed.Add(dofStart, dofStart+1, dofStart+2);
                             return;
                         }
                         default: {
@@ -979,9 +955,7 @@ public class ProjectionsVector3Vector3 : IProjections<Vector3, Vector3> {
                             varsUpdate.m_secondDerivative = varsInit.m_secondDerivative;
                             Vector3 jerk_unused = Vector3.zero;
                             control.Update(ref varsUpdate.m_secondDerivative, ref jerk_unused, deltaTime);
-                            ++dofsUsed[dofStart];
-                            ++dofsUsed[dofStart+1];
-                            ++dofsUsed[dofStart+2];
+                            dofsUsed.Add(dofStart, dofStart+1, dofStart+2);
                             return;
                         }
                         default: {
@@ -999,9 +973,7 @@ public class ProjectionsVector3Vector3 : IProjections<Vector3, Vector3> {
                             varsUpdate.m_appliedForce = varsInit.m_appliedForce;
                             Vector3 forceRate_unused = Vector3.zero;
                             control.Update(ref varsUpdate.m_appliedForce, ref forceRate_unused, deltaTime);
-                            ++dofsUsed[dofStart];
-                            ++dofsUsed[dofStart+1];
-                            ++dofsUsed[dofStart+2];
+                            dofsUsed.Add(dofStart, dofStart+1, dofStart+2);
                             return;
                         }
                         default: {
@@ -1019,9 +991,7 @@ public class ProjectionsVector3Vector3 : IProjections<Vector3, Vector3> {
                             varsUpdate.m_impulseForce = varsInit.m_impulseForce;
                             Vector3 forceRate_unused = Vector3.zero;
                             control.Update(ref varsUpdate.m_impulseForce, ref forceRate_unused, deltaTime);
-                            ++dofsUsed[dofStart];
-                            ++dofsUsed[dofStart+1];
-                            ++dofsUsed[dofStart+2];
+                            dofsUsed.Add(dofStart, dofStart+1, dofStart+2);
                             return;
                         }
                         default: {

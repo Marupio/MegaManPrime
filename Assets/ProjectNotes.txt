@@ -1,5 +1,15 @@
 TODO
 Rotation fixed to world / fixed to entity switch - get this into control / profile / wherever
+Go through looking for improper use of Vector3 assignment instead of set.
+
+List<KVariableEnum> generator from KVariableTypeSet
+Limit application - detect vars with no limits
+    - Create mask - List<KVariableEnum> from detected vars WITH limits
+    - Apply limits to subset
+If you set a class field to a static data from, say, KVariableTypeInfo, does it equal the actual instance, or copy it?
+KVariableTypeSet ts = KVariableTypeInfo.None; ts += KVariableEnum.Derivative;  ... now does None have Derivative?
+
+I'm starting to use frameCount as a up-to-date measure, need ITime access
 
 Need to clarify axis consuming and overlapping.  I think I have it so that position setters and velocity setters can overlap, which they cannot do.
 IRigidBody notes:

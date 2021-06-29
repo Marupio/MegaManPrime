@@ -53,11 +53,43 @@ public class KVariablesToolsetQuaternion : IKVariablesToolset<Quaternion> {
     public Quaternion PositiveInfinite { get=>throw new System.InvalidOperationException(); }
 }
 
-// public enum KVariablesInitEnum {
-//     AllZero,
-//     AllInfinite,
-//     ForcesZero_NonForcesInfinite // Special case to detect non-initialised values
-// }
+// A value and type together is a KVariable
+public struct KVariable<V> {
+    public V value;
+    public KVariableEnum type;
+    public KVariable(KVariable<V> kvIn) {
+        value = kvIn.value;
+        type = kvIn.type;
+    }
+    public KVariable(KVariableEnum typeIn, V valueIn) {
+        value = valueIn;
+        type = typeIn;
+    }
+    public static KVariable<V> Variable(V value) {
+        return new KVariable<V>(KVariableEnum.Variable, value);
+    }
+    public static KVariable<V> Derivative(V value) {
+        return new KVariable<V>(KVariableEnum.Derivative, value);
+    }
+    public static KVariable<V> SecondDerivative(V value) {
+        return new KVariable<V>(KVariableEnum.SecondDerivative, value);
+    }
+    public static KVariable<V> ThirdDerivative(V value) {
+        return new KVariable<V>(KVariableEnum.ThirdDerivative, value);
+    }
+    public static KVariable<V> AppliedForce(V value) {
+        return new KVariable<V>(KVariableEnum.AppliedForce, value);
+    }
+    public static KVariable<V> ImpulseForce(V value) {
+        return new KVariable<V>(KVariableEnum.ImpulseForce, value);
+    }
+    public static KVariable<V> AppliedForceDerivative(V value) {
+        return new KVariable<V>(KVariableEnum.AppliedForceDerivative, value);
+    }
+    public static KVariable<V> ImpulseForceDerivative(V value) {
+        return new KVariable<V>(KVariableEnum.ImpulseForceDerivative, value);
+    }
+}
 
 // Base class encompasses all variable types included in KVariableControllableEnum
 public class KVariables<V> {
@@ -77,16 +109,7 @@ public class KVariables<V> {
     public V AppliedForce { get => m_appliedForce; set => m_appliedForce = value; }
     public V ImpulseForce { get => m_impulseForce; set => m_impulseForce = value; }
 
-    // *** Get functionality - checks applied
-    public virtual void Get(string variableName, out V value) {
-        KVariableEnum variableEnum;
-        if (KVariableTypeInfo.Aliases.TryGetValue(variableName, out variableEnum)) {
-            Get(variableEnum, out value);
-        } else {
-            Debug.LogError("Unrecognized variable type string: " + variableName);
-            value = default(V);
-        }
-    }
+    // *** Get functionality
     public virtual void Get(KVariableEnum variableEnum, out V value) {
         switch (variableEnum) {
             case KVariableEnum.Variable:
@@ -111,17 +134,26 @@ public class KVariables<V> {
                 // Fail silently
                 value = default(V);
                 break;
-            case KVariableEnum.Drag:
-                Debug.LogError("Attempting to get drag with wrong type");
-                value = default(V);
-                break;
             default:
                 Debug.LogError("Unhandled case");
                 value = default(V);
                 break;
         }
     }
-    // *** Set functionality - inits updated
+    public virtual void Get(string variableName, out V value) {
+        KVariableEnum variableEnum;
+        if (KVariableTypeInfo.Aliases.TryGetValue(variableName, out variableEnum)) {
+            Get(variableEnum, out value);
+        } else {
+            Debug.LogError("Unrecognized variable type string: " + variableName);
+            value = default(V);
+        }
+    }
+    public virtual void Get(ref KVariable<V> kvIn) {
+        Get(kvIn.type, out kvIn.value);
+    }
+
+    // *** Set functionality
     public virtual void Set(KVariableEnum variableEnum, V value) {
         switch (variableEnum) {
             case KVariableEnum.Variable:
@@ -145,9 +177,6 @@ public class KVariables<V> {
             case KVariableEnum.ImpulseForceDerivative:
                 // Fail silently
                 break;
-            case KVariableEnum.Drag:
-                Debug.LogError("Attempting to set drag with wrong type");
-                break;
         }
     }
     public virtual void Set(string variableName, V value) {
@@ -158,6 +187,10 @@ public class KVariables<V> {
             Debug.LogError("Unrecognized variable type string: " + variableName);
         }
     }
+    public virtual void Set(KVariable<V> kvIn) {
+        Set(kvIn.type, kvIn.value);
+    }
+
     public virtual void SetEqual(KVariables<V> varIn) {
         m_variable = varIn.m_variable;
         m_derivative = varIn.m_derivative;
@@ -206,9 +239,10 @@ public class KVariables<V> {
 
 // Extended class adds the remaining variable types in KVariableEnum that aren't already included in base.
 public class KVariablesExt<V> : KVariables<V> {
-    protected V m_thirdDerivative;
-    protected V m_appliedForceDerivative;
-    protected V m_impulseForceDerivative;
+    // *** Direct access to variables if you need it
+    public V m_thirdDerivative;
+    public V m_appliedForceDerivative;
+    public V m_impulseForceDerivative;
 
     public V ThirdDerivative { get => m_thirdDerivative; set => m_thirdDerivative = value; }
     public V AppliedForceDerivative { get => m_appliedForceDerivative; set => m_appliedForceDerivative = value; }
@@ -242,15 +276,14 @@ public class KVariablesExt<V> : KVariables<V> {
                 value = m_impulseForceDerivative;
                 break;
             case KVariableEnum.None:
-            case KVariableEnum.Drag:
-                Debug.LogWarning("Attempting to get " + variableEnum + " from KVariableExtendedSet");
-                value = default(V);
-                break;
             default:
                 Debug.LogError("Unhandled case");
                 value = default(V);
                 break;
         }
+    }
+    public override void Get(ref KVariable<V> kvIn) {
+        Get(kvIn.type, out kvIn.value);
     }
     // *** Set functionality
     public override void Set(KVariableEnum variableEnum, V value) {
@@ -280,13 +313,13 @@ public class KVariablesExt<V> : KVariables<V> {
                 value = m_impulseForceDerivative;
                 break;
             case KVariableEnum.None:
-            case KVariableEnum.Drag:
-                Debug.LogWarning("Attempting to get " + variableEnum + " from KVariableExtendedSet");
-                break;
             default:
                 Debug.LogError("Unhandled case");
                 break;
         }
+    }
+    public override void Set(KVariable<V> kvIn) {
+        Set(kvIn.type, kvIn.value);
     }
 
     // *** Constructors

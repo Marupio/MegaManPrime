@@ -3,16 +3,22 @@ using UnityEngine;
 
 public enum KVariableRestriction {
     None                 = 0b_0000_0000,
-    Single             = 0b_0000_0001,
+    Single               = 0b_0000_0001,
     Controllable         = 0b_0000_0010,
-    SingleControllable = 0b_0000_0011
+    SingleControllable   = 0b_0000_0011
 }
 
+/// <summary>
+/// Sort of like a mask of kinematic variable types. The set can be used to indicate what variable types were changed, what all the force types are,
+/// and so on.  Based on an enum, KVariableTypeEnum, which also has subset types.  Bit math operators are supported for logical calculations.  See
+/// also KVariableTypeInfo for many of the static predefined types.
+/// </summary>
+/// <seealso cref="KVariableTypeInfo" />
 public class KVariableTypeSet {
     KVariableRestriction m_restriction;
-    System.Int32 m_value;
+    int m_value;
 
-    public System.Int32 Value {
+    public int Value {
         get => m_value;
         set {
             if ((m_restriction & KVariableRestriction.Single) == KVariableRestriction.Single) {
@@ -92,15 +98,14 @@ public class KVariableTypeSet {
     public int Count {
         get {
             int nFound = 0;
-            nFound += ContainsAll(KVariableTypeInfo.Variable) ? 1 : 0;
-            nFound += ContainsAll(KVariableTypeInfo.Derivative) ? 1 : 0;
-            nFound += ContainsAll(KVariableTypeInfo.SecondDerivative) ? 1 : 0;
-            nFound += ContainsAll(KVariableTypeInfo.AppliedForce) ? 1 : 0;
-            nFound += ContainsAll(KVariableTypeInfo.ImpulseForce) ? 1 : 0;
-            nFound += ContainsAll(KVariableTypeInfo.Drag) ? 1 : 0;
-            nFound += ContainsAll(KVariableTypeInfo.ThirdDerivative) ? 1 : 0;
-            nFound += ContainsAll(KVariableTypeInfo.AppliedForceDerivative) ? 1 : 0;
-            nFound += ContainsAll(KVariableTypeInfo.ImpulseForceDerivative) ? 1 : 0;
+            nFound += Contains(KVariableEnum.Variable) ? 1 : 0;
+            nFound += Contains(KVariableEnum.Derivative) ? 1 : 0;
+            nFound += Contains(KVariableEnum.SecondDerivative) ? 1 : 0;
+            nFound += Contains(KVariableEnum.AppliedForce) ? 1 : 0;
+            nFound += Contains(KVariableEnum.ImpulseForce) ? 1 : 0;
+            nFound += Contains(KVariableEnum.ThirdDerivative) ? 1 : 0;
+            nFound += Contains(KVariableEnum.AppliedForceDerivative) ? 1 : 0;
+            nFound += Contains(KVariableEnum.ImpulseForceDerivative) ? 1 : 0;
             return nFound;
         }
     }
@@ -111,12 +116,12 @@ public class KVariableTypeSet {
         return (this & kv) == kv;
     }
     public bool Contains(KVariableEnum kve) {
-        KVariableTypeSet kvts = new KVariableTypeSet(kve);
-        return ContainsAll(kvts);
+        int kveValue = (int)kve;
+        return (kveValue & m_value) == kveValue;
     }
     public bool Contains(KVariableEnum_Controllable kve) {
-        KVariableTypeSet kvts = new KVariableTypeSet(kve);
-        return ContainsAll(kvts);
+        int kveValue = (int)kve;
+        return (kveValue & m_value) == kveValue;
     }
 
     // *** Edit
@@ -135,8 +140,8 @@ public class KVariableTypeSet {
     }
     public int Add(int value) {
         int countBefore = Count;
-        if (value < 0 || value > KVariableTypeInfo.MaxValue) {
-            Debug.LogError("Value " + value + " outside of range 0 .. " + KVariableTypeInfo.MaxValue);
+        if (value < 0 || value > KVariableTypeInfo.MaxValueKVariableEnum) {
+            Debug.LogError("Value " + value + " outside of range 0 .. " + KVariableTypeInfo.MaxValueKVariableEnum);
             return 0;
         }
         KVariableTypeSet kv = new KVariableTypeSet();
@@ -185,7 +190,7 @@ public class KVariableTypeSet {
     // TODO - add formated methods
     public override string ToString() {
         string outputString = "KVset(" + m_value + "): {";
-        for (System.Int32 i = 1; i < KVariableTypeInfo.NKVariableEnum_Controllable; ++i) {
+        for (int i = 1; i < KVariableTypeInfo.MaxValueKVariableEnum; i *= 2) {
             KVariableEnum curEnum = (KVariableEnum)i;
             if (Contains(curEnum)) {outputString += curEnum + " ";}
         }
@@ -281,7 +286,7 @@ public class KVariableTypeSet {
         Add(name);
     }
     public KVariableTypeSet(KVariableRestriction restriction = KVariableRestriction.None) {
-        m_value = (System.Int32)KVariableEnum.None;
+        m_value = (int)KVariableEnum.None;
         m_restriction = restriction;
     }
 }

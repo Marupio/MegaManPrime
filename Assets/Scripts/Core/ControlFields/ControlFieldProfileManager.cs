@@ -27,6 +27,10 @@ public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
     protected string m_name; // Name of associated entity's GameObject
     protected int m_spatialDimensions;
     protected int m_rotationalDimensions;
+    protected KVariableLimits m_limits_controlManagerLevel; // Limits applying to all controlFieldProfiles under this manager
+    protected KvLimiter<float> m_limiterFloat;
+    protected KvLimiter<Vector2> m_limiterVector2;
+    protected KvLimiter<Vector3> m_limiterVector3;
     protected Dictionary<string, ContlolFieldStoredAt> m_controlFieldIndex;
     protected Dictionary<string, ControlFieldProfile<float>> m_controlFields1D;
     protected Dictionary<string, ControlFieldProfile<Vector2>> m_controlFields2D;
@@ -48,6 +52,7 @@ public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
     public List<ControlFieldProfile<Vector2>> ActiveControlFields2D { get => m_activeControlFields2D; }
     public List<ControlFieldProfile<Vector3>> ActiveControlFields3D { get => m_activeControlFields3D; }
 
+    // *** Edit
     public bool AddControlField(ControlFieldProfile<float> newControlField, bool makeActive, bool overwrite = true) {
         if (!overwrite && m_controlFieldIndex.ContainsKey(newControlField.Name)) {
             Debug.LogError("ControlFieldManager " + m_name + " - controlField name collision: " + newControlField.Name);
@@ -186,7 +191,7 @@ public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
         }
         return true;
     }
-    public void RemoveAllAxes() {
+    public void RemoveAllControlFields() {
         for (int i = 0; i < m_controlFields1D.Count; ++i) {
             m_controlFields1D.ElementAt(i).Value.InternalSetManager(null);
         }
@@ -288,6 +293,28 @@ public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
             }
         }
     }
+    public void ApplyLimits(KVariableLimits kvl, KVariableTypeSet kvts) {
+        for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
+            m_activeControlFields1D[i].ApplyLimits(kvl, kvts);
+        }
+        for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
+            m_activeControlFields2D[i].ApplyLimits(kvl, kvts);
+        }
+        for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
+            m_activeControlFields3D[i].ApplyLimits(kvl, kvts);
+        }
+    }
+    public void ApplyLimits(KVariableLimits kvl) {
+        for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
+            m_activeControlFields1D[i].ApplyLimits(kvl);
+        }
+        for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
+            m_activeControlFields2D[i].ApplyLimits(kvl);
+        }
+        for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
+            m_activeControlFields3D[i].ApplyLimits(kvl);
+        }
+    }
 
     // *** Internal functions
     bool CheckSetup() {
@@ -384,5 +411,8 @@ public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
         m_rotationalDimensions = GeneralTools.NDimensions<T>();
         m_entity = entity;
         m_name = name;
+        m_limiterFloat = new KvLimiter<float>();
+        m_limiterVector2 = new KvLimiter<Vector2>();
+        m_limiterVector3 = new KvLimiter<Vector3>();
     }
 }
