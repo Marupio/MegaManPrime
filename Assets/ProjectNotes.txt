@@ -1,4 +1,13 @@
+#if DEFINES
+DEBUG - for debug compile, extra checks and printouts
+MULTITHREADING - when true, include Interlocked / Mutex and other multithreading protections
+
+
 TODO
+Add file format read / write for all data bearing classes
+
+Working on limits, controlFieldprofielmanger takes kvariables<t>, adds supplied limits to own limits, sends to controlfield?
+Does he need to set the mask?  Add integral limits, maybe, to controlField
 Rotation fixed to world / fixed to entity switch - get this into control / profile / wherever
 Go through looking for improper use of Vector3 assignment instead of set.
 

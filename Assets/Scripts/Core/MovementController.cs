@@ -123,12 +123,13 @@ public class MovementController<Q, V, T>
     protected IProjections<float, T> m_subspaceFloatT;     // Project between 1D axis and rotational space
     protected IProjections<Vector2, T> m_subspaceVector2T; // Project between 2D axis and rotational space (3D only)
     protected IProjections<Vector3, T> m_subspaceVector3T; // Project between 3D axis and rotational space (3D only)
-    protected IRigidbody<Q, V, T> m_rigidbody;
-    protected ITime m_time;
-    protected Transform m_owner;
 
-    // Variable limits
-    KVariableLimits m_varLimitsEntity; // Limits applying to all variables, selectable at the entity level
+    protected ITime m_time;
+    protected IRigidbody<Q, V, T> m_rigidbody;
+    protected Transform m_owner;
+    ControlFieldProfileManager<Q, V, T> m_controlFieldManager;
+    DirectionalSourceManager m_sources;
+    KVariableLimits m_limits_entityLevel; // Top level of variable limits
 
     // Convenience
     protected float m_invDeltaT;
@@ -197,13 +198,10 @@ public class MovementController<Q, V, T>
         return GeneralTools.NDimensions<T>();
     }
 
-    // Axes - controls and sources
-    ControlFieldProfileManager<Q, V, T> m_controlFieldManager;
-    DirectionalSourceManager m_sources;
-
+    // Controls, sources, limits (i.e. kinematic variable-related)
     public ControlFieldProfileManager<Q, V, T> ControlFieldManager { get => m_controlFieldManager; set => m_controlFieldManager = value; }
     public DirectionalSourceManager Sources { get=> m_sources; set => m_sources = value; }
-
+    KVariableLimits Limits_entityLevel { get => m_limits_entityLevel; set => m_limits_entityLevel = value; }
 
     public void Move() {
         // PseudoCode:
@@ -296,6 +294,7 @@ public class MovementController<Q, V, T>
         }
         dofsUsed.Check();
 
+        m_controlFieldManager.ApplyLimits(m_limits_entityLevel);
         // TODO Apply limits to local working variables
         // TODO Apply sources
         // TODO Make changes to m_rigidBody variables

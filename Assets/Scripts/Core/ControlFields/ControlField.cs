@@ -42,6 +42,7 @@ public abstract class ControlField<T> {
     protected KVariableEnum_Controllable m_controlledVariable;
     private KVariableTypeSet m_controlledVariableAsTypeSet;
 
+    // TODO add controlledVariableIntegralMax
     protected float m_controlledVariableMax = float.PositiveInfinity;
     protected float m_controlledVariableDerivativeMax = float.PositiveInfinity; // Only needed when smoothing enabled
 

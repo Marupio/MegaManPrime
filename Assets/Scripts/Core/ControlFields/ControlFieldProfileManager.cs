@@ -28,6 +28,9 @@ public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
     protected int m_spatialDimensions;
     protected int m_rotationalDimensions;
     protected KVariableLimits m_limits_controlManagerLevel; // Limits applying to all controlFieldProfiles under this manager
+    protected KVariableLimits m_limits_cachedArgument; // Cache of last kvl supplied to ApplyLimit call
+    protected KVariableLimits m_limits_cache;
+    protected int m_limits_cacheUtdf; // UpToDateFrame for m_limits_cache
     protected KvLimiter<float> m_limiterFloat;
     protected KvLimiter<Vector2> m_limiterVector2;
     protected KvLimiter<Vector3> m_limiterVector3;
@@ -293,7 +296,11 @@ public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
             }
         }
     }
-    public void ApplyLimits(KVariableLimits kvl, KVariableTypeSet kvts) {
+    private void UpdateLimitCache(KVariableLimits kvl) {
+        // TODO - I need a registry to keep track of derived objects and their dependents
+    }
+    public void ApplyLimits(KVariableLimits kvl, KVariables<float> kv) {
+        UpdateLimitCache(kvl);
         for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
             m_activeControlFields1D[i].ApplyLimits(kvl, kvts);
         }
@@ -406,11 +413,15 @@ public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
     }
 
     // *** Constructors
+    // TODO - Add constructors, file read/write
     ControlFieldProfileManager(MovementController<Q, V, T> entity, string name) {
-        m_spatialDimensions = GeneralTools.NDimensions<V>();
-        m_rotationalDimensions = GeneralTools.NDimensions<T>();
         m_entity = entity;
         m_name = name;
+        m_spatialDimensions = GeneralTools.NDimensions<V>();
+        m_rotationalDimensions = GeneralTools.NDimensions<T>();
+        m_limits_controlManagerLevel = null;
+        m_limits_cache = null;
+        m_limits_cacheUtdf = -1;
         m_limiterFloat = new KvLimiter<float>();
         m_limiterVector2 = new KvLimiter<Vector2>();
         m_limiterVector3 = new KvLimiter<Vector3>();

@@ -1,0 +1,16 @@
+{"ControlFields" :
+    {"Name" :
+        {
+            "ControlField" : "Settings"
+        }
+    },
+    "ControlFieldManagers" :
+    {
+        "2DSideScroller"
+    },
+    "SideScroller" :
+    {
+        
+    }
+
+}
