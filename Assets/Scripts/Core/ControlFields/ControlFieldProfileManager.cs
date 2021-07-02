@@ -323,6 +323,15 @@ public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
         }
     }
 
+    void Update() {
+        // TODO
+        // This is where I go through all my 'interactions', such as:
+        //      entity.TouchingGround() == true  ---> m_controlFields1D["jumping"].ImpulseType().Enabled=true;
+        //      entity.TouchingGround() == false ---> m_controlFields1D["jumping"].ImpulseType().Enabled=false;
+        //      entity.OnLadder() == true ---> ensure m_controlFields1D["climbing"] is active and m_controlFields1D["normal"] is inactive
+        // and so on.
+    }
+
     // *** Internal functions
     bool CheckSetup() {
         int nFreedoms = m_entity.NSpatialFreedoms + m_entity.NRotationalFreedoms;

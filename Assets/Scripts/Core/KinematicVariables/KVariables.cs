@@ -1,57 +1,58 @@
 using System.Collections.Specialized;
 using UnityEngine;
 
-public interface IKVariablesToolset<T> {
-    public T Zero { get; }
-    public bool HasInfinite { get; }
-    public T PositiveInfinite { get; }
-}
+// Use Traits instead
+// public interface IKVariablesToolset<T> {
+//     public T Zero { get; }
+//     public bool HasInfinite { get; }
+//     public T PositiveInfinite { get; }
+// }
 
-public class KVariablesToolsetBool : IKVariablesToolset<bool> {
-    public bool Zero { get=>false; }
-    public bool HasInfinite { get=>false; }
-    public bool PositiveInfinite { get=>throw new System.InvalidOperationException(); }
-}
-public class KVariablesToolsetInt : IKVariablesToolset<int> {
-    public int Zero { get=>0; }
-    public bool HasInfinite { get=>false; }
-    public int PositiveInfinite { get=>throw new System.InvalidOperationException(); }
-}
-public class KVariablesToolsetFloat : IKVariablesToolset<float> {
-    public float Zero { get=>0f; }
-    public bool HasInfinite { get=>true; }
-    public float PositiveInfinite { get=>float.PositiveInfinity; }
-}
-public class KVariablesToolsetVector2 : IKVariablesToolset<Vector2> {
-    public Vector2 Zero { get=>Vector2.zero; }
-    public bool HasInfinite { get=>true; }
-    public Vector2 PositiveInfinite { get=>Vector2.positiveInfinity; }
-}
-public class KVariablesToolsetVector2Int : IKVariablesToolset<Vector2Int> {
-    public Vector2Int Zero { get=>Vector2Int.zero; }
-    public bool HasInfinite { get=>false; }
-    public Vector2Int PositiveInfinite { get=>throw new System.InvalidOperationException(); }
-}
-public class KVariablesToolsetVector3 : IKVariablesToolset<Vector3> {
-    public Vector3 Zero { get=>Vector3.zero; }
-    public bool HasInfinite { get; }
-    public Vector3 PositiveInfinite { get=>Vector3.positiveInfinity; }
-}
-public class KVariablesToolsetVector3Int : IKVariablesToolset<Vector3Int> {
-    public Vector3Int Zero { get=>Vector3Int.zero; }
-    public bool HasInfinite { get=>false; }
-    public Vector3Int PositiveInfinite { get=>throw new System.InvalidOperationException(); }
-}
-public class KVariablesToolsetVector4 : IKVariablesToolset<Vector4> {
-    public Vector4 Zero { get=>Vector4.zero; }
-    public bool HasInfinite { get=>true; }
-    public Vector4 PositiveInfinite { get=>Vector4.positiveInfinity; }
-}
-public class KVariablesToolsetQuaternion : IKVariablesToolset<Quaternion> {
-    public Quaternion Zero { get=>Quaternion.identity; }
-    public bool HasInfinite { get=>false; }
-    public Quaternion PositiveInfinite { get=>throw new System.InvalidOperationException(); }
-}
+// public class KVariablesToolsetBool : IKVariablesToolset<bool> {
+//     public bool Zero { get=>false; }
+//     public bool HasInfinite { get=>false; }
+//     public bool PositiveInfinite { get=>throw new System.InvalidOperationException(); }
+// }
+// public class KVariablesToolsetInt : IKVariablesToolset<int> {
+//     public int Zero { get=>0; }
+//     public bool HasInfinite { get=>false; }
+//     public int PositiveInfinite { get=>throw new System.InvalidOperationException(); }
+// }
+// public class KVariablesToolsetFloat : IKVariablesToolset<float> {
+//     public float Zero { get=>0f; }
+//     public bool HasInfinite { get=>true; }
+//     public float PositiveInfinite { get=>float.PositiveInfinity; }
+// }
+// public class KVariablesToolsetVector2 : IKVariablesToolset<Vector2> {
+//     public Vector2 Zero { get=>Vector2.zero; }
+//     public bool HasInfinite { get=>true; }
+//     public Vector2 PositiveInfinite { get=>Vector2.positiveInfinity; }
+// }
+// public class KVariablesToolsetVector2Int : IKVariablesToolset<Vector2Int> {
+//     public Vector2Int Zero { get=>Vector2Int.zero; }
+//     public bool HasInfinite { get=>false; }
+//     public Vector2Int PositiveInfinite { get=>throw new System.InvalidOperationException(); }
+// }
+// public class KVariablesToolsetVector3 : IKVariablesToolset<Vector3> {
+//     public Vector3 Zero { get=>Vector3.zero; }
+//     public bool HasInfinite { get; }
+//     public Vector3 PositiveInfinite { get=>Vector3.positiveInfinity; }
+// }
+// public class KVariablesToolsetVector3Int : IKVariablesToolset<Vector3Int> {
+//     public Vector3Int Zero { get=>Vector3Int.zero; }
+//     public bool HasInfinite { get=>false; }
+//     public Vector3Int PositiveInfinite { get=>throw new System.InvalidOperationException(); }
+// }
+// public class KVariablesToolsetVector4 : IKVariablesToolset<Vector4> {
+//     public Vector4 Zero { get=>Vector4.zero; }
+//     public bool HasInfinite { get=>true; }
+//     public Vector4 PositiveInfinite { get=>Vector4.positiveInfinity; }
+// }
+// public class KVariablesToolsetQuaternion : IKVariablesToolset<Quaternion> {
+//     public Quaternion Zero { get=>Quaternion.identity; }
+//     public bool HasInfinite { get=>false; }
+//     public Quaternion PositiveInfinite { get=>throw new System.InvalidOperationException(); }
+// }
 
 // A value and type together is a KVariable
 public struct KVariable<V> {
@@ -93,7 +94,8 @@ public struct KVariable<V> {
 
 // Base class encompasses all variable types included in KVariableControllableEnum
 public class KVariables<V> {
-    public IKVariablesToolset<V> m_toolset;
+    public ITraits<V> m_traits;
+    // public IKVariablesToolset<V> m_toolset;
 
     // *** Direct access to variables if you need it
     public V m_variable;
