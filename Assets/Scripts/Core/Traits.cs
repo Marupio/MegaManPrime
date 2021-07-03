@@ -93,12 +93,11 @@ public class TraitsSimpleQuaternion : ITraitsSimple<Quaternion> {
 }
 
 
-// L = main type, C = component type, T = component type Traits
+// L = main type, C = component type
 // e.g. L=Vector2, C = float, T = TraitsFloat
-public interface ITraits<L,C,T> {
+public interface ITraits<L,C> {
     public DataTypeEnum DataType { get; }
     public DataTypeEnum ComponentType { get; }
-    public T ComponentTraits { get; }
     public L Zero(int nElems=1);
     public bool HasInfinite { get; }
     public L PositiveInfinite(int nElems=1);
@@ -110,10 +109,9 @@ public interface ITraits<L,C,T> {
     public void SetComponent(ref L data, string elem, C value);
 }
 
-public class TraitsNone : ITraits<object, object, TraitsNone> {
+public class TraitsNone : ITraits<object, object> {
     public DataTypeEnum DataType { get=>DataTypeEnum.None; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.None; }
-    public TraitsNone ComponentTraits { get=>this; }
     public object Zero(int nElems=1) { return null; }
     public bool HasInfinite { get=>false; }
     public object PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -124,10 +122,9 @@ public class TraitsNone : ITraits<object, object, TraitsNone> {
     public void SetComponent(ref object data, int elem, object value) { throw new System.InvalidOperationException(); }
     public void SetComponent(ref object data, string elem, object value) { throw new System.InvalidOperationException(); }
 }
-public class TraitsChar : ITraits<char, object, TraitsNone> {
+public class TraitsChar : ITraits<char, object> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Char; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.None; }
-    public TraitsNone ComponentTraits { get=>new TraitsNone(); }
     public char Zero(int nElems=1) { return '\0'; }
     public bool HasInfinite { get=>false; }
     public char PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -138,10 +135,9 @@ public class TraitsChar : ITraits<char, object, TraitsNone> {
     public void SetComponent(ref char data, int elem, object value) { throw new System.InvalidOperationException(); }
     public void SetComponent(ref char data, string elem, object value) { throw new System.InvalidOperationException(); }
 }
-public class TraitsBool : ITraits<bool, object, TraitsNone> {
+public class TraitsBool : ITraits<bool, object> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Bool; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.None; }
-    public TraitsNone ComponentTraits { get=>new TraitsNone(); }
     public bool Zero(int nElems=1) { return false; }
     public bool HasInfinite { get=>false; }
     public bool PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -152,10 +148,9 @@ public class TraitsBool : ITraits<bool, object, TraitsNone> {
     public void SetComponent(ref bool data, int elem, object value) { throw new System.InvalidOperationException(); }
     public void SetComponent(ref bool data, string elem, object value) { throw new System.InvalidOperationException(); }
 }
-public class TraitsString : ITraits<string, char, TraitsChar> {
+public class TraitsString : ITraits<string, char> {
     public DataTypeEnum DataType { get=>DataTypeEnum.String; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Char; }
-    public TraitsChar ComponentTraits { get=>new TraitsChar(); }
     public string Zero(int nElems=1) { return ""; }
     public bool HasInfinite { get=>false; }
     public string PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -168,10 +163,9 @@ public class TraitsString : ITraits<string, char, TraitsChar> {
     }
     public void SetComponent(ref string data, string elem, char value) { /* do nothing */ }
 }
-public class TraitsInt : ITraits<int, object, TraitsNone> {
+public class TraitsInt : ITraits<int, object> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.None; }
-    public TraitsNone ComponentTraits { get=>new TraitsNone(); }
     public int Zero(int nElems=1) { return 0; }
     public bool HasInfinite { get=>false; }
     public int PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -182,10 +176,9 @@ public class TraitsInt : ITraits<int, object, TraitsNone> {
     public void SetComponent(ref int data, int elem, object value) { throw new System.InvalidOperationException(); }
     public void SetComponent(ref int data, string elem, object value) { throw new System.InvalidOperationException(); }
 }
-public class TraitsFloat : ITraits<float, object, TraitsNone> {
+public class TraitsFloat : ITraits<float, object> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Float; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.None; }
-    public TraitsNone ComponentTraits { get=>new TraitsNone(); }
     public float Zero(int nElems=1) { return 0f; }
     public bool HasInfinite { get=>true; }
     public float PositiveInfinite(int nElems=1) { return float.PositiveInfinity; }
@@ -196,10 +189,9 @@ public class TraitsFloat : ITraits<float, object, TraitsNone> {
     public void SetComponent(ref float data, int elem, object value) { throw new System.InvalidOperationException(); }
     public void SetComponent(ref float data, string elem, object value) { throw new System.InvalidOperationException(); }
 }
-public class TraitsVector2Int : ITraits<Vector2Int, int, TraitsInt> {
+public class TraitsVector2Int : ITraits<Vector2Int, int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Vector2IntType; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Int; }
-    public TraitsInt ComponentTraits { get=>new TraitsInt(); }
     public Vector2Int Zero(int nElems=1) { return Vector2Int.zero; }
     public bool HasInfinite { get=>false; }
     public Vector2Int PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -221,10 +213,9 @@ public class TraitsVector2Int : ITraits<Vector2Int, int, TraitsInt> {
     }
     public void SetComponent(ref Vector2Int data, string elem, int value) { SetComponent(ref data, ComponentNames.Vector2Names[elem], value); }
 }
-public class TraitsVector2 : ITraits<Vector2, float, TraitsFloat> {
+public class TraitsVector2 : ITraits<Vector2, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Vector2Type; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Float; }
-    public TraitsFloat ComponentTraits { get=>new TraitsFloat(); }
     public Vector2 Zero(int nElems=1) { return Vector2.zero; }
     public bool HasInfinite { get=>true; }
     public Vector2 PositiveInfinite(int nElems=1) { return Vector2.positiveInfinity; }
@@ -246,10 +237,9 @@ public class TraitsVector2 : ITraits<Vector2, float, TraitsFloat> {
     }
     public void SetComponent(ref Vector2 data, string elem, float value) { SetComponent(ref data, ComponentNames.Vector2Names[elem], value); }
 }
-public class TraitsVector3Int : ITraits<Vector3Int, int, TraitsInt> {
+public class TraitsVector3Int : ITraits<Vector3Int, int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Vector3IntType; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Int; }
-    public TraitsInt ComponentTraits { get=>new TraitsInt(); }
     public Vector3Int Zero(int nElems=1) { return Vector3Int.zero; }
     public bool HasInfinite { get=>false; }
     public Vector3Int PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -274,10 +264,9 @@ public class TraitsVector3Int : ITraits<Vector3Int, int, TraitsInt> {
     }
     public void SetComponent(ref Vector3Int data, string elem, int value) { SetComponent(ref data, ComponentNames.Vector3Names[elem], value); }
 }
-public class TraitsVector3 : ITraits<Vector3, float, TraitsFloat> {
+public class TraitsVector3 : ITraits<Vector3, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Vector3Type; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Float; }
-    public TraitsFloat ComponentTraits { get=>new TraitsFloat(); }
     public Vector3 Zero(int nElems=1) { return Vector3.zero; }
     public bool HasInfinite { get; }
     public Vector3 PositiveInfinite(int nElems=1) { return Vector3.positiveInfinity; }
@@ -302,10 +291,9 @@ public class TraitsVector3 : ITraits<Vector3, float, TraitsFloat> {
     }
     public void SetComponent(ref Vector3 data, string elem, float value) { SetComponent(ref data, ComponentNames.Vector3Names[elem], value); }
 }
-public class TraitsVector4 : ITraits<Vector4, float, TraitsFloat> {
+public class TraitsVector4 : ITraits<Vector4, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Vector4Type; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Float; }
-    public TraitsFloat ComponentTraits { get=>new TraitsFloat(); }
     public Vector4 Zero(int nElems=1) { return Vector4.zero; }
     public bool HasInfinite { get=>true; }
     public Vector4 PositiveInfinite(int nElems=1) { return Vector4.positiveInfinity; }
@@ -333,10 +321,9 @@ public class TraitsVector4 : ITraits<Vector4, float, TraitsFloat> {
     }
     public void SetComponent(ref Vector4 data, string elem, float value) { SetComponent(ref data, ComponentNames.Vector4Names[elem], value); }
 }
-public class TraitsQuaternion : ITraits<Quaternion, float, TraitsFloat> {
+public class TraitsQuaternion : ITraits<Quaternion, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.QuaternionType; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Float; }
-    public TraitsFloat ComponentTraits { get=>new TraitsFloat(); }
     public Quaternion Zero(int nElems=1) { return Quaternion.identity; }
     public bool HasInfinite { get=>false; }
     public Quaternion PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -364,10 +351,9 @@ public class TraitsQuaternion : ITraits<Quaternion, float, TraitsFloat> {
     }
     public void SetComponent(ref Quaternion data, string elem, float value) { SetComponent(ref data, ComponentNames.Vector4Names[elem], value); }
 }
-public class TraitsListBool : ITraits<List<bool>, bool, TraitsBool> {
+public class TraitsListBool : ITraits<List<bool>, bool> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Bool; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Bool; }
-    public TraitsBool ComponentTraits { get=>new TraitsBool(); }
     public List<bool> Zero(int nElems=1) {
         List<bool> zeroList = new List<bool>(nElems);
         for (int i = 0; i < nElems; ++i) {
@@ -384,10 +370,9 @@ public class TraitsListBool : ITraits<List<bool>, bool, TraitsBool> {
     public void SetComponent(ref List<bool> data, int elem, bool value) { data[elem] = value; }
     public void SetComponent(ref List<bool> data, string elem, bool value) { throw new System.InvalidOperationException(); }
 }
-public class TraitsListString : ITraits<List<string>, string, TraitsString> {
+public class TraitsListString : ITraits<List<string>, string> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_String; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.String; }
-    public TraitsString ComponentTraits { get=>new TraitsString(); }
     public List<string> Zero(int nElems=1) {
         List<string> zeroList = new List<string>(nElems);
         for (int i = 0; i < nElems; ++i) {
@@ -404,10 +389,9 @@ public class TraitsListString : ITraits<List<string>, string, TraitsString> {
     public void SetComponent(ref List<string> data, int elem, string value) { data[elem] = value; }
     public void SetComponent(ref List<string> data, string elem, string value) { throw new System.InvalidOperationException(); }
 }
-public class TraitsListInt : ITraits<List<int>, int, TraitsInt> {
+public class TraitsListInt : ITraits<List<int>, int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Int; }
-    public TraitsInt ComponentTraits { get=>new TraitsInt(); }
     public List<int> Zero(int nElems=1) {
         List<int> zeroList = new List<int>(nElems);
         for (int i = 0; i < nElems; ++i) {
@@ -424,10 +408,9 @@ public class TraitsListInt : ITraits<List<int>, int, TraitsInt> {
     public void SetComponent(ref List<int> data, int elem, int value) { data[elem] = value; }
     public void SetComponent(ref List<int> data, string elem, int value) { throw new System.InvalidOperationException(); }
 }
-public class TraitsListFloat : ITraits<List<float>, float, TraitsFloat> {
+public class TraitsListFloat : ITraits<List<float>, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Float; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Float; }
-    public TraitsFloat ComponentTraits { get=>new TraitsFloat(); }
     public List<float> Zero(int nElems=1) {
         List<float> zeroList = new List<float>(nElems);
         for (int i = 0; i < nElems; ++i) {
@@ -450,10 +433,9 @@ public class TraitsListFloat : ITraits<List<float>, float, TraitsFloat> {
     public void SetComponent(ref List<float> data, int elem, float value) { data[elem] = value; }
     public void SetComponent(ref List<float> data, string elem, float value) { throw new System.InvalidOperationException(); }
 }
-public class TraitsListVector2Int : ITraits<List<Vector2Int>, Vector2Int, TraitsVector2Int> {
+public class TraitsListVector2Int : ITraits<List<Vector2Int>, Vector2Int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Vector2Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector2IntType; }
-    public TraitsVector2Int ComponentTraits { get=>new TraitsVector2Int(); }
     public List<Vector2Int> Zero(int nElems=1) {
         List<Vector2Int> zeroList = new List<Vector2Int>(nElems);
         for (int i = 0; i < nElems; ++i) {
@@ -470,10 +452,9 @@ public class TraitsListVector2Int : ITraits<List<Vector2Int>, Vector2Int, Traits
     public void SetComponent(ref List<Vector2Int> data, int elem, Vector2Int value) { data[elem] = value; }
     public void SetComponent(ref List<Vector2Int> data, string elem, Vector2Int value) { throw new System.InvalidOperationException(); }
 }
-public class TraitsListVector2 : ITraits<List<Vector2>, Vector2, TraitsVector2> {
+public class TraitsListVector2 : ITraits<List<Vector2>, Vector2> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Vector2; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector2Type; }
-    public TraitsVector2 ComponentTraits { get=>new TraitsVector2(); }
     public List<Vector2> Zero(int nElems=1) {
         List<Vector2> zeroList = new List<Vector2>(nElems);
         for (int i = 0; i < nElems; ++i) {
@@ -496,10 +477,9 @@ public class TraitsListVector2 : ITraits<List<Vector2>, Vector2, TraitsVector2> 
     public void SetComponent(ref List<Vector2> data, int elem, Vector2 value) { data[elem] = value; }
     public void SetComponent(ref List<Vector2> data, string elem, Vector2 value) { throw new System.InvalidOperationException(); }
 }
-public class TraitsListVector3Int : ITraits<List<Vector3Int>, Vector3Int, TraitsVector3Int> {
+public class TraitsListVector3Int : ITraits<List<Vector3Int>, Vector3Int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Vector3Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector3IntType; }
-    public TraitsVector3Int ComponentTraits { get=>new TraitsVector3Int(); }
     public List<Vector3Int> Zero(int nElems=1) {
         List<Vector3Int> zeroList = new List<Vector3Int>(nElems);
         for (int i = 0; i < nElems; ++i) {
@@ -516,10 +496,9 @@ public class TraitsListVector3Int : ITraits<List<Vector3Int>, Vector3Int, Traits
     public void SetComponent(ref List<Vector3Int> data, int elem, Vector3Int value) { data[elem] = value; }
     public void SetComponent(ref List<Vector3Int> data, string elem, Vector3Int value) { throw new System.InvalidOperationException(); }
 }
-public class TraitsListVector3 : ITraits<List<Vector3>, Vector3, TraitsVector3> {
+public class TraitsListVector3 : ITraits<List<Vector3>, Vector3> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Vector3; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector3Type; }
-    public TraitsVector3 ComponentTraits { get=>new TraitsVector3(); }
     public List<Vector3> Zero(int nElems=1) {
         List<Vector3> zeroList = new List<Vector3>(nElems);
         for (int i = 0; i < nElems; ++i) {
@@ -542,10 +521,9 @@ public class TraitsListVector3 : ITraits<List<Vector3>, Vector3, TraitsVector3> 
     public void SetComponent(ref List<Vector3> data, int elem, Vector3 value) { data[elem] = value; }
     public void SetComponent(ref List<Vector3> data, string elem, Vector3 value) { throw new System.InvalidOperationException(); }
 }
-public class TraitsListVector4 : ITraits<List<Vector4>, Vector4, TraitsVector4> {
+public class TraitsListVector4 : ITraits<List<Vector4>, Vector4> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Vector4; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector4Type; }
-    public TraitsVector4 ComponentTraits { get=>new TraitsVector4(); }
     public List<Vector4> Zero(int nElems=1) {
         List<Vector4> zeroList = new List<Vector4>(nElems);
         for (int i = 0; i < nElems; ++i) {
@@ -568,10 +546,9 @@ public class TraitsListVector4 : ITraits<List<Vector4>, Vector4, TraitsVector4> 
     public void SetComponent(ref List<Vector4> data, int elem, Vector4 value) { data[elem] = value; }
     public void SetComponent(ref List<Vector4> data, string elem, Vector4 value) { throw new System.InvalidOperationException(); }
 }
-public class TraitsListQuaternion : ITraits<List<Quaternion>, Quaternion, TraitsQuaternion> {
+public class TraitsListQuaternion : ITraits<List<Quaternion>, Quaternion> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Vector4; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.QuaternionType; }
-    public TraitsQuaternion ComponentTraits { get=>new TraitsQuaternion(); }
     public List<Quaternion> Zero(int nElems=1) {
         List<Quaternion> zeroList = new List<Quaternion>(nElems);
         for (int i = 0; i < nElems; ++i) {
@@ -588,10 +565,9 @@ public class TraitsListQuaternion : ITraits<List<Quaternion>, Quaternion, Traits
     public void SetComponent(ref List<Quaternion> data, int elem, Quaternion value) { data[elem] = value; }
     public void SetComponent(ref List<Quaternion> data, string elem, Quaternion value) { throw new System.InvalidOperationException(); }
 }
-public class TraitsKVariablesBool : ITraits<KVariables<bool>, bool, TraitsBool> {
+public class TraitsKVariablesBool : ITraits<KVariables<bool>, bool> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Bool; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Bool; }
-    public TraitsBool ComponentTraits { get=>new TraitsBool(); }
     public KVariables<bool> Zero(int nElems=1) { return new KVariables<bool>(false); }
     public bool HasInfinite { get=>false; }
     public KVariables<bool> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -606,10 +582,9 @@ public class TraitsKVariablesBool : ITraits<KVariables<bool>, bool, TraitsBool> 
     public void SetComponent(ref KVariables<bool> data, int elem, bool value) { data[elem] = value; }
     public void SetComponent(ref KVariables<bool> data, string elem, bool value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesString : ITraits<KVariables<string>, string, TraitsString> {
+public class TraitsKVariablesString : ITraits<KVariables<string>, string> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_String; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.String; }
-    public TraitsString ComponentTraits { get=>new TraitsString(); }
     public KVariables<string> Zero(int nElems=1) { return new KVariables<string>(""); }
     public bool HasInfinite { get=>false; }
     public KVariables<string> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -624,10 +599,9 @@ public class TraitsKVariablesString : ITraits<KVariables<string>, string, Traits
     public void SetComponent(ref KVariables<string> data, int elem, string value) { data[elem] = value; }
     public void SetComponent(ref KVariables<string> data, string elem, string value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesInt : ITraits<KVariables<int>, int, TraitsInt> {
+public class TraitsKVariablesInt : ITraits<KVariables<int>, int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Int; }
-    public TraitsInt ComponentTraits { get=>new TraitsInt(); }
     public KVariables<int> Zero(int nElems=1) { return new KVariables<int>(0); }
     public bool HasInfinite { get=>false; }
     public KVariables<int> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -642,10 +616,9 @@ public class TraitsKVariablesInt : ITraits<KVariables<int>, int, TraitsInt> {
     public void SetComponent(ref KVariables<int> data, int elem, int value) { data[elem] = value; }
     public void SetComponent(ref KVariables<int> data, string elem, int value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesFloat : ITraits<KVariables<float>, float, TraitsFloat> {
+public class TraitsKVariablesFloat : ITraits<KVariables<float>, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Float; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Float; }
-    public TraitsFloat ComponentTraits { get=>new TraitsFloat(); }
     public KVariables<float> Zero(int nElems=1) { return new KVariables<float>(0f); }
     public bool HasInfinite { get=>true; }
     public KVariables<float> PositiveInfinite(int nElems=1) { return new KVariables<float>(float.PositiveInfinity); }
@@ -660,10 +633,9 @@ public class TraitsKVariablesFloat : ITraits<KVariables<float>, float, TraitsFlo
     public void SetComponent(ref KVariables<float> data, int elem, float value) { data[elem] = value; }
     public void SetComponent(ref KVariables<float> data, string elem, float value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesVector2Int : ITraits<KVariables<Vector2Int>, Vector2Int, TraitsVector2Int> {
+public class TraitsKVariablesVector2Int : ITraits<KVariables<Vector2Int>, Vector2Int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Vector2Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector2IntType; }
-    public TraitsVector2Int ComponentTraits { get=>new TraitsVector2Int(); }
     public KVariables<Vector2Int> Zero(int nElems=1) { return new KVariables<Vector2Int>(Vector2Int.zero); }
     public bool HasInfinite { get=>false; }
     public KVariables<Vector2Int> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -678,10 +650,9 @@ public class TraitsKVariablesVector2Int : ITraits<KVariables<Vector2Int>, Vector
     public void SetComponent(ref KVariables<Vector2Int> data, int elem, Vector2Int value) { data[elem] = value; }
     public void SetComponent(ref KVariables<Vector2Int> data, string elem, Vector2Int value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesVector2 : ITraits<KVariables<Vector2>, Vector2, TraitsVector2> {
+public class TraitsKVariablesVector2 : ITraits<KVariables<Vector2>, Vector2> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Vector2; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector2Type; }
-    public TraitsVector2 ComponentTraits { get=>new TraitsVector2(); }
     public KVariables<Vector2> Zero(int nElems=1) { return new KVariables<Vector2>(Vector2.zero); }
     public bool HasInfinite { get=>true; }
     public KVariables<Vector2> PositiveInfinite(int nElems=1) { return new KVariables<Vector2>(Vector2.positiveInfinity); }
@@ -696,10 +667,9 @@ public class TraitsKVariablesVector2 : ITraits<KVariables<Vector2>, Vector2, Tra
     public void SetComponent(ref KVariables<Vector2> data, int elem, Vector2 value) { data[elem] = value; }
     public void SetComponent(ref KVariables<Vector2> data, string elem, Vector2 value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesVector3Int : ITraits<KVariables<Vector3Int>, Vector3Int, TraitsVector3Int> {
+public class TraitsKVariablesVector3Int : ITraits<KVariables<Vector3Int>, Vector3Int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Vector3Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector3IntType; }
-    public TraitsVector3Int ComponentTraits { get=>new TraitsVector3Int(); }
     public KVariables<Vector3Int> Zero(int nElems=1) { return new KVariables<Vector3Int>(Vector3Int.zero); }
     public bool HasInfinite { get=>false; }
     public KVariables<Vector3Int> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -714,10 +684,9 @@ public class TraitsKVariablesVector3Int : ITraits<KVariables<Vector3Int>, Vector
     public void SetComponent(ref KVariables<Vector3Int> data, int elem, Vector3Int value) { data[elem] = value; }
     public void SetComponent(ref KVariables<Vector3Int> data, string elem, Vector3Int value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesVector3 : ITraits<KVariables<Vector3>, Vector3, TraitsVector3> {
+public class TraitsKVariablesVector3 : ITraits<KVariables<Vector3>, Vector3> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Vector3; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector3Type; }
-    public TraitsVector3 ComponentTraits { get=>new TraitsVector3(); }
     public KVariables<Vector3> Zero(int nElems=1) { return new KVariables<Vector3>(Vector3.zero); }
     public bool HasInfinite { get=>true; }
     public KVariables<Vector3> PositiveInfinite(int nElems=1) { return new KVariables<Vector3>(Vector3.positiveInfinity); }
@@ -732,10 +701,9 @@ public class TraitsKVariablesVector3 : ITraits<KVariables<Vector3>, Vector3, Tra
     public void SetComponent(ref KVariables<Vector3> data, int elem, Vector3 value) { data[elem] = value; }
     public void SetComponent(ref KVariables<Vector3> data, string elem, Vector3 value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesVector4 : ITraits<KVariables<Vector4>, Vector4, TraitsVector4> {
+public class TraitsKVariablesVector4 : ITraits<KVariables<Vector4>, Vector4> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Vector4; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector4Type; }
-    public TraitsVector4 ComponentTraits { get=>new TraitsVector4(); }
     public KVariables<Vector4> Zero(int nElems=1) { return new KVariables<Vector4>(Vector4.zero); }
     public bool HasInfinite { get=>true; }
     public KVariables<Vector4> PositiveInfinite(int nElems=1) { return new KVariables<Vector4>(Vector4.positiveInfinity); }
@@ -750,10 +718,9 @@ public class TraitsKVariablesVector4 : ITraits<KVariables<Vector4>, Vector4, Tra
     public void SetComponent(ref KVariables<Vector4> data, int elem, Vector4 value) { data[elem] = value; }
     public void SetComponent(ref KVariables<Vector4> data, string elem, Vector4 value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesQuaternion : ITraits<KVariables<Quaternion>, Quaternion, TraitsQuaternion> {
+public class TraitsKVariablesQuaternion : ITraits<KVariables<Quaternion>, Quaternion> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Quaternion; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.QuaternionType; }
-    public TraitsQuaternion ComponentTraits { get=>new TraitsQuaternion(); }
     public KVariables<Quaternion> Zero(int nElems=1) { return new KVariables<Quaternion>(Quaternion.identity); }
     public bool HasInfinite { get=>false; }
     public KVariables<Quaternion> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -768,10 +735,9 @@ public class TraitsKVariablesQuaternion : ITraits<KVariables<Quaternion>, Quater
     public void SetComponent(ref KVariables<Quaternion> data, int elem, Quaternion value) { data[elem] = value; }
     public void SetComponent(ref KVariables<Quaternion> data, string elem, Quaternion value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesExtBool : ITraits<KVariablesExt<bool>, bool, TraitsBool> {
+public class TraitsKVariablesExtBool : ITraits<KVariablesExt<bool>, bool> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Bool; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Bool; }
-    public TraitsBool ComponentTraits { get=>new TraitsBool(); }
     public KVariablesExt<bool> Zero(int nElems=1) { return new KVariablesExt<bool>(false); }
     public bool HasInfinite { get=>false; }
     public KVariablesExt<bool> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -786,10 +752,9 @@ public class TraitsKVariablesExtBool : ITraits<KVariablesExt<bool>, bool, Traits
     public void SetComponent(ref KVariablesExt<bool> data, int elem, bool value) { data[elem] = value; }
     public void SetComponent(ref KVariablesExt<bool> data, string elem, bool value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesExtString : ITraits<KVariablesExt<string>, string, TraitsString> {
+public class TraitsKVariablesExtString : ITraits<KVariablesExt<string>, string> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_String; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.String; }
-    public TraitsString ComponentTraits { get=>new TraitsString(); }
     public KVariablesExt<string> Zero(int nElems=1) { return new KVariablesExt<string>(""); }
     public bool HasInfinite { get=>false; }
     public KVariablesExt<string> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -804,10 +769,9 @@ public class TraitsKVariablesExtString : ITraits<KVariablesExt<string>, string, 
     public void SetComponent(ref KVariablesExt<string> data, int elem, string value) { data[elem] = value; }
     public void SetComponent(ref KVariablesExt<string> data, string elem, string value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesExtInt : ITraits<KVariablesExt<int>, int, TraitsInt> {
+public class TraitsKVariablesExtInt : ITraits<KVariablesExt<int>, int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Int; }
-    public TraitsInt ComponentTraits { get=>new TraitsInt(); }
     public KVariablesExt<int> Zero(int nElems=1) { return new KVariablesExt<int>(0); }
     public bool HasInfinite { get=>false; }
     public KVariablesExt<int> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -822,10 +786,9 @@ public class TraitsKVariablesExtInt : ITraits<KVariablesExt<int>, int, TraitsInt
     public void SetComponent(ref KVariablesExt<int> data, int elem, int value) { data[elem] = value; }
     public void SetComponent(ref KVariablesExt<int> data, string elem, int value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesExtFloat : ITraits<KVariablesExt<float>, float, TraitsFloat> {
+public class TraitsKVariablesExtFloat : ITraits<KVariablesExt<float>, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Float; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Float; }
-    public TraitsFloat ComponentTraits { get=>new TraitsFloat(); }
     public KVariablesExt<float> Zero(int nElems=1) { return new KVariablesExt<float>(0f); }
     public bool HasInfinite { get=>true; }
     public KVariablesExt<float> PositiveInfinite(int nElems=1) { return new KVariablesExt<float>(float.PositiveInfinity); }
@@ -840,10 +803,9 @@ public class TraitsKVariablesExtFloat : ITraits<KVariablesExt<float>, float, Tra
     public void SetComponent(ref KVariablesExt<float> data, int elem, float value) { data[elem] = value; }
     public void SetComponent(ref KVariablesExt<float> data, string elem, float value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesExtVector2Int : ITraits<KVariablesExt<Vector2Int>, Vector2Int, TraitsVector2Int> {
+public class TraitsKVariablesExtVector2Int : ITraits<KVariablesExt<Vector2Int>, Vector2Int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Vector2Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector2IntType; }
-    public TraitsVector2Int ComponentTraits { get=>new TraitsVector2Int(); }
     public KVariablesExt<Vector2Int> Zero(int nElems=1) { return new KVariablesExt<Vector2Int>(Vector2Int.zero); }
     public bool HasInfinite { get=>false; }
     public KVariablesExt<Vector2Int> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -858,10 +820,9 @@ public class TraitsKVariablesExtVector2Int : ITraits<KVariablesExt<Vector2Int>, 
     public void SetComponent(ref KVariablesExt<Vector2Int> data, int elem, Vector2Int value) { data[elem] = value; }
     public void SetComponent(ref KVariablesExt<Vector2Int> data, string elem, Vector2Int value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesExtVector2 : ITraits<KVariablesExt<Vector2>, Vector2, TraitsVector2> {
+public class TraitsKVariablesExtVector2 : ITraits<KVariablesExt<Vector2>, Vector2> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Vector2; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector2Type; }
-    public TraitsVector2 ComponentTraits { get=>new TraitsVector2(); }
     public KVariablesExt<Vector2> Zero(int nElems=1) { return new KVariablesExt<Vector2>(Vector2.zero); }
     public bool HasInfinite { get=>true; }
     public KVariablesExt<Vector2> PositiveInfinite(int nElems=1) { return new KVariablesExt<Vector2>(Vector2.positiveInfinity); }
@@ -876,10 +837,9 @@ public class TraitsKVariablesExtVector2 : ITraits<KVariablesExt<Vector2>, Vector
     public void SetComponent(ref KVariablesExt<Vector2> data, int elem, Vector2 value) { data[elem] = value; }
     public void SetComponent(ref KVariablesExt<Vector2> data, string elem, Vector2 value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesExtVector3Int : ITraits<KVariablesExt<Vector3Int>, Vector3Int, TraitsVector3Int> {
+public class TraitsKVariablesExtVector3Int : ITraits<KVariablesExt<Vector3Int>, Vector3Int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Vector3Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector3IntType; }
-    public TraitsVector3Int ComponentTraits { get=>new TraitsVector3Int(); }
     public KVariablesExt<Vector3Int> Zero(int nElems=1) { return new KVariablesExt<Vector3Int>(Vector3Int.zero); }
     public bool HasInfinite { get=>false; }
     public KVariablesExt<Vector3Int> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
@@ -894,10 +854,9 @@ public class TraitsKVariablesExtVector3Int : ITraits<KVariablesExt<Vector3Int>, 
     public void SetComponent(ref KVariablesExt<Vector3Int> data, int elem, Vector3Int value) { data[elem] = value; }
     public void SetComponent(ref KVariablesExt<Vector3Int> data, string elem, Vector3Int value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesExtVector3 : ITraits<KVariablesExt<Vector3>, Vector3, TraitsVector3> {
+public class TraitsKVariablesExtVector3 : ITraits<KVariablesExt<Vector3>, Vector3> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Vector3; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector3Type; }
-    public TraitsVector3 ComponentTraits { get=>new TraitsVector3(); }
     public KVariablesExt<Vector3> Zero(int nElems=1) { return new KVariablesExt<Vector3>(Vector3.zero); }
     public bool HasInfinite { get=>true; }
     public KVariablesExt<Vector3> PositiveInfinite(int nElems=1) { return new KVariablesExt<Vector3>(Vector3.positiveInfinity); }
@@ -912,10 +871,9 @@ public class TraitsKVariablesExtVector3 : ITraits<KVariablesExt<Vector3>, Vector
     public void SetComponent(ref KVariablesExt<Vector3> data, int elem, Vector3 value) { data[elem] = value; }
     public void SetComponent(ref KVariablesExt<Vector3> data, string elem, Vector3 value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesExtVector4 : ITraits<KVariablesExt<Vector4>, Vector4, TraitsVector4> {
+public class TraitsKVariablesExtVector4 : ITraits<KVariablesExt<Vector4>, Vector4> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Vector4; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector4Type; }
-    public TraitsVector4 ComponentTraits { get=>new TraitsVector4(); }
     public KVariablesExt<Vector4> Zero(int nElems=1) { return new KVariablesExt<Vector4>(Vector4.zero); }
     public bool HasInfinite { get=>true; }
     public KVariablesExt<Vector4> PositiveInfinite(int nElems=1) { return new KVariablesExt<Vector4>(Vector4.positiveInfinity); }
@@ -930,10 +888,9 @@ public class TraitsKVariablesExtVector4 : ITraits<KVariablesExt<Vector4>, Vector
     public void SetComponent(ref KVariablesExt<Vector4> data, int elem, Vector4 value) { data[elem] = value; }
     public void SetComponent(ref KVariablesExt<Vector4> data, string elem, Vector4 value) { data.Set(elem, value); }
 }
-public class TraitsKVariablesExtQuaternion : ITraits<KVariablesExt<Quaternion>, Quaternion, TraitsQuaternion> {
+public class TraitsKVariablesExtQuaternion : ITraits<KVariablesExt<Quaternion>, Quaternion> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Quaternion; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.QuaternionType; }
-    public TraitsQuaternion ComponentTraits { get=>new TraitsQuaternion(); }
     public KVariablesExt<Quaternion> Zero(int nElems=1) { return new KVariablesExt<Quaternion>(Quaternion.identity); }
     public bool HasInfinite { get=>false; }
     public KVariablesExt<Quaternion> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
