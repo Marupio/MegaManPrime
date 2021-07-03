@@ -228,6 +228,7 @@ public class KVariables<V> {
         m_impulseForce = varIn.m_impulseForce;
     }
 
+    // *** Subscript operator
     public V this[int index] {
         get {
             V value;
@@ -235,6 +236,9 @@ public class KVariables<V> {
             return value;
         }
         set { Set((KVariableEnum)index, value); }
+    }
+    public virtual int Size() {
+        return KVariableTypeInfo.NKVariableEnum_Controllable;
     }
 
     // *** Constructors
@@ -358,6 +362,10 @@ public class KVariablesExt<V> : KVariables<V> {
     }
     public override void Set(KVariable<V> kvIn) {
         Set(kvIn.type, kvIn.value);
+    }
+
+    public override int Size() {
+        return KVariableTypeInfo.NKVariableEnums;
     }
 
     // *** Constructors

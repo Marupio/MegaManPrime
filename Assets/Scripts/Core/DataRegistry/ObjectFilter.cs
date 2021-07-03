@@ -1,7 +1,7 @@
 /// <summary>
 /// Used to select a single or multiple DataObjects
 /// </summary>
-public struct DataObjectFilter {
+public struct ObjectFilter {
     // // Not sure if we need this functionality
     // public enum HierarchicalQualifier {
     //     None,
@@ -46,7 +46,7 @@ public struct DataObjectFilter {
     }
 
     // *** Query
-    public bool Apply(IDataObject ido) {
+    public bool Apply(IObject ido) {
         // TODO
         throw new System.NotImplementedException();
     }
