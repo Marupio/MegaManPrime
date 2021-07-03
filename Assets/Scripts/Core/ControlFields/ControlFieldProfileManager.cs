@@ -13,7 +13,7 @@ public enum ContlolFieldStoredAt {
 }
 
 public interface IControlFieldProfileManager {
-    public string Name { get; set; }
+    public string GameObjectName { get; set; }
     public int SpatialDimensions { get; }
     public int RotationalDimensions { get; }
     public int NControlFields { get; }
@@ -24,7 +24,7 @@ public interface IControlFieldProfileManager {
 // 2D : Q = float ,     V = Vector2, T = float
 public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
     protected MovementController<Q, V, T> m_entity;
-    protected string m_name; // Name of associated entity's GameObject
+    protected string m_gameObjectName; // Name of associated entity's GameObject
     protected int m_spatialDimensions;
     protected int m_rotationalDimensions;
     protected KVariableLimits m_limits_controlManagerLevel; // Limits applying to all controlFieldProfiles under this manager
@@ -43,7 +43,7 @@ public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
     protected List<ControlFieldProfile<Vector3>> m_activeControlFields3D;
 
     // *** Access
-    public string Name { get=>m_name; set=>m_name=value; }
+    public string GameObjectName { get=>m_gameObjectName; set=>m_gameObjectName=value; }
     public int SpatialDimensions { get=>m_spatialDimensions; }
     public int RotationalDimensions { get=>m_rotationalDimensions; }
     public int NControlFields { get=>ControlFieldIndex.Count; }
@@ -58,7 +58,7 @@ public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
     // *** Edit
     public bool AddControlField(ControlFieldProfile<float> newControlField, bool makeActive, bool overwrite = true) {
         if (!overwrite && m_controlFieldIndex.ContainsKey(newControlField.Name)) {
-            Debug.LogError("ControlFieldManager " + m_name + " - controlField name collision: " + newControlField.Name);
+            Debug.LogError("ControlFieldManager " + m_gameObjectName + " - controlField name collision: " + newControlField.Name);
             return false;
         }
         ContlolFieldStoredAt asa = ContlolFieldStoredAt.Dict1D;
@@ -82,7 +82,7 @@ public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
     }
     public bool AddControlField(ControlFieldProfile<Vector2> newControlField, bool makeActive, bool overwrite = true) {
         if (!overwrite && m_controlFieldIndex.ContainsKey(newControlField.Name)) {
-            Debug.LogError("ControlFieldManager " + m_name + " - controlField name collision: " + newControlField.Name);
+            Debug.LogError("ControlFieldManager " + m_gameObjectName + " - controlField name collision: " + newControlField.Name);
             return false;
         }
         ContlolFieldStoredAt asa = ContlolFieldStoredAt.Dict2D;
@@ -106,7 +106,7 @@ public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
     }
     public bool AddControlField(ControlFieldProfile<Vector3> newControlField, bool makeActive, bool overwrite = true) {
         if (!overwrite && m_controlFieldIndex.ContainsKey(newControlField.Name)) {
-            Debug.LogError("ControlFieldManager " + m_name + " - controlField name collision: " + newControlField.Name);
+            Debug.LogError("ControlFieldManager " + m_gameObjectName + " - controlField name collision: " + newControlField.Name);
             return false;
         }
         ContlolFieldStoredAt asa = ContlolFieldStoredAt.Dict3D;
@@ -423,9 +423,9 @@ public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
 
     // *** Constructors
     // TODO - Add constructors, file read/write
-    ControlFieldProfileManager(MovementController<Q, V, T> entity, string name) {
+    ControlFieldProfileManager(MovementController<Q, V, T> entity, string gameObjectName) {
         m_entity = entity;
-        m_name = name;
+        m_gameObjectName = gameObjectName;
         m_spatialDimensions = GeneralTools.NDimensions<V>();
         m_rotationalDimensions = GeneralTools.NDimensions<T>();
         m_limits_controlManagerLevel = null;

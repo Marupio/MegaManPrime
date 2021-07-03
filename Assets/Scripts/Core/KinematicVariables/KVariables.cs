@@ -94,7 +94,7 @@ public struct KVariable<V> {
 
 // Base class encompasses all variable types included in KVariableControllableEnum
 public class KVariables<V> {
-    public ITraits<V> m_traits;
+    // public ITraits<V> m_traits;
     // public IKVariablesToolset<V> m_toolset;
 
     // *** Direct access to variables if you need it
@@ -112,6 +112,33 @@ public class KVariables<V> {
     public V ImpulseForce { get => m_impulseForce; set => m_impulseForce = value; }
 
     // *** Get functionality
+    public virtual void Get(KVariableEnum_Controllable variableEnumC, out V value) {
+        switch (variableEnumC) {
+            case KVariableEnum_Controllable.Variable:
+                value = m_variable;
+                break;
+            case KVariableEnum_Controllable.Derivative:
+                value = m_derivative;
+                break;
+            case KVariableEnum_Controllable.SecondDerivative:
+                value = m_secondDerivative;
+                break;
+            case KVariableEnum_Controllable.AppliedForce:
+                value = m_appliedForce;
+                break;
+            case KVariableEnum_Controllable.ImpulseForce:
+                value = m_impulseForce;
+                break;
+            case KVariableEnum_Controllable.None:
+                // Fail silently
+                value = default(V);
+                break;
+            default:
+                Debug.LogError("Unhandled case");
+                value = default(V);
+                break;
+        }
+    }
     public virtual void Get(KVariableEnum variableEnum, out V value) {
         switch (variableEnum) {
             case KVariableEnum.Variable:
@@ -199,6 +226,15 @@ public class KVariables<V> {
         m_secondDerivative = varIn.m_derivative;
         m_appliedForce = varIn.m_appliedForce;
         m_impulseForce = varIn.m_impulseForce;
+    }
+
+    public V this[int index] {
+        get {
+            V value;
+            Get((KVariableEnum)index, out value);
+            return value;
+        }
+        set { Set((KVariableEnum)index, value); }
     }
 
     // *** Constructors

@@ -4,6 +4,8 @@ using UnityEngine;
 public interface IDataComponent<T> : IDataObject {
     public T Data { get; set; }
     public DataTypeEnum DataType { get; }
+    // TODO
+    // public S GetComponent<S>() where S : Traits<T>.ComponentType()
 }
 
 public class DcBool: DataObjectHeader, IDataComponent<bool> {

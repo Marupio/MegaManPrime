@@ -1,0 +1,107 @@
+File Input
+
+Limits
+    Name : string
+    Variable : [Max, Min] - or any of the alliases! :)
+    Derivative : [Max, Min] {Max : float, Min : float}
+    SecondDerivative : [Max, Min]
+    ThirdDerivative : [Max, Min]
+    AppliedForce : [Max, Min]
+    ImpulseForce : [Max, Min]
+    AppliedForceDerivative : [Max, Min]
+    ImpulseForceDerivative : [Max, Min]
+DirectionalSource
+    Name : string
+    Type : ConstantSpeed | ConstantAcceleration | ConstantForce
+    Value : float
+    Direction : Vector3
+    FixedToWorld : bool
+
+InputRange
+    Name : string
+    StepType : Analogue | FixedValue
+    Extent : Signed | Unsigned
+    Dimensions : int(1..3)
+    MaxValue : float(0..)
+    AnalogueDeadZone : float(0..)
+ControlField
+    Type : Uncontrolled
+        Name : string
+        Dimensions : int(1..3)
+    Type : Continuous
+        Name : string
+        Dimensions : int(1..3)
+        InputRange : InputRangeName
+        ControlledVariable : KVariableEnum
+        SmoothingTime : float
+        Max : float (optional)
+        Min : float (optional)
+    Type : Impulse
+        Name : string
+        Dimensions : int(1..3)
+        InputRange : InputRangeName
+        ControlledVariable : KVariableEnum
+        Max : float (optional)
+        Min : float (optional)
+        MaxDuration : float (0 = instantaneous, i.e. no smoothing)
+        Interruptable : bool
+ControlFieldProfile
+    Name : string
+    Owner : entity
+    Dimensions : int(1..3)
+    Type : Spatial | Rotational
+    Alignment : AxisPlaneSpaceEnum
+    ControlField : ControlFieldName
+ControlFieldProfileManager
+    MovementController : MovementControllerName (or entity? Or is this instance type thing?)
+    GameObject : GameObjectName
+    SpatialDimensions : 2D | 3D
+    Limits : LimitsName
+    ControlFields : [ControlFieldName, ControlFieldName, ControlFieldName, ...]
+    DirectionalSources : [DirectionalSourceName, DirectionalSourceName, DirectionalSourceName, ...]
+    Rules ...
+        TODO
+
+Rules
+    Name Condition Action
+    Condition
+        Signals
+        VariableWatch
+        Direct interface
+            Add, Set, Has
+            SetTrigger, SetBool, SetInt, ...
+            all single types (trigger, bool, int, float, Vector2Int, Vector2, Vector3Int, Vector3, Vector4, Quaternion)
+            no List types, no KVariable types
+            but elements within these can be linked to a Set[singleType]
+    Actions
+        Swap controlFieldProfiles
+        Activate/deactivate impulse field
+        Change limits
+
+Actor - one who performs actions related to the communication
+Source - one who has the data associated with the communication
+Communication
+    Source->Actor (actor listens, sources sends communication)
+        Signals - e.g. collider touched, button pressed
+        Stream?
+    Target->Source (actor requests information)
+        VariableWatch
+        Stream?
+
+
+VariableWatch - Actor queries Source
+    Easy way to do it: use Find functionality to find DataObject with the data you want to watch
+    Store IDataComponent<Type> in variableWatch list
+    During Update(), check Watches and react when appropriate
+Trigger - Source informs Actor
+    Source adds list of Actors, and uses Add/Has/Set functions on Actors to trigger action from them
+Controlled gameObjects are DataRegistries
+
+
+DataObject
+DataComponent
+DataRegistry
+
+
+
+

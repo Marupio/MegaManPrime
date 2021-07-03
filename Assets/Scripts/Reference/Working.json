@@ -6,11 +6,14 @@
     },
     "ControlFieldManagers" :
     {
-        "2DSideScroller"
+        "2DSideScroller":false
     },
     "SideScroller" :
-    {
-        
-    }
+    {"null"}
 
 }
+
+
+[
+
+]

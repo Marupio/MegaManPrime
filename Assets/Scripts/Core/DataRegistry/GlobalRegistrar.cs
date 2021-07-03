@@ -9,6 +9,7 @@ public static class GlobalRegistrar {
 
     // *** Id static data
     private static long m_currentId = long.MinValue+1;
+    // DataObjectFilter depends on this value being long.MinValue
     public const long IdAnonymous = long.MinValue;
 
     public static ModTag GetNextModTag() {

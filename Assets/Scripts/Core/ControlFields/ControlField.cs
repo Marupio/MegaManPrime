@@ -172,11 +172,14 @@ public abstract class ControlField<T> {
         IControlFieldToolset<T> toolset,
         string name,
         InputRange<T> inputRange,
+        float smoothingTime,
         float controlledVariableMax = float.PositiveInfinity,
         float controlledVariableDerivativeMax = float.PositiveInfinity
     ) {
         m_toolset = toolset;
         m_inputRange = inputRange;
+        m_smoothingTime = smoothingTime;
+        m_smoothingEnabled = m_smoothingTime > 0;
         m_name = name;
         m_controlledVariable = KVariableTypeInfo.None;
         m_controlledVariableMax = controlledVariableMax;
@@ -188,12 +191,15 @@ public abstract class ControlField<T> {
         string name,
         InputRange<T> inputRange,
         KVariableTypeSet controlledVariable,
+        float smoothingTime,
         float controlledVariableMax = float.PositiveInfinity,
         float controlledVariableDerivativeMax = float.PositiveInfinity
     ) {
         m_toolset = toolset;
         m_name = name;
         m_inputRange = inputRange;
+        m_smoothingTime = smoothingTime;
+        m_smoothingEnabled = m_smoothingTime > 0;
 
         if (controlledVariable.IsMultiple()) {
             Debug.LogError("ControlField cannot contain more than one controlled variable, setting to None.");
@@ -229,7 +235,7 @@ public class UncontrolledField<T> : ControlField<T>
         string name,
         float controlledVariableMax = float.PositiveInfinity,
         float controlledVariableDerivativeMax = float.PositiveInfinity
-        ) : base(toolset, name, null, controlledVariableMax, controlledVariableDerivativeMax) {}
+    ) : base(toolset, name, null, 0f, controlledVariableMax, controlledVariableDerivativeMax) {}
 }
 
 
@@ -257,9 +263,10 @@ public class ContinuousControlField<T> : ControlField<T>
         InputRange<T> inputRange,
         string name,
         KVariableTypeSet controlledVariable,
+        float smoothingTime,
         float controlledVariableMax = float.PositiveInfinity,
         float controlledVariableDerivativeMax = float.PositiveInfinity
-    ) : base(toolset, name, inputRange, controlledVariable, controlledVariableMax, controlledVariableDerivativeMax) {}
+    ) : base(toolset, name, inputRange, controlledVariable, smoothingTime, controlledVariableMax, controlledVariableDerivativeMax) {}
 }
 
 
@@ -326,12 +333,13 @@ public class ImpulseControlField<T> : ControlField<T>
         string name,
         InputRange<T> inputRange,
         KVariableTypeSet controlledVariable,
+        float smoothingTime,
         float maxDuration,
         bool interruptable,
         bool enabled = true,
         float controlledVariableMax = float.PositiveInfinity,
         float controlledVariableDerivativeMax = float.PositiveInfinity
-    ) : base(toolset, name, inputRange, controlledVariable, controlledVariableMax, controlledVariableDerivativeMax) {
+    ) : base(toolset, name, inputRange, controlledVariable, smoothingTime, controlledVariableMax, controlledVariableDerivativeMax) {
         m_maxDuration = maxDuration;
         m_interruptable = interruptable;
         m_enabled = enabled;
