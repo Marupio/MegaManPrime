@@ -17,19 +17,79 @@ public static class ComponentNames {
     };
 }
 
-// It is unlikely we will need to bootstrap without knowing the Component class, but we may need to interact with it, only knowing the
-// component class...
-// public interface ITraitsBootStrap<L> {
-//     public Type ComponentType { get; }
-//     public Type TraitsType { get; }
-// }
-// public class TraitsBootStrapBool : ITraitsBootStrap<bool> {
-//     public Type ComponentType { get=>typeof(object); }
-//     public Type TraitsType { get=>typeof(object); }
-// }
-// So here, we know the C and the T
-public interface ITraitsIntCompBootStrap<L> {
+// Say we know components are floats, but we don't know if its a float, vector2, vector3, quat... what do?
+public interface ITraitsSimple<T> {
+    public DataTypeEnum DataType { get; }
+    public T Zero { get; }
+    public bool HasInfinite { get; }
+    public T PositiveInfinite { get; }
+}
 
+public class TraitsSimpleNone : ITraitsSimple<object> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.None; }
+    public object Zero { get=>null; }
+    public bool HasInfinite { get=>false; }
+    public object PositiveInfinite { get { throw new System.InvalidOperationException(); } }
+}
+public class TraitsSimpleChar : ITraitsSimple<char> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.Char; }
+    public char Zero { get=>'\0'; }
+    public bool HasInfinite { get=>false; }
+    public char PositiveInfinite { get { throw new System.InvalidOperationException(); } }
+}
+public class TraitsSimpleBool : ITraitsSimple<bool> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.Bool; }
+    public bool Zero { get=>false; }
+    public bool HasInfinite { get=>false; }
+    public bool PositiveInfinite { get { throw new System.InvalidOperationException(); } }
+}
+public class TraitsSimpleInt : ITraitsSimple<int> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.Int; }
+    public int Zero { get=>0; }
+    public bool HasInfinite { get=>false; }
+    public int PositiveInfinite { get { throw new System.InvalidOperationException(); } }
+}
+public class TraitsSimpleFloat : ITraitsSimple<float> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.Float; }
+    public float Zero { get=>0f; }
+    public bool HasInfinite { get=>true; }
+    public float PositiveInfinite { get=>float.PositiveInfinity; }
+}
+public class TraitsSimpleVector2Int : ITraitsSimple<Vector2Int> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.Vector2IntType; }
+    public Vector2Int Zero { get=>Vector2Int.zero; }
+    public bool HasInfinite { get=>false; }
+    public Vector2Int PositiveInfinite { get { throw new System.InvalidOperationException(); } }
+}
+public class TraitsSimpleVector2 : ITraitsSimple<Vector2> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.Vector2Type; }
+    public Vector2 Zero { get=>Vector2.zero; }
+    public bool HasInfinite { get=>true; }
+    public Vector2 PositiveInfinite { get=>Vector2.positiveInfinity; }
+}
+public class TraitsSimpleVector3Int : ITraitsSimple<Vector3Int> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.Vector3IntType; }
+    public Vector3Int Zero { get=>Vector3Int.zero; }
+    public bool HasInfinite { get=>false; }
+    public Vector3Int PositiveInfinite { get { throw new System.InvalidOperationException(); } }
+}
+public class TraitsSimpleVector3 : ITraitsSimple<Vector3> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.Vector3Type; }
+    public Vector3 Zero { get=>Vector3.zero; }
+    public bool HasInfinite { get=>true; }
+    public Vector3 PositiveInfinite { get=>Vector3.positiveInfinity; }
+}
+public class TraitsSimpleVector4 : ITraitsSimple<Vector4> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.Vector4Type; }
+    public Vector4 Zero { get=>Vector4.zero; }
+    public bool HasInfinite { get=>true; }
+    public Vector4 PositiveInfinite { get=>Vector4.positiveInfinity; }
+}
+public class TraitsSimpleQuaternion : ITraitsSimple<Quaternion> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.QuaternionType; }
+    public Quaternion Zero { get=>Quaternion.identity; }
+    public bool HasInfinite { get=>false; }
+    public Quaternion PositiveInfinite { get { throw new System.InvalidOperationException(); } }
 }
 
 
