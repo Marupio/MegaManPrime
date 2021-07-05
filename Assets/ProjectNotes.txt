@@ -6,7 +6,6 @@ MULTITHREADING - when true, include Interlocked / Mutex and other multithreading
 TODO
 Download offline C# reference, C# stl code equivalent
 Implement SimpleObjectRegistry
-Finish ObjectFilter
 Do we have hierarchical naming / access?
     * KVariableLimits       "entityName.limits"
     * KVariablesExt<float>  "entityName.limits.max"

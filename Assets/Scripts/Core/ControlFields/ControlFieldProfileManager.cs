@@ -296,32 +296,32 @@ public class ControlFieldProfileManager<Q, V, T> : IControlFieldProfileManager {
             }
         }
     }
-    private void UpdateLimitCache(KVariableLimits kvl) {
-        // TODO - I need a registry to keep track of derived objects and their dependents
-    }
-    public void ApplyLimits(KVariableLimits kvl, KVariables<float> kv) {
-        UpdateLimitCache(kvl);
-        for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
-            m_activeControlFields1D[i].ApplyLimits(kvl, kvts);
-        }
-        for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
-            m_activeControlFields2D[i].ApplyLimits(kvl, kvts);
-        }
-        for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
-            m_activeControlFields3D[i].ApplyLimits(kvl, kvts);
-        }
-    }
-    public void ApplyLimits(KVariableLimits kvl) {
-        for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
-            m_activeControlFields1D[i].ApplyLimits(kvl);
-        }
-        for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
-            m_activeControlFields2D[i].ApplyLimits(kvl);
-        }
-        for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
-            m_activeControlFields3D[i].ApplyLimits(kvl);
-        }
-    }
+    // private void UpdateLimitCache(KVariableLimits kvl) {
+    //     // TODO - I need a registry to keep track of derived objects and their dependents
+    // }
+    // public void ApplyLimits(KVariableLimits kvl, KVariables<float> kv) {
+    //     UpdateLimitCache(kvl);
+    //     for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
+    //         m_activeControlFields1D[i].ApplyLimits(kvl, kvts);
+    //     }
+    //     for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
+    //         m_activeControlFields2D[i].ApplyLimits(kvl, kvts);
+    //     }
+    //     for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
+    //         m_activeControlFields3D[i].ApplyLimits(kvl, kvts);
+    //     }
+    // }
+    // public void ApplyLimits(KVariableLimits kvl) {
+    //     for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
+    //         m_activeControlFields1D[i].ApplyLimits(kvl);
+    //     }
+    //     for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
+    //         m_activeControlFields2D[i].ApplyLimits(kvl);
+    //     }
+    //     for (int i = 0; i < m_activeControlFields1D.Count; ++i) {
+    //         m_activeControlFields3D[i].ApplyLimits(kvl);
+    //     }
+    // }
 
     void Update() {
         // TODO

@@ -52,10 +52,9 @@ public enum DataTypeEnum {
     KVariablesExt_Vector3Int,   // Vector3Int
     KVariablesExt_Vector3,      // Vector3
     KVariablesExt_Vector4,      // Vector4
-    KVariablesExt_Quaternion,   // Quaternion
-    KVariableLimitsType         // KVariableExt_Float
+    KVariablesExt_Quaternion    // Quaternion
+    //KVariableLimitsType         // KVariableExt_Float
 }
-// TODO - accommodate the KVariableLimitsType
 
 // registry.FindObjects<KVariableLimitsDataObject>(entityName + ".limits");
 

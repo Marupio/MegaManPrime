@@ -646,7 +646,7 @@ public class TraitsKVariablesBool : ITraits<KVariables<bool>, bool> {
 public class TraitsKVariablesChar : ITraits<KVariables<char>, char> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Char; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Char; }
-    public KVariables<char> Zero(int nElems=1) { return new KVariables<char>(''); }
+    public KVariables<char> Zero(int nElems=1) { return new KVariables<char>('\0'); }
     public bool HasInfinite { get=>false; }
     public KVariables<char> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
     public bool ElementAccessByIndex { get=>true; }

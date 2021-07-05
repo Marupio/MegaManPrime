@@ -116,16 +116,21 @@ public static class KVariableTypeInfo {
 
     // *** String aliases
     public static readonly Dictionary<string, KVariableEnum> Aliases = new Dictionary<string, KVariableEnum> {
+        {"None", KVariableEnum.None},
+        {"Variable", KVariableEnum.Variable},
         {"Position", KVariableEnum.Variable},
         {"Distance", KVariableEnum.Variable},
         {"Rotation", KVariableEnum.Variable},
+        {"Derivative", KVariableEnum.Derivative},
         {"Speed", KVariableEnum.Derivative},
         {"Velocity", KVariableEnum.Derivative},
         {"AngularVelocity", KVariableEnum.Derivative},
         {"Omega", KVariableEnum.Derivative},
+        {"SecondDerivative", KVariableEnum.SecondDerivative},
         {"Acceleration", KVariableEnum.SecondDerivative},
         {"AngularAcceleration", KVariableEnum.SecondDerivative},
         {"OmegaDot", KVariableEnum.SecondDerivative},
+        {"ThirdDerivative", KVariableEnum.ThirdDerivative},
         {"Jerk", KVariableEnum.ThirdDerivative},
         {"AngularJerk", KVariableEnum.ThirdDerivative},
         {"OmegaDotDot", KVariableEnum.ThirdDerivative},
@@ -136,11 +141,15 @@ public static class KVariableTypeInfo {
         {"Impulse", KVariableEnum.ImpulseForce},
         {"ImpulseForce", KVariableEnum.ImpulseForce},
         {"ImpulseTorque", KVariableEnum.ImpulseForce},
+        {"AppliedForceDerivative", KVariableEnum.AppliedForceDerivative},
+        {"AppliedTorqueDerivative", KVariableEnum.AppliedForceDerivative},
         {"AppliedForceRate", KVariableEnum.AppliedForceDerivative},
         {"AppliedTorqueRate", KVariableEnum.AppliedForceDerivative},
         {"ForceRate", KVariableEnum.AppliedForceDerivative},
         {"TorqueRate", KVariableEnum.AppliedForceDerivative},
         {"ImpulseRate", KVariableEnum.ImpulseForceDerivative},
+        {"ImpulseForceDerivative", KVariableEnum.ImpulseForceDerivative},
+        {"ImpulseTorqueDerivative", KVariableEnum.ImpulseForceDerivative},
         {"ImpulseForceRate", KVariableEnum.ImpulseForceDerivative},
         {"ImpulseTorqueRate", KVariableEnum.ImpulseForceDerivative}
     };

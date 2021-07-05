@@ -15,9 +15,9 @@ public class ObjectRegistry : ObjectHeader, IObjectRegistry {
     // If child is also an ObjectRegistry, it will also appear here: (convenience for recursive searches)
     public HashSet<IObjectRegistry> m_subRegistries;
 
-    public Dictionary<long, IObject> Children() { return m_children; }
+    public Dictionary<long, IObject> Children { get=>m_children; }
     public List<IObject> ChildrenList { get=>new List<IObject>(m_children.Values); }
-    public HashSet<IObjectRegistry> SubRegistries() { return m_subRegistries; }
+    public HashSet<IObjectRegistry> SubRegistries { get=>m_subRegistries; }
     public List<IObjectRegistry> SubRegistriesList { get=>m_subRegistries.ToList(); }
     public IObjectRegistry SubRegistry(ObjectFilter filter) {
         foreach(IObjectRegistry subRegistry in m_subRegistries) {
@@ -317,7 +317,7 @@ public class ObjectRegistry : ObjectHeader, IObjectRegistry {
         }
         return objects;
     }
-    public List<T> FindObjects<T>(ObjectFilter filter, bool recursive=true) where T : class, IObject {
+    public List<T> FindObjectsOfType<T>(ObjectFilter filter, bool recursive=true) where T : class, IObject {
         List<T> objects = new List<T>();
         foreach(KeyValuePair<long, IObject> entry in m_children) {
             IObject obj = entry.Value;
@@ -332,7 +332,7 @@ public class ObjectRegistry : ObjectHeader, IObjectRegistry {
         }
         return objects;
     }
-    public List<T> FindObjects<T>(string name, bool recursive=true) where T : class, IObject {
+    public List<T> FindObjectsOfType<T>(string name, bool recursive=true) where T : class, IObject {
         List<T> objects = new List<T>();
         List<long> idList;
         if (m_nameIndex.TryGetValue(name, out idList)) {
@@ -396,7 +396,7 @@ public class ObjectRegistry : ObjectHeader, IObjectRegistry {
     }
     public HashSet<string> UniqueNames(bool recursive=true) {
         HashSet<string> toc = new HashSet<string>();
-        foreach(KeyValuePair<string, List<long>> entry in m_nameIndex) { toc.Add(entry.key); }
+        foreach(KeyValuePair<string, List<long>> entry in m_nameIndex) { toc.Add(entry.Key); }
         if (recursive) {
             foreach(IObjectRegistry subReg in m_subRegistries) {
                 toc.UnionWith(subReg.UniqueNames(true));
@@ -472,7 +472,7 @@ public class ObjectRegistry : ObjectHeader, IObjectRegistry {
         } else {
             // Check for ID collisions
             if (m_children.ContainsKey(obj.Id)) {
-                throw new System.FieldAccessException("Registry already contains ID " + obj.Id));
+                throw new System.FieldAccessException("Registry already contains ID " + obj.Id);
             }
         }
         m_children.Add(obj.Id, obj);

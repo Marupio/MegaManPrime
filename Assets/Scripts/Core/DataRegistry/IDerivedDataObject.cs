@@ -4,11 +4,11 @@ using System.Collections.Generic;
 /// Additional interface components for DataObjects that depend on other data objects.
 /// I.e. these objects have 'derived' data.
 /// </summary>
-public interface IDerivedObject : IObject {
+public interface IDerivedDataObject : IDataObjectHeader {
     /// <summary>
     /// Other data objects on which this one depends
     /// </summary>
-    public List<IObject> DependsOn { get; }
+    public List<IDataObjectHeader> DependsOn { get; }
     /// <summary>
     /// True if I am up to date
     /// </summary>
@@ -19,10 +19,10 @@ public interface IDerivedObject : IObject {
     public void Update();
 }
 
-public abstract class SimpleDerivedObject : ObjectHeader, IDerivedObject {
-    protected List<IObject> m_dependsOn;
+public abstract class SimpleDerivedDataObject : DataObjectHeader, IDerivedDataObject {
+    protected List<IDataObjectHeader> m_dependsOn;
 
-    public virtual List<IObject> DependsOn { get => m_dependsOn; }
+    public virtual List<IDataObjectHeader> DependsOn { get => m_dependsOn; }
     public virtual bool UpToDate() {
         foreach (IObject ido in m_dependsOn) {
             if (ido.MTag > m_mtag) { return false; }
@@ -32,23 +32,20 @@ public abstract class SimpleDerivedObject : ObjectHeader, IDerivedObject {
     // Implement the method to update this object's derived data
     public abstract void Update();
 
-    public override bool HasDerivedData() { return true; }
-    public override IDerivedObject DerivedObject() { return this; }
-
     // *** Constructors
-    public SimpleDerivedObject(string name, IObjectRegistry parent = null)
+    public SimpleDerivedDataObject(string name, IObjectRegistry parent = null)
     : base(name, parent) {
-        m_dependsOn = new List<IObject>();
+        m_dependsOn = new List<IDataObjectHeader>();
     }
-    public SimpleDerivedObject(SimpleDerivedObject ddo)
-    : base(ddo) {
-        m_dependsOn = ddo.m_dependsOn;
+    public SimpleDerivedDataObject(SimpleDerivedDataObject derivedDataObject)
+    : base(derivedDataObject) {
+        m_dependsOn = derivedDataObject.m_dependsOn;
     }
-    public SimpleDerivedObject(IDerivedObject ido)
-    : base(ido) {
-        m_dependsOn = ido.DependsOn;
+    public SimpleDerivedDataObject(IDerivedDataObject derivedDataObject)
+    : base(derivedDataObject) {
+        m_dependsOn = derivedDataObject.DependsOn;
     }
-    public SimpleDerivedObject() {
-        m_dependsOn = new List<IObject>();
+    public SimpleDerivedDataObject() {
+        m_dependsOn = new List<IDataObjectHeader>();
     }
 }

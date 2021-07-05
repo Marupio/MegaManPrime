@@ -1,55 +1,243 @@
+using System.Text.RegularExpressions;
+
 /// <summary>
 /// Used to select a single or multiple DataObjects
 /// </summary>
-public struct ObjectFilter {
-    // // Not sure if we need this functionality
-    // public enum HierarchicalQualifier {
-    //     None,
-    //     LocalChildren,
-    //     GlobalChildren,
-    //     Parent,
-    //     AllParents
-    // }
-    // private HierarchicalQualifier m_hierarchicalQualifier; // once object[s] found, use this to decide what to return
 
-    // strings - we use null == filter not applied
-    private string m_nameRegex;
-    private string m_nameExact;
-    private string m_nameContains;
-    private string m_typeNameRegex;
-    private string m_typeNameExact;
-    private string m_typeNameContains;
+public struct ObjectFilter {
+
+    public enum NameCriterionEnum {
+        None,
+        Exact,
+        Contains,
+        Regex,
+        RegexCaseInsensitive
+    }
+    public enum TypeNameCriterionEnum {
+        None,
+        Exact,
+        Contains,
+        Regex,
+        RegexCaseInsensitive
+    }
+    public enum IdCriterion {
+        None,
+        Exact,
+        GreaterThan,
+        LessThan
+    }
+
+    // Name fields
+    private string m_name;
+    private Regex m_nameRegex;
+    private NameCriterionEnum m_nameCriterion;
+
+    // TypeName fields
+    private string m_typeName;
+    private Regex m_typeNameRegex;
+    private TypeNameCriterionEnum m_typeNameCriterion;
+
+    // Id fields
     // Internally: id longs - we use 0 == filter not applied (because I'm a struct)
     // all negatives (and zero) are shifted -= 1 because GlobalRegistrar.IdAnonymous is long.MinValue
     private long m_id;
-    private long m_idGreaterThan;
-    private long m_idLessThan;
+    private IdCriterion m_idCriterion;
 
     // *** Access
-    public string NameRegex { get=> m_nameRegex; set => m_nameRegex=value; }
-    public string NameExact { get=> m_nameExact; set => m_nameExact=value; }
-    public string NameContains { get=> m_nameContains; set => m_nameContains=value; }
-    public string TypeNameRegex { get=> m_typeNameRegex; set => m_typeNameRegex=value; }
-    public string TypeNameExact { get=> m_typeNameExact; set => m_typeNameExact=value; }
-    public string TypeNameContains { get=> m_typeNameContains; set => m_typeNameContains=value; }
+    public string Name {
+        get => m_name;
+        set {
+            m_name=value;
+            UpdateNameRegex();
+        }
+    }
+    public NameCriterionEnum NameCriterion {
+        get => m_nameCriterion;
+        set {
+            m_nameCriterion = value;
+            UpdateNameRegex();
+        }
+    }
+    public string TypeName {
+        get => m_typeName;
+        set {
+            m_typeName=value;
+            UpdateTypeNameRegex();
+        }
+    }
+    public TypeNameCriterionEnum TypeNameCriterion {
+        get => m_typeNameCriterion;
+        set {
+            m_typeNameCriterion = value;
+            UpdateTypeNameRegex();
+        }
+    }
     public long Id {
         get { return m_id < 0 ? m_id + 1 : m_id; }
         set { m_id = value < 1 ? value - 1 : value; }
     }
-    public long IdGreaterThan {
-        get { return m_idGreaterThan < 0 ? m_idGreaterThan + 1 : m_idGreaterThan; }
-        set { m_idGreaterThan = value < 1 ? value - 1 : value; }
-    }
-    public long IdLessThan {
-        get { return m_idLessThan < 0 ? m_idLessThan + 1 : m_idLessThan; }
-        set { m_idLessThan = value < 1 ? value - 1 : value; }
-    }
+    public IdCriterion IdType { get => m_idCriterion; set => m_idCriterion = value; }
 
     // *** Query
     public bool Pass(IObject obj) {
-        // TODO
-        throw new System.NotImplementedException();
+        // Check name
+        switch (m_nameCriterion) {
+            case NameCriterionEnum.None:
+                // Do nothing
+                break;
+            case NameCriterionEnum.Exact:
+                if (obj.Name != m_name) {
+                    return false;
+                }
+                break;
+            case NameCriterionEnum.Contains:
+                if (!obj.Name.Contains(m_name)) {
+                    return false;
+                }
+                break;
+            case NameCriterionEnum.Regex:
+            case NameCriterionEnum.RegexCaseInsensitive:
+                if (!m_nameRegex.Match(obj.Name).Success) {
+                    return false;
+                }
+                break;
+        }
+
+        // Check typeName
+        switch (m_typeNameCriterion) {
+            case TypeNameCriterionEnum.None:
+                // Do nothing
+                break;
+            case TypeNameCriterionEnum.Exact:
+                if (obj.GetType().Name != m_typeName) {
+                    return false;
+                }
+                break;
+            case TypeNameCriterionEnum.Contains:
+                if (!obj.GetType().Name.Contains(m_typeName)) {
+                    return false;
+                }
+                break;
+            case TypeNameCriterionEnum.Regex:
+            case TypeNameCriterionEnum.RegexCaseInsensitive:
+                if (!m_typeNameRegex.Match(obj.GetType().Name).Success) {
+                    return false;
+                }
+                break;
+        }
+
+        // Check id
+        switch (m_idCriterion) {
+            case IdCriterion.None:
+                // Do nothing
+                break;
+            case IdCriterion.Exact:
+                if (obj.Id != Id) {
+                    return false;
+                }
+                break;
+            case IdCriterion.GreaterThan:
+                if (obj.Id <= Id) {
+                    return false;
+                }
+                break;
+            case IdCriterion.LessThan:
+                if (obj.Id >= Id) {
+                    return false;
+                }
+                break;
+        }
+
+        // Passed all tests
+        return true;
     }
 
-    // TODO Contstructors
+    // *** Private methods
+    private void UpdateNameRegex() {
+        if (m_nameCriterion == NameCriterionEnum.Regex) {
+            m_nameRegex = new Regex(m_name, RegexOptions.Compiled);
+        } else if (m_nameCriterion == NameCriterionEnum.RegexCaseInsensitive) {
+            m_nameRegex = new Regex(m_name, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        } else {
+            m_nameRegex = null;
+        }
+    }
+    private void UpdateTypeNameRegex () {
+        if (m_typeNameCriterion == TypeNameCriterionEnum.Regex) {
+            m_typeNameRegex = new Regex(m_typeName, RegexOptions.Compiled);
+        } else if (m_typeNameCriterion == TypeNameCriterionEnum.RegexCaseInsensitive) {
+            m_typeNameRegex = new Regex(m_typeName, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        } else {
+            m_typeNameRegex = null;
+        }
+    }
+
+
+    // *** Contstructors
+    // Constructors have 3 pairs of arguments: Name+NameCriterion, TypeName+TypeNameCriterion, Id+IdCriterion
+    // List them in that order, omit any pair you don't need, and you have a valid constructor
+    ObjectFilter(
+        string name,
+        NameCriterionEnum nameCriterion,
+        string typeName=null,
+        TypeNameCriterionEnum typeNameCriterion=TypeNameCriterionEnum.None,
+        long id = 0,
+        IdCriterion idCriterion = IdCriterion.None
+    ) {
+        m_name = name;
+        m_nameCriterion = nameCriterion;
+        m_typeName = typeName;
+        m_typeNameCriterion = typeNameCriterion;
+        m_id = id;
+        m_idCriterion = idCriterion;
+        m_nameRegex = null;
+        m_typeNameRegex = null;
+        UpdateNameRegex();
+        UpdateTypeNameRegex();
+    }
+    ObjectFilter(
+        string typeName,
+        TypeNameCriterionEnum typeNameCriterion,
+        long id = 0,
+        IdCriterion idCriterion = IdCriterion.None
+    ) {
+        m_name = null;
+        m_nameCriterion = NameCriterionEnum.None;
+        m_typeName = typeName;
+        m_typeNameCriterion = typeNameCriterion;
+        m_id = id;
+        m_idCriterion = idCriterion;
+        m_nameRegex = null;
+        m_typeNameRegex = null;
+        UpdateTypeNameRegex();
+    }
+    ObjectFilter(
+        string name,
+        NameCriterionEnum nameCriterion,
+        long id,
+        IdCriterion idCriterion
+    ) {
+        m_name = name;
+        m_nameCriterion = nameCriterion;
+        m_typeName = null;
+        m_typeNameCriterion = TypeNameCriterionEnum.None;
+        m_id = id;
+        m_idCriterion = idCriterion;
+        m_nameRegex = null;
+        m_typeNameRegex = null;
+        UpdateNameRegex();
+    }
+    ObjectFilter(
+        long id,
+        IdCriterion idCriterion
+    ) {
+        m_name = null;
+        m_nameCriterion = NameCriterionEnum.None;
+        m_typeName = null;
+        m_typeNameCriterion = TypeNameCriterionEnum.None;
+        m_id = id;
+        m_idCriterion = idCriterion;
+        m_nameRegex = null;
+        m_typeNameRegex = null;
+    }
 }

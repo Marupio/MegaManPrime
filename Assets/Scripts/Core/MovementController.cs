@@ -294,7 +294,8 @@ public class MovementController<Q, V, T>
         }
         dofsUsed.Check();
 
-        m_controlFieldManager.ApplyLimits(m_limits_entityLevel);
+        // TODO I don't think we ApplyLimits with the controlFieldManager... I think it's right here
+        // m_controlFieldManager.ApplyLimits(m_limits_entityLevel);
         // TODO Apply limits to local working variables
         // TODO Apply sources
         // TODO Make changes to m_rigidBody variables
