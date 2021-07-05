@@ -46,7 +46,7 @@ public struct ObjectFilter {
     }
 
     // *** Query
-    public bool Apply(IObject ido) {
+    public bool Pass(IObject obj) {
         // TODO
         throw new System.NotImplementedException();
     }

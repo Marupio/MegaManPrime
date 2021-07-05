@@ -4,7 +4,7 @@ using System.Collections.Generic;
 /// Additional interface components for DataObjects that depend on other data objects.
 /// I.e. these objects have 'derived' data.
 /// </summary>
-public interface IDerivedDataObject : IObject {
+public interface IDerivedObject : IObject {
     /// <summary>
     /// Other data objects on which this one depends
     /// </summary>
@@ -19,7 +19,7 @@ public interface IDerivedDataObject : IObject {
     public void Update();
 }
 
-public abstract class DerivedDataObjectHeader : DataObjectHeader, IDerivedDataObject {
+public abstract class SimpleDerivedObject : ObjectHeader, IDerivedObject {
     protected List<IObject> m_dependsOn;
 
     public virtual List<IObject> DependsOn { get => m_dependsOn; }
@@ -33,22 +33,22 @@ public abstract class DerivedDataObjectHeader : DataObjectHeader, IDerivedDataOb
     public abstract void Update();
 
     public override bool HasDerivedData() { return true; }
-    public override IDerivedDataObject DerivedDataObject() { return this; }
+    public override IDerivedObject DerivedObject() { return this; }
 
     // *** Constructors
-    public DerivedDataObjectHeader(string name, IObjectRegistry parent = null)
+    public SimpleDerivedObject(string name, IObjectRegistry parent = null)
     : base(name, parent) {
         m_dependsOn = new List<IObject>();
     }
-    public DerivedDataObjectHeader(DerivedDataObjectHeader ddo)
+    public SimpleDerivedObject(SimpleDerivedObject ddo)
     : base(ddo) {
         m_dependsOn = ddo.m_dependsOn;
     }
-    public DerivedDataObjectHeader(IDerivedDataObject ido)
+    public SimpleDerivedObject(IDerivedObject ido)
     : base(ido) {
         m_dependsOn = ido.DependsOn;
     }
-    public DerivedDataObjectHeader() {
+    public SimpleDerivedObject() {
         m_dependsOn = new List<IObject>();
     }
 }

@@ -4,10 +4,32 @@ MULTITHREADING - when true, include Interlocked / Mutex and other multithreading
 
 
 TODO
+Download offline C# reference, C# stl code equivalent
+Implement SimpleObjectRegistry
+Finish ObjectFilter
+Do we have hierarchical naming / access?
+    * KVariableLimits       "entityName.limits"
+    * KVariablesExt<float>  "entityName.limits.max"
+    * float                 "entityName.limits.max.Derivative"
+Each one is an IObject?  That might be too much.  Limit it to the dataSet level, like I have.
+Maybe formalize the SubIObject identifying and accessing... have I done this already?  Name concatenation!
+Identify when an ObjectHeader is just the header, or when it contains the full object... or maybe this is completely unnecessary
+Add DataTypeEnum KVariableLimit throughout
+Verify behaviour of Trigger struct
+Finish encapsulating data types into DataObjects and DataSet objects
 Add file format read / write for all data bearing classes
-
+Do I want parameterless constructor for wrapped DataObjects to create null data types... or allocated empty ones?  I think the latter.
 Data Modelling
 Game entities are each a DataRegistry
+
+VariableWatch and Trigger patterns:
+// DataSource<--Actor - VariableWatch pattern
+//  DataSource is an IDataObject
+//  Actor uses ObjectRegistry to find DataSource, holds reference
+//  Actor calls a Data access function to check value
+//  Reacts when approriate
+// DataSource-->Actor - Trigger pattern
+//  
 
 
 BuildPipeline

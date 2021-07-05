@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// TODO - Add GetComponent/SetComponent to classes down below, right now all of them just throw exceptions
-//  if ElementAccesBy[String|Index] == true, then it shouldn't throw an exception
+// TODO - Verify that all DataEnum types are in the Traits and TraitsSimple classes
 
 public static class ComponentNames {
     public static readonly Dictionary<string, int> Vector2Names = new Dictionary<string, int>{
@@ -31,17 +30,23 @@ public class TraitsSimpleNone : ITraitsSimple<object> {
     public bool HasInfinite { get=>false; }
     public object PositiveInfinite { get { throw new System.InvalidOperationException(); } }
 }
-public class TraitsSimpleChar : ITraitsSimple<char> {
-    public DataTypeEnum DataType { get=>DataTypeEnum.Char; }
-    public char Zero { get=>'\0'; }
+public class TraitsSimpleTrigger : ITraitsSimple<Trigger> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.TriggerType; }
+    public Trigger Zero { get=>new Trigger(); }
     public bool HasInfinite { get=>false; }
-    public char PositiveInfinite { get { throw new System.InvalidOperationException(); } }
+    public Trigger PositiveInfinite { get { throw new System.InvalidOperationException(); } }
 }
 public class TraitsSimpleBool : ITraitsSimple<bool> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Bool; }
     public bool Zero { get=>false; }
     public bool HasInfinite { get=>false; }
     public bool PositiveInfinite { get { throw new System.InvalidOperationException(); } }
+}
+public class TraitsSimpleChar : ITraitsSimple<char> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.Char; }
+    public char Zero { get=>'\0'; }
+    public bool HasInfinite { get=>false; }
+    public char PositiveInfinite { get { throw new System.InvalidOperationException(); } }
 }
 public class TraitsSimpleInt : ITraitsSimple<int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Int; }
@@ -122,18 +127,18 @@ public class TraitsNone : ITraits<object, object> {
     public void SetComponent(ref object data, int elem, object value) { throw new System.InvalidOperationException(); }
     public void SetComponent(ref object data, string elem, object value) { throw new System.InvalidOperationException(); }
 }
-public class TraitsChar : ITraits<char, object> {
-    public DataTypeEnum DataType { get=>DataTypeEnum.Char; }
+public class TraitsTrigger : ITraits<Trigger, object> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.TriggerType; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.None; }
-    public char Zero(int nElems=1) { return '\0'; }
+    public Trigger Zero(int nElems=1) { return new Trigger(); }
     public bool HasInfinite { get=>false; }
-    public char PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
+    public Trigger PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
     public bool ElementAccessByIndex { get=>false; }
     public bool ElementAccessByString { get=>false; }
-    public object GetComponent(char data, int elem) { throw new System.InvalidOperationException(); }
-    public object GetComponent(char data, string elem) { throw new System.InvalidOperationException(); }
-    public void SetComponent(ref char data, int elem, object value) { throw new System.InvalidOperationException(); }
-    public void SetComponent(ref char data, string elem, object value) { throw new System.InvalidOperationException(); }
+    public object GetComponent(Trigger data, int elem) { throw new System.InvalidOperationException(); }
+    public object GetComponent(Trigger data, string elem) { throw new System.InvalidOperationException(); }
+    public void SetComponent(ref Trigger data, int elem, object value) { throw new System.InvalidOperationException(); }
+    public void SetComponent(ref Trigger data, string elem, object value) { throw new System.InvalidOperationException(); }
 }
 public class TraitsBool : ITraits<bool, object> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Bool; }
@@ -147,6 +152,19 @@ public class TraitsBool : ITraits<bool, object> {
     public object GetComponent(bool data, string elem) { throw new System.InvalidOperationException(); }
     public void SetComponent(ref bool data, int elem, object value) { throw new System.InvalidOperationException(); }
     public void SetComponent(ref bool data, string elem, object value) { throw new System.InvalidOperationException(); }
+}
+public class TraitsChar : ITraits<char, object> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.Char; }
+    public DataTypeEnum ComponentType { get=>DataTypeEnum.None; }
+    public char Zero(int nElems=1) { return '\0'; }
+    public bool HasInfinite { get=>false; }
+    public char PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
+    public bool ElementAccessByIndex { get=>false; }
+    public bool ElementAccessByString { get=>false; }
+    public object GetComponent(char data, int elem) { throw new System.InvalidOperationException(); }
+    public object GetComponent(char data, string elem) { throw new System.InvalidOperationException(); }
+    public void SetComponent(ref char data, int elem, object value) { throw new System.InvalidOperationException(); }
+    public void SetComponent(ref char data, string elem, object value) { throw new System.InvalidOperationException(); }
 }
 public class TraitsString : ITraits<string, char> {
     public DataTypeEnum DataType { get=>DataTypeEnum.String; }
@@ -351,6 +369,19 @@ public class TraitsQuaternion : ITraits<Quaternion, float> {
     }
     public void SetComponent(ref Quaternion data, string elem, float value) { SetComponent(ref data, ComponentNames.Vector4Names[elem], value); }
 }
+public class TraitsListTrigger : ITraits<List<Trigger>, Trigger> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.List_Trigger; }
+    public DataTypeEnum ComponentType { get=>DataTypeEnum.TriggerType; }
+    public List<Trigger> Zero(int nElems=1) { return new List<Trigger>(nElems); }
+    public bool HasInfinite { get=>false; }
+    public List<Trigger> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
+    public bool ElementAccessByIndex { get=>true; }
+    public bool ElementAccessByString { get=>false; }
+    public Trigger GetComponent(List<Trigger> data, int elem) { return data[elem]; }
+    public Trigger GetComponent(List<Trigger> data, string elem) { throw new System.InvalidOperationException(); }
+    public void SetComponent(ref List<Trigger> data, int elem, Trigger value) { data[elem] = value; }
+    public void SetComponent(ref List<Trigger> data, string elem, Trigger value) { throw new System.InvalidOperationException(); }
+}
 public class TraitsListBool : ITraits<List<bool>, bool> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Bool; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Bool; }
@@ -369,6 +400,19 @@ public class TraitsListBool : ITraits<List<bool>, bool> {
     public bool GetComponent(List<bool> data, string elem) { throw new System.InvalidOperationException(); }
     public void SetComponent(ref List<bool> data, int elem, bool value) { data[elem] = value; }
     public void SetComponent(ref List<bool> data, string elem, bool value) { throw new System.InvalidOperationException(); }
+}
+public class TraitsListChar : ITraits<List<char>, char> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.List_Char; }
+    public DataTypeEnum ComponentType { get=>DataTypeEnum.Char; }
+    public List<char> Zero(int nElems=1) { return new List<char>(nElems); }
+    public bool HasInfinite { get=>false; }
+    public List<char> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
+    public bool ElementAccessByIndex { get=>true; }
+    public bool ElementAccessByString { get=>false; }
+    public char GetComponent(List<char> data, int elem) { return data[elem]; }
+    public char GetComponent(List<char> data, string elem) { throw new System.InvalidOperationException(); }
+    public void SetComponent(ref List<char> data, int elem, char value) { data[elem] = value; }
+    public void SetComponent(ref List<char> data, string elem, char value) { throw new System.InvalidOperationException(); }
 }
 public class TraitsListString : ITraits<List<string>, string> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_String; }
@@ -565,6 +609,23 @@ public class TraitsListQuaternion : ITraits<List<Quaternion>, Quaternion> {
     public void SetComponent(ref List<Quaternion> data, int elem, Quaternion value) { data[elem] = value; }
     public void SetComponent(ref List<Quaternion> data, string elem, Quaternion value) { throw new System.InvalidOperationException(); }
 }
+public class TraitsKVariablesTrigger : ITraits<KVariables<Trigger>, Trigger> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Trigger; }
+    public DataTypeEnum ComponentType { get=>DataTypeEnum.TriggerType; }
+    public KVariables<Trigger> Zero(int nElems=1) { return new KVariables<Trigger>(); }
+    public bool HasInfinite { get=>false; }
+    public KVariables<Trigger> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
+    public bool ElementAccessByIndex { get=>true; }
+    public bool ElementAccessByString { get=>true; }
+    public Trigger GetComponent(KVariables<Trigger> data, int elem) { return data[elem]; }
+    public Trigger GetComponent(KVariables<Trigger> data, string elem) {
+        Trigger value;
+        data.Get(elem, out value);
+        return value;
+    }
+    public void SetComponent(ref KVariables<Trigger> data, int elem, Trigger value) { data[elem] = value; }
+    public void SetComponent(ref KVariables<Trigger> data, string elem, Trigger value) { data.Set(elem, value); }
+}
 public class TraitsKVariablesBool : ITraits<KVariables<bool>, bool> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Bool; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Bool; }
@@ -581,6 +642,23 @@ public class TraitsKVariablesBool : ITraits<KVariables<bool>, bool> {
     }
     public void SetComponent(ref KVariables<bool> data, int elem, bool value) { data[elem] = value; }
     public void SetComponent(ref KVariables<bool> data, string elem, bool value) { data.Set(elem, value); }
+}
+public class TraitsKVariablesChar : ITraits<KVariables<char>, char> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Char; }
+    public DataTypeEnum ComponentType { get=>DataTypeEnum.Char; }
+    public KVariables<char> Zero(int nElems=1) { return new KVariables<char>(''); }
+    public bool HasInfinite { get=>false; }
+    public KVariables<char> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
+    public bool ElementAccessByIndex { get=>true; }
+    public bool ElementAccessByString { get=>true; }
+    public char GetComponent(KVariables<char> data, int elem) { return data[elem]; }
+    public char GetComponent(KVariables<char> data, string elem) {
+        char value;
+        data.Get(elem, out value);
+        return value;
+    }
+    public void SetComponent(ref KVariables<char> data, int elem, char value) { data[elem] = value; }
+    public void SetComponent(ref KVariables<char> data, string elem, char value) { data.Set(elem, value); }
 }
 public class TraitsKVariablesString : ITraits<KVariables<string>, string> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_String; }
@@ -734,6 +812,23 @@ public class TraitsKVariablesQuaternion : ITraits<KVariables<Quaternion>, Quater
     }
     public void SetComponent(ref KVariables<Quaternion> data, int elem, Quaternion value) { data[elem] = value; }
     public void SetComponent(ref KVariables<Quaternion> data, string elem, Quaternion value) { data.Set(elem, value); }
+}
+public class TraitsKVariablesExtTrigger : ITraits<KVariablesExt<Trigger>, Trigger> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Trigger; }
+    public DataTypeEnum ComponentType { get=>DataTypeEnum.TriggerType; }
+    public KVariablesExt<Trigger> Zero(int nElems=1) { return new KVariablesExt<Trigger>(); }
+    public bool HasInfinite { get=>false; }
+    public KVariablesExt<Trigger> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
+    public bool ElementAccessByIndex { get=>true; }
+    public bool ElementAccessByString { get=>true; }
+    public Trigger GetComponent(KVariablesExt<Trigger> data, int elem) { return data[elem]; }
+    public Trigger GetComponent(KVariablesExt<Trigger> data, string elem) {
+        Trigger value;
+        data.Get(elem, out value);
+        return value;
+    }
+    public void SetComponent(ref KVariablesExt<Trigger> data, int elem, Trigger value) { data[elem] = value; }
+    public void SetComponent(ref KVariablesExt<Trigger> data, string elem, Trigger value) { data.Set(elem, value); }
 }
 public class TraitsKVariablesExtBool : ITraits<KVariablesExt<bool>, bool> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Bool; }
