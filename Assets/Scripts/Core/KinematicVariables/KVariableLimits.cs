@@ -6,19 +6,18 @@ using UnityEngine;
 /// See also the KvLimiter class - it applies these limits on variable instances.
 /// </summary>
 /// <seealso cref="KvLimiter"/>
-public class KVariableLimits {
-    KVariablesExt<float> m_maxVars;
-    KVariablesExt<float> m_minVars;
+public class KVariableLimits : IDerivedDataObject {
+    FloatKVariablesExtDataObject m_maxVars;
+    FloatKVariablesExtDataObject m_minVars;
+    // KVariablesExt<float> m_maxVars;
+    // KVariablesExt<float> m_minVars;
 
     // *** Derived data
-    ITime m_time;
-    int m_upToDateFrame;
     KVariableTypeSet m_limitedVars;
 
     // *** Access
-    public KVariablesExt<float> Max { get => m_maxVars; set => m_maxVars = value; }
-    public KVariablesExt<float> Min { get => m_minVars; set => m_minVars = value; }
-    public int UpToDateFrame { get => m_upToDateFrame; }
+    public KVariablesExt<float> Max { get => m_maxVars.Data; set => m_maxVars.Data = value; }
+    public KVariablesExt<float> Min { get => m_minVars.Data; set => m_minVars.Data = value; }
     public KVariableTypeSet LimitedVars {
         get {
             if (m_upToDateFrame < 0) {
@@ -43,23 +42,20 @@ public class KVariableLimits {
         Add(new KVariable<float>(type, value), max);
     }
     public void AddMax(string name, float value) {
-        m_maxVars.Set(name, value);
-        m_upToDateFrame = -1;
+        m_maxVars.SetComponent(name, value);
     }
     public void AddMin(string name, float value) {
-        m_minVars.Set(name, value);
-        m_upToDateFrame = -1;
+        m_minVars.SetComponent(name, value);
     }
     public void Add(string name, float value, bool max) {
         if (max) {
-            m_maxVars.Set(name, value);
-            m_upToDateFrame = -1;
+            m_maxVars.SetComponent(name, value);
         } else {
-            m_minVars.Set(name, value);
-            m_upToDateFrame = -1;
+            m_minVars.SetComponent(name, value);
         }
     }
     public void Add(KVariable<float> kv, bool max) {
+        
         switch (kv.type) {
             case KVariableTypeInfo.NoneEnum:
                 Debug.LogWarning("Attempting to add None type kinematic variable limit");

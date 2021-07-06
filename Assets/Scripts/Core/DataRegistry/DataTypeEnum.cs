@@ -1,9 +1,14 @@
 public static class DataTypeStaticData {
     public const int nDataTypeEnums = 50;
+    public const int nDataTypeEnum_Singles = 13;
+    public const int nDataTypeEnum_Lists = 13;
+    public const int nDataTypeEnum_KVariables = 13;
+    public const int nDataTypeEnum_KvariableExts = 13;
 }
 
 public enum DataTypeEnum {
  // MAIN TYPE (L)               // COMPONENT TYPE (C)
+// *** SINGLE TYPES
     None,                       // None
     TriggerType,                // None
     Bool,                       // None
@@ -17,6 +22,7 @@ public enum DataTypeEnum {
     Vector3Type,                // Float
     Vector4Type,                // Int
     QuaternionType,             // Float
+// *** LIST TYPES
     List_Trigger,               // Trigger
     List_Bool,                  // Bool
     List_Char,                  // Char
@@ -29,6 +35,7 @@ public enum DataTypeEnum {
     List_Vector3,               // Vector3
     List_Vector4,               // Vector4
     List_Quaternion,            // Quaternion
+// *** KVARIABLES TYPES
     KVariables_Trigger,         // Trigger
     KVariables_Bool,            // Bool
     KVariables_Char,            // Char
@@ -41,6 +48,7 @@ public enum DataTypeEnum {
     KVariables_Vector3,         // Vector3
     KVariables_Vector4,         // Vector4
     KVariables_Quaternion,      // Quaternion
+// *** KVARIABLESEXT TYPES
     KVariablesExt_Trigger,      // Trigger
     KVariablesExt_Bool,         // Bool
     KVariablesExt_Char,         // Char
@@ -52,7 +60,9 @@ public enum DataTypeEnum {
     KVariablesExt_Vector3Int,   // Vector3Int
     KVariablesExt_Vector3,      // Vector3
     KVariablesExt_Vector4,      // Vector4
-    KVariablesExt_Quaternion    // Quaternion
+    KVariablesExt_Quaternion,   // Quaternion
+// *** OTHER SET TYPES
+    KVariableTypeSetType        // Bool
     //KVariableLimitsType         // KVariableExt_Float
 }
 
@@ -71,7 +81,7 @@ public enum DataTypeEnum_Single {
     Vector3IntType,
     Vector3Type,
     Vector4Type,
-    QuaternionType,
+    QuaternionType
 }
 
 public enum DataTypeEnum_List {

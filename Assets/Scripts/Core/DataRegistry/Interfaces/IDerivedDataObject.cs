@@ -4,7 +4,7 @@ using System.Collections.Generic;
 /// Additional interface components for DataObjects that depend on other data objects.
 /// I.e. these objects have 'derived' data.
 /// </summary>
-public interface IDerivedDataObject : IDataObjectHeader {
+public interface IDerivedDataObjectHeader : IDataObjectHeader {
     /// <summary>
     /// Other data objects on which this one depends
     /// </summary>
@@ -13,14 +13,37 @@ public interface IDerivedDataObject : IDataObjectHeader {
     /// True if I am up to date
     /// </summary>
     public bool UpToDate();
-    /// <summary>
-    /// Bring all my derived data up to date
-    /// </summary>
-    public void Update();
 }
 
-public abstract class SimpleDerivedDataObject : DataObjectHeader, IDerivedDataObject {
+public class DerivedDataObjectHeader : DataObjectHeader, IDerivedDataObjectHeader {
     protected List<IDataObjectHeader> m_dependsOn;
+    public List<IDataObjectHeader> DependsOn { get; }
+    public virtual bool UpToDate() {
+        foreach (IObject dataObject in m_dependsOn) {
+            if (dataObject.MTag > m_mtag) { return false; }
+        }
+        return true;
+    }
+    public DerivedDataObjectHeader(string name, IObjectRegistry parent = null, List<IDataObjectHeader> dependsOn = null) : base (name, parent) { m_dependsOn = dependsOn; }
+    public DerivedDataObjectHeader(IDerivedDataObjectHeader obj) : base (obj) { m_dependsOn = obj.DependsOn; }
+    public DerivedDataObjectHeader(DerivedDataObjectHeader obj) : base (obj) { m_dependsOn = obj.m_dependsOn; }
+    public DerivedDataObjectHeader() {}
+}
+
+
+
+public interface IDerivedDataObject<L> : IDerivedDataObjectHeader {
+    public L Data { get; set; }
+    public void UpdateDerived();
+}
+
+public interface IDerivedUpdater<L> {
+    public void UpdateDerivedOn(IDerivedDataObject<L> target);
+}
+
+public class SimpleDerivedDataObject : DataObjectHeader, IDerivedDataObjectHeader {
+    protected List<IDataObjectHeader> m_dependsOn;
+    protected IDerivedUpdater m_updater;
 
     public virtual List<IDataObjectHeader> DependsOn { get => m_dependsOn; }
     public virtual bool UpToDate() {
@@ -41,7 +64,7 @@ public abstract class SimpleDerivedDataObject : DataObjectHeader, IDerivedDataOb
     : base(derivedDataObject) {
         m_dependsOn = derivedDataObject.m_dependsOn;
     }
-    public SimpleDerivedDataObject(IDerivedDataObject derivedDataObject)
+    public SimpleDerivedDataObject(IDerivedDataObjectHeader derivedDataObject)
     : base(derivedDataObject) {
         m_dependsOn = derivedDataObject.DependsOn;
     }

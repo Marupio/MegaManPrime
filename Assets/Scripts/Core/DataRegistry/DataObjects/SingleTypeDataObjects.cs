@@ -1,22 +1,3 @@
-using UnityEngine;
-
-// Header information
-public class DataObjectHeader : ObjectHeader, IDataObjectHeader {
-    public virtual DataTypeEnum DataType { get=>DataTypeEnum.None; }
-    public virtual IDerivedDataObject DerivedDataObject() {
-        if (this is IDerivedDataObject) { return this as IDerivedDataObject; }
-        return null;
-    }
-    public virtual IDataSetObjectHeader DataSetObjectHeader() {
-        if (this is IDataSetObjectHeader) { return this as IDataSetObjectHeader; }
-        return null;
-    }
-    public DataObjectHeader(string name, IObjectRegistry parent = null) : base (name, parent) {}
-    public DataObjectHeader(IDataObjectHeader obj) : base (obj) {}
-    public DataObjectHeader(DataObjectHeader obj) : base (obj) {}
-    public DataObjectHeader() {}
-}
-
 public class GenericDataObject : DataObjectHeader, IDataObject<object> {
     public object m_data;
     public object Data { get=>m_data; set { m_data=value; SetModified(); }  }

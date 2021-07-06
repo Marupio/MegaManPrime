@@ -231,11 +231,17 @@ public class KVariables<V> {
     // *** Subscript operator
     public V this[int index] {
         get {
+            int kvInt = 1;
+            for (int i = 0; i < index; ++i, kvInt*=2) {}
             V value;
-            Get((KVariableEnum)index, out value);
+            Get((KVariableEnum)kvInt, out value);
             return value;
         }
-        set { Set((KVariableEnum)index, value); }
+        set {
+            int kvInt = 1;
+            for (int i = 0; i < index; ++i, kvInt*=2) {}
+            Set((KVariableEnum)kvInt, value);
+        }
     }
     public virtual int Size() {
         return KVariableTypeInfo.NKVariableEnum_Controllable;
@@ -327,6 +333,10 @@ public class KVariablesExt<V> : KVariables<V> {
     public override void Get(ref KVariable<V> kvIn) {
         Get(kvIn.type, out kvIn.value);
     }
+    // Reveal shadows
+    public override void Get(KVariableEnum_Controllable variableEnumC, out V value) { base.Get(variableEnumC, out value); }
+    public override void Get(string variableName, out V value) { base.Get(variableName, out value); }
+
     // *** Set functionality
     public override void Set(KVariableEnum variableEnum, V value) {
         switch (variableEnum) {
@@ -363,6 +373,8 @@ public class KVariablesExt<V> : KVariables<V> {
     public override void Set(KVariable<V> kvIn) {
         Set(kvIn.type, kvIn.value);
     }
+    // Reveal shadows
+    public override void Set(string variableName, V value) { base.Set(variableName, value); }
 
     public override int Size() {
         return KVariableTypeInfo.NKVariableEnums;

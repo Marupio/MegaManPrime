@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 421946842}
   - component: {fileID: 421946841}
+  - component: {fileID: 421946843}
   m_Layer: 0
   m_Name: Sandbox
   m_TagString: Untagged
@@ -152,16 +153,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5e127b2d5ed97f468a67919b2124ddb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputAngles: {x: 0, y: 0, z: 15}
   inputVelocity: {x: 1, y: 1, z: 0}
-  inputAxisDirection: {x: 1, y: 0, z: 0}
-  velocityMagnitude: 0
-  qForward: {x: 0, y: 0, z: 0, w: 0}
-  qReverse: {x: 0, y: 0, z: 0, w: 0}
-  reverseAngles: {x: 0, y: 0, z: 0}
-  projectedMagnitude: 0
-  unprojectedVelocity: {x: 0, y: 0, z: 0}
-  outputMagnitude: 0
+  inputAngles: {x: 0, y: 0, z: 15}
+  oneAxisRepresentation: 0
+  rotatedXComponent: 0
+  rotatedYComponent: 0
+  rotatedZComponent: 0
+  rotatedAll: {x: 0, y: 0, z: 0}
+  unrotatedAll: {x: 0, y: 0, z: 0}
+  withCrossProduct: {x: 0, y: 0, z: 0}
+  reversified: {x: 0, y: 0, z: 0}
 --- !u!4 &421946842
 Transform:
   m_ObjectHideFlags: 0
@@ -176,6 +177,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &421946843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 421946840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 351bcbfd704d092ecac61e9ca41440b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &435405776
 GameObject:
   m_ObjectHideFlags: 0

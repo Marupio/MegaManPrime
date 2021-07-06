@@ -847,6 +847,23 @@ public class TraitsKVariablesExtBool : ITraits<KVariablesExt<bool>, bool> {
     public void SetComponent(ref KVariablesExt<bool> data, int elem, bool value) { data[elem] = value; }
     public void SetComponent(ref KVariablesExt<bool> data, string elem, bool value) { data.Set(elem, value); }
 }
+public class TraitsKVariablesExtChar : ITraits<KVariablesExt<char>, char> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Char; }
+    public DataTypeEnum ComponentType { get=>DataTypeEnum.Char; }
+    public KVariablesExt<char> Zero(int nElems=1) { return new KVariablesExt<char>('\0'); }
+    public bool HasInfinite { get=>false; }
+    public KVariablesExt<char> PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
+    public bool ElementAccessByIndex { get=>true; }
+    public bool ElementAccessByString { get=>true; }
+    public char GetComponent(KVariablesExt<char> data, int elem) { return data[elem]; }
+    public char GetComponent(KVariablesExt<char> data, string elem) {
+        char value;
+        data.Get(elem, out value);
+        return value;
+    }
+    public void SetComponent(ref KVariablesExt<char> data, int elem, char value) { data[elem] = value; }
+    public void SetComponent(ref KVariablesExt<char> data, string elem, char value) { data.Set(elem, value); }
+}
 public class TraitsKVariablesExtString : ITraits<KVariablesExt<string>, string> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_String; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.String; }
@@ -999,4 +1016,34 @@ public class TraitsKVariablesExtQuaternion : ITraits<KVariablesExt<Quaternion>, 
     }
     public void SetComponent(ref KVariablesExt<Quaternion> data, int elem, Quaternion value) { data[elem] = value; }
     public void SetComponent(ref KVariablesExt<Quaternion> data, string elem, Quaternion value) { data.Set(elem, value); }
+}
+public class TraitsKVariableTypeSet : ITraits<KVariableTypeSet, bool> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.KVariableTypeSetType; }
+    public DataTypeEnum ComponentType { get=>DataTypeEnum.Bool; }
+    public KVariableTypeSet Zero(int nElems=1) { return KVariableTypeInfo.None; }
+    public bool HasInfinite { get=>false; }
+    public KVariableTypeSet PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
+    public bool ElementAccessByIndex { get=>true; }
+    public bool ElementAccessByString { get=>true; }
+    public bool GetComponent(KVariableTypeSet data, int elem) {
+        KVariableEnum kvType = (KVariableEnum)elem;
+        return data.Contains(kvType);
+    }
+    public bool GetComponent(KVariableTypeSet data, string elem) {
+        return data.Contains(elem);
+    }
+    public void SetComponent(ref KVariableTypeSet data, int elem, bool value) {
+        if (value) {
+            data.Add((KVariableEnum)elem);
+        } else {
+            data.Remove((KVariableEnum)elem);
+        }
+    }
+    public void SetComponent(ref KVariableTypeSet data, string elem, bool value) {
+        if (value) {
+            data.Add(elem);
+        } else {
+            data.Remove(elem);
+        }
+    }
 }

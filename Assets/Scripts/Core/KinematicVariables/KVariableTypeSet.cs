@@ -123,6 +123,9 @@ public class KVariableTypeSet {
         int kveValue = (int)kve;
         return (kveValue & m_value) == kveValue;
     }
+    public bool Contains(string name) {
+        return Contains(KVariableTypeInfo.EnumFromName(name));
+    }
 
     // *** Edit
     public int Add(KVariableTypeSet kv) {

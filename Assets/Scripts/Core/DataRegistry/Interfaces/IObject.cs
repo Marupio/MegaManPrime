@@ -35,11 +35,6 @@ public interface IObject {
     // public List<string> [Type]DataTableOfContents
     // public List<Type> [Type]Data
     /// <summary>
-    /// Return a header-only IDataObject copy of this object
-    /// </summary>
-    // TODO - This may mess up my data model.  Maybe get rid of this and just use the IObject reference!
-    public ObjectHeader CloneHeader();
-    /// <summary>
     /// Convert this to an IObjectRegistry, or null if it is not one
     /// </summary>
     public IObjectRegistry ObjectRegistry();
