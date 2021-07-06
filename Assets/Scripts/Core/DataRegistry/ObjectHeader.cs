@@ -15,9 +15,6 @@ public class ObjectHeader : IObject {
     public void InternalSetOrphan() { m_parent = null; }
     public virtual ModTag MTag { get => m_mtag; } // set
     public virtual void SetModified() { GlobalRegistrar.UpdateModTag(m_mtag); }
-    public virtual ObjectHeader CloneHeader() {
-        return new ObjectHeader(this);
-    }
     public IObjectRegistry ObjectRegistry() {
         if (this is IObjectRegistry) {
             return (IObjectRegistry)this;

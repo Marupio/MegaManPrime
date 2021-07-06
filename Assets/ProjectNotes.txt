@@ -4,7 +4,8 @@ MULTITHREADING - when true, include Interlocked / Mutex and other multithreading
 
 
 TODO
-Download offline C# reference, C# stl code equivalent
+Check copy constructors, rationalise their usage.  Maybe I need DeepCopy and ShallowCopy?
+    Add a cloning capability - deep copies everything, and gives it a new ID
 Implement SimpleObjectRegistry
 Do we have hierarchical naming / access?
     * KVariableLimits       "entityName.limits"
@@ -87,6 +88,54 @@ Remove all Min restrictions?
     They are not useful to 2D, 3D, and 1D can assume Max restriction is Negative also.
     But having Max and Min limits makes sense, and I can apply them anywhere.
 
+Data Model Classes:
+IObject
+ObjectHeader
+IObjectRegistry
+IDataObjectHeader
+IDataObject<T>
+
+public interface IObject
+public interface IObjectRegistry : IObject
+public interface IDataObjectHeader : IObject
+public interface IDerivedDataObjectHeader : IDataObjectHeader
+public interface IDataSetObjectHeader : IDataObjectHeader
+public interface IDataObject<L> : IDataObjectHeader
+public interface IDataSetObject<L, C> : IDataSetObjectHeader, IDataObject<L>
+public interface IDerivedDataObject<L> : IDerivedDataObjectHeader
+
+public class ObjectHeader : IObject
+public class ObjectRegistry : ObjectHeader, IObjectRegistry
+public class DataObjectHeader : ObjectHeader, IDataObjectHeader
+public class DataSetObjectHeader : DataObjectHeader, IDataSetObjectHeader
+public class DerivedDataObjectHeader : DataObjectHeader, IDerivedDataObjectHeader
+public class ListDataObject<T> : DataSetObjectHeader, IDataSetObject<List<T>, T>
+public class KVariablesDataObject<T> : DataSetObjectHeader , IDataSetObject<KVariables<T>, T>
+public class KVariablesExtDataObject<T> : DataSetObjectHeader , IDataSetObject<KVariablesExt<T>, T>
+
+public class GenericDataObject : DataObjectHeader, IDataObject<object>
+public class TriggerDataObject : DataObjectHeader, IDataObject<Trigger> ...
+public class TriggerListDataObject : ListDataObject<Trigger> ...
+public class TriggerKVariablesDataObject : KVariablesDataObject<Trigger> ...
+public class TriggerKVariablesExtDataObject : KVariablesExtDataObject<Trigger> ...
+public class KVariableTypeSetDataObject : DataSetObjectHeader , IDataSetObject<KVariableTypeSet, bool>
+public class SimpleDerivedDataObject : DataObjectHeader, IDerivedDataObjectHeader {
+
+
+IObject
+|-ObjectHeader--------,
+|-IObjectRegistry     |
+|-IDataObjectHeader   |
+| |-DataObjectHeader--'
+  |-IDataSetObjectHeader
+  
+
+-IObjectRegistry
+-IDataObjectHeader, IDataObject<T>
+ -IDerived
+
+
+TODO outline datamodel
 
 
 Axis can change frequently
