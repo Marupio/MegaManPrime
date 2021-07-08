@@ -31,5 +31,4 @@ public struct ModTag {
     public static ModTag operator- (ModTag lhs, ModTag rhs) { return new ModTag(lhs.m_tag - lhs.m_tag);}
     public static ModTag operator++(ModTag mt) { return new ModTag(mt.m_tag + 1);}
     public static ModTag operator--(ModTag mt) { return new ModTag(mt.m_tag - 1);}
-    public static explicit operator
 }
