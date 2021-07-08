@@ -135,6 +135,7 @@ public class TriggerKVariablesExtDataObject : KVariablesExtDataObject<Trigger> .
 public class KVariableTypeSetDataObject : DataSetObjectHeader , IDataSetObject<KVariableTypeSet, bool>
 public class SimpleDerivedDataObject : DataObjectHeader, IDerivedDataObjectHeader {
 
+<<<<<<< HEAD
 DerivedGenericDataObject
 DerivedTriggerDataObject
 DerivedTriggerListDataObject
@@ -186,6 +187,8 @@ SimpleDerivedDataDerivedObject
 
 
 
+=======
+>>>>>>> origin/main
 
 IObject
 |-ObjectHeader--------,

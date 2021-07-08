@@ -231,6 +231,8 @@ public class KVariables<V> {
     // *** Subscript operator
     public V this[int index] {
         get {
+            int kvInt = 1;
+            for (int i = 0; i < index; ++i, kvInt*=2) {}
             V value;
             Get(KVariableTypeInfo.IndexToKVariableEnum(index), out value);
             return value;
