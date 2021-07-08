@@ -1,3 +1,5 @@
+// using UnityEngine;
+
 // public class GenericDataObject : DataObjectHeader, IDataObject<object> {
 //     public object m_data;
 //     public object Data { get=>m_data; set { m_data=value; SetModified(); }  }
@@ -6,15 +8,15 @@
 //     public GenericDataObject(GenericDataObject obj) : base(obj) {}
 //     public GenericDataObject() {}
 // }
-public class TriggerDataDerivedObject : TriggerDataObject, IDerivedDataObject<Trigger> {
-    public Trigger m_data;
-    public Trigger Data { get=>m_data; set { m_data=value; SetModified(); }  }
-    public override DataTypeEnum DataType { get=>DataTypeEnum.TriggerType; }
-    public TriggerDataDerivedObject(string name, IObjectRegistry parent = null, Trigger data = new Trigger()) : base(name, parent) { m_data = data; }
-    public TriggerDataDerivedObject(IDataObject<Trigger> obj) : base(obj) {}
-    public TriggerDataDerivedObject(TriggerDataDerivedObject obj) : base(obj) {}
-    public TriggerDataDerivedObject() {}
-}
+// public class TriggerDataObject : DataObjectHeader, IDataObject<Trigger> {
+//     public Trigger m_data;
+//     public Trigger Data { get=>m_data; set { m_data=value; SetModified(); }  }
+//     public override DataTypeEnum DataType { get=>DataTypeEnum.TriggerType; }
+//     public TriggerDataObject(string name, IObjectRegistry parent = null, Trigger data = new Trigger()) : base(name, parent) { m_data = data; }
+//     public TriggerDataObject(IDataObject<Trigger> obj) : base(obj) {}
+//     public TriggerDataObject(TriggerDataObject obj) : base(obj) {}
+//     public TriggerDataObject() {}
+// }
 // public class BoolDataObject : DataObjectHeader, IDataObject<bool> {
 //     public bool m_data;
 //     public bool Data { get=>m_data; set { m_data=value; SetModified(); }  }
