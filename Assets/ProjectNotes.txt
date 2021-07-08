@@ -4,6 +4,20 @@ MULTITHREADING - when true, include Interlocked / Mutex and other multithreading
 
 
 TODO
+Brain dump
+    Problems with DataModel.  When it comes to the actual data we have this:
+        public L Data { get; set; }
+    But DerivedData needs this instead:
+        public L Data { get; }
+        public void UpdateDerivedOn(IDerivedDataObject<L> target, ref L data);
+    So we have a base data class that contains the data, no access.
+    DataSources add get; set; and DerivedData adds get atd UpdateDeried... etc.
+
+
+    You are implementing Derived data according to the new inheritence diagram
+
+
+Check converting between KVariableEnum and int.  It's *=2 kind of thing, not +=1.
 Check copy constructors, rationalise their usage.  Maybe I need DeepCopy and ShallowCopy?
     Add a cloning capability - deep copies everything, and gives it a new ID
 Implement SimpleObjectRegistry
@@ -120,6 +134,57 @@ public class TriggerKVariablesDataObject : KVariablesDataObject<Trigger> ...
 public class TriggerKVariablesExtDataObject : KVariablesExtDataObject<Trigger> ...
 public class KVariableTypeSetDataObject : DataSetObjectHeader , IDataSetObject<KVariableTypeSet, bool>
 public class SimpleDerivedDataObject : DataObjectHeader, IDerivedDataObjectHeader {
+
+DerivedGenericDataObject
+DerivedTriggerDataObject
+DerivedTriggerListDataObject
+DerivedTriggerKVariablesDataObject
+DerivedTriggerKVariablesExtDataObject
+DerivedKVariableTypeSetDataObject
+DerivedSimpleDerivedDataObject
+
+GenericDataObject
+GenericDerivedDataObject
+DerivedGenericDataObject
+GenericDataDerivedObject
+
+TriggerDataObject
+TriggerDerivedDataObject
+DerivedTriggerDataObject
+TriggerDataDerivedObject
+
+TriggerListDataObject
+TriggerListDerivedDataObject
+DerivedTriggerListDataObject
+TriggerListDataDerivedObject
+
+TriggerKVariablesDataObject
+TriggerKVariablesDerivedDataObject
+DerivedTriggerKVariablesDataObject
+TriggerKVariablesDataDerivedObject
+
+TriggerKVariablesExtDataObject
+TriggerKVariablesExtDerivedDataObject
+DerivedTriggerKVariablesExtDataObject
+TriggerKVariablesExtDataDerivedObject
+
+KVariableTypeSetDataObject
+KVariableTypeSetDerivedDataObject
+DerivedKVariableTypeSetDataObject
+KVariableTypeSetDataDerivedObject
+
+SimpleDerivedDataObject
+SimpleDerivedDerivedDataObject
+DerivedSimpleDerivedDataObject
+SimpleDerivedDataDerivedObject
+
+
+
+
+
+
+
+
 
 
 IObject

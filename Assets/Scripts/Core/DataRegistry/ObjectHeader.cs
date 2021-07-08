@@ -34,8 +34,6 @@ public class ObjectHeader : IObject {
     /// <summary>
     /// Contsruct from components, generating a new id and modTag, if parent is provided, register with parent
     /// </summary>
-    /// <param name="name"></param>
-    /// <param name="parent"></param>
     public ObjectHeader(string name, IObjectRegistry parent = null) {
         m_name = name;
         m_id = GlobalRegistrar.GetNextId();
@@ -46,9 +44,9 @@ public class ObjectHeader : IObject {
         }
     }
     /// <summary>
-    /// Creates a DataObjectHeader from a IDataObject interface - basically clones a header from another object
+    /// Creates a ObjectHeader from an IObject interface - basically clones a header from another object
+    /// TODO - This will mess up my data registry.  Either it is the actual data object, or it is an entirely different object
     /// </summary>
-    /// <param name="obj"></param>
     public ObjectHeader(IObject obj) {
         m_name = obj.Name;
         m_id = obj.Id;

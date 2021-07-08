@@ -231,16 +231,12 @@ public class KVariables<V> {
     // *** Subscript operator
     public V this[int index] {
         get {
-            int kvInt = 1;
-            for (int i = 0; i < index; ++i, kvInt*=2) {}
             V value;
-            Get((KVariableEnum)kvInt, out value);
+            Get(KVariableTypeInfo.IndexToKVariableEnum(index), out value);
             return value;
         }
         set {
-            int kvInt = 1;
-            for (int i = 0; i < index; ++i, kvInt*=2) {}
-            Set((KVariableEnum)kvInt, value);
+            Set(KVariableTypeInfo.IndexToKVariableEnum(index), value);
         }
     }
     public virtual int Size() {

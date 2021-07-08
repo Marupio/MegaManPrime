@@ -4,6 +4,7 @@
 
 public static class GlobalRegistrar {
     // *** ModTag static data
+    public static readonly ModTag UnTaggedModTag;
     private static long m_currentModTag = long.MinValue+1; // Current ModTag value
     public const long ModTagUntagged = long.MinValue;
 
@@ -27,4 +28,8 @@ public static class GlobalRegistrar {
         #endif
     }
     public static long GetNextId() { return ++m_currentId; }
+    // *** Static constructor
+    static GlobalRegistrar() {
+        UnTaggedModTag = new ModTag(ModTagUntagged);
+    }
 }

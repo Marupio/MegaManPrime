@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class GenericDataObject : DataObjectHeader, IDataObject<object> {
     public object m_data;
     public object Data { get=>m_data; set { m_data=value; SetModified(); }  }

@@ -1,12 +1,10 @@
 using System.Text.RegularExpressions;
 
 /// <summary>
-/// Used to select a single or multiple DataObjects
+/// Used to select a single or multiple DataObjs
 /// </summary>
 
-// OBSOLETE
-
-public struct ObjectFilter {
+public struct ObjFilter {
 
     public enum NameCriterionEnum {
         None,
@@ -81,7 +79,7 @@ public struct ObjectFilter {
     public IdCriterion IdType { get => m_idCriterion; set => m_idCriterion = value; }
 
     // *** Query
-    public bool Pass(IObject obj) {
+    public bool Pass(IObj obj) {
         // Check name
         switch (m_nameCriterion) {
             case NameCriterionEnum.None:
@@ -178,7 +176,7 @@ public struct ObjectFilter {
     // *** Contstructors
     // Constructors have 3 pairs of arguments: Name+NameCriterion, TypeName+TypeNameCriterion, Id+IdCriterion
     // List them in that order, omit any pair you don't need, and you have a valid constructor
-    ObjectFilter(
+    ObjFilter(
         string name,
         NameCriterionEnum nameCriterion,
         string typeName=null,
@@ -197,7 +195,7 @@ public struct ObjectFilter {
         UpdateNameRegex();
         UpdateTypeNameRegex();
     }
-    ObjectFilter(
+    ObjFilter(
         string typeName,
         TypeNameCriterionEnum typeNameCriterion,
         long id = 0,
@@ -213,7 +211,7 @@ public struct ObjectFilter {
         m_typeNameRegex = null;
         UpdateTypeNameRegex();
     }
-    ObjectFilter(
+    ObjFilter(
         string name,
         NameCriterionEnum nameCriterion,
         long id,
@@ -229,7 +227,7 @@ public struct ObjectFilter {
         m_typeNameRegex = null;
         UpdateNameRegex();
     }
-    ObjectFilter(
+    ObjFilter(
         long id,
         IdCriterion idCriterion
     ) {

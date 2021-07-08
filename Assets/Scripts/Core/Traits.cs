@@ -1025,18 +1025,19 @@ public class TraitsKVariableTypeSet : ITraits<KVariableTypeSet, bool> {
     public KVariableTypeSet PositiveInfinite(int nElems=1) { throw new System.InvalidOperationException(); }
     public bool ElementAccessByIndex { get=>true; }
     public bool ElementAccessByString { get=>true; }
-    public bool GetComponent(KVariableTypeSet data, int elem) {
-        KVariableEnum kvType = (KVariableEnum)elem;
+    public bool GetComponent(KVariableTypeSet data, int index) {
+        KVariableEnum kvType = KVariableTypeInfo.IndexToKVariableEnum(index);
         return data.Contains(kvType);
     }
     public bool GetComponent(KVariableTypeSet data, string elem) {
         return data.Contains(elem);
     }
-    public void SetComponent(ref KVariableTypeSet data, int elem, bool value) {
+    public void SetComponent(ref KVariableTypeSet data, int index, bool value) {
+        KVariableEnum kvType = KVariableTypeInfo.IndexToKVariableEnum(index);
         if (value) {
-            data.Add((KVariableEnum)elem);
+            data.Add(kvType);
         } else {
-            data.Remove((KVariableEnum)elem);
+            data.Remove(kvType);
         }
     }
     public void SetComponent(ref KVariableTypeSet data, string elem, bool value) {

@@ -7,7 +7,7 @@ public class KVariablesExtDataObject<T> : DataSetObjectHeader , IDataSetObject<K
     public KVariablesExt<T> Data { get=>m_data; set { m_data=value; SetModified(); } }
     public override DataTypeEnum DataType { get=>Traits.DataType; }
     public override DataTypeEnum ComponentType { get=>Traits.ComponentType; }
-    public override string GetComponentName(int elem) { return ((KVariableEnum)elem).ToString(); }
+    public override string GetComponentName(int index) { return KVariableTypeInfo.IndexToKVariableEnum(index).ToString(); }
     public override int GetComponentIndex(string elem) { return (int)KVariableTypeInfo.Aliases[elem]; }
     public override bool ElementAccessByString { get=>true; }
     public T this[int elem] { get=>m_data[elem]; set=>m_data[elem]=value; }

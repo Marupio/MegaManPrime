@@ -124,7 +124,7 @@ public class KVariableTypeSet {
         return (kveValue & m_value) == kveValue;
     }
     public bool Contains(string name) {
-        return Contains(KVariableTypeInfo.EnumFromName(name));
+        return Contains(KVariableTypeInfo.StringToKVariableEnum(name));
     }
 
     // *** Edit
@@ -167,7 +167,7 @@ public class KVariableTypeSet {
         return Add((int)value);
     }
     public int Add(string name) {
-        return Add(KVariableTypeInfo.EnumFromName(name));
+        return Add(KVariableTypeInfo.StringToKVariableEnum(name));
     }
     public int Remove(KVariableTypeSet kv) {
         int countBefore = Count;
@@ -187,7 +187,7 @@ public class KVariableTypeSet {
         return Remove((int)value);
     }
     public int Remove(string name) {
-        return Remove(KVariableTypeInfo.EnumFromName(name));
+        return Remove(KVariableTypeInfo.StringToKVariableEnum(name));
     }
 
     // TODO - add formated methods

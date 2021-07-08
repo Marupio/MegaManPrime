@@ -1,0 +1,26 @@
+IObject             Name, Id, MTag, Parent
+IDataObjectHdr      DataType
+IData<L>            Data, Traits
+DataInstances       
+
+ISourceDataHdr      Nothing
+IDerivedDataHdr     DependsOn, UpToDate
+
+ISourceData<L>      Data {get set}
+IDerivedData<L>     Data {get}, Updater, UpdateDerived()
+
+KVarObj varsCopy = new KVarsObj(workingVars);
+varsCopy.RegisterToParent()
+
+Creating a new IObj no parent - orphan
+Does not automatically register with parent of associated class
+
+Constructors
+    Stream constructor (from file stream or io stream of some sort) - future
+    Component constructor
+    Copy constructor
+        Copies value types, 
+    Parameterless
+
+    Clone
+    CloneFamily

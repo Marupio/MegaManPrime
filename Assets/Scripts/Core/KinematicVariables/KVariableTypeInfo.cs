@@ -153,16 +153,51 @@ public static class KVariableTypeInfo {
         {"ImpulseForceRate", KVariableEnum.ImpulseForceDerivative},
         {"ImpulseTorqueRate", KVariableEnum.ImpulseForceDerivative}
     };
-    public static KVariableEnum EnumFromName(string name) {
+    public static KVariableEnum StringToKVariableEnum(string name) {
         KVariableEnum baseEnum = KVariableEnum.None;
         Aliases.TryGetValue(name, out baseEnum);
         return baseEnum;
     }
-    public static int EnumValueFromName(string name) {
+    public static int StringToKVariableEnumIntValue(string name) {
         KVariableEnum baseEnum;
         if (Aliases.TryGetValue(name, out baseEnum)) {
             return (int)baseEnum;
         }
         return -1;
+    }
+    /// <summary>
+    /// When taking an int as an index for KVariables, rather than as a bitset mask, like KVariableTypeSet, use this conversion
+    /// </summary>
+    public static KVariableEnum IndexToKVariableEnum(int index) {
+        int kvInt = 1;
+        for (int i = 0; i < index; ++i, kvInt*=2) {}
+        return (KVariableEnum)kvInt;
+    }
+    /// <summary>
+    /// When taking an int as an index for KVariables, rather than as a bitset mask, like KVariableTypeSet, use this conversion
+    /// </summary>
+    public static int KVariableEnumToIndex(KVariableEnum enumIn) {
+        switch(enumIn) {
+            case KVariableEnum.None:
+                return 0;
+            case KVariableEnum.Variable:
+                return 1;
+            case KVariableEnum.Derivative:
+                return 2;
+            case KVariableEnum.SecondDerivative:
+                return 3;
+            case KVariableEnum.ThirdDerivative:
+                return 4;
+            case KVariableEnum.AppliedForce:
+                return 5;
+            case KVariableEnum.ImpulseForce:
+                return 6;
+            case KVariableEnum.AppliedForceDerivative:
+                return 7;
+            case KVariableEnum.ImpulseForceDerivative:
+                return 8;
+            default:
+                return -1;
+        }
     }
 }
