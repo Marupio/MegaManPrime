@@ -14,6 +14,6 @@ public struct Trigger {
     }
     public void Set() { m_triggerSet = true; }
     public void Reset() { m_triggerSet = false; }
-    public static implicit  operator bool(Trigger trigger) { return trigger.Get(); }
+    public static implicit operator bool(Trigger trigger) { return trigger.Get(); }
     public Trigger(bool triggerSet) { m_triggerSet = triggerSet; }
 }

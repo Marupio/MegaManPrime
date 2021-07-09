@@ -16,7 +16,6 @@ public class DataObjHeader : ObjHeader, IDataObjMeta {
         DataObjHeader newObj = new DataObjHeader(this);
         return (IObj)newObj;
     }
-
     public DataObjHeader(string name, IObjRegistry parent = null) : base (name, parent) {}
     public DataObjHeader(DataObjHeader obj) : base(obj) {}
     public DataObjHeader() {}

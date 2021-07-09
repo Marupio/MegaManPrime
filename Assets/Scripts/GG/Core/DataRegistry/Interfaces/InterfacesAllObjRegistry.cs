@@ -89,16 +89,15 @@ public interface IObjRegistry : IObj {
     bool UnregisterChild(long id);
     IObjRegistry CloneFamily(IObjRegistry parent = null);
 }
-public interface IDataObjMeta : IObj {
-    DataTypeEnum DataType { get; }
-    // Sideways
-    ISourceDataObjMeta SourceDataObjMeta();
-    IDerivedDataObjMeta DerivedDataObjMeta();
-    // Down
-    IDataSetObjMeta DataSetObjMeta();
-}
+
+// TODO - maybe we extend this way?
+// public interface IControllerObj
+
+//public interface IDataObjMeta : IObj --> see DataObjHeader
+
 public interface ISourceDataObjMeta : IDataObjMeta {
-    // Nothing
+    // For now, nothing, but in the future, maybe:
+    // IControllerObj ControlledBy { get; set; }
 }
 public interface IDerivedDataObjMeta : IDataObjMeta {
     List<IDataObjMeta> DependsOn { get; }

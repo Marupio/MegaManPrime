@@ -7,34 +7,34 @@ public static class DataTypeStaticData {
 }
 
 public enum DataTypeEnum {
- // MAIN TYPE (L)               // COMPONENT TYPE (C)
 // *** SINGLE TYPES
-    None,                       // None
-    TriggerType,                // None
-    Bool,                       // None
-    Char,                       // None
-    String,                     // Char
-    Int,                        // None
-    Float,                      // None
-    Vector2IntType,             // Int
-    Vector2Type,                // Float
-    Vector3IntType,             // Int
-    Vector3Type,                // Float
-    Vector4Type,                // Int
-    QuaternionType,             // Float
+    // ENUM_NAME        // PREFIX_NAME      // TYPE_NAME         // COMPONENT     // ZERO
+    None,               // Object           // object            // object        // null
+    TriggerType,        // Trigger          // Trigger           // object        // new Trigger()
+    Bool,               // Bool             // bool              // object        // false
+    Char,               // Char             // char              // object        // '\0'
+    String,             // String           // string            // char          // ""
+    Int,                // Int              // int               // object        // 0
+    Float,              // Float            // float             // object        // 0f
+    Vector2IntType,     // Vector2Int       // Vector2Int        // int           // Vector2Int.zero
+    Vector2Type,        // Vector2          // Vector2           // float         // Vector2.zero
+    Vector3IntType,     // Vector3Int       // Vector3Int        // int           // Vector3Int.zero
+    Vector3Type,        // Vector3          // Vector3           // float         // Vector3.zero
+    Vector4Type,        // Vector4          // Vector4           // float         // Vector4.zero
+    QuaternionType,     // Quaternion       // Quaternion        // float         // Quaternion.identity
 // *** LIST TYPES
-    List_Trigger,               // Trigger
-    List_Bool,                  // Bool
-    List_Char,                  // Char
-    List_String,                // String
-    List_Int,                   // Int
-    List_Float,                 // Float
-    List_Vector2Int,            // Vector2Int
-    List_Vector2,               // Vector2
-    List_Vector3Int,            // Vector3Int
-    List_Vector3,               // Vector3
-    List_Vector4,               // Vector4
-    List_Quaternion,            // Quaternion
+    List_Trigger,       // TriggerList      // List<Trigger>     // Trigger       // new List<Trigger>()
+    List_Bool,          // BoolList         // List<Bool>        // Bool          // new List<Bool>()
+    List_Char,          // CharList         // List<Char>        // Char          // new List<Char>()
+    List_String,        // StringList       // List<String>      // String        // new List<String>()
+    List_Int,           // IntList          // List<Int>         // Int           // new List<Int>()
+    List_Float,         // FloatList        // List<Float>       // Float         // new List<Float>()
+    List_Vector2Int,    // Vector2IntList   // List<Vector2Int>  // Vector2Int    // new List<Vector2Int>()
+    List_Vector2,       // Vector2List      // List<Vector2>     // Vector2       // new List<Vector2>()
+    List_Vector3Int,    // Vector3IntList   // List<Vector3Int>  // Vector3Int    // new List<Vector3Int>()
+    List_Vector3,       // Vector3List      // List<Vector3>     // Vector3       // new List<Vector3>()
+    List_Vector4,       // Vector4List      // List<Vector4>     // Vector4       // new List<Vector4>()
+    List_Quaternion,    // QuaternionList   // List<Quaternion>  // Quaternion    // new List<Quaternion>()
 // *** KVARIABLES TYPES
     KVariables_Trigger,         // Trigger
     KVariables_Bool,            // Bool
