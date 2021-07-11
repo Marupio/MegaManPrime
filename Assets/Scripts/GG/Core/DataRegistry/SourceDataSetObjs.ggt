@@ -1,55 +1,26 @@
-public class TriggerListDataObj : SourceDataSetObj<List<Trigger>, Trigger> {
-    public static readonly TraitsSimpleTrigger m_traitsSimple = new TraitsSimpleTrigger();
-    public static readonly TraitsListTrigger m_traits = new TraitsListTrigger();
-    public override ITraitsSimple<Trigger> TraitsSimple { get=>m_traitsSimple; }
-    public override ITraits<List<Trigger>, List> Traits { get=>m_traits; }
-    public override DataTypeEnum DataType { get=>DataTypeEnum.List_Trigger; }
-    public override DataTypeEnum ComponentType { get=>DataTypeEnum.Trigger; }
-    public ComponentAccessType PreferredAccessType { get=>ComponentAccesType.Index; }
-    public bool ElementAccessByIndex() { return true; }
-    public bool ElementAccessByString() { return false; }
-    public string GetComponentName(int elem) { return elem.ToString(); }
-    public int GetComponentIndex(string elem) { return int.Parse(elem); }
-    public List<Trigger> Data { get => m_data; set { TraitsSimple.SetEqual(ref m_data, value); SetModified(); } }
-    public Trigger this[int elem] { get=>m_data[elem]; set=>m_data[elem]=value; }
-    public Trigger this[string elem] { get { Trigger value; m_data.Get(elem, ref value); } set{ m_data.Set(elem, value); } }
-    public override TriggerListDataObj Clone(IObjRegistry parent) {
-        TriggerListDataObj obj = new TriggerListDataObj(m_name, parent, m_data);
-        return IObj(obj);
-    }
-    TriggerListDataObj(
-        string name,
-        IObjRegistry parent = null,
-        List<Trigger> m_data = default(m_data)
-    ) : base(name, parent, m_data) {}
-    public TriggerListDataObj(TriggerListDataObj obj) : base(obj) {}
-    public TriggerListDataObj() {}
-}
+using UnityEngine;
+using System.Collections.Generic;
 
-public class $prefix\$DataObj : SourceDataSetObj<$type\$, $component\$> {
-    public static readonly TraitsSimpleTriggerList m_traitsSimple = new TraitsSimpleTriggerList();
-    public static readonly TraitsTriggerList m_traits = new TraitsTriggerList();
-    public override ITraitsSimple<Trigger> TraitsSimple { get=>m_traitsSimple; }
-    public override ITraits<List<Trigger>, List> Traits { get=>m_traits; }
-    public override DataTypeEnum DataType { get=>DataTypeEnum.List_Trigger; }
-    public override DataTypeEnum ComponentType { get=>DataTypeEnum.Trigger; }
-    public ComponentAccessType PreferredAccessType { get=>ComponentAccesType.Index; }
-    public bool ElementAccessByIndex() { return true; }
-    public bool ElementAccessByString() { return false; }
-    public string GetComponentName(int elem) { return elem.ToString(); }
-    public int GetComponentIndex(string elem) { return int.Parse(elem); }
-    public List<Trigger> Data { get => m_data; set { TraitsSimple.SetEqual(ref m_data, value); SetModified(); } }
-    public Trigger this[int elem] { get=>m_data[elem]; set=>m_data[elem]=value; }
-    public Trigger this[string elem] { get { Trigger value; m_data.Get(elem, ref value); } set{ m_data.Set(elem, value); } }
-    public override TriggerListDataObj Clone(IObjRegistry parent) {
-        TriggerListDataObj obj = new TriggerListDataObj(m_name, parent, m_data);
+public class $prefix\$DataObj : SourceDataSetObj<$type\$, $component_type\$> {
+    public static readonly TraitsSimple$prefix\$ m_traitsSimple = new TraitsSimple$prefix\$();
+    public static readonly Traits$prefix\$ m_traits = new Traits$prefix\$();
+    public override ITraitsSimple<$component_type\$> TraitsSimple { get=>m_traitsSimple; }
+    public override ITraits<$type\$> Traits { get=>m_traits; }
+    public override DataTypeEnum DataType { get=>DataTypeEnum.$enum\$; }
+    public override DataTypeEnum ComponentType { get=>DataTypeEnum.$component_enum\$; }
+    public ComponentAccessType PreferredAccessType { get=>ComponentAccesType.$preferred_access_type\$; }
+    public int NComponents { get=>$n_components\$; }
+    public bool ElementAccessByIndex() { return $allow_component_by_index\$; }
+    public bool ElementAccessByString() { return $allow_component_by_string\$; }
+    public string GetComponentName(int index) { $return_component_name_from_index\$ }
+    public int GetComponentIndex(string elem) { $return_component_index_from_name\$ }
+    public $component_type\$ this[int elem] { get { $return_component_by_index\$ } set { $set_component_by_index\$ } }
+    public $component_type\$ this[string elem] { get { $return_component_by_string\$ } set{ $set_component_by_string\$ } }
+    public override $prefix\$DataObj Clone(IObjRegistry parent) {
+        $prefix\$DataObj obj = new $prefix\$DataObj(m_name, parent, m_data);
         return IObj(obj);
     }
-    TriggerListDataObj(
-        string name,
-        IObjRegistry parent = null,
-        List<Trigger> m_data = default(m_data)
-    ) : base(name, parent, m_data) {}
-    public TriggerListDataObj(TriggerListDataObj obj) : base(obj) {}
-    public TriggerListDataObj() {}
+    $prefix\$DataObj(string name, IObjRegistry parent = null, $type\$ m_data = default(m_data)) : base(name, parent, m_data) {}
+    public $prefix\$DataObj($prefix\$DataObj obj) : base(obj) {}
+    public $prefix\$DataObj() {}
 }

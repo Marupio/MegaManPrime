@@ -11,8 +11,8 @@ public class Traits$prefix\$ : ITraits<$type\$, $component_type\$> {
     public $type\$ PositiveInfinity { get { $positive_infinity_return\$ } }
     public $type\$ PositiveInfinities(int nElems=1) { $positive_infinities_return\$ }
     public ComponentAccessType PreferredAccessType { get=>ComponentAccessType.$preferred_access_type\$; }
-    public bool ElementAccessByIndex { get=>$component_by_index\$; }
-    public bool ElementAccessByString { get=>$component_by_string\$; }
+    public bool ElementAccessByIndex { get=>$allow_component_by_index\$; }
+    public bool ElementAccessByString { get=>$allow_component_by_string\$; }
     public $component_type\$ GetComponent($type\$ data, int index) { $return_component_by_index\$ }
     public $component_type\$ GetComponent($type\$ data, string elem) { $return_component_by_string\$ }
     public void SetComponent(ref $type\$ data, int index, $component_type\$ value) { $set_component_by_index\$ }

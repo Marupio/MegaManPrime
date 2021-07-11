@@ -1,12 +1,23 @@
+using System.Collections.Generic;
+
 public static class ComponentNames {
-    public static readonly Dictionary<string, int> Vector2Names = new Dictionary<string, int>{
+    public static readonly Dictionary<string, int> Vector2NameToIndex = new Dictionary<string, int>{
         {"X", 0}, {"x", 0}, {"Y", 1}, {"y", 1}
     };
-    public static readonly Dictionary<string, int> Vector3Names = new Dictionary<string, int>{
+    public static readonly Dictionary<string, int> Vector3NameToIndex = new Dictionary<string, int>{
         {"X", 0}, {"x", 0}, {"Y", 1}, {"y", 1}, {"Z", 2}, {"z", 2}
     };
-    public static readonly Dictionary<string, int> Vector4Names = new Dictionary<string, int>{
+    public static readonly Dictionary<string, int> Vector4NameToIndex = new Dictionary<string, int>{
         {"X", 0}, {"x", 0}, {"Y", 1}, {"y", 1}, {"Z", 2}, {"z", 2}, {"W", 3}, {"w", 3}
+    };
+    public static readonly Dictionary<int, string> Vector2IndexToName = new Dictionary<int, string>{
+        {0, "X"}, {1, "Y"}
+    };
+    public static readonly Dictionary<int, string> Vector3IndexToName = new Dictionary<int, string>{
+        {0, "X"}, {1, "Y"}, {2, "Z"}
+    };
+    public static readonly Dictionary<int, string> Vector4IndexToName = new Dictionary<int, string>{
+        {0, "X"}, {1, "Y"}, {2, "Z"}, {3, "W"}
     };
 }
 

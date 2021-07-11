@@ -1,18 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class ComponentNames {
-    public static readonly Dictionary<string, int> Vector2Names = new Dictionary<string, int>{
-        {"X", 0}, {"x", 0}, {"Y", 1}, {"y", 1}
-    };
-    public static readonly Dictionary<string, int> Vector3Names = new Dictionary<string, int>{
-        {"X", 0}, {"x", 0}, {"Y", 1}, {"y", 1}, {"Z", 2}, {"z", 2}
-    };
-    public static readonly Dictionary<string, int> Vector4Names = new Dictionary<string, int>{
-        {"X", 0}, {"x", 0}, {"Y", 1}, {"y", 1}, {"Z", 2}, {"z", 2}, {"W", 3}, {"w", 3}
-    };
-}
-
+// THIS IS AN AUTOMATICALLY GENERATED FILE (ACTUALLY THE MANUAL-KIND OF AUTOMATIC)
+// DO NOT EDIT
 
 public class TraitsNone : ITraits<object, object> {
     public DataTypeEnum DataType { get=>DataTypeEnum.None; }
@@ -380,9 +370,9 @@ public class TraitsVector2Int : ITraits<Vector2Int, int> {
     public bool ElementAccessByIndex { get=>true; }
     public bool ElementAccessByString { get=>true; }
     public int GetComponent(Vector2Int data, int index) { return data[index]; }
-    public int GetComponent(Vector2Int data, string elem) { return data[ComponentNames.Vector2Names[elem]]; }
+    public int GetComponent(Vector2Int data, string elem) { return data[ComponentNames.Vector2NameToIndex[elem]]; }
     public void SetComponent(ref Vector2Int data, int index, int value) { data[index] = value; }
-    public void SetComponent(ref Vector2Int data, string elem, int value) { data[ComponentNames.Vector2Names[elem]]=value; }
+    public void SetComponent(ref Vector2Int data, string elem, int value) { data[ComponentNames.Vector2NameToIndex[elem]]=value; }
 }
 public class TraitsVector2 : ITraits<Vector2, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Vector2Type; }
@@ -397,9 +387,9 @@ public class TraitsVector2 : ITraits<Vector2, float> {
     public bool ElementAccessByIndex { get=>true; }
     public bool ElementAccessByString { get=>true; }
     public float GetComponent(Vector2 data, int index) { return data[index]; }
-    public float GetComponent(Vector2 data, string elem) { return data[ComponentNames.Vector2Names[elem]]; }
+    public float GetComponent(Vector2 data, string elem) { return data[ComponentNames.Vector2NameToIndex[elem]]; }
     public void SetComponent(ref Vector2 data, int index, float value) { data[index]=value; }
-    public void SetComponent(ref Vector2 data, string elem, float value) { data[ComponentNames.Vector2Names[elem]]=value; }
+    public void SetComponent(ref Vector2 data, string elem, float value) { data[ComponentNames.Vector2NameToIndex[elem]]=value; }
 }
 public class TraitsVector3Int : ITraits<Vector3Int, int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Vector3IntType; }
@@ -426,9 +416,9 @@ public class TraitsVector3Int : ITraits<Vector3Int, int> {
     public bool ElementAccessByIndex { get=>true; }
     public bool ElementAccessByString { get=>true; }
     public int GetComponent(Vector3Int data, int index) { return data[index]; }
-    public int GetComponent(Vector3Int data, string elem) { return data[ComponentNames.Vector3Names[elem]]; }
+    public int GetComponent(Vector3Int data, string elem) { return data[ComponentNames.Vector3NameToIndex[elem]]; }
     public void SetComponent(ref Vector3Int data, int index, int value) { data[index]=value; }
-    public void SetComponent(ref Vector3Int data, string elem, int value) { data[ComponentNames.Vector3Names[elem]]=value; }
+    public void SetComponent(ref Vector3Int data, string elem, int value) { data[ComponentNames.Vector3NameToIndex[elem]]=value; }
 }
 public class TraitsVector3 : ITraits<Vector3, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Vector3Type; }
@@ -443,9 +433,9 @@ public class TraitsVector3 : ITraits<Vector3, float> {
     public bool ElementAccessByIndex { get=>true; }
     public bool ElementAccessByString { get=>true; }
     public float GetComponent(Vector3 data, int index) { return data[index]; }
-    public float GetComponent(Vector3 data, string elem) { return data[ComponentNames.Vector3Names[elem]]; }
+    public float GetComponent(Vector3 data, string elem) { return data[ComponentNames.Vector3NameToIndex[elem]]; }
     public void SetComponent(ref Vector3 data, int index, float value) { data[index]=value; }
-    public void SetComponent(ref Vector3 data, string elem, float value) { data[ComponentNames.Vector3Names[elem]]=value; }
+    public void SetComponent(ref Vector3 data, string elem, float value) { data[ComponentNames.Vector3NameToIndex[elem]]=value; }
 }
 public class TraitsVector4 : ITraits<Vector4, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Vector4Type; }
@@ -460,9 +450,9 @@ public class TraitsVector4 : ITraits<Vector4, float> {
     public bool ElementAccessByIndex { get=>true; }
     public bool ElementAccessByString { get=>true; }
     public float GetComponent(Vector4 data, int index) { return data[index]; }
-    public float GetComponent(Vector4 data, string elem) { return data[ComponentNames.Vector4Names[elem]]; }
+    public float GetComponent(Vector4 data, string elem) { return data[ComponentNames.Vector4NameToIndex[elem]]; }
     public void SetComponent(ref Vector4 data, int index, float value) { data[index]=value; }
-    public void SetComponent(ref Vector4 data, string elem, float value) { data[ComponentNames.Vector4Names[elem]]=value; }
+    public void SetComponent(ref Vector4 data, string elem, float value) { data[ComponentNames.Vector4NameToIndex[elem]]=value; }
 }
 public class TraitsQuaternion : ITraits<Quaternion, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.QuaternionType; }
@@ -489,9 +479,9 @@ public class TraitsQuaternion : ITraits<Quaternion, float> {
     public bool ElementAccessByIndex { get=>false; }
     public bool ElementAccessByString { get=>false; }
     public float GetComponent(Quaternion data, int index) { return data[index]; }
-    public float GetComponent(Quaternion data, string elem) { return data[ComponentNames.Vector4Names[elem]]; }
+    public float GetComponent(Quaternion data, string elem) { return data[ComponentNames.Vector4NameToIndex[elem]]; }
     public void SetComponent(ref Quaternion data, int index, float value) { data[index]=value; }
-    public void SetComponent(ref Quaternion data, string elem, float value) { data[ComponentNames.Vector4Names[elem]]=value; }
+    public void SetComponent(ref Quaternion data, string elem, float value) { data[ComponentNames.Vector4NameToIndex[elem]]=value; }
 }
 public class TraitsTriggerList : ITraits<List<Trigger>, Trigger> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Trigger; }

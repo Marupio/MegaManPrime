@@ -7,11 +7,7 @@ public abstract class SourceDataSetObj<L, C> : DataSetObjHeader, IDataSetObj<L, 
     public L Data { get => m_data; set { TraitsSimple.SetEqual(ref m_data, value); SetModified(); } }
     public abstract C this[int elem] { get; set; }
     public abstract C this[string elem] { get; set; }
-    public SourceDataSetObj(
-        string name,
-        IObjRegistry parent = null,
-        L data = default(L)
-    ) : base(name, parent) { TraitsSimple.SetEqual(ref m_data, data); }
+    public SourceDataSetObj(string name, IObjRegistry parent = null, L data = default(L)) : base(name, parent) { TraitsSimple.SetEqual(ref m_data, data); }
     public SourceDataSetObj(SourceDataSetObj<L, C> obj) : base(obj) {
         TraitsSimple.SetEqual(ref m_data, obj.m_data);
     }
