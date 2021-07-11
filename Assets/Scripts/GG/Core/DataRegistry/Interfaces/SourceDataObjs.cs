@@ -1,72 +1,8 @@
 using UnityEngine;
+using System.Collections.Generic;
 
-public abstract class SourceDataObj<L> : DataObjHeader, IDataObj<L> {
-    public L m_data;
-    public virtual ITraitsSimple<L> TraitsSimple { get; }
-    public L Data { get=>m_data; set { TraitsSimple.SetEqual(ref m_data, value); SetModified(); }  }
-    public SourceDataObj(
-        string name,
-        IObjRegistry parent = null,
-        L data = default(L)
-    ) : base (name, parent) { TraitsSimple.SetEqual(ref m_data, data); }
-    public SourceDataObj(SourceDataObj<L> obj) : base(obj) {
-        TraitsSimple.SetEqual(ref m_data, obj.m_data);
-    }
-    public SourceDataObj() {}
-}
-// TEMPLATE
-// public class $PREFIX_1SourceDataObj : SourceDataObj<$TYPE_1> {
-//     public static readonly TraitsSimple$PREFIX_2 m_traitsSimple = new TraitsSimple$PREFIX_3();
-//     public override ITraitsSimple<$TYPE_2> TraitsSimple { get=>m_traitsSimple; }
-//     public override DataTypeEnum DataType { get=>$DATA_TYPE_ENUM; }
-//     public override IObj Clone(IObjRegistry parent = null) {
-//         $PREFIX_4SourceDataObj obj = new $PREFIX_5SourceDataObj(this);
-//         if (parent != null) {
-//             obj.UnregisterFromParent();
-//             obj.RegisterToParent(parent);
-//         }
-//         return (IObj)obj;
-//     }
-//     public $PREFIX_6SourceDataObj(string name, IObjRegistry parent = null, $TYPE_3 value = false)
-//     : base (name, parent) {}
-//     public $PREFIX_7SourceDataObj($PREFIX_8SourceDataObj obj) : base(obj) {}
-//     public $PREFIX_9SourceDataObj() {}
-// }
+// Auto-generated file by substituting data from TypeTemplates.jsonc into SourceDataObjs.ggt
 
-public class NoneSourceDataObj : SourceDataObj<object> {
-    public static readonly TraitsSimpleNone m_traitsSimple = new TraitsSimpleNone();
-    public override ITraitsSimple<object> TraitsSimple { get=>m_traitsSimple; }
-    public override DataTypeEnum DataType { get=>DataTypeEnum.None; }
-    public override IObj Clone(IObjRegistry parent = null) {
-        NoneSourceDataObj obj = new NoneSourceDataObj(this);
-        if (parent != null) {
-            obj.UnregisterFromParent();
-            obj.RegisterToParent(parent);
-        }
-        return (IObj)obj;
-    }
-    public NoneSourceDataObj(string name, IObjRegistry parent = null, object value = false)
-    : base (name, parent) {}
-    public NoneSourceDataObj(NoneSourceDataObj obj) : base(obj) {}
-    public NoneSourceDataObj() {}
-}
-public class TriggerSourceDataObj : SourceDataObj<Trigger> {
-    public static readonly TraitsSimpleTrigger m_traitsSimple = new TraitsSimpleTrigger();
-    public override ITraitsSimple<Trigger> TraitsSimple { get=>m_traitsSimple; }
-    public override DataTypeEnum DataType { get=>DataTypeEnum.TriggerType; }
-    public override IObj Clone(IObjRegistry parent = null) {
-        TriggerSourceDataObj obj = new TriggerSourceDataObj(this);
-        if (parent != null) {
-            obj.UnregisterFromParent();
-            obj.RegisterToParent(parent);
-        }
-        return (IObj)obj;
-    }
-    public TriggerSourceDataObj(string name, IObjRegistry parent = null, Trigger value = new Trigger())
-    : base (name, parent) {}
-    public TriggerSourceDataObj(TriggerSourceDataObj obj) : base(obj) {}
-    public TriggerSourceDataObj() {}
-}
 public class BoolSourceDataObj : SourceDataObj<bool> {
     public static readonly TraitsSimpleBool m_traitsSimple = new TraitsSimpleBool();
     public override ITraitsSimple<bool> TraitsSimple { get=>m_traitsSimple; }
@@ -84,6 +20,23 @@ public class BoolSourceDataObj : SourceDataObj<bool> {
     public BoolSourceDataObj(BoolSourceDataObj obj) : base(obj) {}
     public BoolSourceDataObj() {}
 }
+public class TriggerSourceDataObj : SourceDataObj<Trigger> {
+    public static readonly TraitsSimpleTrigger m_traitsSimple = new TraitsSimpleTrigger();
+    public override ITraitsSimple<Trigger> TraitsSimple { get=>m_traitsSimple; }
+    public override DataTypeEnum DataType { get=>DataTypeEnum.TriggerType; }
+    public override IObj Clone(IObjRegistry parent = null) {
+        TriggerSourceDataObj obj = new TriggerSourceDataObj(this);
+        if (parent != null) {
+            obj.UnregisterFromParent();
+            obj.RegisterToParent(parent);
+        }
+        return (IObj)obj;
+    }
+    public TriggerSourceDataObj(string name, IObjRegistry parent = null, Trigger value = default(Trigger))
+    : base (name, parent) {}
+    public TriggerSourceDataObj(TriggerSourceDataObj obj) : base(obj) {}
+    public TriggerSourceDataObj() {}
+}
 public class CharSourceDataObj : SourceDataObj<char> {
     public static readonly TraitsSimpleChar m_traitsSimple = new TraitsSimpleChar();
     public override ITraitsSimple<char> TraitsSimple { get=>m_traitsSimple; }
@@ -96,7 +49,7 @@ public class CharSourceDataObj : SourceDataObj<char> {
         }
         return (IObj)obj;
     }
-    public CharSourceDataObj(string name, IObjRegistry parent = null, char value = '\0')
+    public CharSourceDataObj(string name, IObjRegistry parent = null, char value = default(char))
     : base (name, parent) {}
     public CharSourceDataObj(CharSourceDataObj obj) : base(obj) {}
     public CharSourceDataObj() {}
@@ -113,27 +66,27 @@ public class StringSourceDataObj : SourceDataObj<string> {
         }
         return (IObj)obj;
     }
-    public StringSourceDataObj(string name, IObjRegistry parent = null, string value = "")
+    public StringSourceDataObj(string name, IObjRegistry parent = null, string value = default(string))
     : base (name, parent) {}
     public StringSourceDataObj(StringSourceDataObj obj) : base(obj) {}
     public StringSourceDataObj() {}
 }
-public class IntSourceDataObj : SourceDataObj<int> {
+public class IntgerSourceDataObj : SourceDataObj<int> {
     public static readonly TraitsSimpleInt m_traitsSimple = new TraitsSimpleInt();
     public override ITraitsSimple<int> TraitsSimple { get=>m_traitsSimple; }
     public override DataTypeEnum DataType { get=>DataTypeEnum.Int; }
     public override IObj Clone(IObjRegistry parent = null) {
-        IntSourceDataObj obj = new IntSourceDataObj(this);
+        IntgerSourceDataObj obj = new IntgerSourceDataObj(this);
         if (parent != null) {
             obj.UnregisterFromParent();
             obj.RegisterToParent(parent);
         }
         return (IObj)obj;
     }
-    public IntSourceDataObj(string name, IObjRegistry parent = null, int value = 0)
+    public IntgerSourceDataObj(string name, IObjRegistry parent = null, int value = 0)
     : base (name, parent) {}
-    public IntSourceDataObj(IntSourceDataObj obj) : base(obj) {}
-    public IntSourceDataObj() {}
+    public IntgerSourceDataObj(IntgerSourceDataObj obj) : base(obj) {}
+    public IntgerSourceDataObj() {}
 }
 public class FloatSourceDataObj : SourceDataObj<float> {
     public static readonly TraitsSimpleFloat m_traitsSimple = new TraitsSimpleFloat();
@@ -254,3 +207,4 @@ public class QuaternionSourceDataObj : SourceDataObj<Quaternion> {
     public QuaternionSourceDataObj(QuaternionSourceDataObj obj) : base(obj) {}
     public QuaternionSourceDataObj() {}
 }
+

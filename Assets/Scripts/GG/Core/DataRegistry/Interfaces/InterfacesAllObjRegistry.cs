@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-public interface IObj {
+public interface IObj {  // --> See ObjHeader for implementation
     string Name { get; }
     long Id { get; }
     void SetId(long id);
@@ -89,34 +89,37 @@ public interface IObjRegistry : IObj {
     bool UnregisterChild(long id);
     IObjRegistry CloneFamily(IObjRegistry parent = null);
 }
-
-// TODO - maybe we extend this way?
-// public interface IControllerObj
-
-//public interface IDataObjMeta : IObj --> see DataObjHeader
-
-public interface ISourceDataObjMeta : IDataObjMeta {
+// TODO - maybe we extend this way? --> public interface IControllerObj
+public interface IDataObjMeta : IObj { // --> DataObjHeader abstract implementation
+    DataTypeEnum DataType { get; }
+    // Sideways
+    ISourceDataObjMeta SourceDataObjMeta();
+    IDerivedDataObjMeta DerivedDataObjMeta();
+    // Down
+    IDataSetObjMeta DataSetObjMeta();
+}
+public interface ISourceDataObjMeta : IDataObjMeta {  // --> No direct implementations
     // For now, nothing, but in the future, maybe:
     // IControllerObj ControlledBy { get; set; }
 }
-public interface IDerivedDataObjMeta : IDataObjMeta {
+public interface IDerivedDataObjMeta : IDataObjMeta {  // --> // TODO
     List<IDataObjMeta> DependsOn { get; }
     bool UpToDate();
 }
-public interface IDataObj<L> : IDataObjMeta {
+public interface IDataObj<L> : IDataObjMeta {  // --> No direct implementations
     ITraitsSimple<L> TraitsSimple { get; }
     L Data { get; }
 }
-public interface ISourceDataObj<L> : IDataObj<L>, ISourceDataObjMeta {
-    new L Data { get; set; }
+public interface ISourceDataObj<L> : IDataObj<L>, ISourceDataObjMeta {  // --> SourceDataObj abstract implementation
+    new L Data { get; set; }                                            // --> SourceDataObjs derived implementations
 }
 public interface IDerivedDataObj<L> : IDataObj<L>, IDerivedDataObjMeta {
     IObjUpdater<L> Updater { get; set; }
     void UpdateDerived();
 }
-public interface IDataSetObjMeta : IDataObjMeta {
+public interface IDataSetObjMeta : IDataObjMeta {  // --> DataSetObjHeader abstract implementation
     DataTypeEnum ComponentType { get; }
-    ComponentAccessType PreferredAccessType { get; } // index | string | noPreference
+    ComponentAccessType PreferredAccessType { get; }
     bool ElementAccessByIndex { get; }
     bool ElementAccessByString { get; }
     string GetComponentName(int elem);
@@ -125,8 +128,17 @@ public interface IDataSetObjMeta : IDataObjMeta {
 }
 public interface IDataSetObj<L, C> : IDataSetObjMeta, IDataObj<L> {
     ITraits<L, C> Traits { get; }
-    C this[int elem] { get; set; }
-    C this[string elem] { get; set; }
+    C this[int elem] { get; }
+    C this[string elem] { get; }
+}
+public interface ISourceDataSetObj<L, C> : IDataSetObj<L, C>, ISourceDataObjMeta {
+    new L Data { get; set; }
+    new C this[int elem] { get; set; }
+    new C this[string elem] { get; set; }
+}
+public interface IDerivedDataSetObj<L, C> : IDataSetObj<L, C>, IDerivedDataObjMeta {
+    IObjUpdater<L> Updater { get; set; }
+    void UpdateDerived();
 }
 
 // *** Supporting definitions
@@ -134,7 +146,7 @@ public interface IObjUpdater<L> {
     void UpdateDerivedOn(IDerivedDataObj<L> target, ref L data);
 }
 public enum ComponentAccessType {
-    NoPreference,
+    None,
     Index,
     String
 }

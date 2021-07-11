@@ -1,0 +1,55 @@
+public class TriggerListDataObj : SourceDataSetObj<List<Trigger>, Trigger> {
+    public static readonly TraitsSimpleTrigger m_traitsSimple = new TraitsSimpleTrigger();
+    public static readonly TraitsListTrigger m_traits = new TraitsListTrigger();
+    public override ITraitsSimple<Trigger> TraitsSimple { get=>m_traitsSimple; }
+    public override ITraits<List<Trigger>, List> Traits { get=>m_traits; }
+    public override DataTypeEnum DataType { get=>DataTypeEnum.List_Trigger; }
+    public override DataTypeEnum ComponentType { get=>DataTypeEnum.Trigger; }
+    public ComponentAccessType PreferredAccessType { get=>ComponentAccesType.Index; }
+    public bool ElementAccessByIndex() { return true; }
+    public bool ElementAccessByString() { return false; }
+    public string GetComponentName(int elem) { return elem.ToString(); }
+    public int GetComponentIndex(string elem) { return int.Parse(elem); }
+    public List<Trigger> Data { get => m_data; set { TraitsSimple.SetEqual(ref m_data, value); SetModified(); } }
+    public Trigger this[int elem] { get=>m_data[elem]; set=>m_data[elem]=value; }
+    public Trigger this[string elem] { get { Trigger value; m_data.Get(elem, ref value); } set{ m_data.Set(elem, value); } }
+    public override TriggerListDataObj Clone(IObjRegistry parent) {
+        TriggerListDataObj obj = new TriggerListDataObj(m_name, parent, m_data);
+        return IObj(obj);
+    }
+    TriggerListDataObj(
+        string name,
+        IObjRegistry parent = null,
+        List<Trigger> m_data = default(m_data)
+    ) : base(name, parent, m_data) {}
+    public TriggerListDataObj(TriggerListDataObj obj) : base(obj) {}
+    public TriggerListDataObj() {}
+}
+
+public class $prefix\$DataObj : SourceDataSetObj<$type\$, $component\$> {
+    public static readonly TraitsSimpleTrigger m_traitsSimple = new TraitsSimpleTrigger();
+    public static readonly TraitsListTrigger m_traits = new TraitsListTrigger();
+    public override ITraitsSimple<Trigger> TraitsSimple { get=>m_traitsSimple; }
+    public override ITraits<List<Trigger>, List> Traits { get=>m_traits; }
+    public override DataTypeEnum DataType { get=>DataTypeEnum.List_Trigger; }
+    public override DataTypeEnum ComponentType { get=>DataTypeEnum.Trigger; }
+    public ComponentAccessType PreferredAccessType { get=>ComponentAccesType.Index; }
+    public bool ElementAccessByIndex() { return true; }
+    public bool ElementAccessByString() { return false; }
+    public string GetComponentName(int elem) { return elem.ToString(); }
+    public int GetComponentIndex(string elem) { return int.Parse(elem); }
+    public List<Trigger> Data { get => m_data; set { TraitsSimple.SetEqual(ref m_data, value); SetModified(); } }
+    public Trigger this[int elem] { get=>m_data[elem]; set=>m_data[elem]=value; }
+    public Trigger this[string elem] { get { Trigger value; m_data.Get(elem, ref value); } set{ m_data.Set(elem, value); } }
+    public override TriggerListDataObj Clone(IObjRegistry parent) {
+        TriggerListDataObj obj = new TriggerListDataObj(m_name, parent, m_data);
+        return IObj(obj);
+    }
+    TriggerListDataObj(
+        string name,
+        IObjRegistry parent = null,
+        List<Trigger> m_data = default(m_data)
+    ) : base(name, parent, m_data) {}
+    public TriggerListDataObj(TriggerListDataObj obj) : base(obj) {}
+    public TriggerListDataObj() {}
+}

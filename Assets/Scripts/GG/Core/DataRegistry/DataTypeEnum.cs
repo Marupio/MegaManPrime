@@ -10,7 +10,7 @@ public enum DataTypeEnum {
 // *** SINGLE TYPES
     // ENUM_NAME        // PREFIX_NAME      // TYPE_NAME         // COMPONENT     // ZERO
     None,               // Object           // object            // object        // null
-    TriggerType,        // Trigger          // Trigger           // object        // new Trigger()
+    TriggerType,        // Trigger          // Trigger           // object        // new Trigger()`
     Bool,               // Bool             // bool              // object        // false
     Char,               // Char             // char              // object        // '\0'
     String,             // String           // string            // char          // ""

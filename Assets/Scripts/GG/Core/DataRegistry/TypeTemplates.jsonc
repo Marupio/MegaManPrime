@@ -1,0 +1,618 @@
+{
+    "value_types" :
+    {
+        "count" : 13,
+        "data" :
+        [
+            {
+                "prefix" : "None",
+                "type" : "object",
+                "enum" : "None",
+                "component_enum" : "object",
+                "deep_copy" : "/* do nothing */",
+                "zero" : "null",
+                "zeroes_return" : "return null;",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "Bool",
+                "type" : "bool",
+                "enum" : "Bool",
+                "component_enum" : "object",
+                "deep_copy" : "lhs = rhs", 
+                "zero" : "false",
+                "zeroes_return" : "return false;",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "Trigger",
+                "type" : "Trigger",
+                "enum" : "TriggerType",
+                "component_enum" : "object",
+                "deep_copy" : "lhs = rhs",
+                "zero" : "Trigger.Default",
+                "zeroes_return" : "return Trigger.Default;",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "Char",
+                "type" : "char",
+                "enum" : "Char",
+                "component_enum" : "object",
+                "deep_copy" : "lhs = rhs",
+                "zero" : "default(char)",
+                "zeroes_return" : "return default(char);",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "String",
+                "type" : "string",
+                "enum" : "String",
+                "component_enum" : "char",
+                "deep_copy" : "lhs = rhs",
+                "zero" : "default(string)",
+                "zeroes_return" : "return default(string);",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "Intger",
+                "type" : "int",
+                "enum" : "Int",
+                "component_enum" : "object",
+                "deep_copy" : "lhs = rhs",
+                "zero" : "0",
+                "zeroes_return" : "return 0;",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "Float",
+                "type" : "float",
+                "enum" : "Float",
+                "component_enum" : "object",
+                "deep_copy" : "lhs = rhs",
+                "zero" : "0f",
+                "zeroes_return" : "return 0f;",
+                "has_infinity" : "true",
+                "positive_infinity" : "float.PositiveInfinity",
+                "positive_infinities_return" : "return float.PositiveInfinity;"
+            },
+            {
+                "prefix" : "Vector2Int",
+                "type" : "Vector2Int",
+                "enum" : "Vector2IntType",
+                "component_enum" : "int",
+                "deep_copy" : "lhs = rhs",
+                "zero" : "Vector2Int.zero",
+                "zeroes_return" : "return Vector2Int.zero;",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "Vector2",
+                "type" : "Vector2",
+                "enum" : "Vector2Type",
+                "component_enum" : "float",
+                "deep_copy" : "lhs = rhs",
+                "zero" : "Vector2.zero",
+                "zeroes_return" : "return Vector2.zero;",
+                "has_infinity" : "true",
+                "positive_infinity" : "Vector2.positiveInfinity",
+                "positive_infinities_return" : "return Vector2.positiveInfinity;"
+            },
+            {
+                "prefix" : "Vector3Int",
+                "type" : "Vector3Int",
+                "enum" : "Vector3IntType",
+                "component_enum" : "int",
+                "deep_copy" : "lhs = rhs",
+                "zero" : "Vector3Int.zero",
+                "zeroes_return" : "return Vector3Int.zero;",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "Vector3",
+                "type" : "Vector3",
+                "enum" : "Vector3Type",
+                "component_enum" : "float",
+                "deep_copy" : "lhs = rhs",
+                "zero" : "Vector3.zero",
+                "zeroes_return" : "return Vector3.zero;",
+                "has_infinity" : "true",
+                "positive_infinity" : "Vector3.positiveInfinity",
+                "positive_infinities_return" : "return Vector3.positiveInfinity;"
+            },
+            {
+                "prefix" : "Vector4",
+                "type" : "Vector4",
+                "enum" : "Vector4Type",
+                "component_enum" : "float",
+                "deep_copy" : "lhs = rhs",
+                "zero" : "Vector4.zero",
+                "zeroes_return" : "return Vector4.zero;",
+                "has_infinity" : "true",
+                "positive_infinity" : "Vector4.positiveInfinity",
+                "positive_infinities_return" : "Vector4.positiveInfinity;"
+            },
+            {
+                "prefix" : "Quaternion",
+                "type" : "Quaternion",
+                "enum" : "QuaternionType",
+                "component_enum" : "float",
+                "deep_copy" : "lhs = rhs",
+                "zero" : "Quaternion.identity",
+                "zeroes_return" : "return Quaternion.identity;",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            }
+        ]
+    },
+    "list_types" :
+    {
+        "count" : 12,
+        "data" :
+        [
+            {
+                "prefix" : "TriggerList",
+                "type" : "List<Trigger>",
+                "enum" : "List_Trigger",
+                "component_enum" : "Trigger",
+                "deep_copy" : "lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];}",
+                "zero" : "null",
+                "zeroes_return" : "List<Trigger> lst = new List<Trigger>(nElems); for(int i=0; i<nELems;++i){lst.Add(new Trigger());} return lst;",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "BoolList",
+                "type" : "List<bool>",
+                "enum" : "List_Bool",
+                "component_enum" : "Bool",
+                "deep_copy" : "lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];}",
+                "zero" : "null",
+                "zeroes_return" : "List<bool> lst = new List<Bool>(nElems); for(int i=0; i<nELems;++i){lst.Add(false);} return lst;",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "CharList",
+                "type" : "List<char>",
+                "enum" : "List_Char",
+                "component_enum" : "Char",
+                "deep_copy" : "lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];}",
+                "zero" : "null",
+                "zeroes_return" : "List<char> lst = new List<Char>(nElems); for(int i=0; i<nELems;++i){lst.Add(new char);} return lst;",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "StringList",
+                "type" : "List<string>",
+                "enum" : "List_String",
+                "component_enum" : "String",
+                "deep_copy" : "lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];}",
+                "zero" : "null",
+                "zeroes_return" : "List<string> lst = new List<String>(nElems); for(int i=0; i<nELems;++i){lst.Add(new string);} return lst;",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "IntList",
+                "type" : "List<int>",
+                "enum" : "List_Int",
+                "component_enum" : "Int",
+                "deep_copy" : "lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];}",
+                "zero" : "null",
+                "zeroes_return" : "List<int> lst = new List<Int>(nElems); for(int i=0; i<nELems;++i){lst.Add(0);} return lst;",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "FloatList",
+                "type" : "List<float>",
+                "enum" : "List_Float",
+                "component_enum" : "Float",
+                "deep_copy" : "lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];}",
+                "zero" : "null",
+                "zeroes_return" : "List<float> lst = new List<Float>(nElems); for(int i=0; i<nELems;++i){lst.Add(0f);} return lst;",
+                "has_infinity" : "true",
+                "positive_infinity" : "null",
+                "positive_infinities_return" : "List<Float> lst = new List<Float>(nElems); for(int i=0;i<nElems;++i){lst.Add(float.PositiveInfinity);} return lst;"
+            },
+            {
+                "prefix" : "Vector2IntList",
+                "type" : "List<Vector2Int>",
+                "enum" : "List_Vector2Int",
+                "component_enum" : "Vector2Int",
+                "deep_copy" : "lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];}",
+                "zero" : "null",
+                "zeroes_return" : "List<Vector2Int> lst = new List<Vector2Int>(nElems); for(int i=0; i<nELems;++i){lst.Add(Vector2Int.zero);} return lst;",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "Vector2List",
+                "type" : "List<Vector2>",
+                "enum" : "List_Vector2",
+                "component_enum" : "Vector2",
+                "deep_copy" : "lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];}",
+                "zero" : "null",
+                "zeroes_return" : "List<Vector2> lst = new List<Vector2>(nElems); for(int i=0; i<nELems;++i){lst.Add(Vector2.zero);} return lst;",
+                "has_infinity" : "true",
+                "positive_infinity" : "null",
+                "positive_infinities_return" : "List<Vector2> lst = new List<Vector2>(nElems); for(int i=0;i<nElems;++i){lst.Add(Vector2.positiveInfinity);} return lst;"
+            },
+            {
+                "prefix" : "Vector3IntList",
+                "type" : "List<Vector3Int>",
+                "enum" : "List_Vector3Int",
+                "component_enum" : "Vector3Int",
+                "deep_copy" : "lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];}",
+                "zero" : "null",
+                "zeroes_return" : "List<Vector3Int> lst = new List<Vector3Int>(nElems); for(int i=0; i<nELems;++i){lst.Add(Vector3Int.zero);} return lst;",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "Vector3List",
+                "type" : "List<Vector3>",
+                "enum" : "List_Vector3",
+                "component_enum" : "Vector3",
+                "deep_copy" : "lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];}",
+                "zero" : "null",
+                "zeroes_return" : "List<Vector3> lst = new List<Vector3>(nElems); for(int i=0; i<nELems;++i){lst.Add(Vector3.zero);} return lst;",
+                "has_infinity" : "true",
+                "positive_infinity" : "null",
+                "positive_infinities_return" : "List<Vector3> lst = new List<Vector3>(nElems); for(int i=0;i<nElems;++i){lst.Add(Vector3.positiveInfinity);} return lst;"
+            },
+            {
+                "prefix" : "Vector4List",
+                "type" : "List<Vector4>",
+                "enum" : "List_Vector4",
+                "component_enum" : "Vector4",
+                "deep_copy" : "lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];}",
+                "zero" : "null",
+                "zeroes_return" : "List<Vector4> lst = new List<Vector4>(nElems); for(int i=0; i<nELems;++i){lst.Add(Vector4.zero);} return lst;",
+                "has_infinity" : "true",
+                "positive_infinity" : "null",
+                "positive_infinities_return" : "List<Vector4> lst = new List<Vector4>(nElems); for(int i=0;i<nElems;++i){lst.Add(Vector4.positiveInfinity);} return lst;"
+            },
+            {
+                "prefix" : "QuaternionList",
+                "type" : "List<Quaternion>",
+                "enum" : "List_Quaternion",
+                "component_enum" : "Quaternion",
+                "deep_copy" : "lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];}",
+                "zero" : "null",
+                "zeroes_return" : "List<Quaternion> lst = new List<Quaternion>(nElems); for(int i=0; i<nELems;++i){lst.Add(Quaternion.identity);} return lst;",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            }
+        ]
+    },
+    "kvariables_types" :
+    {
+        "count" : 12,
+        "data" :
+        [
+            {
+                "prefix" : "KVariablesTrigger",
+                "type" : "KVariables<Trigger>",
+                "enum" : "KVariables_Trigger",
+                "component_enum" : "Trigger",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariables<Trigger>(Trigger.Default)",
+                "zeroes_return" : "return new KVariables<Trigger>(new Trigger());",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "KVariablesBool",
+                "type" : "KVariables<bool>",
+                "enum" : "KVariables_Bool",
+                "component_enum" : "Bool",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariables<bool>(false)",
+                "zeroes_return" : "return new KVariables<bool>(false);",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "KVariablesChar",
+                "type" : "KVariables<char>",
+                "enum" : "KVariables_Char",
+                "component_enum" : "Char",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariables<char>(default(char))",
+                "zeroes_return" : "return new KVariables<char>(default(char));",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "KVariablesString",
+                "type" : "KVariables<string>",
+                "enum" : "KVariables_String",
+                "component_enum" : "String",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariables<string>(default(string))",
+                "zeroes_return" : "return new KVariables<string>(default(string));",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "KVariablesInt",
+                "type" : "KVariables<int>",
+                "enum" : "KVariables_Int",
+                "component_enum" : "Int",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariables<int>(0)",
+                "zeroes_return" : "return new KVariables<int>(0);",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "KVariablesFloat",
+                "type" : "KVariables<float>",
+                "enum" : "KVariables_Float",
+                "component_enum" : "Float",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariables<float>(0f)",
+                "zeroes_return" : "return new KVariables<float>(0f);",
+                "has_infinity" : "true",
+                "positive_infinity" : "new KVariables<float>(float.PositiveInfinity)",
+                "positive_infinities_return" : "return new KVariables<float>(float.PositiveInfinity);"
+            },
+            {
+                "prefix" : "KVariablesVector2Int",
+                "type" : "KVariables<Vector2Int>",
+                "enum" : "KVariables_Vector2Int",
+                "component_enum" : "Vector2Int",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariables<Vector2Int>(Vector2Int.zero)",
+                "zeroes_return" : "return new KVariables<Vector2Int>(Vector2Int.zero);",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "KVariablesVector2",
+                "type" : "KVariables<Vector2>",
+                "enum" : "KVariables_Vector2",
+                "component_enum" : "Vector2",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariables<Vector2>(Vector2.zero)",
+                "zeroes_return" : "return new KVariables<Vector2>(Vector2.zero);",
+                "has_infinity" : "true",
+                "positive_infinity" : "new KVariables<Vector2>(Vector2.positiveInfinity)",
+                "positive_infinities_return" : "return new KVariables<Vector2>(Vector2.positiveInfinity);"
+            },
+            {
+                "prefix" : "KVariablesVector3Int",
+                "type" : "KVariables<Vector3Int>",
+                "enum" : "KVariables_Vector3Int",
+                "component_enum" : "Vector3Int",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariables<Vector3Int>(Vector3Int.zero)",
+                "zeroes_return" : "return new KVariables<Vector3Int>(Vector3Int.zero);",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "KVariablesVector3",
+                "type" : "KVariables<Vector3>",
+                "enum" : "KVariables_Vector3",
+                "component_enum" : "Vector3",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariables<Vector3>(Vector3.zero)",
+                "zeroes_return" : "return new KVariables<Vector3>(Vector3.zero);",
+                "has_infinity" : "true",
+                "positive_infinity" : "new KVariables<Vector3>(Vector3.positiveInfinity)",
+                "positive_infinities_return" : "return new KVariables<Vector3>(Vector3.positiveInfinity);"
+            },
+            {
+                "prefix" : "KVariablesVector4",
+                "type" : "KVariables<Vector4>",
+                "enum" : "KVariables_Vector4",
+                "component_enum" : "Vector4",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariables<Vector4>(Vector4.zero)",
+                "zeroes_return" : "return new KVariables<Vector4>(Vector4.zero);",
+                "has_infinity" : "true",
+                "positive_infinity" : "new KVariables<Vector4>(Vector4.positiveInfinity)",
+                "positive_infinities_return" : "return new KVariables<Vector4>(Vector4.positiveInfinity);"
+            },
+            {
+                "prefix" : "KVariablesQuaternion",
+                "type" : "KVariables<Quaternion>",
+                "enum" : "KVariables_Quaternion",
+                "component_enum" : "Quaternion",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariables<Quaternion>(Quaternion.identity)",
+                "zeroes_return" : "return new KVariables<Quaternion>(Quaternion.identity);",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            }
+        ]
+    },
+    "kvariables_ext_types" :
+    {
+        "count" : 12,
+        "data" :
+        [
+            {
+                "prefix" : "KVariablesExtTrigger",
+                "type" : "KVariablesExt<Trigger>",
+                "enum" : "KVariablesExt_Trigger",
+                "component_enum" : "Trigger",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariablesExt<Trigger>(Trigger.Default)",
+                "zeroes_return" : "return new KVariablesExt<Trigger>(new Trigger());",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "KVariablesExtBool",
+                "type" : "KVariablesExt<bool>",
+                "enum" : "KVariablesExt_Bool",
+                "component_enum" : "Bool",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariablesExt<bool>(false)",
+                "zeroes_return" : "return new KVariablesExt<bool>(false);",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "KVariablesExtChar",
+                "type" : "KVariablesExt<char>",
+                "enum" : "KVariablesExt_Char",
+                "component_enum" : "Char",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariablesExt<char>(default(char))",
+                "zeroes_return" : "return new KVariablesExt<char>(default(char));",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "KVariablesExtString",
+                "type" : "KVariablesExt<string>",
+                "enum" : "KVariablesExt_String",
+                "component_enum" : "String",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariablesExt<string>(default(string))",
+                "zeroes_return" : "return new KVariablesExt<string>(default(string));",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "KVariablesExtInt",
+                "type" : "KVariablesExt<int>",
+                "enum" : "KVariablesExt_Int",
+                "component_enum" : "Int",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariablesExt<int>(0)",
+                "zeroes_return" : "return new KVariablesExt<int>(0);",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "KVariablesExtFloat",
+                "type" : "KVariablesExt<float>",
+                "enum" : "KVariablesExt_Float",
+                "component_enum" : "Float",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariablesExt<float>(0f)",
+                "zeroes_return" : "return new KVariablesExt<float>(0f);",
+                "has_infinity" : "true",
+                "positive_infinity" : "new KVariablesExt<float>(float.PositiveInfinity)",
+                "positive_infinities_return" : "return new KVariablesExt<float>(float.PositiveInfinity);"
+            },
+            {
+                "prefix" : "KVariablesExtVector2Int",
+                "type" : "KVariablesExt<Vector2Int>",
+                "enum" : "KVariablesExt_Vector2Int",
+                "component_enum" : "Vector2Int",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariablesExt<Vector2Int>(Vector2Int.zero)",
+                "zeroes_return" : "return new KVariablesExt<Vector2Int>(Vector2Int.zero);",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "KVariablesExtVector2",
+                "type" : "KVariablesExt<Vector2>",
+                "enum" : "KVariablesExt_Vector2",
+                "component_enum" : "Vector2",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariablesExt<Vector2>(Vector2.zero)",
+                "zeroes_return" : "return new KVariablesExt<Vector2>(Vector2.zero);",
+                "has_infinity" : "true",
+                "positive_infinity" : "new KVariablesExt<Vector2>(Vector2.positiveInfinity)",
+                "positive_infinities_return" : "return new KVariablesExt<Vector2>(Vector2.positiveInfinity);"
+            },
+            {
+                "prefix" : "KVariablesExtVector3Int",
+                "type" : "KVariablesExt<Vector3Int>",
+                "enum" : "KVariablesExt_Vector3Int",
+                "component_enum" : "Vector3Int",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariablesExt<Vector3Int>(Vector3Int.zero)",
+                "zeroes_return" : "return new KVariablesExt<Vector3Int>(Vector3Int.zero);",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            },
+            {
+                "prefix" : "KVariablesExtVector3",
+                "type" : "KVariablesExt<Vector3>",
+                "enum" : "KVariablesExt_Vector3",
+                "component_enum" : "Vector3",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariablesExt<Vector3>(Vector3.zero)",
+                "zeroes_return" : "return new KVariablesExt<Vector3>(Vector3.zero);",
+                "has_infinity" : "true",
+                "positive_infinity" : "new KVariablesExt<Vector3>(Vector3.positiveInfinity)",
+                "positive_infinities_return" : "return new KVariablesExt<Vector3>(Vector3.positiveInfinity);"
+            },
+            {
+                "prefix" : "KVariablesExtVector4",
+                "type" : "KVariablesExt<Vector4>",
+                "enum" : "KVariablesExt_Vector4",
+                "component_enum" : "Vector4",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariablesExt<Vector4>(Vector4.zero)",
+                "zeroes_return" : "return new KVariablesExt<Vector4>(Vector4.zero);",
+                "has_infinity" : "true",
+                "positive_infinity" : "new KVariablesExt<Vector4>(Vector4.positiveInfinity)",
+                "positive_infinities_return" : "return new KVariablesExt<Vector4>(Vector4.positiveInfinity);"
+            },
+            {
+                "prefix" : "KVariablesExtQuaternion",
+                "type" : "KVariablesExt<Quaternion>",
+                "enum" : "KVariablesExt_Quaternion",
+                "component_enum" : "Quaternion",
+                "deep_copy" : "lhs.SetEqual(rhs)",
+                "zero" : "new KVariablesExt<Quaternion>(Quaternion.identity)",
+                "zeroes_return" : "return new KVariablesExt<Quaternion>(Quaternion.identity);",
+                "has_infinity" : "false",
+                "positive_infinity" : "throw new System.InvalidOperationException()",
+                "positive_infinities_return" : "throw new System.InvalidOperationException();"
+            }
+        ]
+    }
+}

@@ -375,6 +375,12 @@ public class KVariablesExt<V> : KVariables<V> {
     public override int Size() {
         return KVariableTypeInfo.NKVariableEnums;
     }
+    public virtual void SetEqual(KVariablesExt<V> varIn) {
+        base.SetEqual(varIn);
+        m_thirdDerivative = varIn.m_thirdDerivative;
+        m_appliedForceDerivative = varIn.m_appliedForceDerivative;
+        m_impulseForceDerivative = varIn.m_impulseForceDerivative;
+    }
 
     // *** Constructors
     public KVariablesExt(KVariables<V> kvIn, V others)

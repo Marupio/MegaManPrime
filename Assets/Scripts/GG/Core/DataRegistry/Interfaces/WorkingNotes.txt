@@ -24,3 +24,52 @@ Constructors
 
     Clone
     CloneFamily
+
+
+
+"has_infinite" : "false",
+"has_infinite" : "false",
+"has_infinite" : "false",
+"has_infinite" : "false",
+"has_infinite" : "false",
+"has_infinite" : "true",
+"has_infinite" : "false",
+"has_infinite" : "true",
+"has_infinite" : "false",
+"has_infinite" : "true",
+"has_infinite" : "true",
+"has_infinite" : "false",
+
+
+"positive_infinite" : "throw new System.InvalidOperationException()",
+"positive_infinite" : "throw new System.InvalidOperationException()",
+"positive_infinite" : "throw new System.InvalidOperationException()",
+"positive_infinite" : "throw new System.InvalidOperationException()",
+"positive_infinite" : "throw new System.InvalidOperationException()",
+"positive_infinite" : "null",
+"positive_infinite" : "throw new System.InvalidOperationException()",
+"positive_infinite" : "null",
+"positive_infinite" : "throw new System.InvalidOperationException()",
+"positive_infinite" : "null",
+"positive_infinite" : "null",
+"positive_infinite" : "throw new System.InvalidOperationException()",
+
+
+"zero" : "Trigger.Default",
+"zero" : "false",
+"zero" : "default(char)",
+"zero" : "default(string)",
+"zero" : "0",
+"zero" : "0f",
+"zero" : "Vector2Int.zero",
+"zero" : "Vector2.zero",
+"zero" : "Vector3Int.zero",
+"zero" : "Vector3.zero",
+"zero" : "Vector4.zero",
+"zero" : "Quaternion.identity",
+
+
+float.PositiveInfinity
+Vector2.positiveInfinity
+Vector3.positiveInfinity
+Vector4.positiveInfinity

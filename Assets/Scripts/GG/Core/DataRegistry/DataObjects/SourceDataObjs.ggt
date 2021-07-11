@@ -1,0 +1,17 @@
+public class $prefix\$SourceDataObj : SourceDataObj<$type\$> {
+    public static readonly TraitsSimple$prefix\$ m_traitsSimple = new TraitsSimple$prefix\$();
+    public override ITraitsSimple<$type\$> TraitsSimple { get=>m_traitsSimple; }
+    public override DataTypeEnum DataType { get=>DataTypeEnum.$enum\$; }
+    public override IObj Clone(IObjRegistry parent = null) {
+        $prefix\$SourceDataObj obj = new $prefix\$SourceDataObj(this);
+        if (parent != null) {
+            obj.UnregisterFromParent();
+            obj.RegisterToParent(parent);
+        }
+        return (IObj)obj;
+    }
+    public $prefix\$SourceDataObj(string name, IObjRegistry parent = null, $type\$_3 value = default($type\$))
+    : base (name, parent) {}
+    public $prefix\$SourceDataObj($prefix\$SourceDataObj obj) : base(obj) {}
+    public $prefix\$SourceDataObj() {}
+}
