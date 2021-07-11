@@ -4,6 +4,6 @@ public abstract class DataObjHeader : ObjHeader, IDataObjMeta {
     public IDerivedDataObjMeta DerivedDataObjMeta() { return this as IDerivedDataObjMeta; }
     public IDataSetObjMeta DataSetObjMeta() { return this as IDataSetObjMeta; }
     public DataObjHeader(string name, IObjRegistry parent = null) : base(name, parent) {}
-    public DataObjHeader(DataSetObjHeader obj) : base(obj) {}
+    public DataObjHeader(DataObjHeader obj) : base(obj) {}
     public DataObjHeader() {}
 }

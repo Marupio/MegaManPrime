@@ -4,23 +4,23 @@ using System.Collections.Generic;
 public class $prefix\$DataObj : SourceDataSetObj<$type\$, $component_type\$> {
     public static readonly TraitsSimple$prefix\$ m_traitsSimple = new TraitsSimple$prefix\$();
     public static readonly Traits$prefix\$ m_traits = new Traits$prefix\$();
-    public override ITraitsSimple<$component_type\$> TraitsSimple { get=>m_traitsSimple; }
-    public override ITraits<$type\$> Traits { get=>m_traits; }
+    public override ITraitsSimple<$type\$> TraitsSimple { get=>m_traitsSimple; }
+    public override ITraits<$type\$, $component_type\$> Traits { get=>m_traits; }
     public override DataTypeEnum DataType { get=>DataTypeEnum.$enum\$; }
     public override DataTypeEnum ComponentType { get=>DataTypeEnum.$component_enum\$; }
-    public ComponentAccessType PreferredAccessType { get=>ComponentAccesType.$preferred_access_type\$; }
+    public ComponentAccessType PreferredAccessType { get=>ComponentAccessType.$preferred_access_type\$; }
     public int NComponents { get=>$n_components\$; }
     public bool ElementAccessByIndex() { return $allow_component_by_index\$; }
     public bool ElementAccessByString() { return $allow_component_by_string\$; }
     public string GetComponentName(int index) { $return_component_name_from_index\$ }
     public int GetComponentIndex(string elem) { $return_component_index_from_name\$ }
-    public $component_type\$ this[int elem] { get { $return_component_by_index\$ } set { $set_component_by_index\$ } }
+    public $component_type\$ this[int index] { get { $return_component_by_index\$ } set { $set_component_by_index\$ } }
     public $component_type\$ this[string elem] { get { $return_component_by_string\$ } set{ $set_component_by_string\$ } }
-    public override $prefix\$DataObj Clone(IObjRegistry parent) {
+    public override IObj Clone(IObjRegistry parent) {
         $prefix\$DataObj obj = new $prefix\$DataObj(m_name, parent, m_data);
-        return IObj(obj);
+        return (IObj)obj;
     }
-    $prefix\$DataObj(string name, IObjRegistry parent = null, $type\$ m_data = default(m_data)) : base(name, parent, m_data) {}
+    $prefix\$DataObj(string name, IObjRegistry parent = null, $type\$ m_data = default($type\$)) : base(name, parent, m_data) {}
     public $prefix\$DataObj($prefix\$DataObj obj) : base(obj) {}
     public $prefix\$DataObj() {}
 }
