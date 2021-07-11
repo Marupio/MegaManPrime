@@ -1,3 +1,15 @@
+public static class ComponentNames {
+    public static readonly Dictionary<string, int> Vector2Names = new Dictionary<string, int>{
+        {"X", 0}, {"x", 0}, {"Y", 1}, {"y", 1}
+    };
+    public static readonly Dictionary<string, int> Vector3Names = new Dictionary<string, int>{
+        {"X", 0}, {"x", 0}, {"Y", 1}, {"y", 1}, {"Z", 2}, {"z", 2}
+    };
+    public static readonly Dictionary<string, int> Vector4Names = new Dictionary<string, int>{
+        {"X", 0}, {"x", 0}, {"Y", 1}, {"y", 1}, {"Z", 2}, {"z", 2}, {"W", 3}, {"w", 3}
+    };
+}
+
 // L = main type, C = component type
 // e.g. L=Vector2, C = float, T = TraitsFloat
 public interface ITraits<L,C> : ITraitsSimple<L> {

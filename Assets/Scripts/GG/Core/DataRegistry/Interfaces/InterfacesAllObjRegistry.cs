@@ -120,8 +120,8 @@ public interface IDerivedDataObj<L> : IDataObj<L>, IDerivedDataObjMeta {
 public interface IDataSetObjMeta : IDataObjMeta {  // --> DataSetObjHeader abstract implementation
     DataTypeEnum ComponentType { get; }
     ComponentAccessType PreferredAccessType { get; }
-    bool ElementAccessByIndex { get; }
-    bool ElementAccessByString { get; }
+    bool ElementAccessByIndex();
+    bool ElementAccessByString();
     string GetComponentName(int elem);
     int GetComponentIndex(string elem);
     int NComponents { get; } // -1 = use size query

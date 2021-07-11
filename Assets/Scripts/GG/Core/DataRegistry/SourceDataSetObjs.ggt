@@ -27,8 +27,8 @@ public class TriggerListDataObj : SourceDataSetObj<List<Trigger>, Trigger> {
 }
 
 public class $prefix\$DataObj : SourceDataSetObj<$type\$, $component\$> {
-    public static readonly TraitsSimpleTrigger m_traitsSimple = new TraitsSimpleTrigger();
-    public static readonly TraitsListTrigger m_traits = new TraitsListTrigger();
+    public static readonly TraitsSimpleTriggerList m_traitsSimple = new TraitsSimpleTriggerList();
+    public static readonly TraitsTriggerList m_traits = new TraitsTriggerList();
     public override ITraitsSimple<Trigger> TraitsSimple { get=>m_traitsSimple; }
     public override ITraits<List<Trigger>, List> Traits { get=>m_traits; }
     public override DataTypeEnum DataType { get=>DataTypeEnum.List_Trigger; }

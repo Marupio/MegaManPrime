@@ -5,6 +5,7 @@ public class ObjHeader : IObj {
     protected IObjRegistry m_parent;
 
     // *** IObj interface
+    // TODO remove virtual wherever possible
     public virtual string Name { get=>m_name; set=>m_name=value; }
     public virtual long Id { get=>m_id; }
     public virtual void SetId(long id) { m_id = id; }
