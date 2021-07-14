@@ -19,7 +19,7 @@ public class KVariableLimits : IDerivedDataObject {
     public KVariablesExt<float> Max { get => m_maxVars.Data; set => m_maxVars.Data = value; }
     public KVariablesExt<float> Min { get => m_minVars.Data; set => m_minVars.Data = value; }
     public KVariableTypeSet LimitedVars {
-        get {
+        get { // TODO - this is the main project
             if (m_upToDateFrame < 0) {
                 UpdateDerived();
             }

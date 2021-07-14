@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public abstract class SourceDataObj<L> : DataObjHeader, IDataObj<L> {
+public abstract class SourceDataObj<L> : SourceDataObjHeader, IDataObj<L> {
     public L m_data;
     public virtual ITraitsSimple<L> TraitsSimple { get; }
     public L Data { get=>m_data; set { TraitsSimple.SetEqual(ref m_data, value); SetModified(); }  }

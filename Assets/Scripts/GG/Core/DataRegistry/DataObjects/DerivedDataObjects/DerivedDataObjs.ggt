@@ -1,0 +1,117 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+
+// public interface IDataObjMeta : IObj { // --> DataObjHeader abstract implementation
+//+     DataTypeEnum DataType { get; }
+//     // Sideways
+//+     ISourceDataObjMeta SourceDataObjMeta();
+//+     IDerivedDataObjMeta DerivedDataObjMeta();
+//     // Down
+//+     IDataSetObjMeta DataSetObjMeta();
+// }
+// public interface IDataObj<L> : *IDataObjMeta {  // --> No direct implementations
+// +    ITraitsSimple<L> TraitsSimple { get; }
+// +    L Data { get; }
+// }
+// public interface IDerivedDataObjMeta : *IDataObjMeta {  // --> // TODO
+// +    List<ISourceDataObjMeta> DependsOn { get; set; }
+// +    IObjUpdater Updater { get; set; }
+// +    bool Stale();
+// +    bool UpToDate();
+// +    bool UpdateDerived();
+// }
+// public interface IDerivedDataObj<L> : *IDataObj<L>, *IDerivedDataObjMeta {
+//     // For now, nothing
+// }
+// public abstract class DataObjHeader : ObjHeader, *IDataObjMeta {
+// +    public abstract DataTypeEnum DataType { get; }
+// +    public ISourceDataObjMeta SourceDataObjMeta() { return this as ISourceDataObjMeta; }
+// +    public IDerivedDataObjMeta DerivedDataObjMeta() { return this as IDerivedDataObjMeta; }
+// +    public IDataSetObjMeta DataSetObjMeta() { return this as IDataSetObjMeta; }
+//     public DataObjHeader(string name, IObjRegistry parent = null) : base(name, parent) {}
+//     public DataObjHeader(DataObjHeader obj) : base(obj) {}
+//     public DataObjHeader() {}
+// }
+// public abstract class DerivedDataObjHeader : *DataObjHeader, *IDerivedDataObjMeta {
+//     // Encapsulation - updater is responsible for initialising and populating these data
+// +    List<ISourceDataObjMeta> m_dependsOn;
+// +    IObjUpdater m_updater;
+// +    public IObjUpdater Updater { get; set; }
+// +    public List<ISourceDataObjMeta> DependsOn { get; set; }
+// +    public bool Stale() { return m_updater == null; }
+// +    public bool UpToDate() {
+//         if (m_updater == null) { return false; }
+//         foreach(IObj dataObj in m_dependsOn) {
+//             if (dataObj.MTag > m_mtag) { return false; }
+//         }
+//         return true;
+//     }
+// +    public bool UpdateDerived() {
+//         if (m_updater == null) {
+//             return false;
+//         }
+//         return m_updater.PerformUpdatesFor(this);
+//     }
+//     public DerivedDataObjHeader(
+//         string name,
+//         IObjRegistry parent = null,
+//         IObjUpdater updater = null
+//     ) : base(name, parent) {
+//         m_updater = updater;
+//         if (m_updater != null) {
+//             m_updater.InitDependsOnFor(this, out m_dependsOn);
+//         }
+//     }
+//     public DerivedDataObjHeader(DerivedDataObjHeader obj) : base(obj) {
+//         // Do not init m_dependsOn - we expect our updater to do it
+//     }
+//     public DerivedDataObjHeader() {}
+// }
+
+// public abstract class DerivedDataObj<L> : *DerivedDataObjHeader, *IDerivedDataObj<L> {
+//     protected L m_data;
+//     public virtual ITraitsSimple<L> TraitsSimple { get; }
+//     public L Data { get=>m_data; }
+//     public DerivedDataObj(
+//         string name,
+//         IObjRegistry parent = null,
+//         IObjUpdater updater = null,
+//         L data = default(L)
+//     ) : base (name, parent, updater) {
+//         // Even though I'm derived, I take a value because I can be 'stale'
+//         m_data = TraitsSimple.Zero;
+//         if (!TraitsSimple.TestEquals(m_data, data)) {
+//             TraitsSimple.SetEqual(ref m_data, data);
+//         }
+//     }
+//     public DerivedDataObj(DerivedDataObj<L> obj) : base(obj) {
+//         TraitsSimple.SetEqual(ref m_data, obj.m_data);
+//     }
+//     public DerivedDataObj() {}
+// }
+
+public class $prefix\$DerivedDataObj : DerivedDataObj<$type\$> {
+    public static readonly TraitsSimple$prefix\$ m_traitsSimple = new TraitsSimple$prefix\$();
+    public override ITraitsSimple<$type\$> TraitsSimple { get=>m_traitsSimple; }
+    public override DataTypeEnum DataType { get=>DataTypeEnum.$enum\$; }
+    public override IObj Clone(IObjRegistry parent = null) {
+        // Clones a stale DerivedDataObj
+        $prefix\$DerivedDataObj obj = new $prefix\$SourceDataObj(this);
+        if (parent != null) {
+            obj.UnregisterFromParent();
+            obj.RegisterToParent(parent);
+        }
+        return (IObj)obj;
+    }
+    public $prefix\$DerivedDataObj(
+        string name,
+        IObjRegistry parent = null,
+        IObjUpdater updater = null,
+        $type\$ value = default($type\$))
+    : base (name, parent, updater) {
+
+    }
+    public $prefix\$DerivedDataObj($prefix\$DerivedDataObj obj) : base(obj) {}
+    public $prefix\$DerivedDataObj() {}
+}

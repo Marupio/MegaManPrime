@@ -1,0 +1,30 @@
+{
+    "name" : "randomEquation",
+    "type" : "custom",
+    "settings" :
+    {
+        "source_variables" :
+        [
+            {
+                "name" : "a",
+                "data_type" : "Float"
+            },
+            {
+                "name" : "b",
+                "data_type" : "Vector2"
+            }
+        ],
+        "outputs" :
+        [
+            {
+                "name" : "c",
+                "data_type" : "Float"
+            },
+            {
+                "name" : "d",
+                "data_type" : "Vector2"
+            }
+        ],
+        "code" : "json is not good for code injection, because no multi-line strings, and no syntax checking"
+    }
+}

@@ -15,6 +15,20 @@ public class ObjRegistry : ObjHeader, IObjRegistry {
 
     public Dictionary<long, IObj> Children { get=>m_children; }
     public List<IObj> ChildrenList { get=>new List<IObj>(m_children.Values); }
+    public Dictionary<long, IObj> GetAllChildren() {
+        Dictionary<long, IObj> allChildren = new Dictionary<long, IObj>(m_children);
+        foreach(IObjRegistry subRegistry in m_subRegistries) {
+            allChildren.Concat(subRegistry.GetAllChildren()).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+        return allChildren;
+    }
+    public List<IObj> GetAllChildrenList() {
+        List<IObj> allChildren = ChildrenList;
+        foreach(IObjRegistry subRegistry in m_subRegistries) {
+            allChildren.AddRange(subRegistry.ChildrenList);
+        }
+        return allChildren;
+    }
     public HashSet<IObjRegistry> SubRegistries { get=>m_subRegistries; }
     public List<IObjRegistry> SubRegistriesList { get=>m_subRegistries.ToList(); }
     public IObjRegistry SubRegistry(ObjFilter filter) {
@@ -529,12 +543,19 @@ public class ObjRegistry : ObjHeader, IObjRegistry {
         // No cloning the children
         return newRegistry;
     }
-    public virtual IObjRegistry CloneFamily(IObjRegistry parent = null) {
-        IObjRegistry newRegistry = new ObjRegistry(m_name, parent);
+    public virtual CloneResult CloneFamily(IObjRegistry parent = null) {
+        IObjRegistry newThis = new ObjRegistry(m_name, parent);
+        CloneResult cr = new CloneResult(this, newThis);
         foreach(KeyValuePair<long, IObj> entry in m_children) {
-            IObj newChild = entry.Value.Clone(newRegistry);
+            IObj child = entry.Value;
+            IObjRegistry childReg = child.ObjRegistry();
+            if (childReg != null) {
+                cr.Add(childReg.CloneFamily(newThis));
+            } else {
+                cr.Add(child, child.Clone(newThis));
+            }
         }
-        return newRegistry;
+        return cr;
     }
 
     // Initialise member fields
@@ -562,11 +583,28 @@ public class ObjRegistry : ObjHeader, IObjRegistry {
             }
         }
     }
-    public ObjRegistry(ObjRegistry reg, bool cloneChildren=false) : base(reg) {
+    public ObjRegistry(ObjRegistry reg, out CloneResult cr) : base(reg) {
         Init();
-        if (cloneChildren) {
-            foreach(KeyValuePair<long, IObj> entry in reg.m_children) {
-                IObj newChild = entry.Value.Clone(this);
+        cr = new CloneResult(reg, this);
+        foreach(KeyValuePair<long, IObj> entry in reg.m_children) {
+            IObj child = entry.Value;
+            IObjRegistry childReg = child.ObjRegistry();
+            if (childReg != null) {
+                cr.Add(childReg.CloneFamily(this));
+            } else {
+                cr.Add(child, child.Clone(this));
+            }
+        }
+    }
+    public ObjRegistry(ObjRegistry reg) : base(reg) {
+        Init();
+        foreach(KeyValuePair<long, IObj> entry in reg.m_children) {
+            IObj child = entry.Value;
+            IObjRegistry childReg = child.ObjRegistry();
+            if (childReg != null) {
+                childReg.CloneFamily(this);
+            } else {
+                child.Clone(this);
             }
         }
     }

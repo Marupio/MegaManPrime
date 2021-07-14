@@ -4,6 +4,7 @@ using UnityEngine;
 // value_types,list_types, kvariables_types, kvariables_ext_types
 public class TraitsSimple$prefix\$ : ITraitsSimple<$type\$> {
     public DataTypeEnum DataType { get=>DataTypeEnum.$enum\$; }
+    public bool TestEquals($type\$ lhs, $type\$ rhs) { EqualityComparer<$type\$> ec = EqualityComparer<$type\$>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref $type\$ lhs, $type\$ rhs) { $deep_copy\$; }
     public $type\$ Zero { get=>$zero\$; }
     public bool HasInfinity { get=>$has_infinity\$; }

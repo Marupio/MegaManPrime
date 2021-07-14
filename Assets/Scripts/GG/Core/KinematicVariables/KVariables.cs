@@ -175,7 +175,7 @@ public class KVariables<V> {
         m_impulseForce = varIn.m_impulseForce;
     }
 
-    // *** Subscript operator
+    // *** Indexer
     public V this[int index] {
         get {
             V value;

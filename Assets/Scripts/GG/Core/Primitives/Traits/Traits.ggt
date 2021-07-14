@@ -4,6 +4,8 @@ using UnityEngine;
 public class Traits$prefix\$ : ITraits<$type\$, $component_type\$> {
     public DataTypeEnum DataType { get=>DataTypeEnum.$enum\$; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.$component_enum\$; }
+    public bool TestEquals($type\$ lhs, $type\$ rhs) { EqualityComparer<$type\$> ec = EqualityComparer<$type\$>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent($component_type\$ lhs, $component_type\$ rhs) { EqualityComparer<$component_type\$> ec = EqualityComparer<$component_type\$>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref $type\$ lhs, $type\$ rhs) { $deep_copy\$ }
     public $type\$ Zero { get { $zero_return\$ } }
     public $type\$ Zeroes(int nElems=1) { $zeroes_return\$ }

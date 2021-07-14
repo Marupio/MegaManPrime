@@ -25,6 +25,7 @@ public static class ComponentNames {
 // e.g. L=Vector2, C = float, T = TraitsFloat
 public interface ITraits<L,C> : ITraitsSimple<L> {
     public DataTypeEnum ComponentType { get; }
+    bool TestEqualsComponent(C lhs, C rhs);
     public L Zeroes(int nElems=1);
     public bool ElementAccessByIndex { get; }
     public bool ElementAccessByString { get; }

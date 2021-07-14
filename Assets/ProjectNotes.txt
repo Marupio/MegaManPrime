@@ -4,6 +4,48 @@ MULTITHREADING - when true, include Interlocked / Mutex and other multithreading
 
 
 TODO
+GlobalRegistrar.Cloning, DerivedDataObjs, IObjUpdaters
+There should be an unclonable switch, to create global IObjs.  Time, Camera, Sun, etc.  Things associated with
+these can be data sources that don't clone.
+
+Cloning Derived
+    Derived only
+        When you clone just a derived, it clones its value, and becomes 'stale' - has no way to update
+        UpToDate always returns false.  Stale returns true.  UpdateDerived returns false.
+    DerivedFamily
+        Clones all derived objects under its Updater.  Clones sources as well.
+
+
+What to do about Cloning with Derived and Registry
+    Derived
+        We want to Clone all the source data, I think
+        Updaters - we have to clone the updaters as well
+        That's where the cloning happens with a derived - updater gets cloned, then it clones the deriveds
+    Registry
+        Has children, CloneFamily will clone all of them.
+    What if a Derived is an Input
+    Some objects cannot be directly cloned.  They may only be cloned as part of another object getting cloned.
+    Objects that can't be cloned hide their clone function, but they have another InternalClone function used
+    in the process.
+ObjectRegistry clone:
+    Add all children to set of cloning objects
+    Ask each child who they depend on, add those ones to the list.
+    Ask these new ones who they depend on, and so on.
+    Once the entire list is formed, we have a set of objects that need to be cloned.
+    Create IDs for all the clones, and have a map of old to new.
+    Run through list of old objs and tell them to clone, give them Map and set of new headers.
+    Each one grabs the header and attaches a propely cloned object.
+All objects have a clone function that takes a map and some kind of set of new headers
+A static master class handles the initial clone call.
+Checks the object type:
+    * Independent - produce a simple clone
+    * Depends on - Clones all the ones it depends on, and so on
+    * Has children - clones children with option - if 'recursive' kind of thing
+
+    ObjectRegistry clones all its children.
+    Asks each child what it depends on.
+    IObjUpdater
+
 Go through Traits to correct SetEqual, which is only doing reference changing, rather than data changing
 I'm on to the SourceDataObjects.  I've finished the templated types, now just build all the specific ones.
 Trigger as a value type may not reset upon Get because it is passed by value...

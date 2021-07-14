@@ -7,6 +7,8 @@ using UnityEngine;
 public class TraitsNone : ITraits<object, object> {
     public DataTypeEnum DataType { get=>DataTypeEnum.None; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.None; }
+    public bool TestEquals(object lhs, object rhs) { EqualityComparer<object> ec = EqualityComparer<object>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(object lhs, object rhs) { EqualityComparer<object> ec = EqualityComparer<object>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref object lhs, object rhs) { /* do nothing */ }
     public object Zero { get { return null; } }
     public object Zeroes(int nElems=1) { return null; }
@@ -60,6 +62,8 @@ public class TraitsNone : ITraits<object, object> {
 public class TraitsBool : ITraits<bool, object> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Bool; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.None; }
+    public bool TestEquals(bool lhs, bool rhs) { EqualityComparer<bool> ec = EqualityComparer<bool>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(object lhs, object rhs) { EqualityComparer<object> ec = EqualityComparer<object>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref bool lhs, bool rhs) { lhs = rhs; }
     public bool Zero { get { return false; } }
     public bool Zeroes(int nElems=1) { return false; }
@@ -113,6 +117,8 @@ public class TraitsBool : ITraits<bool, object> {
 public class TraitsTrigger : ITraits<Trigger, object> {
     public DataTypeEnum DataType { get=>DataTypeEnum.TriggerType; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.None; }
+    public bool TestEquals(Trigger lhs, Trigger rhs) { EqualityComparer<Trigger> ec = EqualityComparer<Trigger>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(object lhs, object rhs) { EqualityComparer<object> ec = EqualityComparer<object>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref Trigger lhs, Trigger rhs) { lhs = rhs; }
     public Trigger Zero { get { return Trigger.Default; } }
     public Trigger Zeroes(int nElems=1) { return Trigger.Default; }
@@ -166,6 +172,8 @@ public class TraitsTrigger : ITraits<Trigger, object> {
 public class TraitsChar : ITraits<char, object> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Char; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.None; }
+    public bool TestEquals(char lhs, char rhs) { EqualityComparer<char> ec = EqualityComparer<char>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(object lhs, object rhs) { EqualityComparer<object> ec = EqualityComparer<object>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref char lhs, char rhs) { lhs = rhs; }
     public char Zero { get { return default(char); } }
     public char Zeroes(int nElems=1) { return default(char); }
@@ -219,6 +227,8 @@ public class TraitsChar : ITraits<char, object> {
 public class TraitsString : ITraits<string, char> {
     public DataTypeEnum DataType { get=>DataTypeEnum.String; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Char; }
+    public bool TestEquals(string lhs, string rhs) { EqualityComparer<string> ec = EqualityComparer<string>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(char lhs, char rhs) { EqualityComparer<char> ec = EqualityComparer<char>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref string lhs, string rhs) { lhs = rhs; }
     public string Zero { get { return default(string); } }
     public string Zeroes(int nElems=1) { return default(string); }
@@ -254,6 +264,8 @@ public class TraitsString : ITraits<string, char> {
 public class TraitsInt : ITraits<int, object> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.None; }
+    public bool TestEquals(int lhs, int rhs) { EqualityComparer<int> ec = EqualityComparer<int>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(object lhs, object rhs) { EqualityComparer<object> ec = EqualityComparer<object>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref int lhs, int rhs) { lhs = rhs; }
     public int Zero { get { return 0; } }
     public int Zeroes(int nElems=1) { return 0; }
@@ -307,6 +319,8 @@ public class TraitsInt : ITraits<int, object> {
 public class TraitsFloat : ITraits<float, object> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Float; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.None; }
+    public bool TestEquals(float lhs, float rhs) { EqualityComparer<float> ec = EqualityComparer<float>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(object lhs, object rhs) { EqualityComparer<object> ec = EqualityComparer<object>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref float lhs, float rhs) { lhs = rhs; }
     public float Zero { get { return 0f; } }
     public float Zeroes(int nElems=1) { return 0f; }
@@ -348,6 +362,8 @@ public class TraitsFloat : ITraits<float, object> {
 public class TraitsVector2Int : ITraits<Vector2Int, int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Vector2IntType; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Int; }
+    public bool TestEquals(Vector2Int lhs, Vector2Int rhs) { EqualityComparer<Vector2Int> ec = EqualityComparer<Vector2Int>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(int lhs, int rhs) { EqualityComparer<int> ec = EqualityComparer<int>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref Vector2Int lhs, Vector2Int rhs) { lhs = rhs; }
     public Vector2Int Zero { get { return Vector2Int.zero; } }
     public Vector2Int Zeroes(int nElems=1) { return Vector2Int.zero; }
@@ -377,6 +393,8 @@ public class TraitsVector2Int : ITraits<Vector2Int, int> {
 public class TraitsVector2 : ITraits<Vector2, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Vector2Type; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Float; }
+    public bool TestEquals(Vector2 lhs, Vector2 rhs) { EqualityComparer<Vector2> ec = EqualityComparer<Vector2>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(float lhs, float rhs) { EqualityComparer<float> ec = EqualityComparer<float>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref Vector2 lhs, Vector2 rhs) { lhs = rhs; }
     public Vector2 Zero { get { return Vector2.zero; } }
     public Vector2 Zeroes(int nElems=1) { return Vector2.zero; }
@@ -394,6 +412,8 @@ public class TraitsVector2 : ITraits<Vector2, float> {
 public class TraitsVector3Int : ITraits<Vector3Int, int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Vector3IntType; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Int; }
+    public bool TestEquals(Vector3Int lhs, Vector3Int rhs) { EqualityComparer<Vector3Int> ec = EqualityComparer<Vector3Int>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(int lhs, int rhs) { EqualityComparer<int> ec = EqualityComparer<int>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref Vector3Int lhs, Vector3Int rhs) { lhs = rhs; }
     public Vector3Int Zero { get { return Vector3Int.zero; } }
     public Vector3Int Zeroes(int nElems=1) { return Vector3Int.zero; }
@@ -423,6 +443,8 @@ public class TraitsVector3Int : ITraits<Vector3Int, int> {
 public class TraitsVector3 : ITraits<Vector3, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Vector3Type; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Float; }
+    public bool TestEquals(Vector3 lhs, Vector3 rhs) { EqualityComparer<Vector3> ec = EqualityComparer<Vector3>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(float lhs, float rhs) { EqualityComparer<float> ec = EqualityComparer<float>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref Vector3 lhs, Vector3 rhs) { lhs = rhs; }
     public Vector3 Zero { get { return Vector3.zero; } }
     public Vector3 Zeroes(int nElems=1) { return Vector3.zero; }
@@ -440,6 +462,8 @@ public class TraitsVector3 : ITraits<Vector3, float> {
 public class TraitsVector4 : ITraits<Vector4, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.Vector4Type; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Float; }
+    public bool TestEquals(Vector4 lhs, Vector4 rhs) { EqualityComparer<Vector4> ec = EqualityComparer<Vector4>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(float lhs, float rhs) { EqualityComparer<float> ec = EqualityComparer<float>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref Vector4 lhs, Vector4 rhs) { lhs = rhs; }
     public Vector4 Zero { get { return Vector4.zero; } }
     public Vector4 Zeroes(int nElems=1) { return Vector4.zero; }
@@ -457,6 +481,8 @@ public class TraitsVector4 : ITraits<Vector4, float> {
 public class TraitsQuaternion : ITraits<Quaternion, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.QuaternionType; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Float; }
+    public bool TestEquals(Quaternion lhs, Quaternion rhs) { EqualityComparer<Quaternion> ec = EqualityComparer<Quaternion>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(float lhs, float rhs) { EqualityComparer<float> ec = EqualityComparer<float>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref Quaternion lhs, Quaternion rhs) { lhs = rhs; }
     public Quaternion Zero { get { return Quaternion.identity; } }
     public Quaternion Zeroes(int nElems=1) { return Quaternion.identity; }
@@ -486,6 +512,8 @@ public class TraitsQuaternion : ITraits<Quaternion, float> {
 public class TraitsTriggerList : ITraits<List<Trigger>, Trigger> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Trigger; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.TriggerType; }
+    public bool TestEquals(List<Trigger> lhs, List<Trigger> rhs) { EqualityComparer<List<Trigger>> ec = EqualityComparer<List<Trigger>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Trigger lhs, Trigger rhs) { EqualityComparer<Trigger> ec = EqualityComparer<Trigger>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref List<Trigger> lhs, List<Trigger> rhs) { lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];} }
     public List<Trigger> Zero { get { return null; } }
     public List<Trigger> Zeroes(int nElems=1) { List<Trigger> lst = new List<Trigger>(nElems); for(int i=0; i<nElems;++i){lst.Add(new Trigger());} return lst; }
@@ -527,6 +555,8 @@ public class TraitsTriggerList : ITraits<List<Trigger>, Trigger> {
 public class TraitsBoolList : ITraits<List<bool>, bool> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Bool; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Bool; }
+    public bool TestEquals(List<bool> lhs, List<bool> rhs) { EqualityComparer<List<bool>> ec = EqualityComparer<List<bool>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(bool lhs, bool rhs) { EqualityComparer<bool> ec = EqualityComparer<bool>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref List<bool> lhs, List<bool> rhs) { lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];} }
     public List<bool> Zero { get { return null; } }
     public List<bool> Zeroes(int nElems=1) { List<bool> lst = new List<bool>(nElems); for(int i=0; i<nElems;++i){lst.Add(false);} return lst; }
@@ -568,6 +598,8 @@ public class TraitsBoolList : ITraits<List<bool>, bool> {
 public class TraitsCharList : ITraits<List<char>, char> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Char; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Char; }
+    public bool TestEquals(List<char> lhs, List<char> rhs) { EqualityComparer<List<char>> ec = EqualityComparer<List<char>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(char lhs, char rhs) { EqualityComparer<char> ec = EqualityComparer<char>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref List<char> lhs, List<char> rhs) { lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];} }
     public List<char> Zero { get { return null; } }
     public List<char> Zeroes(int nElems=1) { List<char> lst = new List<char>(nElems); for(int i=0; i<nElems;++i){lst.Add(default(char));} return lst; }
@@ -609,6 +641,8 @@ public class TraitsCharList : ITraits<List<char>, char> {
 public class TraitsStringList : ITraits<List<string>, string> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_String; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.String; }
+    public bool TestEquals(List<string> lhs, List<string> rhs) { EqualityComparer<List<string>> ec = EqualityComparer<List<string>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(string lhs, string rhs) { EqualityComparer<string> ec = EqualityComparer<string>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref List<string> lhs, List<string> rhs) { lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];} }
     public List<string> Zero { get { return null; } }
     public List<string> Zeroes(int nElems=1) { List<string> lst = new List<string>(nElems); for(int i=0; i<nElems;++i){lst.Add(default(string));} return lst; }
@@ -650,6 +684,8 @@ public class TraitsStringList : ITraits<List<string>, string> {
 public class TraitsIntList : ITraits<List<int>, int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Int; }
+    public bool TestEquals(List<int> lhs, List<int> rhs) { EqualityComparer<List<int>> ec = EqualityComparer<List<int>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(int lhs, int rhs) { EqualityComparer<int> ec = EqualityComparer<int>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref List<int> lhs, List<int> rhs) { lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];} }
     public List<int> Zero { get { return null; } }
     public List<int> Zeroes(int nElems=1) { List<int> lst = new List<int>(nElems); for(int i=0; i<nElems;++i){lst.Add(0);} return lst; }
@@ -691,6 +727,8 @@ public class TraitsIntList : ITraits<List<int>, int> {
 public class TraitsFloatList : ITraits<List<float>, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Float; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Float; }
+    public bool TestEquals(List<float> lhs, List<float> rhs) { EqualityComparer<List<float>> ec = EqualityComparer<List<float>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(float lhs, float rhs) { EqualityComparer<float> ec = EqualityComparer<float>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref List<float> lhs, List<float> rhs) { lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];} }
     public List<float> Zero { get { return null; } }
     public List<float> Zeroes(int nElems=1) { List<float> lst = new List<float>(nElems); for(int i=0; i<nElems;++i){lst.Add(0f);} return lst; }
@@ -720,6 +758,8 @@ public class TraitsFloatList : ITraits<List<float>, float> {
 public class TraitsVector2IntList : ITraits<List<Vector2Int>, Vector2Int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Vector2Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector2IntType; }
+    public bool TestEquals(List<Vector2Int> lhs, List<Vector2Int> rhs) { EqualityComparer<List<Vector2Int>> ec = EqualityComparer<List<Vector2Int>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Vector2Int lhs, Vector2Int rhs) { EqualityComparer<Vector2Int> ec = EqualityComparer<Vector2Int>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref List<Vector2Int> lhs, List<Vector2Int> rhs) { lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];} }
     public List<Vector2Int> Zero { get { return null; } }
     public List<Vector2Int> Zeroes(int nElems=1) { List<Vector2Int> lst = new List<Vector2Int>(nElems); for(int i=0; i<nElems;++i){lst.Add(Vector2Int.zero);} return lst; }
@@ -761,6 +801,8 @@ public class TraitsVector2IntList : ITraits<List<Vector2Int>, Vector2Int> {
 public class TraitsVector2List : ITraits<List<Vector2>, Vector2> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Vector2; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector2Type; }
+    public bool TestEquals(List<Vector2> lhs, List<Vector2> rhs) { EqualityComparer<List<Vector2>> ec = EqualityComparer<List<Vector2>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Vector2 lhs, Vector2 rhs) { EqualityComparer<Vector2> ec = EqualityComparer<Vector2>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref List<Vector2> lhs, List<Vector2> rhs) { lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];} }
     public List<Vector2> Zero { get { return null; } }
     public List<Vector2> Zeroes(int nElems=1) { List<Vector2> lst = new List<Vector2>(nElems); for(int i=0; i<nElems;++i){lst.Add(Vector2.zero);} return lst; }
@@ -790,6 +832,8 @@ public class TraitsVector2List : ITraits<List<Vector2>, Vector2> {
 public class TraitsVector3IntList : ITraits<List<Vector3Int>, Vector3Int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Vector3Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector3IntType; }
+    public bool TestEquals(List<Vector3Int> lhs, List<Vector3Int> rhs) { EqualityComparer<List<Vector3Int>> ec = EqualityComparer<List<Vector3Int>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Vector3Int lhs, Vector3Int rhs) { EqualityComparer<Vector3Int> ec = EqualityComparer<Vector3Int>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref List<Vector3Int> lhs, List<Vector3Int> rhs) { lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];} }
     public List<Vector3Int> Zero { get { return null; } }
     public List<Vector3Int> Zeroes(int nElems=1) { List<Vector3Int> lst = new List<Vector3Int>(nElems); for(int i=0; i<nElems;++i){lst.Add(Vector3Int.zero);} return lst; }
@@ -831,6 +875,8 @@ public class TraitsVector3IntList : ITraits<List<Vector3Int>, Vector3Int> {
 public class TraitsVector3List : ITraits<List<Vector3>, Vector3> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Vector3; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector3Type; }
+    public bool TestEquals(List<Vector3> lhs, List<Vector3> rhs) { EqualityComparer<List<Vector3>> ec = EqualityComparer<List<Vector3>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Vector3 lhs, Vector3 rhs) { EqualityComparer<Vector3> ec = EqualityComparer<Vector3>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref List<Vector3> lhs, List<Vector3> rhs) { lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];} }
     public List<Vector3> Zero { get { return null; } }
     public List<Vector3> Zeroes(int nElems=1) { List<Vector3> lst = new List<Vector3>(nElems); for(int i=0; i<nElems;++i){lst.Add(Vector3.zero);} return lst; }
@@ -860,6 +906,8 @@ public class TraitsVector3List : ITraits<List<Vector3>, Vector3> {
 public class TraitsVector4List : ITraits<List<Vector4>, Vector4> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Vector4; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector4Type; }
+    public bool TestEquals(List<Vector4> lhs, List<Vector4> rhs) { EqualityComparer<List<Vector4>> ec = EqualityComparer<List<Vector4>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Vector4 lhs, Vector4 rhs) { EqualityComparer<Vector4> ec = EqualityComparer<Vector4>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref List<Vector4> lhs, List<Vector4> rhs) { lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];} }
     public List<Vector4> Zero { get { return null; } }
     public List<Vector4> Zeroes(int nElems=1) { List<Vector4> lst = new List<Vector4>(nElems); for(int i=0; i<nElems;++i){lst.Add(Vector4.zero);} return lst; }
@@ -889,6 +937,8 @@ public class TraitsVector4List : ITraits<List<Vector4>, Vector4> {
 public class TraitsQuaternionList : ITraits<List<Quaternion>, Quaternion> {
     public DataTypeEnum DataType { get=>DataTypeEnum.List_Quaternion; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.QuaternionType; }
+    public bool TestEquals(List<Quaternion> lhs, List<Quaternion> rhs) { EqualityComparer<List<Quaternion>> ec = EqualityComparer<List<Quaternion>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Quaternion lhs, Quaternion rhs) { EqualityComparer<Quaternion> ec = EqualityComparer<Quaternion>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref List<Quaternion> lhs, List<Quaternion> rhs) { lhs.Capacity=rhs.Capacity; for(int i=0;i<rhs.Count;++i){lhs[i]=rhs[i];} }
     public List<Quaternion> Zero { get { return null; } }
     public List<Quaternion> Zeroes(int nElems=1) { List<Quaternion> lst = new List<Quaternion>(nElems); for(int i=0; i<nElems;++i){lst.Add(Quaternion.identity);} return lst; }
@@ -930,6 +980,8 @@ public class TraitsQuaternionList : ITraits<List<Quaternion>, Quaternion> {
 public class TraitsKVariablesTrigger : ITraits<KVariables<Trigger>, Trigger> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Trigger; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.TriggerType; }
+    public bool TestEquals(KVariables<Trigger> lhs, KVariables<Trigger> rhs) { EqualityComparer<KVariables<Trigger>> ec = EqualityComparer<KVariables<Trigger>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Trigger lhs, Trigger rhs) { EqualityComparer<Trigger> ec = EqualityComparer<Trigger>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariables<Trigger> lhs, KVariables<Trigger> rhs) { lhs.SetEqual(rhs); }
     public KVariables<Trigger> Zero { get { return new KVariables<Trigger>(Trigger.Default); } }
     public KVariables<Trigger> Zeroes(int nElems=1) { return new KVariables<Trigger>(new Trigger()); }
@@ -959,6 +1011,8 @@ public class TraitsKVariablesTrigger : ITraits<KVariables<Trigger>, Trigger> {
 public class TraitsKVariablesBool : ITraits<KVariables<bool>, bool> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Bool; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Bool; }
+    public bool TestEquals(KVariables<bool> lhs, KVariables<bool> rhs) { EqualityComparer<KVariables<bool>> ec = EqualityComparer<KVariables<bool>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(bool lhs, bool rhs) { EqualityComparer<bool> ec = EqualityComparer<bool>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariables<bool> lhs, KVariables<bool> rhs) { lhs.SetEqual(rhs); }
     public KVariables<bool> Zero { get { return new KVariables<bool>(false); } }
     public KVariables<bool> Zeroes(int nElems=1) { return new KVariables<bool>(false); }
@@ -988,6 +1042,8 @@ public class TraitsKVariablesBool : ITraits<KVariables<bool>, bool> {
 public class TraitsKVariablesChar : ITraits<KVariables<char>, char> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Char; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Char; }
+    public bool TestEquals(KVariables<char> lhs, KVariables<char> rhs) { EqualityComparer<KVariables<char>> ec = EqualityComparer<KVariables<char>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(char lhs, char rhs) { EqualityComparer<char> ec = EqualityComparer<char>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariables<char> lhs, KVariables<char> rhs) { lhs.SetEqual(rhs); }
     public KVariables<char> Zero { get { return new KVariables<char>(default(char)); } }
     public KVariables<char> Zeroes(int nElems=1) { return new KVariables<char>(default(char)); }
@@ -1017,6 +1073,8 @@ public class TraitsKVariablesChar : ITraits<KVariables<char>, char> {
 public class TraitsKVariablesString : ITraits<KVariables<string>, string> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_String; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.String; }
+    public bool TestEquals(KVariables<string> lhs, KVariables<string> rhs) { EqualityComparer<KVariables<string>> ec = EqualityComparer<KVariables<string>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(string lhs, string rhs) { EqualityComparer<string> ec = EqualityComparer<string>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariables<string> lhs, KVariables<string> rhs) { lhs.SetEqual(rhs); }
     public KVariables<string> Zero { get { return new KVariables<string>(default(string)); } }
     public KVariables<string> Zeroes(int nElems=1) { return new KVariables<string>(default(string)); }
@@ -1046,6 +1104,8 @@ public class TraitsKVariablesString : ITraits<KVariables<string>, string> {
 public class TraitsKVariablesInt : ITraits<KVariables<int>, int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Int; }
+    public bool TestEquals(KVariables<int> lhs, KVariables<int> rhs) { EqualityComparer<KVariables<int>> ec = EqualityComparer<KVariables<int>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(int lhs, int rhs) { EqualityComparer<int> ec = EqualityComparer<int>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariables<int> lhs, KVariables<int> rhs) { lhs.SetEqual(rhs); }
     public KVariables<int> Zero { get { return new KVariables<int>(0); } }
     public KVariables<int> Zeroes(int nElems=1) { return new KVariables<int>(0); }
@@ -1075,6 +1135,8 @@ public class TraitsKVariablesInt : ITraits<KVariables<int>, int> {
 public class TraitsKVariablesFloat : ITraits<KVariables<float>, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Float; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Float; }
+    public bool TestEquals(KVariables<float> lhs, KVariables<float> rhs) { EqualityComparer<KVariables<float>> ec = EqualityComparer<KVariables<float>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(float lhs, float rhs) { EqualityComparer<float> ec = EqualityComparer<float>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariables<float> lhs, KVariables<float> rhs) { lhs.SetEqual(rhs); }
     public KVariables<float> Zero { get { return new KVariables<float>(0f); } }
     public KVariables<float> Zeroes(int nElems=1) { return new KVariables<float>(0f); }
@@ -1092,6 +1154,8 @@ public class TraitsKVariablesFloat : ITraits<KVariables<float>, float> {
 public class TraitsKVariablesVector2Int : ITraits<KVariables<Vector2Int>, Vector2Int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Vector2Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector2IntType; }
+    public bool TestEquals(KVariables<Vector2Int> lhs, KVariables<Vector2Int> rhs) { EqualityComparer<KVariables<Vector2Int>> ec = EqualityComparer<KVariables<Vector2Int>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Vector2Int lhs, Vector2Int rhs) { EqualityComparer<Vector2Int> ec = EqualityComparer<Vector2Int>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariables<Vector2Int> lhs, KVariables<Vector2Int> rhs) { lhs.SetEqual(rhs); }
     public KVariables<Vector2Int> Zero { get { return new KVariables<Vector2Int>(Vector2Int.zero); } }
     public KVariables<Vector2Int> Zeroes(int nElems=1) { return new KVariables<Vector2Int>(Vector2Int.zero); }
@@ -1121,6 +1185,8 @@ public class TraitsKVariablesVector2Int : ITraits<KVariables<Vector2Int>, Vector
 public class TraitsKVariablesVector2 : ITraits<KVariables<Vector2>, Vector2> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Vector2; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector2Type; }
+    public bool TestEquals(KVariables<Vector2> lhs, KVariables<Vector2> rhs) { EqualityComparer<KVariables<Vector2>> ec = EqualityComparer<KVariables<Vector2>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Vector2 lhs, Vector2 rhs) { EqualityComparer<Vector2> ec = EqualityComparer<Vector2>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariables<Vector2> lhs, KVariables<Vector2> rhs) { lhs.SetEqual(rhs); }
     public KVariables<Vector2> Zero { get { return new KVariables<Vector2>(Vector2.zero); } }
     public KVariables<Vector2> Zeroes(int nElems=1) { return new KVariables<Vector2>(Vector2.zero); }
@@ -1138,6 +1204,8 @@ public class TraitsKVariablesVector2 : ITraits<KVariables<Vector2>, Vector2> {
 public class TraitsKVariablesVector3Int : ITraits<KVariables<Vector3Int>, Vector3Int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Vector3Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector3IntType; }
+    public bool TestEquals(KVariables<Vector3Int> lhs, KVariables<Vector3Int> rhs) { EqualityComparer<KVariables<Vector3Int>> ec = EqualityComparer<KVariables<Vector3Int>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Vector3Int lhs, Vector3Int rhs) { EqualityComparer<Vector3Int> ec = EqualityComparer<Vector3Int>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariables<Vector3Int> lhs, KVariables<Vector3Int> rhs) { lhs.SetEqual(rhs); }
     public KVariables<Vector3Int> Zero { get { return new KVariables<Vector3Int>(Vector3Int.zero); } }
     public KVariables<Vector3Int> Zeroes(int nElems=1) { return new KVariables<Vector3Int>(Vector3Int.zero); }
@@ -1167,6 +1235,8 @@ public class TraitsKVariablesVector3Int : ITraits<KVariables<Vector3Int>, Vector
 public class TraitsKVariablesVector3 : ITraits<KVariables<Vector3>, Vector3> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Vector3; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector3Type; }
+    public bool TestEquals(KVariables<Vector3> lhs, KVariables<Vector3> rhs) { EqualityComparer<KVariables<Vector3>> ec = EqualityComparer<KVariables<Vector3>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Vector3 lhs, Vector3 rhs) { EqualityComparer<Vector3> ec = EqualityComparer<Vector3>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariables<Vector3> lhs, KVariables<Vector3> rhs) { lhs.SetEqual(rhs); }
     public KVariables<Vector3> Zero { get { return new KVariables<Vector3>(Vector3.zero); } }
     public KVariables<Vector3> Zeroes(int nElems=1) { return new KVariables<Vector3>(Vector3.zero); }
@@ -1184,6 +1254,8 @@ public class TraitsKVariablesVector3 : ITraits<KVariables<Vector3>, Vector3> {
 public class TraitsKVariablesVector4 : ITraits<KVariables<Vector4>, Vector4> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Vector4; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector4Type; }
+    public bool TestEquals(KVariables<Vector4> lhs, KVariables<Vector4> rhs) { EqualityComparer<KVariables<Vector4>> ec = EqualityComparer<KVariables<Vector4>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Vector4 lhs, Vector4 rhs) { EqualityComparer<Vector4> ec = EqualityComparer<Vector4>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariables<Vector4> lhs, KVariables<Vector4> rhs) { lhs.SetEqual(rhs); }
     public KVariables<Vector4> Zero { get { return new KVariables<Vector4>(Vector4.zero); } }
     public KVariables<Vector4> Zeroes(int nElems=1) { return new KVariables<Vector4>(Vector4.zero); }
@@ -1201,6 +1273,8 @@ public class TraitsKVariablesVector4 : ITraits<KVariables<Vector4>, Vector4> {
 public class TraitsKVariablesQuaternion : ITraits<KVariables<Quaternion>, Quaternion> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariables_Quaternion; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.QuaternionType; }
+    public bool TestEquals(KVariables<Quaternion> lhs, KVariables<Quaternion> rhs) { EqualityComparer<KVariables<Quaternion>> ec = EqualityComparer<KVariables<Quaternion>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Quaternion lhs, Quaternion rhs) { EqualityComparer<Quaternion> ec = EqualityComparer<Quaternion>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariables<Quaternion> lhs, KVariables<Quaternion> rhs) { lhs.SetEqual(rhs); }
     public KVariables<Quaternion> Zero { get { return new KVariables<Quaternion>(Quaternion.identity); } }
     public KVariables<Quaternion> Zeroes(int nElems=1) { return new KVariables<Quaternion>(Quaternion.identity); }
@@ -1230,6 +1304,8 @@ public class TraitsKVariablesQuaternion : ITraits<KVariables<Quaternion>, Quater
 public class TraitsKVariablesExtTrigger : ITraits<KVariablesExt<Trigger>, Trigger> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Trigger; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.TriggerType; }
+    public bool TestEquals(KVariablesExt<Trigger> lhs, KVariablesExt<Trigger> rhs) { EqualityComparer<KVariablesExt<Trigger>> ec = EqualityComparer<KVariablesExt<Trigger>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Trigger lhs, Trigger rhs) { EqualityComparer<Trigger> ec = EqualityComparer<Trigger>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariablesExt<Trigger> lhs, KVariablesExt<Trigger> rhs) { lhs.SetEqual(rhs); }
     public KVariablesExt<Trigger> Zero { get { return new KVariablesExt<Trigger>(Trigger.Default); } }
     public KVariablesExt<Trigger> Zeroes(int nElems=1) { return new KVariablesExt<Trigger>(new Trigger()); }
@@ -1259,6 +1335,8 @@ public class TraitsKVariablesExtTrigger : ITraits<KVariablesExt<Trigger>, Trigge
 public class TraitsKVariablesExtBool : ITraits<KVariablesExt<bool>, bool> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Bool; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Bool; }
+    public bool TestEquals(KVariablesExt<bool> lhs, KVariablesExt<bool> rhs) { EqualityComparer<KVariablesExt<bool>> ec = EqualityComparer<KVariablesExt<bool>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(bool lhs, bool rhs) { EqualityComparer<bool> ec = EqualityComparer<bool>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariablesExt<bool> lhs, KVariablesExt<bool> rhs) { lhs.SetEqual(rhs); }
     public KVariablesExt<bool> Zero { get { return new KVariablesExt<bool>(false); } }
     public KVariablesExt<bool> Zeroes(int nElems=1) { return new KVariablesExt<bool>(false); }
@@ -1288,6 +1366,8 @@ public class TraitsKVariablesExtBool : ITraits<KVariablesExt<bool>, bool> {
 public class TraitsKVariablesExtChar : ITraits<KVariablesExt<char>, char> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Char; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Char; }
+    public bool TestEquals(KVariablesExt<char> lhs, KVariablesExt<char> rhs) { EqualityComparer<KVariablesExt<char>> ec = EqualityComparer<KVariablesExt<char>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(char lhs, char rhs) { EqualityComparer<char> ec = EqualityComparer<char>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariablesExt<char> lhs, KVariablesExt<char> rhs) { lhs.SetEqual(rhs); }
     public KVariablesExt<char> Zero { get { return new KVariablesExt<char>(default(char)); } }
     public KVariablesExt<char> Zeroes(int nElems=1) { return new KVariablesExt<char>(default(char)); }
@@ -1317,6 +1397,8 @@ public class TraitsKVariablesExtChar : ITraits<KVariablesExt<char>, char> {
 public class TraitsKVariablesExtString : ITraits<KVariablesExt<string>, string> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_String; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.String; }
+    public bool TestEquals(KVariablesExt<string> lhs, KVariablesExt<string> rhs) { EqualityComparer<KVariablesExt<string>> ec = EqualityComparer<KVariablesExt<string>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(string lhs, string rhs) { EqualityComparer<string> ec = EqualityComparer<string>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariablesExt<string> lhs, KVariablesExt<string> rhs) { lhs.SetEqual(rhs); }
     public KVariablesExt<string> Zero { get { return new KVariablesExt<string>(default(string)); } }
     public KVariablesExt<string> Zeroes(int nElems=1) { return new KVariablesExt<string>(default(string)); }
@@ -1346,6 +1428,8 @@ public class TraitsKVariablesExtString : ITraits<KVariablesExt<string>, string> 
 public class TraitsKVariablesExtInt : ITraits<KVariablesExt<int>, int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Int; }
+    public bool TestEquals(KVariablesExt<int> lhs, KVariablesExt<int> rhs) { EqualityComparer<KVariablesExt<int>> ec = EqualityComparer<KVariablesExt<int>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(int lhs, int rhs) { EqualityComparer<int> ec = EqualityComparer<int>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariablesExt<int> lhs, KVariablesExt<int> rhs) { lhs.SetEqual(rhs); }
     public KVariablesExt<int> Zero { get { return new KVariablesExt<int>(0); } }
     public KVariablesExt<int> Zeroes(int nElems=1) { return new KVariablesExt<int>(0); }
@@ -1375,6 +1459,8 @@ public class TraitsKVariablesExtInt : ITraits<KVariablesExt<int>, int> {
 public class TraitsKVariablesExtFloat : ITraits<KVariablesExt<float>, float> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Float; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Float; }
+    public bool TestEquals(KVariablesExt<float> lhs, KVariablesExt<float> rhs) { EqualityComparer<KVariablesExt<float>> ec = EqualityComparer<KVariablesExt<float>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(float lhs, float rhs) { EqualityComparer<float> ec = EqualityComparer<float>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariablesExt<float> lhs, KVariablesExt<float> rhs) { lhs.SetEqual(rhs); }
     public KVariablesExt<float> Zero { get { return new KVariablesExt<float>(0f); } }
     public KVariablesExt<float> Zeroes(int nElems=1) { return new KVariablesExt<float>(0f); }
@@ -1392,6 +1478,8 @@ public class TraitsKVariablesExtFloat : ITraits<KVariablesExt<float>, float> {
 public class TraitsKVariablesExtVector2Int : ITraits<KVariablesExt<Vector2Int>, Vector2Int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Vector2Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector2IntType; }
+    public bool TestEquals(KVariablesExt<Vector2Int> lhs, KVariablesExt<Vector2Int> rhs) { EqualityComparer<KVariablesExt<Vector2Int>> ec = EqualityComparer<KVariablesExt<Vector2Int>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Vector2Int lhs, Vector2Int rhs) { EqualityComparer<Vector2Int> ec = EqualityComparer<Vector2Int>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariablesExt<Vector2Int> lhs, KVariablesExt<Vector2Int> rhs) { lhs.SetEqual(rhs); }
     public KVariablesExt<Vector2Int> Zero { get { return new KVariablesExt<Vector2Int>(Vector2Int.zero); } }
     public KVariablesExt<Vector2Int> Zeroes(int nElems=1) { return new KVariablesExt<Vector2Int>(Vector2Int.zero); }
@@ -1421,6 +1509,8 @@ public class TraitsKVariablesExtVector2Int : ITraits<KVariablesExt<Vector2Int>, 
 public class TraitsKVariablesExtVector2 : ITraits<KVariablesExt<Vector2>, Vector2> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Vector2; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector2Type; }
+    public bool TestEquals(KVariablesExt<Vector2> lhs, KVariablesExt<Vector2> rhs) { EqualityComparer<KVariablesExt<Vector2>> ec = EqualityComparer<KVariablesExt<Vector2>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Vector2 lhs, Vector2 rhs) { EqualityComparer<Vector2> ec = EqualityComparer<Vector2>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariablesExt<Vector2> lhs, KVariablesExt<Vector2> rhs) { lhs.SetEqual(rhs); }
     public KVariablesExt<Vector2> Zero { get { return new KVariablesExt<Vector2>(Vector2.zero); } }
     public KVariablesExt<Vector2> Zeroes(int nElems=1) { return new KVariablesExt<Vector2>(Vector2.zero); }
@@ -1438,6 +1528,8 @@ public class TraitsKVariablesExtVector2 : ITraits<KVariablesExt<Vector2>, Vector
 public class TraitsKVariablesExtVector3Int : ITraits<KVariablesExt<Vector3Int>, Vector3Int> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Vector3Int; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector3IntType; }
+    public bool TestEquals(KVariablesExt<Vector3Int> lhs, KVariablesExt<Vector3Int> rhs) { EqualityComparer<KVariablesExt<Vector3Int>> ec = EqualityComparer<KVariablesExt<Vector3Int>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Vector3Int lhs, Vector3Int rhs) { EqualityComparer<Vector3Int> ec = EqualityComparer<Vector3Int>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariablesExt<Vector3Int> lhs, KVariablesExt<Vector3Int> rhs) { lhs.SetEqual(rhs); }
     public KVariablesExt<Vector3Int> Zero { get { return new KVariablesExt<Vector3Int>(Vector3Int.zero); } }
     public KVariablesExt<Vector3Int> Zeroes(int nElems=1) { return new KVariablesExt<Vector3Int>(Vector3Int.zero); }
@@ -1467,6 +1559,8 @@ public class TraitsKVariablesExtVector3Int : ITraits<KVariablesExt<Vector3Int>, 
 public class TraitsKVariablesExtVector3 : ITraits<KVariablesExt<Vector3>, Vector3> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Vector3; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector3Type; }
+    public bool TestEquals(KVariablesExt<Vector3> lhs, KVariablesExt<Vector3> rhs) { EqualityComparer<KVariablesExt<Vector3>> ec = EqualityComparer<KVariablesExt<Vector3>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Vector3 lhs, Vector3 rhs) { EqualityComparer<Vector3> ec = EqualityComparer<Vector3>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariablesExt<Vector3> lhs, KVariablesExt<Vector3> rhs) { lhs.SetEqual(rhs); }
     public KVariablesExt<Vector3> Zero { get { return new KVariablesExt<Vector3>(Vector3.zero); } }
     public KVariablesExt<Vector3> Zeroes(int nElems=1) { return new KVariablesExt<Vector3>(Vector3.zero); }
@@ -1484,6 +1578,8 @@ public class TraitsKVariablesExtVector3 : ITraits<KVariablesExt<Vector3>, Vector
 public class TraitsKVariablesExtVector4 : ITraits<KVariablesExt<Vector4>, Vector4> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Vector4; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.Vector4Type; }
+    public bool TestEquals(KVariablesExt<Vector4> lhs, KVariablesExt<Vector4> rhs) { EqualityComparer<KVariablesExt<Vector4>> ec = EqualityComparer<KVariablesExt<Vector4>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Vector4 lhs, Vector4 rhs) { EqualityComparer<Vector4> ec = EqualityComparer<Vector4>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariablesExt<Vector4> lhs, KVariablesExt<Vector4> rhs) { lhs.SetEqual(rhs); }
     public KVariablesExt<Vector4> Zero { get { return new KVariablesExt<Vector4>(Vector4.zero); } }
     public KVariablesExt<Vector4> Zeroes(int nElems=1) { return new KVariablesExt<Vector4>(Vector4.zero); }
@@ -1501,6 +1597,8 @@ public class TraitsKVariablesExtVector4 : ITraits<KVariablesExt<Vector4>, Vector
 public class TraitsKVariablesExtQuaternion : ITraits<KVariablesExt<Quaternion>, Quaternion> {
     public DataTypeEnum DataType { get=>DataTypeEnum.KVariablesExt_Quaternion; }
     public DataTypeEnum ComponentType { get=>DataTypeEnum.QuaternionType; }
+    public bool TestEquals(KVariablesExt<Quaternion> lhs, KVariablesExt<Quaternion> rhs) { EqualityComparer<KVariablesExt<Quaternion>> ec = EqualityComparer<KVariablesExt<Quaternion>>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(Quaternion lhs, Quaternion rhs) { EqualityComparer<Quaternion> ec = EqualityComparer<Quaternion>.Default; return ec.Equals(lhs, rhs); }
     public void SetEqual(ref KVariablesExt<Quaternion> lhs, KVariablesExt<Quaternion> rhs) { lhs.SetEqual(rhs); }
     public KVariablesExt<Quaternion> Zero { get { return new KVariablesExt<Quaternion>(Quaternion.identity); } }
     public KVariablesExt<Quaternion> Zeroes(int nElems=1) { return new KVariablesExt<Quaternion>(Quaternion.identity); }

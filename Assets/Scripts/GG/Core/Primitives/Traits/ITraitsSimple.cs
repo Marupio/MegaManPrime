@@ -1,7 +1,8 @@
-public interface ITraitsSimple<T> {
+public interface ITraitsSimple<L> {
     DataTypeEnum DataType { get; }
-    void SetEqual(ref T lhs, T rhs);
-    T Zero { get; }
+    bool TestEquals(L lhs, L rhs);
+    void SetEqual(ref L lhs, L rhs);
+    L Zero { get; }
     bool HasInfinity { get; }
-    T PositiveInfinity { get; }
+    L PositiveInfinity { get; }
 }

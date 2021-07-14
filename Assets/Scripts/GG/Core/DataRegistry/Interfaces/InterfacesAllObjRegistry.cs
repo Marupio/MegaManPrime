@@ -1,14 +1,19 @@
+using System;
 using System.Collections.Generic;
 
-public interface IObj {  // --> See ObjHeader for implementation
+public interface IObj : IEquatable<IObj> {  // --> See ObjHeader for implementation
     string Name { get; }
     long Id { get; }
     void SetId(long id);
+    // Equatability stuff
+    int GetHashCode();
+    bool Equals(object obj);
     IObjRegistry Parent { get; }
     ModTag MTag { get; }
     void SetModified();
     void RegisterToParent(IObjRegistry newParent);
     void UnregisterFromParent();
+    bool Clonable { get; set; }
     IObj Clone(IObjRegistry parent = null);
     // Sideways
     IObjRegistry ObjRegistry();
@@ -17,7 +22,11 @@ public interface IObj {  // --> See ObjHeader for implementation
 }
 public interface IObjRegistry : IObj {
     Dictionary<long, IObj> Children { get; }
+    List<IObj> ChildrenList { get; }
+    Dictionary<long, IObj> GetAllChildren(); // Recursive
+    List<IObj> GetAllChildrenList(); // Recursive
     HashSet<IObjRegistry> SubRegistries { get; }
+    List<IObjRegistry> SubRegistriesList { get; }
     IObjRegistry SubRegistry(ObjFilter filter);
     IObjRegistry SubRegistry(long id);
     IObjRegistry SubRegistry(string name);
@@ -87,9 +96,23 @@ public interface IObjRegistry : IObj {
     /// </summary>
     bool UnregisterChild(IObj obj);
     bool UnregisterChild(long id);
-    IObjRegistry CloneFamily(IObjRegistry parent = null);
+    CloneResult CloneFamily(IObjRegistry parent = null);
 }
-// TODO - maybe we extend this way? --> public interface IControllerObj
+public interface IExecutableObjMeta : IObj { // TODO
+    // I do stuff to data
+}
+public interface IObjUpdater : IExecutableObjMeta {
+    List<IDerivedDataObjMeta> AllDerivedData { get; }
+    bool PerformUpdatesFor(IDerivedDataObjMeta target);
+    void PerformAllUpdates();
+    // 'Init' the 'DependsOn' list 'For' the given target derivedDataObj
+    bool InitDependsOnFor(IDerivedDataObjMeta target, out List<ISourceDataObjMeta> dependsOn);
+    void InitAllDependsOn();
+    bool SpawnAllDerived();
+}
+// public interface IControllerObj : IExecutableObjMeta { // TODO
+//     // I control stuff
+// }
 public interface IDataObjMeta : IObj { // --> DataObjHeader abstract implementation
     DataTypeEnum DataType { get; }
     // Sideways
@@ -103,8 +126,11 @@ public interface ISourceDataObjMeta : IDataObjMeta {  // --> No direct implement
     // IControllerObj ControlledBy { get; set; }
 }
 public interface IDerivedDataObjMeta : IDataObjMeta {  // --> // TODO
-    List<IDataObjMeta> DependsOn { get; }
+    List<ISourceDataObjMeta> DependsOn { get; set; }
+    IObjUpdater Updater { get; set; }
+    bool Stale();
     bool UpToDate();
+    bool UpdateDerived();
 }
 public interface IDataObj<L> : IDataObjMeta {  // --> No direct implementations
     ITraitsSimple<L> TraitsSimple { get; }
@@ -114,8 +140,7 @@ public interface ISourceDataObj<L> : IDataObj<L>, ISourceDataObjMeta {  // --> S
     new L Data { get; set; }                                            // --> SourceDataObjs derived implementations
 }
 public interface IDerivedDataObj<L> : IDataObj<L>, IDerivedDataObjMeta {
-    IObjUpdater<L> Updater { get; set; }
-    void UpdateDerived();
+    // For now, nothing
 }
 public interface IDataSetObjMeta : IDataObjMeta {  // --> DataSetObjHeader abstract implementation
     DataTypeEnum ComponentType { get; }
@@ -137,14 +162,10 @@ public interface ISourceDataSetObj<L, C> : IDataSetObj<L, C>, ISourceDataObjMeta
     new C this[string elem] { get; set; }
 }
 public interface IDerivedDataSetObj<L, C> : IDataSetObj<L, C>, IDerivedDataObjMeta {
-    IObjUpdater<L> Updater { get; set; }
-    void UpdateDerived();
+    // Nothing
 }
 
 // *** Supporting definitions
-public interface IObjUpdater<L> {
-    void UpdateDerivedOn(IDerivedDataObj<L> target, ref L data);
-}
 public enum ComponentAccessType {
     None,
     Index,
