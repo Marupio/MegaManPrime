@@ -39,7 +39,7 @@ public struct KVariable<V> {
     }
 }
 
-// Base class encompasses all variable types included in KVariableControllableEnum
+// Base class encompasses all controllable variable types
 public class KVariables<V> {
     // public ITraits<V> m_traits;
     // public IKVariablesToolset<V> m_toolset;
@@ -184,6 +184,16 @@ public class KVariables<V> {
         }
         set {
             Set(KVariableTypeInfo.IndexToKVariableEnum(index), value);
+        }
+    }
+    public V this[string elem] {
+        get {
+            V value;
+            Get(KVariableTypeInfo.StringToKVariableEnum(elem), out value);
+            return value;
+        }
+        set {
+            Set(KVariableTypeInfo.StringToKVariableEnum(elem), value);
         }
     }
     public virtual int Size() {

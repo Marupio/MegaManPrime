@@ -15,6 +15,7 @@ Cloning Derived
     DerivedFamily
         Clones all derived objects under its Updater.  Clones sources as well.
 
+Add Equatable to KVariables?
 
 What to do about Cloning with Derived and Registry
     Derived
