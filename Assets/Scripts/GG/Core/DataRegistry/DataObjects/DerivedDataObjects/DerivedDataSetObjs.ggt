@@ -1,0 +1,29 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+public class $prefix\$DerivedDataObj : DerivedDataSetObj<$type\$, $component_type\$> {
+    public static readonly TraitsSimple$prefix\$ m_traitsSimple = new TraitsSimple$prefix\$();
+    public static readonly Traits$prefix\$ m_traits = new Traits$prefix\$();
+    public override DataTypeEnum DataType { get=>DataTypeEnum.$enum\$; }
+    public override DataTypeEnum ComponentType { get=>DataTypeEnum.$component_enum\$; }
+    public override ComponentAccessType PreferredAccessType { get=>ComponentAccessType.$preferred_access_type\$; }
+    public override bool ElementAccessByIndex() { return $allow_component_by_index\$; }
+    public override bool ElementAccessByString() { return $allow_component_by_string\$; }
+    public override string GetComponentName(int index) { $return_component_name_from_index\$ }
+    public override int GetComponentIndex(string elem) { $return_component_index_from_name\$ }
+    public override int NComponents { get=>$n_components\$; }
+    public override ITraitsSimple<$type\$> TraitsSimple { get=>m_traitsSimple; }
+    public override ITraits<$type\$, $component_type\$> Traits { get=>m_traits; }
+    public $component_type\$ this[int index] { get { $return_component_by_index\$ } }
+    public $component_type\$ this[string elem] { get { $return_component_by_string\$ } }
+    public $component_type\$ GetComponentNoUpdate(int index) { $return_component_by_index\$ }
+    public $component_type\$ GetComponentNoUpdate(string elem) { $return_component_by_string\$ }
+    public $prefix\$DerivedDataObj(
+        string name,
+        IObjRegistry parent = null,
+        IObjUpdater updater = null,
+        $type\$ data = default($type\$)
+    ) : base(name, parent, updater, data) {}
+    public $prefix\$DerivedDataObj($prefix\$DerivedDataObj obj) : base(obj) {}
+    public $prefix\$DerivedDataObj() {}
+}

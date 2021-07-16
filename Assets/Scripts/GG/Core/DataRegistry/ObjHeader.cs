@@ -1,4 +1,6 @@
-public class ObjHeader : IObj {
+using System;
+
+public class ObjHeader : IObj, IEquatable<IObj> {
     protected string m_name;
     protected long m_id;
     protected ModTag m_mtag;

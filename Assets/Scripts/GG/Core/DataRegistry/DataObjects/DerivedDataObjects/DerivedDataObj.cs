@@ -9,7 +9,15 @@ using UnityEngine;
 public abstract class DerivedDataObj<L> : DerivedDataObjHeader, IDerivedDataObj<L> {
     protected L m_data;
     public virtual ITraitsSimple<L> TraitsSimple { get; }
-    public L Data { get=>m_data; }
+    public L Data {
+        get {
+            if (!UpToDate()) {
+                UpdateDerived();
+            }
+            return m_data;
+        }
+    }
+    public L DataNoUpdate { get=>m_data; }
     public DerivedDataObj(
         string name,
         IObjRegistry parent = null,

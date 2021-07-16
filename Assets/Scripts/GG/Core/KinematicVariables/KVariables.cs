@@ -1,4 +1,5 @@
-using System.Collections.Specialized;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 // A value and type together is a KVariable
@@ -40,7 +41,7 @@ public struct KVariable<V> {
 }
 
 // Base class encompasses all controllable variable types
-public class KVariables<V> {
+public class KVariables<V> : IEquatable<KVariables<V>> {
     // public ITraits<V> m_traits;
     // public IKVariablesToolset<V> m_toolset;
 
@@ -199,6 +200,40 @@ public class KVariables<V> {
     public virtual int Size() {
         return KVariableTypeInfo.NKVariableEnum_Controllable;
     }
+    public bool Equals(KVariables<V> kv)
+    {
+        EqualityComparer<V> ec = EqualityComparer<V>.Default; /* return ec.Equals(lhs, rhs); */
+        return
+            ec.Equals(kv.m_variable,         m_variable) &&
+            ec.Equals(kv.m_derivative,       m_derivative) &&
+            ec.Equals(kv.m_secondDerivative, m_secondDerivative) &&
+            ec.Equals(kv.m_appliedForce,     m_appliedForce) &&
+            ec.Equals(kv.m_impulseForce,     m_impulseForce);
+    }
+    public override bool Equals(object obj)
+    {
+        if (!(obj is KVariables<V>))
+           return false;
+
+        KVariables<V> kv = (KVariables<V>)obj;
+        if (kv == this) {
+            return true;
+        }
+        return false;
+    }
+    public override int GetHashCode()
+    {
+        unchecked // Overflow is fine, just wrap
+        {
+            int hash = 17;
+            hash = hash * 486187739 + m_variable.GetHashCode();
+            hash = hash * 486187739 + m_derivative.GetHashCode();
+            hash = hash * 486187739 + m_secondDerivative.GetHashCode();
+            hash = hash * 486187739 + m_appliedForce.GetHashCode();
+            hash = hash * 486187739 + m_impulseForce.GetHashCode();
+            return hash;
+        }
+    }
 
     // *** Constructors
     public KVariables(KVariables<V> kvIn) {
@@ -239,7 +274,7 @@ public class KVariables<V> {
 }
 
 // Extended class adds the remaining variable types in KVariableEnum that aren't already included in base.
-public class KVariablesExt<V> : KVariables<V> {
+public class KVariablesExt<V> : KVariables<V>, IEquatable<KVariablesExt<V>> {
     // *** Direct access to variables if you need it
     public V m_thirdDerivative;
     public V m_appliedForceDerivative;
@@ -337,6 +372,46 @@ public class KVariablesExt<V> : KVariables<V> {
         m_thirdDerivative = varIn.m_thirdDerivative;
         m_appliedForceDerivative = varIn.m_appliedForceDerivative;
         m_impulseForceDerivative = varIn.m_impulseForceDerivative;
+    }
+    public bool Equals(KVariablesExt<V> kv)
+    {
+        EqualityComparer<V> ec = EqualityComparer<V>.Default; /* return ec.Equals(lhs, rhs); */
+        return
+            ec.Equals(kv.m_variable,               m_variable) &&
+            ec.Equals(kv.m_derivative,             m_derivative) &&
+            ec.Equals(kv.m_secondDerivative,       m_secondDerivative) &&
+            ec.Equals(kv.m_appliedForce,           m_appliedForce) &&
+            ec.Equals(kv.m_impulseForce,           m_impulseForce) &&
+            ec.Equals(kv.m_thirdDerivative,        m_thirdDerivative) &&
+            ec.Equals(kv.m_appliedForceDerivative, m_appliedForceDerivative) &&
+            ec.Equals(kv.m_impulseForceDerivative, m_impulseForceDerivative);
+    }
+    public override bool Equals(object obj)
+    {
+        if (!(obj is KVariablesExt<V>))
+           return false;
+
+        KVariablesExt<V> kv = (KVariablesExt<V>)obj;
+        if (kv == this) {
+            return true;
+        }
+        return false;
+    }
+    public override int GetHashCode()
+    {
+        unchecked // Overflow is fine, just wrap
+        {
+            int hash = 17;
+            hash = hash * 486187739 + m_variable.GetHashCode();
+            hash = hash * 486187739 + m_derivative.GetHashCode();
+            hash = hash * 486187739 + m_secondDerivative.GetHashCode();
+            hash = hash * 486187739 + m_appliedForce.GetHashCode();
+            hash = hash * 486187739 + m_impulseForce.GetHashCode();
+            hash = hash * 486187739 + m_thirdDerivative.GetHashCode();
+            hash = hash * 486187739 + m_appliedForceDerivative.GetHashCode();
+            hash = hash * 486187739 + m_impulseForceDerivative.GetHashCode();
+            return hash;
+        }
     }
 
     // *** Constructors

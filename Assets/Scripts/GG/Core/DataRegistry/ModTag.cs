@@ -1,8 +1,10 @@
+using System;
+
 /// <summary>
 /// Modification tag, assigned incrementally.
 /// Basically just a wrapped long now.  Was more.  Can be more.  But just a long right now.
 /// </summary>
-public struct ModTag {
+public struct ModTag : IEquatable<ModTag> {
     long m_tag;
     public long Tag { get => m_tag; set => m_tag=value; }
     public ModTag(long tag) { m_tag = tag; }
@@ -10,6 +12,7 @@ public struct ModTag {
     // *** Static operators
     public static explicit operator ModTag(long tag) { return new ModTag(tag); }
     public static implicit operator long (ModTag mtag) { return mtag.m_tag; }
+    public bool Equals(ModTag mt) { return m_tag != GlobalRegistrar.ModTagUntagged && mt.m_tag == m_tag; }
     public override bool Equals(object obj) {
         if (!(obj is ModTag))
            return false;

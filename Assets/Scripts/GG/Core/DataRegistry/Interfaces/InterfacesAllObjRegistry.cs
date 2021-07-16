@@ -140,29 +140,30 @@ public interface ISourceDataObj<L> : IDataObj<L>, ISourceDataObjMeta {  // --> S
     new L Data { get; set; }                                            // --> SourceDataObjs derived implementations
 }
 public interface IDerivedDataObj<L> : IDataObj<L>, IDerivedDataObjMeta {
-    // For now, nothing
+    L DataNoUpdate { get; }
 }
 public interface IDataSetObjMeta : IDataObjMeta {  // --> DataSetObjHeader abstract implementation
     DataTypeEnum ComponentType { get; }
     ComponentAccessType PreferredAccessType { get; }
     bool ElementAccessByIndex();
     bool ElementAccessByString();
-    string GetComponentName(int elem);
+    string GetComponentName(int index);
     int GetComponentIndex(string elem);
     int NComponents { get; } // -1 = use size query
 }
 public interface IDataSetObj<L, C> : IDataSetObjMeta, IDataObj<L> {
     ITraits<L, C> Traits { get; }
-    C this[int elem] { get; }
+    C this[int index] { get; }
     C this[string elem] { get; }
 }
 public interface ISourceDataSetObj<L, C> : IDataSetObj<L, C>, ISourceDataObjMeta {
     new L Data { get; set; }
-    new C this[int elem] { get; set; }
+    new C this[int index] { get; set; }
     new C this[string elem] { get; set; }
 }
 public interface IDerivedDataSetObj<L, C> : IDataSetObj<L, C>, IDerivedDataObjMeta {
-    // Nothing
+    C GetComponentNoUpdate(int index);
+    C GetComponentNoUpdate(string elem);
 }
 
 // *** Supporting definitions

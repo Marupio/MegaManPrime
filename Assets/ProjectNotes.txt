@@ -15,7 +15,7 @@ Cloning Derived
     DerivedFamily
         Clones all derived objects under its Updater.  Clones sources as well.
 
-Add Equatable to KVariables?
+//Add Equatable to KVariables? DONE
 
 What to do about Cloning with Derived and Registry
     Derived
@@ -78,6 +78,26 @@ VariableWatch and Trigger patterns:
 //  Reacts when approriate
 // DataSource-->Actor - Trigger pattern
 //  
+
+SCRAP ABOUT HEADER HIERARCHIES
+
+Actual:
+ObjHeader   DataObjHeader   SourceDataObjHeader     SourceDataObj<L>
+ObjHeader   DataObjHeader   DerivedDataObjHeader    DerivedDataObj<L>
+
+ObjHeader   DataObjHeader   DataSetObjHeader        SourceDataSetObj<L, C>
+ObjHeader   DataObjHeader   DataSetObjHeader        DerivedDataSetObj<L, C>
+/\ These two don't seem to fit the pattern...
+
+?ObjHeader  DataObjHeader   DataSetObjHeader    SourceDataSetObjHeader  SourceDataSetObj<L, C>
+?ObjHeader  DataObjHeader   DataSetObjHeader    DerivedDataSetObjHeader DerivedDataSetObj<L, C>
+/\ Maybe like this?
+
+But this analysis ignores the interfaces, which make more sense.  Headers are just grouped interfaces
+implemented at a convenient point of single inheritence.  What matters are the interfaces.
+
+
+
 
 
 BuildPipeline
