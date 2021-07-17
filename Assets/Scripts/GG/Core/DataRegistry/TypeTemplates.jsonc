@@ -1153,5 +1153,35 @@
                 "positive_infinities_return" : "$#if DEBUG$throw new System.InvalidOperationException();$#else$return new KVariablesExt<Quaternion>(Quaternion.identity);$#endif$"
             }
         ]
+    },
+    "other_set_types" :
+    {
+        "count" : 1,
+        "data" :
+        [
+            {
+                "prefix" : "KVariableTypeSet",
+                "type" : "KVariableTypeSet",
+                "enum" : "KVariableTypeSetType",
+                "component_enum" : "Bool",
+                "component_type" : "bool",
+                "n_components" : "8",
+                "allow_component_by_index" : "true",
+                "allow_component_by_string" : "true",
+                "return_component_name_from_index" : "return KVariableTypeInfo.IndexToKVariableEnum(index).ToString();",
+                "return_component_index_from_name" : "return KVariableTypeInfo.KVariableEnumToIndex(KVariableTypeInfo.Aliases[elem]);",
+                "return_component_by_index" : "return m_data.Contains(KVariableTypeInfo.IndexToKVariableEnum(index));",
+                "return_component_by_string" : "return m_data.Contains(elem);",
+                "set_component_by_index" : "if (value){m_data.Add(KVariableTypeInfo.IndexToKVariableEnum(index));} else {m_data.Remove(KVariableTypeInfo.IndexToKVariableEnum(index));}",
+                "set_component_by_string" : "if (value){m_data.Add(elem);}else{m_data.Remove(elem);}",
+                "preferred_access_type" : "String",
+                "deep_copy" : "lhs.SetEqual(rhs);",
+                "zero_return" : "return KVariableTypeInfo.None;",
+                "zeroes_return" : "return KVariableTypeInfo.None;",
+                "has_infinity" : "false",
+                "positive_infinity_return" : "$#if DEBUG$throw new System.InvalidOperationException();$#else$return KVariableTypeInfo.None;$#endif$",
+                "positive_infinities_return" : "$#if DEBUG$throw new System.InvalidOperationException();$#else$return KVariableTypeInfo.None;$#endif$"
+            }
+        ]
     }
 }

@@ -393,3 +393,24 @@ public class TraitsSimpleKVariablesExtQuaternion : ITraitsSimple<KVariablesExt<Q
     public bool HasInfinity { get=>false; }
     public KVariablesExt<Quaternion> PositiveInfinity { get=>throw new System.InvalidOperationException(); }
 }
+public class TraitsSimpleKVariableTypeSet : ITraitsSimple<KVariableTypeSet> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.KVariableTypeSetType; }
+    public bool TestEquals(KVariableTypeSet lhs, KVariableTypeSet rhs) { EqualityComparer<KVariableTypeSet> ec = EqualityComparer<KVariableTypeSet>.Default; return ec.Equals(lhs, rhs); }
+    public void SetEqual(ref KVariableTypeSet lhs, KVariableTypeSet rhs) { lhs.SetEqual(rhs); }
+    public KVariableTypeSet Zero { get { return KVariableTypeInfo.None; } }
+    public bool HasInfinity { get=>false; }
+    public KVariableTypeSet PositiveInfinity { get { 
+    #if DEBUG
+    throw new System.InvalidOperationException();
+    #else
+    return KVariableTypeInfo.None;
+    #endif
+     } }
+    public KVariableTypeSet PositiveInfinities(int nElems=1) { 
+    #if DEBUG
+    throw new System.InvalidOperationException();
+    #else
+    return KVariableTypeInfo.None;
+    #endif
+     }
+}

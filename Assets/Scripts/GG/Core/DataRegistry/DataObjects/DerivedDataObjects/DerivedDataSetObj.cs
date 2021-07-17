@@ -28,7 +28,7 @@ public abstract class DerivedDataSetObj<L, C> : DerivedDataObjHeader, IDerivedDa
     public DerivedDataSetObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         L data = default(L)
     ) : base(name, parent, updater) {
         // Even though I'm derived, I take a value because I can be 'stale'

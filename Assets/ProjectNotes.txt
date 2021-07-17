@@ -4,7 +4,7 @@ MULTITHREADING - when true, include Interlocked / Mutex and other multithreading
 
 
 TODO
-GlobalRegistrar.Cloning, DerivedDataObjs, IObjUpdaters
+GlobalRegistrar.Cloning, DerivedDataObjs, IDerivedUpdaters
 There should be an unclonable switch, to create global IObjs.  Time, Camera, Sun, etc.  Things associated with
 these can be data sources that don't clone.
 
@@ -45,7 +45,7 @@ Checks the object type:
 
     ObjectRegistry clones all its children.
     Asks each child what it depends on.
-    IObjUpdater
+    IDerivedUpdater
 
 Go through Traits to correct SetEqual, which is only doing reference changing, rather than data changing
 I'm on to the SourceDataObjects.  I've finished the templated types, now just build all the specific ones.

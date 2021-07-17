@@ -8,14 +8,14 @@ public class $prefix\$DataObj : SourceDataSetObj<$type\$, $component_type\$> {
     public override ITraits<$type\$, $component_type\$> Traits { get=>m_traits; }
     public override DataTypeEnum DataType { get=>DataTypeEnum.$enum\$; }
     public override DataTypeEnum ComponentType { get=>DataTypeEnum.$component_enum\$; }
-    public ComponentAccessType PreferredAccessType { get=>ComponentAccessType.$preferred_access_type\$; }
-    public int NComponents { get=>$n_components\$; }
-    public bool ElementAccessByIndex() { return $allow_component_by_index\$; }
-    public bool ElementAccessByString() { return $allow_component_by_string\$; }
-    public string GetComponentName(int index) { $return_component_name_from_index\$ }
-    public int GetComponentIndex(string elem) { $return_component_index_from_name\$ }
-    public $component_type\$ this[int index] { get { $return_component_by_index\$ } set { $set_component_by_index\$ } }
-    public $component_type\$ this[string elem] { get { $return_component_by_string\$ } set{ $set_component_by_string\$ } }
+    public override ComponentAccessType PreferredAccessType { get=>ComponentAccessType.$preferred_access_type\$; }
+    public override int NComponents { get=>$n_components\$; }
+    public override bool ElementAccessByIndex() { return $allow_component_by_index\$; }
+    public override bool ElementAccessByString() { return $allow_component_by_string\$; }
+    public override string GetComponentName(int index) { $return_component_name_from_index\$ }
+    public override int GetComponentIndex(string elem) { $return_component_index_from_name\$ }
+    public override $component_type\$ this[int index] { get { $return_component_by_index\$ } set { $set_component_by_index\$ } }
+    public override $component_type\$ this[string elem] { get { $return_component_by_string\$ } set{ $set_component_by_string\$ } }
     public override IObj Clone(IObjRegistry parent) {
         $prefix\$DataObj obj = new $prefix\$DataObj(m_name, parent, m_data);
         return (IObj)obj;

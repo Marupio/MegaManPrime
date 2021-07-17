@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-// public class GeneralObjUpdater : IObjUpdater {
+// public class GeneralObjUpdater : IDerivedUpdater {
 //     protected List<ISourceDataObjMeta> m_inputs;
 //     protected List<IDerivedDataObjMeta> m_outputs;
 
@@ -12,7 +12,7 @@ using System.Collections.Generic;
 //     // protected Vector2 GetVector2(string name);
 // }
 
-public class ObjUpdaterBase : ObjHeader, IObjUpdater {
+public class ObjUpdaterBase : ObjHeader, IDerivedUpdater {
     // Reverse lookup
     protected Dictionary<IDerivedDataObjMeta, int> m_index;
 

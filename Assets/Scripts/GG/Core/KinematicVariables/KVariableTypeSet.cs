@@ -189,6 +189,10 @@ public class KVariableTypeSet {
     public int Remove(string name) {
         return Remove(KVariableTypeInfo.StringToKVariableEnum(name));
     }
+    public void SetEqual(KVariableTypeSet rhs) {
+        m_value = rhs.m_value;
+        m_restriction = rhs.m_restriction;
+    }
 
     // TODO - add formated methods
     public override string ToString() {

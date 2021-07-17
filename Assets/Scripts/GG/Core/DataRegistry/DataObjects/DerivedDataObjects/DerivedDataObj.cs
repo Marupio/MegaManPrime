@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // public interface IDerivedDataObj<L> : IDataObj<L>, IDerivedDataObjMeta {
-//     IObjUpdater<L> Updater { get; set; }
+//     IDerivedUpdater<L> Updater { get; set; }
 //     void UpdateDerived();
 // }
 
@@ -21,7 +21,7 @@ public abstract class DerivedDataObj<L> : DerivedDataObjHeader, IDerivedDataObj<
     public DerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         L data = default(L)
     ) : base (name, parent, updater) {
         // Even though I'm derived, I take a value because I can be 'stale'

@@ -36,7 +36,7 @@ public class TriggerListDerivedDataObj : DerivedDataSetObj<List<Trigger>, Trigge
     public TriggerListDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         List<Trigger> data = default(List<Trigger>)
     ) : base(name, parent, updater, data) {}
     public TriggerListDerivedDataObj(TriggerListDerivedDataObj obj) : base(obj) {}
@@ -74,7 +74,7 @@ public class BoolListDerivedDataObj : DerivedDataSetObj<List<bool>, bool> {
     public BoolListDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         List<bool> data = default(List<bool>)
     ) : base(name, parent, updater, data) {}
     public BoolListDerivedDataObj(BoolListDerivedDataObj obj) : base(obj) {}
@@ -112,7 +112,7 @@ public class CharListDerivedDataObj : DerivedDataSetObj<List<char>, char> {
     public CharListDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         List<char> data = default(List<char>)
     ) : base(name, parent, updater, data) {}
     public CharListDerivedDataObj(CharListDerivedDataObj obj) : base(obj) {}
@@ -150,7 +150,7 @@ public class StringListDerivedDataObj : DerivedDataSetObj<List<string>, string> 
     public StringListDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         List<string> data = default(List<string>)
     ) : base(name, parent, updater, data) {}
     public StringListDerivedDataObj(StringListDerivedDataObj obj) : base(obj) {}
@@ -188,7 +188,7 @@ public class IntListDerivedDataObj : DerivedDataSetObj<List<int>, int> {
     public IntListDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         List<int> data = default(List<int>)
     ) : base(name, parent, updater, data) {}
     public IntListDerivedDataObj(IntListDerivedDataObj obj) : base(obj) {}
@@ -226,7 +226,7 @@ public class FloatListDerivedDataObj : DerivedDataSetObj<List<float>, float> {
     public FloatListDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         List<float> data = default(List<float>)
     ) : base(name, parent, updater, data) {}
     public FloatListDerivedDataObj(FloatListDerivedDataObj obj) : base(obj) {}
@@ -264,7 +264,7 @@ public class Vector2IntListDerivedDataObj : DerivedDataSetObj<List<Vector2Int>, 
     public Vector2IntListDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         List<Vector2Int> data = default(List<Vector2Int>)
     ) : base(name, parent, updater, data) {}
     public Vector2IntListDerivedDataObj(Vector2IntListDerivedDataObj obj) : base(obj) {}
@@ -302,7 +302,7 @@ public class Vector2ListDerivedDataObj : DerivedDataSetObj<List<Vector2>, Vector
     public Vector2ListDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         List<Vector2> data = default(List<Vector2>)
     ) : base(name, parent, updater, data) {}
     public Vector2ListDerivedDataObj(Vector2ListDerivedDataObj obj) : base(obj) {}
@@ -340,7 +340,7 @@ public class Vector3IntListDerivedDataObj : DerivedDataSetObj<List<Vector3Int>, 
     public Vector3IntListDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         List<Vector3Int> data = default(List<Vector3Int>)
     ) : base(name, parent, updater, data) {}
     public Vector3IntListDerivedDataObj(Vector3IntListDerivedDataObj obj) : base(obj) {}
@@ -378,7 +378,7 @@ public class Vector3ListDerivedDataObj : DerivedDataSetObj<List<Vector3>, Vector
     public Vector3ListDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         List<Vector3> data = default(List<Vector3>)
     ) : base(name, parent, updater, data) {}
     public Vector3ListDerivedDataObj(Vector3ListDerivedDataObj obj) : base(obj) {}
@@ -416,7 +416,7 @@ public class Vector4ListDerivedDataObj : DerivedDataSetObj<List<Vector4>, Vector
     public Vector4ListDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         List<Vector4> data = default(List<Vector4>)
     ) : base(name, parent, updater, data) {}
     public Vector4ListDerivedDataObj(Vector4ListDerivedDataObj obj) : base(obj) {}
@@ -454,7 +454,7 @@ public class QuaternionListDerivedDataObj : DerivedDataSetObj<List<Quaternion>, 
     public QuaternionListDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         List<Quaternion> data = default(List<Quaternion>)
     ) : base(name, parent, updater, data) {}
     public QuaternionListDerivedDataObj(QuaternionListDerivedDataObj obj) : base(obj) {}
@@ -480,7 +480,7 @@ public class KVariablesTriggerDerivedDataObj : DerivedDataSetObj<KVariables<Trig
     public KVariablesTriggerDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariables<Trigger> data = default(KVariables<Trigger>)
     ) : base(name, parent, updater, data) {}
     public KVariablesTriggerDerivedDataObj(KVariablesTriggerDerivedDataObj obj) : base(obj) {}
@@ -506,7 +506,7 @@ public class KVariablesBoolDerivedDataObj : DerivedDataSetObj<KVariables<bool>, 
     public KVariablesBoolDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariables<bool> data = default(KVariables<bool>)
     ) : base(name, parent, updater, data) {}
     public KVariablesBoolDerivedDataObj(KVariablesBoolDerivedDataObj obj) : base(obj) {}
@@ -532,7 +532,7 @@ public class KVariablesCharDerivedDataObj : DerivedDataSetObj<KVariables<char>, 
     public KVariablesCharDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariables<char> data = default(KVariables<char>)
     ) : base(name, parent, updater, data) {}
     public KVariablesCharDerivedDataObj(KVariablesCharDerivedDataObj obj) : base(obj) {}
@@ -558,7 +558,7 @@ public class KVariablesStringDerivedDataObj : DerivedDataSetObj<KVariables<strin
     public KVariablesStringDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariables<string> data = default(KVariables<string>)
     ) : base(name, parent, updater, data) {}
     public KVariablesStringDerivedDataObj(KVariablesStringDerivedDataObj obj) : base(obj) {}
@@ -584,7 +584,7 @@ public class KVariablesIntDerivedDataObj : DerivedDataSetObj<KVariables<int>, in
     public KVariablesIntDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariables<int> data = default(KVariables<int>)
     ) : base(name, parent, updater, data) {}
     public KVariablesIntDerivedDataObj(KVariablesIntDerivedDataObj obj) : base(obj) {}
@@ -610,7 +610,7 @@ public class KVariablesFloatDerivedDataObj : DerivedDataSetObj<KVariables<float>
     public KVariablesFloatDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariables<float> data = default(KVariables<float>)
     ) : base(name, parent, updater, data) {}
     public KVariablesFloatDerivedDataObj(KVariablesFloatDerivedDataObj obj) : base(obj) {}
@@ -636,7 +636,7 @@ public class KVariablesVector2IntDerivedDataObj : DerivedDataSetObj<KVariables<V
     public KVariablesVector2IntDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariables<Vector2Int> data = default(KVariables<Vector2Int>)
     ) : base(name, parent, updater, data) {}
     public KVariablesVector2IntDerivedDataObj(KVariablesVector2IntDerivedDataObj obj) : base(obj) {}
@@ -662,7 +662,7 @@ public class KVariablesVector2DerivedDataObj : DerivedDataSetObj<KVariables<Vect
     public KVariablesVector2DerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariables<Vector2> data = default(KVariables<Vector2>)
     ) : base(name, parent, updater, data) {}
     public KVariablesVector2DerivedDataObj(KVariablesVector2DerivedDataObj obj) : base(obj) {}
@@ -688,7 +688,7 @@ public class KVariablesVector3IntDerivedDataObj : DerivedDataSetObj<KVariables<V
     public KVariablesVector3IntDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariables<Vector3Int> data = default(KVariables<Vector3Int>)
     ) : base(name, parent, updater, data) {}
     public KVariablesVector3IntDerivedDataObj(KVariablesVector3IntDerivedDataObj obj) : base(obj) {}
@@ -714,7 +714,7 @@ public class KVariablesVector3DerivedDataObj : DerivedDataSetObj<KVariables<Vect
     public KVariablesVector3DerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariables<Vector3> data = default(KVariables<Vector3>)
     ) : base(name, parent, updater, data) {}
     public KVariablesVector3DerivedDataObj(KVariablesVector3DerivedDataObj obj) : base(obj) {}
@@ -740,7 +740,7 @@ public class KVariablesVector4DerivedDataObj : DerivedDataSetObj<KVariables<Vect
     public KVariablesVector4DerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariables<Vector4> data = default(KVariables<Vector4>)
     ) : base(name, parent, updater, data) {}
     public KVariablesVector4DerivedDataObj(KVariablesVector4DerivedDataObj obj) : base(obj) {}
@@ -766,7 +766,7 @@ public class KVariablesQuaternionDerivedDataObj : DerivedDataSetObj<KVariables<Q
     public KVariablesQuaternionDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariables<Quaternion> data = default(KVariables<Quaternion>)
     ) : base(name, parent, updater, data) {}
     public KVariablesQuaternionDerivedDataObj(KVariablesQuaternionDerivedDataObj obj) : base(obj) {}
@@ -792,7 +792,7 @@ public class KVariablesExtTriggerDerivedDataObj : DerivedDataSetObj<KVariablesEx
     public KVariablesExtTriggerDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariablesExt<Trigger> data = default(KVariablesExt<Trigger>)
     ) : base(name, parent, updater, data) {}
     public KVariablesExtTriggerDerivedDataObj(KVariablesExtTriggerDerivedDataObj obj) : base(obj) {}
@@ -818,7 +818,7 @@ public class KVariablesExtBoolDerivedDataObj : DerivedDataSetObj<KVariablesExt<b
     public KVariablesExtBoolDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariablesExt<bool> data = default(KVariablesExt<bool>)
     ) : base(name, parent, updater, data) {}
     public KVariablesExtBoolDerivedDataObj(KVariablesExtBoolDerivedDataObj obj) : base(obj) {}
@@ -844,7 +844,7 @@ public class KVariablesExtCharDerivedDataObj : DerivedDataSetObj<KVariablesExt<c
     public KVariablesExtCharDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariablesExt<char> data = default(KVariablesExt<char>)
     ) : base(name, parent, updater, data) {}
     public KVariablesExtCharDerivedDataObj(KVariablesExtCharDerivedDataObj obj) : base(obj) {}
@@ -870,7 +870,7 @@ public class KVariablesExtStringDerivedDataObj : DerivedDataSetObj<KVariablesExt
     public KVariablesExtStringDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariablesExt<string> data = default(KVariablesExt<string>)
     ) : base(name, parent, updater, data) {}
     public KVariablesExtStringDerivedDataObj(KVariablesExtStringDerivedDataObj obj) : base(obj) {}
@@ -896,7 +896,7 @@ public class KVariablesExtIntDerivedDataObj : DerivedDataSetObj<KVariablesExt<in
     public KVariablesExtIntDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariablesExt<int> data = default(KVariablesExt<int>)
     ) : base(name, parent, updater, data) {}
     public KVariablesExtIntDerivedDataObj(KVariablesExtIntDerivedDataObj obj) : base(obj) {}
@@ -922,7 +922,7 @@ public class KVariablesExtFloatDerivedDataObj : DerivedDataSetObj<KVariablesExt<
     public KVariablesExtFloatDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariablesExt<float> data = default(KVariablesExt<float>)
     ) : base(name, parent, updater, data) {}
     public KVariablesExtFloatDerivedDataObj(KVariablesExtFloatDerivedDataObj obj) : base(obj) {}
@@ -948,7 +948,7 @@ public class KVariablesExtVector2IntDerivedDataObj : DerivedDataSetObj<KVariable
     public KVariablesExtVector2IntDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariablesExt<Vector2Int> data = default(KVariablesExt<Vector2Int>)
     ) : base(name, parent, updater, data) {}
     public KVariablesExtVector2IntDerivedDataObj(KVariablesExtVector2IntDerivedDataObj obj) : base(obj) {}
@@ -974,7 +974,7 @@ public class KVariablesExtVector2DerivedDataObj : DerivedDataSetObj<KVariablesEx
     public KVariablesExtVector2DerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariablesExt<Vector2> data = default(KVariablesExt<Vector2>)
     ) : base(name, parent, updater, data) {}
     public KVariablesExtVector2DerivedDataObj(KVariablesExtVector2DerivedDataObj obj) : base(obj) {}
@@ -1000,7 +1000,7 @@ public class KVariablesExtVector3IntDerivedDataObj : DerivedDataSetObj<KVariable
     public KVariablesExtVector3IntDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariablesExt<Vector3Int> data = default(KVariablesExt<Vector3Int>)
     ) : base(name, parent, updater, data) {}
     public KVariablesExtVector3IntDerivedDataObj(KVariablesExtVector3IntDerivedDataObj obj) : base(obj) {}
@@ -1026,7 +1026,7 @@ public class KVariablesExtVector3DerivedDataObj : DerivedDataSetObj<KVariablesEx
     public KVariablesExtVector3DerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariablesExt<Vector3> data = default(KVariablesExt<Vector3>)
     ) : base(name, parent, updater, data) {}
     public KVariablesExtVector3DerivedDataObj(KVariablesExtVector3DerivedDataObj obj) : base(obj) {}
@@ -1052,7 +1052,7 @@ public class KVariablesExtVector4DerivedDataObj : DerivedDataSetObj<KVariablesEx
     public KVariablesExtVector4DerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariablesExt<Vector4> data = default(KVariablesExt<Vector4>)
     ) : base(name, parent, updater, data) {}
     public KVariablesExtVector4DerivedDataObj(KVariablesExtVector4DerivedDataObj obj) : base(obj) {}
@@ -1078,9 +1078,35 @@ public class KVariablesExtQuaternionDerivedDataObj : DerivedDataSetObj<KVariable
     public KVariablesExtQuaternionDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         KVariablesExt<Quaternion> data = default(KVariablesExt<Quaternion>)
     ) : base(name, parent, updater, data) {}
     public KVariablesExtQuaternionDerivedDataObj(KVariablesExtQuaternionDerivedDataObj obj) : base(obj) {}
     public KVariablesExtQuaternionDerivedDataObj() {}
+}
+public class KVariableTypeSetDerivedDataObj : DerivedDataSetObj<KVariableTypeSet, bool> {
+    public static readonly TraitsSimpleKVariableTypeSet m_traitsSimple = new TraitsSimpleKVariableTypeSet();
+    public static readonly TraitsKVariableTypeSet m_traits = new TraitsKVariableTypeSet();
+    public override DataTypeEnum DataType { get=>DataTypeEnum.KVariableTypeSetType; }
+    public override DataTypeEnum ComponentType { get=>DataTypeEnum.Bool; }
+    public override ComponentAccessType PreferredAccessType { get=>ComponentAccessType.String; }
+    public override bool ElementAccessByIndex() { return true; }
+    public override bool ElementAccessByString() { return true; }
+    public override string GetComponentName(int index) { return KVariableTypeInfo.IndexToKVariableEnum(index).ToString(); }
+    public override int GetComponentIndex(string elem) { return KVariableTypeInfo.KVariableEnumToIndex(KVariableTypeInfo.Aliases[elem]); }
+    public override int NComponents { get=>8; }
+    public override ITraitsSimple<KVariableTypeSet> TraitsSimple { get=>m_traitsSimple; }
+    public override ITraits<KVariableTypeSet, bool> Traits { get=>m_traits; }
+    public override bool this[int index] { get { return m_data.Contains(KVariableTypeInfo.IndexToKVariableEnum(index)); } }
+    public override bool this[string elem] { get { return m_data.Contains(elem); } }
+    public override bool GetComponentNoUpdate(int index) { return m_data.Contains(KVariableTypeInfo.IndexToKVariableEnum(index)); }
+    public override bool GetComponentNoUpdate(string elem) { return m_data.Contains(elem); }
+    public KVariableTypeSetDerivedDataObj(
+        string name,
+        IObjRegistry parent = null,
+        IDerivedUpdater updater = null,
+        KVariableTypeSet data = default(KVariableTypeSet)
+    ) : base(name, parent, updater, data) {}
+    public KVariableTypeSetDerivedDataObj(KVariableTypeSetDerivedDataObj obj) : base(obj) {}
+    public KVariableTypeSetDerivedDataObj() {}
 }

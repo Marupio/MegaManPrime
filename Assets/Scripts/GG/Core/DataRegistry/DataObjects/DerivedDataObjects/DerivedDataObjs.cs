@@ -17,7 +17,7 @@ public class NoneDerivedDataObj : DerivedDataObj<object> {
     public NoneDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         object data = default(object))
     : base (name, parent, updater, data) {}
     public NoneDerivedDataObj(NoneDerivedDataObj obj) : base(obj) {}
@@ -39,7 +39,7 @@ public class BoolDerivedDataObj : DerivedDataObj<bool> {
     public BoolDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         bool data = default(bool))
     : base (name, parent, updater, data) {}
     public BoolDerivedDataObj(BoolDerivedDataObj obj) : base(obj) {}
@@ -61,7 +61,7 @@ public class TriggerDerivedDataObj : DerivedDataObj<Trigger> {
     public TriggerDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         Trigger data = default(Trigger))
     : base (name, parent, updater, data) {}
     public TriggerDerivedDataObj(TriggerDerivedDataObj obj) : base(obj) {}
@@ -83,7 +83,7 @@ public class CharDerivedDataObj : DerivedDataObj<char> {
     public CharDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         char data = default(char))
     : base (name, parent, updater, data) {}
     public CharDerivedDataObj(CharDerivedDataObj obj) : base(obj) {}
@@ -105,7 +105,7 @@ public class StringDerivedDataObj : DerivedDataObj<string> {
     public StringDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         string data = default(string))
     : base (name, parent, updater, data) {}
     public StringDerivedDataObj(StringDerivedDataObj obj) : base(obj) {}
@@ -127,7 +127,7 @@ public class IntDerivedDataObj : DerivedDataObj<int> {
     public IntDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         int data = default(int))
     : base (name, parent, updater, data) {}
     public IntDerivedDataObj(IntDerivedDataObj obj) : base(obj) {}
@@ -149,7 +149,7 @@ public class FloatDerivedDataObj : DerivedDataObj<float> {
     public FloatDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         float data = default(float))
     : base (name, parent, updater, data) {}
     public FloatDerivedDataObj(FloatDerivedDataObj obj) : base(obj) {}
@@ -171,7 +171,7 @@ public class Vector2IntDerivedDataObj : DerivedDataObj<Vector2Int> {
     public Vector2IntDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         Vector2Int data = default(Vector2Int))
     : base (name, parent, updater, data) {}
     public Vector2IntDerivedDataObj(Vector2IntDerivedDataObj obj) : base(obj) {}
@@ -193,7 +193,7 @@ public class Vector2DerivedDataObj : DerivedDataObj<Vector2> {
     public Vector2DerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         Vector2 data = default(Vector2))
     : base (name, parent, updater, data) {}
     public Vector2DerivedDataObj(Vector2DerivedDataObj obj) : base(obj) {}
@@ -215,7 +215,7 @@ public class Vector3IntDerivedDataObj : DerivedDataObj<Vector3Int> {
     public Vector3IntDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         Vector3Int data = default(Vector3Int))
     : base (name, parent, updater, data) {}
     public Vector3IntDerivedDataObj(Vector3IntDerivedDataObj obj) : base(obj) {}
@@ -237,7 +237,7 @@ public class Vector3DerivedDataObj : DerivedDataObj<Vector3> {
     public Vector3DerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         Vector3 data = default(Vector3))
     : base (name, parent, updater, data) {}
     public Vector3DerivedDataObj(Vector3DerivedDataObj obj) : base(obj) {}
@@ -259,7 +259,7 @@ public class Vector4DerivedDataObj : DerivedDataObj<Vector4> {
     public Vector4DerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         Vector4 data = default(Vector4))
     : base (name, parent, updater, data) {}
     public Vector4DerivedDataObj(Vector4DerivedDataObj obj) : base(obj) {}
@@ -281,7 +281,7 @@ public class QuaternionDerivedDataObj : DerivedDataObj<Quaternion> {
     public QuaternionDerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         Quaternion data = default(Quaternion))
     : base (name, parent, updater, data) {}
     public QuaternionDerivedDataObj(QuaternionDerivedDataObj obj) : base(obj) {}

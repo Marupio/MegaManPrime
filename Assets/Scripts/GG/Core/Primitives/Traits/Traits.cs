@@ -1625,3 +1625,34 @@ public class TraitsKVariablesExtQuaternion : ITraits<KVariablesExt<Quaternion>, 
     public void SetComponent(ref KVariablesExt<Quaternion> data, int index, Quaternion value) { data.Set(KVariableTypeInfo.IndexToKVariableEnum(index), value); }
     public void SetComponent(ref KVariablesExt<Quaternion> data, string elem, Quaternion value) { data.Set(elem,value); }
 }
+public class TraitsKVariableTypeSet : ITraits<KVariableTypeSet, bool> {
+    public DataTypeEnum DataType { get=>DataTypeEnum.KVariableTypeSetType; }
+    public DataTypeEnum ComponentType { get=>DataTypeEnum.Bool; }
+    public bool TestEquals(KVariableTypeSet lhs, KVariableTypeSet rhs) { EqualityComparer<KVariableTypeSet> ec = EqualityComparer<KVariableTypeSet>.Default; return ec.Equals(lhs, rhs); }
+    public bool TestEqualsComponent(bool lhs, bool rhs) { EqualityComparer<bool> ec = EqualityComparer<bool>.Default; return ec.Equals(lhs, rhs); }
+    public void SetEqual(ref KVariableTypeSet lhs, KVariableTypeSet rhs) { lhs.SetEqual(rhs); }
+    public KVariableTypeSet Zero { get { return KVariableTypeInfo.None; } }
+    public KVariableTypeSet Zeroes(int nElems=1) { return KVariableTypeInfo.None; }
+    public bool HasInfinity { get=>false; }
+    public KVariableTypeSet PositiveInfinity { get { 
+    #if DEBUG
+    throw new System.InvalidOperationException();
+    #else
+    return KVariableTypeInfo.None;
+    #endif
+     } }
+    public KVariableTypeSet PositiveInfinities(int nElems=1) { 
+    #if DEBUG
+    throw new System.InvalidOperationException();
+    #else
+    return KVariableTypeInfo.None;
+    #endif
+     }
+    public ComponentAccessType PreferredAccessType { get=>ComponentAccessType.String; }
+    public bool ElementAccessByIndex { get=>true; }
+    public bool ElementAccessByString { get=>true; }
+    public bool GetComponent(KVariableTypeSet data, int index) { return data.Contains(KVariableTypeInfo.IndexToKVariableEnum(index)); }
+    public bool GetComponent(KVariableTypeSet data, string elem) { return data.Contains(elem); }
+    public void SetComponent(ref KVariableTypeSet data, int index, bool value) { if (value){data.Add(KVariableTypeInfo.IndexToKVariableEnum(index));} else {data.Remove(KVariableTypeInfo.IndexToKVariableEnum(index));} }
+    public void SetComponent(ref KVariableTypeSet data, string elem, bool value) { if (value){data.Add(elem);}else{data.Remove(elem);} }
+}

@@ -6,11 +6,9 @@ using UnityEngine;
 /// See also the KvLimiter class - it applies these limits on variable instances.
 /// </summary>
 /// <seealso cref="KvLimiter"/>
-public class KVariableLimits : IDerivedDataObject {
-    FloatKVariablesExtDataObject m_maxVars;
-    FloatKVariablesExtDataObject m_minVars;
-    // KVariablesExt<float> m_maxVars;
-    // KVariablesExt<float> m_minVars;
+public class KVariableLimits : PipelineExecutableBase {
+    KVariablesExtFloatSourceDataObj m_maxVars; // make parent same as me, name, mine+"max", kind of thing
+    KVariablesExtFloatSourceDataObj m_minVars; // make parent same as me
 
     // *** Derived data
     KVariableTypeSet m_limitedVars;
@@ -155,7 +153,7 @@ public class KVariableLimits : IDerivedDataObject {
     /// <summary>
     /// Combine two KVariableLimits, taking the smallest maxima and largest minima
     /// </summary>
-    void Combine(KVariableLimits kvl) {
+    public void Combine(KVariableLimits kvl) {
         // Use accessor to trigger demand-driven data
         if (m_upToDateFrame < 0) { UpdateDerived(); }
         m_limitedVars |= kvl.LimitedVars;
@@ -241,8 +239,12 @@ public class KVariableLimits : IDerivedDataObject {
         if (!float.IsPositiveInfinity(m_maxVars.ImpulseForceDerivative) || !float.IsNegativeInfinity(m_minVars.ImpulseForceDerivative)) { m_limitedVars.Add(KVariableEnum.ImpulseForceDerivative); }
         m_upToDateFrame = m_time.frameCount;
     }
+    public override void InternalExecute(List<IDataObjMeta> inputs, List<IDataObjMeta> outputs) {
+        // TODO
+    }
 
     // *** Constructors
+    // TODO - Add PipelineProfiles to base construction, add base construction
     public KVariableLimits() {
         m_maxVars = new KVariablesExt<float>(float.PositiveInfinity);
         m_minVars = new KVariablesExt<float>(float.NegativeInfinity);

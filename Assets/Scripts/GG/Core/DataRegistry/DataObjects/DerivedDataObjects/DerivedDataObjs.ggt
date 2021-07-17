@@ -17,7 +17,7 @@ public class $prefix\$DerivedDataObj : DerivedDataObj<$type\$> {
     public $prefix\$DerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         $type\$ data = default($type\$))
     : base (name, parent, updater, data) {}
     public $prefix\$DerivedDataObj($prefix\$DerivedDataObj obj) : base(obj) {}

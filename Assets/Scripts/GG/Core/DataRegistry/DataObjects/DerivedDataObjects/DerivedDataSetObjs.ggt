@@ -14,14 +14,14 @@ public class $prefix\$DerivedDataObj : DerivedDataSetObj<$type\$, $component_typ
     public override int NComponents { get=>$n_components\$; }
     public override ITraitsSimple<$type\$> TraitsSimple { get=>m_traitsSimple; }
     public override ITraits<$type\$, $component_type\$> Traits { get=>m_traits; }
-    public $component_type\$ this[int index] { get { $return_component_by_index\$ } }
-    public $component_type\$ this[string elem] { get { $return_component_by_string\$ } }
-    public $component_type\$ GetComponentNoUpdate(int index) { $return_component_by_index\$ }
-    public $component_type\$ GetComponentNoUpdate(string elem) { $return_component_by_string\$ }
+    public override $component_type\$ this[int index] { get { $return_component_by_index\$ } }
+    public override $component_type\$ this[string elem] { get { $return_component_by_string\$ } }
+    public override $component_type\$ GetComponentNoUpdate(int index) { $return_component_by_index\$ }
+    public override $component_type\$ GetComponentNoUpdate(string elem) { $return_component_by_string\$ }
     public $prefix\$DerivedDataObj(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null,
+        IDerivedUpdater updater = null,
         $type\$ data = default($type\$)
     ) : base(name, parent, updater, data) {}
     public $prefix\$DerivedDataObj($prefix\$DerivedDataObj obj) : base(obj) {}

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 public abstract class DerivedDataObjHeader : DataObjHeader, IDerivedDataObjMeta {
     // Encapsulation - updater is responsible for initialising and populating these data
     List<ISourceDataObjMeta> m_dependsOn;
-    IObjUpdater m_updater;
+    IDerivedUpdater m_updater;
 
-    public IObjUpdater Updater { get=>m_updater; set=>m_updater=value; }
+    public IDerivedUpdater Updater { get=>m_updater; set=>m_updater=value; }
     public List<ISourceDataObjMeta> DependsOn { get=>m_dependsOn; set=>m_dependsOn=value; }
     public bool Stale() { return m_updater == null; }
     public bool UpToDate() {
@@ -24,7 +24,7 @@ public abstract class DerivedDataObjHeader : DataObjHeader, IDerivedDataObjMeta 
     public DerivedDataObjHeader(
         string name,
         IObjRegistry parent = null,
-        IObjUpdater updater = null
+        IDerivedUpdater updater = null
     ) : base(name, parent) {
         m_updater = updater;
         if (m_updater != null) {
