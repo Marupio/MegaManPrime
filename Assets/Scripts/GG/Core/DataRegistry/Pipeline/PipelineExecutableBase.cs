@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj {
-    List<PipelineProfile> m_profiles;
+    List<DataPortProfile> m_profiles;
     List<IDataObjMeta> m_attachedInputs;
     int m_attachedInputsSize; // allocated size may differ
     List<IDataObjMeta> m_attachedOutputs;
@@ -12,7 +12,7 @@ public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj
     List<IDataObjMeta> m_tmpOutputs;
     int m_tmpOutputsSize; // allocated size may differ
     int m_activeProfileIndex;
-    PipelineProfile m_activeProfile;
+    DataPortProfile m_activeProfile;
     public bool Enabled {
         get=>m_activeProfileIndex < 0;
         set {
@@ -23,8 +23,8 @@ public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj
         }
     }
     public int NProfiles { get=>m_profiles.Count; }
-    public PipelineProfile GetProfile(int index) { return m_profiles[index]; }
-    public PipelineProfile ActiveProfile { get=>m_activeProfile; }
+    public DataPortProfile GetProfile(int index) { return m_profiles[index]; }
+    public DataPortProfile ActiveProfile { get=>m_activeProfile; }
     public int ActiveProfileIndex {
         get => m_activeProfileIndex;
         set {
@@ -85,7 +85,7 @@ public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj
         #if DEBUG
             int nVars = m_activeProfile.NInputs + m_activeProfile.NOutputs;
             if (nVars != 1) {
-                throw new System.ArgumentException("Active PipelineProfile requires " + nVars + " data objects, received 1");
+                throw new System.ArgumentException("Active DataPortProfile requires " + nVars + " data objects, received 1");
             }
         #endif
         if (m_activeProfile.NInputs > 0) {
@@ -99,7 +99,7 @@ public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj
         #if DEBUG
             int nVars = m_activeProfile.NInputs + m_activeProfile.NOutputs;
             if (nVars != 2) {
-                throw new System.ArgumentException("Active PipelineProfile requires " + nVars + " data objects, received 2");
+                throw new System.ArgumentException("Active DataPortProfile requires " + nVars + " data objects, received 2");
             }
         #endif
         switch (m_activeProfile.NInputs) {
@@ -122,7 +122,7 @@ public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj
         #if DEBUG
             int nVars = m_activeProfile.NInputs + m_activeProfile.NOutputs;
             if (nVars != 3) {
-                throw new System.ArgumentException("Active PipelineProfile requires " + nVars + " data objects, received 3");
+                throw new System.ArgumentException("Active DataPortProfile requires " + nVars + " data objects, received 3");
             }
         #endif
         switch (m_activeProfile.NInputs) {
@@ -153,7 +153,7 @@ public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj
         #if DEBUG
             int nVars = m_activeProfile.NInputs + m_activeProfile.NOutputs;
             if (nVars != 4) {
-                throw new System.ArgumentException("Active PipelineProfile requires " + nVars + " data objects, received 4");
+                throw new System.ArgumentException("Active DataPortProfile requires " + nVars + " data objects, received 4");
             }
         #endif
         switch (m_activeProfile.NInputs) {
@@ -194,7 +194,7 @@ public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj
         #if DEBUG
             int nVars = m_activeProfile.NInputs + m_activeProfile.NOutputs;
             if (nVars != 5) {
-                throw new System.ArgumentException("Active PipelineProfile requires " + nVars + " data objects, received 5");
+                throw new System.ArgumentException("Active DataPortProfile requires " + nVars + " data objects, received 5");
             }
         #endif
         switch (m_activeProfile.NInputs) {
@@ -247,7 +247,7 @@ public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj
         #if DEBUG
             int nVars = m_activeProfile.NInputs + m_activeProfile.NOutputs;
             if (nVars != objs.Length) {
-                throw new System.ArgumentException("Active PipelineProfile requires " + nVars + " data objects, received " + objs.Length);
+                throw new System.ArgumentException("Active DataPortProfile requires " + nVars + " data objects, received " + objs.Length);
             }
         #endif
         int nInputs = m_activeProfile.NInputs;
@@ -277,7 +277,7 @@ public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj
     PipelineExecutableBase(
         string name,
         IObjRegistry parent = null,
-        List<PipelineProfile> profiles = null
+        List<DataPortProfile> profiles = null
     ) : base (name, parent) {
         m_profiles = profiles;
         m_attachedInputs = new List<IDataObjMeta>();
@@ -288,13 +288,13 @@ public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj
     }
 
     PipelineExecutableBase(PipelineExecutableBase obj) : base(obj) {
-        m_profiles = new List<PipelineProfile>(obj.m_profiles.Count);
-        foreach (PipelineProfile pp in obj.m_profiles) {
-            m_profiles.Add(new PipelineProfile(pp));
+        m_profiles = new List<DataPortProfile>(obj.m_profiles.Count);
+        foreach (DataPortProfile pp in obj.m_profiles) {
+            m_profiles.Add(new DataPortProfile(pp));
         }
     }
     PipelineExecutableBase() : base() {
-        m_profiles = new List<PipelineProfile>();
+        m_profiles = new List<DataPortProfile>();
         m_attachedInputs = new List<IDataObjMeta>();
         m_attachedInputsSize = 0;
         m_attachedOutputs = new List<IDataObjMeta>();

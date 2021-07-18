@@ -35,7 +35,7 @@ public class TriggerListSourceDataObj : SourceDataSetObj<List<Trigger>, Trigger>
         TriggerListSourceDataObj obj = new TriggerListSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    TriggerListSourceDataObj(string name, IObjRegistry parent = null, List<Trigger> m_data = default(List<Trigger>)) : base(name, parent, m_data) {}
+    public TriggerListSourceDataObj(string name, IObjRegistry parent = null, List<Trigger> m_data = default(List<Trigger>)) : base(name, parent, m_data) {}
     public TriggerListSourceDataObj(TriggerListSourceDataObj obj) : base(obj) {}
     public TriggerListSourceDataObj() {}
 }
@@ -70,7 +70,7 @@ public class BoolListSourceDataObj : SourceDataSetObj<List<bool>, bool> {
         BoolListSourceDataObj obj = new BoolListSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    BoolListSourceDataObj(string name, IObjRegistry parent = null, List<bool> m_data = default(List<bool>)) : base(name, parent, m_data) {}
+    public BoolListSourceDataObj(string name, IObjRegistry parent = null, List<bool> m_data = default(List<bool>)) : base(name, parent, m_data) {}
     public BoolListSourceDataObj(BoolListSourceDataObj obj) : base(obj) {}
     public BoolListSourceDataObj() {}
 }
@@ -105,7 +105,7 @@ public class CharListSourceDataObj : SourceDataSetObj<List<char>, char> {
         CharListSourceDataObj obj = new CharListSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    CharListSourceDataObj(string name, IObjRegistry parent = null, List<char> m_data = default(List<char>)) : base(name, parent, m_data) {}
+    public CharListSourceDataObj(string name, IObjRegistry parent = null, List<char> m_data = default(List<char>)) : base(name, parent, m_data) {}
     public CharListSourceDataObj(CharListSourceDataObj obj) : base(obj) {}
     public CharListSourceDataObj() {}
 }
@@ -140,7 +140,7 @@ public class StringListSourceDataObj : SourceDataSetObj<List<string>, string> {
         StringListSourceDataObj obj = new StringListSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    StringListSourceDataObj(string name, IObjRegistry parent = null, List<string> m_data = default(List<string>)) : base(name, parent, m_data) {}
+    public StringListSourceDataObj(string name, IObjRegistry parent = null, List<string> m_data = default(List<string>)) : base(name, parent, m_data) {}
     public StringListSourceDataObj(StringListSourceDataObj obj) : base(obj) {}
     public StringListSourceDataObj() {}
 }
@@ -175,7 +175,7 @@ public class IntListSourceDataObj : SourceDataSetObj<List<int>, int> {
         IntListSourceDataObj obj = new IntListSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    IntListSourceDataObj(string name, IObjRegistry parent = null, List<int> m_data = default(List<int>)) : base(name, parent, m_data) {}
+    public IntListSourceDataObj(string name, IObjRegistry parent = null, List<int> m_data = default(List<int>)) : base(name, parent, m_data) {}
     public IntListSourceDataObj(IntListSourceDataObj obj) : base(obj) {}
     public IntListSourceDataObj() {}
 }
@@ -210,7 +210,7 @@ public class FloatListSourceDataObj : SourceDataSetObj<List<float>, float> {
         FloatListSourceDataObj obj = new FloatListSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    FloatListSourceDataObj(string name, IObjRegistry parent = null, List<float> m_data = default(List<float>)) : base(name, parent, m_data) {}
+    public FloatListSourceDataObj(string name, IObjRegistry parent = null, List<float> m_data = default(List<float>)) : base(name, parent, m_data) {}
     public FloatListSourceDataObj(FloatListSourceDataObj obj) : base(obj) {}
     public FloatListSourceDataObj() {}
 }
@@ -245,7 +245,7 @@ public class Vector2IntListSourceDataObj : SourceDataSetObj<List<Vector2Int>, Ve
         Vector2IntListSourceDataObj obj = new Vector2IntListSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    Vector2IntListSourceDataObj(string name, IObjRegistry parent = null, List<Vector2Int> m_data = default(List<Vector2Int>)) : base(name, parent, m_data) {}
+    public Vector2IntListSourceDataObj(string name, IObjRegistry parent = null, List<Vector2Int> m_data = default(List<Vector2Int>)) : base(name, parent, m_data) {}
     public Vector2IntListSourceDataObj(Vector2IntListSourceDataObj obj) : base(obj) {}
     public Vector2IntListSourceDataObj() {}
 }
@@ -280,7 +280,7 @@ public class Vector2ListSourceDataObj : SourceDataSetObj<List<Vector2>, Vector2>
         Vector2ListSourceDataObj obj = new Vector2ListSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    Vector2ListSourceDataObj(string name, IObjRegistry parent = null, List<Vector2> m_data = default(List<Vector2>)) : base(name, parent, m_data) {}
+    public Vector2ListSourceDataObj(string name, IObjRegistry parent = null, List<Vector2> m_data = default(List<Vector2>)) : base(name, parent, m_data) {}
     public Vector2ListSourceDataObj(Vector2ListSourceDataObj obj) : base(obj) {}
     public Vector2ListSourceDataObj() {}
 }
@@ -315,7 +315,7 @@ public class Vector3IntListSourceDataObj : SourceDataSetObj<List<Vector3Int>, Ve
         Vector3IntListSourceDataObj obj = new Vector3IntListSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    Vector3IntListSourceDataObj(string name, IObjRegistry parent = null, List<Vector3Int> m_data = default(List<Vector3Int>)) : base(name, parent, m_data) {}
+    public Vector3IntListSourceDataObj(string name, IObjRegistry parent = null, List<Vector3Int> m_data = default(List<Vector3Int>)) : base(name, parent, m_data) {}
     public Vector3IntListSourceDataObj(Vector3IntListSourceDataObj obj) : base(obj) {}
     public Vector3IntListSourceDataObj() {}
 }
@@ -350,7 +350,7 @@ public class Vector3ListSourceDataObj : SourceDataSetObj<List<Vector3>, Vector3>
         Vector3ListSourceDataObj obj = new Vector3ListSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    Vector3ListSourceDataObj(string name, IObjRegistry parent = null, List<Vector3> m_data = default(List<Vector3>)) : base(name, parent, m_data) {}
+    public Vector3ListSourceDataObj(string name, IObjRegistry parent = null, List<Vector3> m_data = default(List<Vector3>)) : base(name, parent, m_data) {}
     public Vector3ListSourceDataObj(Vector3ListSourceDataObj obj) : base(obj) {}
     public Vector3ListSourceDataObj() {}
 }
@@ -385,7 +385,7 @@ public class Vector4ListSourceDataObj : SourceDataSetObj<List<Vector4>, Vector4>
         Vector4ListSourceDataObj obj = new Vector4ListSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    Vector4ListSourceDataObj(string name, IObjRegistry parent = null, List<Vector4> m_data = default(List<Vector4>)) : base(name, parent, m_data) {}
+    public Vector4ListSourceDataObj(string name, IObjRegistry parent = null, List<Vector4> m_data = default(List<Vector4>)) : base(name, parent, m_data) {}
     public Vector4ListSourceDataObj(Vector4ListSourceDataObj obj) : base(obj) {}
     public Vector4ListSourceDataObj() {}
 }
@@ -420,7 +420,7 @@ public class QuaternionListSourceDataObj : SourceDataSetObj<List<Quaternion>, Qu
         QuaternionListSourceDataObj obj = new QuaternionListSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    QuaternionListSourceDataObj(string name, IObjRegistry parent = null, List<Quaternion> m_data = default(List<Quaternion>)) : base(name, parent, m_data) {}
+    public QuaternionListSourceDataObj(string name, IObjRegistry parent = null, List<Quaternion> m_data = default(List<Quaternion>)) : base(name, parent, m_data) {}
     public QuaternionListSourceDataObj(QuaternionListSourceDataObj obj) : base(obj) {}
     public QuaternionListSourceDataObj() {}
 }
@@ -443,7 +443,7 @@ public class KVariablesTriggerSourceDataObj : SourceDataSetObj<KVariables<Trigge
         KVariablesTriggerSourceDataObj obj = new KVariablesTriggerSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesTriggerSourceDataObj(string name, IObjRegistry parent = null, KVariables<Trigger> m_data = default(KVariables<Trigger>)) : base(name, parent, m_data) {}
+    public KVariablesTriggerSourceDataObj(string name, IObjRegistry parent = null, KVariables<Trigger> m_data = default(KVariables<Trigger>)) : base(name, parent, m_data) {}
     public KVariablesTriggerSourceDataObj(KVariablesTriggerSourceDataObj obj) : base(obj) {}
     public KVariablesTriggerSourceDataObj() {}
 }
@@ -466,7 +466,7 @@ public class KVariablesBoolSourceDataObj : SourceDataSetObj<KVariables<bool>, bo
         KVariablesBoolSourceDataObj obj = new KVariablesBoolSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesBoolSourceDataObj(string name, IObjRegistry parent = null, KVariables<bool> m_data = default(KVariables<bool>)) : base(name, parent, m_data) {}
+    public KVariablesBoolSourceDataObj(string name, IObjRegistry parent = null, KVariables<bool> m_data = default(KVariables<bool>)) : base(name, parent, m_data) {}
     public KVariablesBoolSourceDataObj(KVariablesBoolSourceDataObj obj) : base(obj) {}
     public KVariablesBoolSourceDataObj() {}
 }
@@ -489,7 +489,7 @@ public class KVariablesCharSourceDataObj : SourceDataSetObj<KVariables<char>, ch
         KVariablesCharSourceDataObj obj = new KVariablesCharSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesCharSourceDataObj(string name, IObjRegistry parent = null, KVariables<char> m_data = default(KVariables<char>)) : base(name, parent, m_data) {}
+    public KVariablesCharSourceDataObj(string name, IObjRegistry parent = null, KVariables<char> m_data = default(KVariables<char>)) : base(name, parent, m_data) {}
     public KVariablesCharSourceDataObj(KVariablesCharSourceDataObj obj) : base(obj) {}
     public KVariablesCharSourceDataObj() {}
 }
@@ -512,7 +512,7 @@ public class KVariablesStringSourceDataObj : SourceDataSetObj<KVariables<string>
         KVariablesStringSourceDataObj obj = new KVariablesStringSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesStringSourceDataObj(string name, IObjRegistry parent = null, KVariables<string> m_data = default(KVariables<string>)) : base(name, parent, m_data) {}
+    public KVariablesStringSourceDataObj(string name, IObjRegistry parent = null, KVariables<string> m_data = default(KVariables<string>)) : base(name, parent, m_data) {}
     public KVariablesStringSourceDataObj(KVariablesStringSourceDataObj obj) : base(obj) {}
     public KVariablesStringSourceDataObj() {}
 }
@@ -535,7 +535,7 @@ public class KVariablesIntSourceDataObj : SourceDataSetObj<KVariables<int>, int>
         KVariablesIntSourceDataObj obj = new KVariablesIntSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesIntSourceDataObj(string name, IObjRegistry parent = null, KVariables<int> m_data = default(KVariables<int>)) : base(name, parent, m_data) {}
+    public KVariablesIntSourceDataObj(string name, IObjRegistry parent = null, KVariables<int> m_data = default(KVariables<int>)) : base(name, parent, m_data) {}
     public KVariablesIntSourceDataObj(KVariablesIntSourceDataObj obj) : base(obj) {}
     public KVariablesIntSourceDataObj() {}
 }
@@ -558,7 +558,7 @@ public class KVariablesFloatSourceDataObj : SourceDataSetObj<KVariables<float>, 
         KVariablesFloatSourceDataObj obj = new KVariablesFloatSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesFloatSourceDataObj(string name, IObjRegistry parent = null, KVariables<float> m_data = default(KVariables<float>)) : base(name, parent, m_data) {}
+    public KVariablesFloatSourceDataObj(string name, IObjRegistry parent = null, KVariables<float> m_data = default(KVariables<float>)) : base(name, parent, m_data) {}
     public KVariablesFloatSourceDataObj(KVariablesFloatSourceDataObj obj) : base(obj) {}
     public KVariablesFloatSourceDataObj() {}
 }
@@ -581,7 +581,7 @@ public class KVariablesVector2IntSourceDataObj : SourceDataSetObj<KVariables<Vec
         KVariablesVector2IntSourceDataObj obj = new KVariablesVector2IntSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesVector2IntSourceDataObj(string name, IObjRegistry parent = null, KVariables<Vector2Int> m_data = default(KVariables<Vector2Int>)) : base(name, parent, m_data) {}
+    public KVariablesVector2IntSourceDataObj(string name, IObjRegistry parent = null, KVariables<Vector2Int> m_data = default(KVariables<Vector2Int>)) : base(name, parent, m_data) {}
     public KVariablesVector2IntSourceDataObj(KVariablesVector2IntSourceDataObj obj) : base(obj) {}
     public KVariablesVector2IntSourceDataObj() {}
 }
@@ -604,7 +604,7 @@ public class KVariablesVector2SourceDataObj : SourceDataSetObj<KVariables<Vector
         KVariablesVector2SourceDataObj obj = new KVariablesVector2SourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesVector2SourceDataObj(string name, IObjRegistry parent = null, KVariables<Vector2> m_data = default(KVariables<Vector2>)) : base(name, parent, m_data) {}
+    public KVariablesVector2SourceDataObj(string name, IObjRegistry parent = null, KVariables<Vector2> m_data = default(KVariables<Vector2>)) : base(name, parent, m_data) {}
     public KVariablesVector2SourceDataObj(KVariablesVector2SourceDataObj obj) : base(obj) {}
     public KVariablesVector2SourceDataObj() {}
 }
@@ -627,7 +627,7 @@ public class KVariablesVector3IntSourceDataObj : SourceDataSetObj<KVariables<Vec
         KVariablesVector3IntSourceDataObj obj = new KVariablesVector3IntSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesVector3IntSourceDataObj(string name, IObjRegistry parent = null, KVariables<Vector3Int> m_data = default(KVariables<Vector3Int>)) : base(name, parent, m_data) {}
+    public KVariablesVector3IntSourceDataObj(string name, IObjRegistry parent = null, KVariables<Vector3Int> m_data = default(KVariables<Vector3Int>)) : base(name, parent, m_data) {}
     public KVariablesVector3IntSourceDataObj(KVariablesVector3IntSourceDataObj obj) : base(obj) {}
     public KVariablesVector3IntSourceDataObj() {}
 }
@@ -650,7 +650,7 @@ public class KVariablesVector3SourceDataObj : SourceDataSetObj<KVariables<Vector
         KVariablesVector3SourceDataObj obj = new KVariablesVector3SourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesVector3SourceDataObj(string name, IObjRegistry parent = null, KVariables<Vector3> m_data = default(KVariables<Vector3>)) : base(name, parent, m_data) {}
+    public KVariablesVector3SourceDataObj(string name, IObjRegistry parent = null, KVariables<Vector3> m_data = default(KVariables<Vector3>)) : base(name, parent, m_data) {}
     public KVariablesVector3SourceDataObj(KVariablesVector3SourceDataObj obj) : base(obj) {}
     public KVariablesVector3SourceDataObj() {}
 }
@@ -673,7 +673,7 @@ public class KVariablesVector4SourceDataObj : SourceDataSetObj<KVariables<Vector
         KVariablesVector4SourceDataObj obj = new KVariablesVector4SourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesVector4SourceDataObj(string name, IObjRegistry parent = null, KVariables<Vector4> m_data = default(KVariables<Vector4>)) : base(name, parent, m_data) {}
+    public KVariablesVector4SourceDataObj(string name, IObjRegistry parent = null, KVariables<Vector4> m_data = default(KVariables<Vector4>)) : base(name, parent, m_data) {}
     public KVariablesVector4SourceDataObj(KVariablesVector4SourceDataObj obj) : base(obj) {}
     public KVariablesVector4SourceDataObj() {}
 }
@@ -696,7 +696,7 @@ public class KVariablesQuaternionSourceDataObj : SourceDataSetObj<KVariables<Qua
         KVariablesQuaternionSourceDataObj obj = new KVariablesQuaternionSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesQuaternionSourceDataObj(string name, IObjRegistry parent = null, KVariables<Quaternion> m_data = default(KVariables<Quaternion>)) : base(name, parent, m_data) {}
+    public KVariablesQuaternionSourceDataObj(string name, IObjRegistry parent = null, KVariables<Quaternion> m_data = default(KVariables<Quaternion>)) : base(name, parent, m_data) {}
     public KVariablesQuaternionSourceDataObj(KVariablesQuaternionSourceDataObj obj) : base(obj) {}
     public KVariablesQuaternionSourceDataObj() {}
 }
@@ -719,7 +719,7 @@ public class KVariablesExtTriggerSourceDataObj : SourceDataSetObj<KVariablesExt<
         KVariablesExtTriggerSourceDataObj obj = new KVariablesExtTriggerSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesExtTriggerSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<Trigger> m_data = default(KVariablesExt<Trigger>)) : base(name, parent, m_data) {}
+    public KVariablesExtTriggerSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<Trigger> m_data = default(KVariablesExt<Trigger>)) : base(name, parent, m_data) {}
     public KVariablesExtTriggerSourceDataObj(KVariablesExtTriggerSourceDataObj obj) : base(obj) {}
     public KVariablesExtTriggerSourceDataObj() {}
 }
@@ -742,7 +742,7 @@ public class KVariablesExtBoolSourceDataObj : SourceDataSetObj<KVariablesExt<boo
         KVariablesExtBoolSourceDataObj obj = new KVariablesExtBoolSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesExtBoolSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<bool> m_data = default(KVariablesExt<bool>)) : base(name, parent, m_data) {}
+    public KVariablesExtBoolSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<bool> m_data = default(KVariablesExt<bool>)) : base(name, parent, m_data) {}
     public KVariablesExtBoolSourceDataObj(KVariablesExtBoolSourceDataObj obj) : base(obj) {}
     public KVariablesExtBoolSourceDataObj() {}
 }
@@ -765,7 +765,7 @@ public class KVariablesExtCharSourceDataObj : SourceDataSetObj<KVariablesExt<cha
         KVariablesExtCharSourceDataObj obj = new KVariablesExtCharSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesExtCharSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<char> m_data = default(KVariablesExt<char>)) : base(name, parent, m_data) {}
+    public KVariablesExtCharSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<char> m_data = default(KVariablesExt<char>)) : base(name, parent, m_data) {}
     public KVariablesExtCharSourceDataObj(KVariablesExtCharSourceDataObj obj) : base(obj) {}
     public KVariablesExtCharSourceDataObj() {}
 }
@@ -788,7 +788,7 @@ public class KVariablesExtStringSourceDataObj : SourceDataSetObj<KVariablesExt<s
         KVariablesExtStringSourceDataObj obj = new KVariablesExtStringSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesExtStringSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<string> m_data = default(KVariablesExt<string>)) : base(name, parent, m_data) {}
+    public KVariablesExtStringSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<string> m_data = default(KVariablesExt<string>)) : base(name, parent, m_data) {}
     public KVariablesExtStringSourceDataObj(KVariablesExtStringSourceDataObj obj) : base(obj) {}
     public KVariablesExtStringSourceDataObj() {}
 }
@@ -811,7 +811,7 @@ public class KVariablesExtIntSourceDataObj : SourceDataSetObj<KVariablesExt<int>
         KVariablesExtIntSourceDataObj obj = new KVariablesExtIntSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesExtIntSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<int> m_data = default(KVariablesExt<int>)) : base(name, parent, m_data) {}
+    public KVariablesExtIntSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<int> m_data = default(KVariablesExt<int>)) : base(name, parent, m_data) {}
     public KVariablesExtIntSourceDataObj(KVariablesExtIntSourceDataObj obj) : base(obj) {}
     public KVariablesExtIntSourceDataObj() {}
 }
@@ -834,7 +834,7 @@ public class KVariablesExtFloatSourceDataObj : SourceDataSetObj<KVariablesExt<fl
         KVariablesExtFloatSourceDataObj obj = new KVariablesExtFloatSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesExtFloatSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<float> m_data = default(KVariablesExt<float>)) : base(name, parent, m_data) {}
+    public KVariablesExtFloatSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<float> m_data = default(KVariablesExt<float>)) : base(name, parent, m_data) {}
     public KVariablesExtFloatSourceDataObj(KVariablesExtFloatSourceDataObj obj) : base(obj) {}
     public KVariablesExtFloatSourceDataObj() {}
 }
@@ -857,7 +857,7 @@ public class KVariablesExtVector2IntSourceDataObj : SourceDataSetObj<KVariablesE
         KVariablesExtVector2IntSourceDataObj obj = new KVariablesExtVector2IntSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesExtVector2IntSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<Vector2Int> m_data = default(KVariablesExt<Vector2Int>)) : base(name, parent, m_data) {}
+    public KVariablesExtVector2IntSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<Vector2Int> m_data = default(KVariablesExt<Vector2Int>)) : base(name, parent, m_data) {}
     public KVariablesExtVector2IntSourceDataObj(KVariablesExtVector2IntSourceDataObj obj) : base(obj) {}
     public KVariablesExtVector2IntSourceDataObj() {}
 }
@@ -880,7 +880,7 @@ public class KVariablesExtVector2SourceDataObj : SourceDataSetObj<KVariablesExt<
         KVariablesExtVector2SourceDataObj obj = new KVariablesExtVector2SourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesExtVector2SourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<Vector2> m_data = default(KVariablesExt<Vector2>)) : base(name, parent, m_data) {}
+    public KVariablesExtVector2SourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<Vector2> m_data = default(KVariablesExt<Vector2>)) : base(name, parent, m_data) {}
     public KVariablesExtVector2SourceDataObj(KVariablesExtVector2SourceDataObj obj) : base(obj) {}
     public KVariablesExtVector2SourceDataObj() {}
 }
@@ -903,7 +903,7 @@ public class KVariablesExtVector3IntSourceDataObj : SourceDataSetObj<KVariablesE
         KVariablesExtVector3IntSourceDataObj obj = new KVariablesExtVector3IntSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesExtVector3IntSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<Vector3Int> m_data = default(KVariablesExt<Vector3Int>)) : base(name, parent, m_data) {}
+    public KVariablesExtVector3IntSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<Vector3Int> m_data = default(KVariablesExt<Vector3Int>)) : base(name, parent, m_data) {}
     public KVariablesExtVector3IntSourceDataObj(KVariablesExtVector3IntSourceDataObj obj) : base(obj) {}
     public KVariablesExtVector3IntSourceDataObj() {}
 }
@@ -926,7 +926,7 @@ public class KVariablesExtVector3SourceDataObj : SourceDataSetObj<KVariablesExt<
         KVariablesExtVector3SourceDataObj obj = new KVariablesExtVector3SourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesExtVector3SourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<Vector3> m_data = default(KVariablesExt<Vector3>)) : base(name, parent, m_data) {}
+    public KVariablesExtVector3SourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<Vector3> m_data = default(KVariablesExt<Vector3>)) : base(name, parent, m_data) {}
     public KVariablesExtVector3SourceDataObj(KVariablesExtVector3SourceDataObj obj) : base(obj) {}
     public KVariablesExtVector3SourceDataObj() {}
 }
@@ -949,7 +949,7 @@ public class KVariablesExtVector4SourceDataObj : SourceDataSetObj<KVariablesExt<
         KVariablesExtVector4SourceDataObj obj = new KVariablesExtVector4SourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesExtVector4SourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<Vector4> m_data = default(KVariablesExt<Vector4>)) : base(name, parent, m_data) {}
+    public KVariablesExtVector4SourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<Vector4> m_data = default(KVariablesExt<Vector4>)) : base(name, parent, m_data) {}
     public KVariablesExtVector4SourceDataObj(KVariablesExtVector4SourceDataObj obj) : base(obj) {}
     public KVariablesExtVector4SourceDataObj() {}
 }
@@ -972,11 +972,11 @@ public class KVariablesExtQuaternionSourceDataObj : SourceDataSetObj<KVariablesE
         KVariablesExtQuaternionSourceDataObj obj = new KVariablesExtQuaternionSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariablesExtQuaternionSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<Quaternion> m_data = default(KVariablesExt<Quaternion>)) : base(name, parent, m_data) {}
+    public KVariablesExtQuaternionSourceDataObj(string name, IObjRegistry parent = null, KVariablesExt<Quaternion> m_data = default(KVariablesExt<Quaternion>)) : base(name, parent, m_data) {}
     public KVariablesExtQuaternionSourceDataObj(KVariablesExtQuaternionSourceDataObj obj) : base(obj) {}
     public KVariablesExtQuaternionSourceDataObj() {}
 }
-public class KVariableTypeSetDataObj : SourceDataSetObj<KVariableTypeSet, bool> {
+public class KVariableTypeSetSourceDataObj : SourceDataSetObj<KVariableTypeSet, bool> {
     public static readonly TraitsSimpleKVariableTypeSet m_traitsSimple = new TraitsSimpleKVariableTypeSet();
     public static readonly TraitsKVariableTypeSet m_traits = new TraitsKVariableTypeSet();
     public override ITraitsSimple<KVariableTypeSet> TraitsSimple { get=>m_traitsSimple; }
@@ -992,10 +992,10 @@ public class KVariableTypeSetDataObj : SourceDataSetObj<KVariableTypeSet, bool> 
     public override bool this[int index] { get { return m_data.Contains(KVariableTypeInfo.IndexToKVariableEnum(index)); } set {if (value){m_data.Add(KVariableTypeInfo.IndexToKVariableEnum(index));} else {m_data.Remove(KVariableTypeInfo.IndexToKVariableEnum(index));} } }
     public override bool this[string elem] { get { return m_data.Contains(elem); } set{ if (value){m_data.Add(elem);}else{m_data.Remove(elem);} } }
     public override IObj Clone(IObjRegistry parent) {
-        KVariableTypeSetDataObj obj = new KVariableTypeSetDataObj(m_name, parent, m_data);
+        KVariableTypeSetSourceDataObj obj = new KVariableTypeSetSourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    KVariableTypeSetDataObj(string name, IObjRegistry parent = null, KVariableTypeSet m_data = default(KVariableTypeSet)) : base(name, parent, m_data) {}
-    public KVariableTypeSetDataObj(KVariableTypeSetDataObj obj) : base(obj) {}
-    public KVariableTypeSetDataObj() {}
+    public KVariableTypeSetSourceDataObj(string name, IObjRegistry parent = null, KVariableTypeSet m_data = default(KVariableTypeSet)) : base(name, parent, m_data) {}
+    public KVariableTypeSetSourceDataObj(KVariableTypeSetSourceDataObj obj) : base(obj) {}
+    public KVariableTypeSetSourceDataObj() {}
 }

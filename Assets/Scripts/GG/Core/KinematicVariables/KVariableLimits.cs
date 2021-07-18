@@ -11,8 +11,9 @@ public class KVariableLimits : PipelineExecutableBase {
     KVariablesExtFloatSourceDataObj m_minVars; // make parent same as me
 
     // *** Derived data
-    KVariableTypeSet m_limitedVars;
-
+    KVariableTypeSetDerivedDataObj m_limitedVars;
+    KveFiniteFilterUpdater m_limitedVarsUpdater;
+    
     // *** Access
     public KVariablesExt<float> Max { get => m_maxVars.Data; set => m_maxVars.Data = value; }
     public KVariablesExt<float> Min { get => m_minVars.Data; set => m_minVars.Data = value; }
@@ -244,7 +245,7 @@ public class KVariableLimits : PipelineExecutableBase {
     }
 
     // *** Constructors
-    // TODO - Add PipelineProfiles to base construction, add base construction
+    // TODO - Add DataPortProfiles to base construction, add base construction
     public KVariableLimits() {
         m_maxVars = new KVariablesExt<float>(float.PositiveInfinity);
         m_minVars = new KVariablesExt<float>(float.NegativeInfinity);

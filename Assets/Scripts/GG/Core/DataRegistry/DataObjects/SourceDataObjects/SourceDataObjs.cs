@@ -3,6 +3,23 @@ using System.Collections.Generic;
 
 // Auto-generated file by substituting data from TypeTemplates.jsonc into SourceDataObjs.ggt
 
+public class NoneSourceDataObj : SourceDataObj<object> {
+    public static readonly TraitsSimpleNone m_traitsSimple = new TraitsSimpleNone();
+    public override ITraitsSimple<object> TraitsSimple { get=>m_traitsSimple; }
+    public override DataTypeEnum DataType { get=>DataTypeEnum.None; }
+    public override IObj Clone(IObjRegistry parent = null) {
+        NoneSourceDataObj obj = new NoneSourceDataObj(this);
+        if (parent != null) {
+            obj.UnregisterFromParent();
+            obj.RegisterToParent(parent);
+        }
+        return (IObj)obj;
+    }
+    public NoneSourceDataObj(string name, IObjRegistry parent = null, bool value = false)
+    : base (name, parent) {}
+    public NoneSourceDataObj(NoneSourceDataObj obj) : base(obj) {}
+    public NoneSourceDataObj() {}
+}
 public class BoolSourceDataObj : SourceDataObj<bool> {
     public static readonly TraitsSimpleBool m_traitsSimple = new TraitsSimpleBool();
     public override ITraitsSimple<bool> TraitsSimple { get=>m_traitsSimple; }
@@ -71,22 +88,22 @@ public class StringSourceDataObj : SourceDataObj<string> {
     public StringSourceDataObj(StringSourceDataObj obj) : base(obj) {}
     public StringSourceDataObj() {}
 }
-public class IntgerSourceDataObj : SourceDataObj<int> {
+public class IntSourceDataObj : SourceDataObj<int> {
     public static readonly TraitsSimpleInt m_traitsSimple = new TraitsSimpleInt();
     public override ITraitsSimple<int> TraitsSimple { get=>m_traitsSimple; }
     public override DataTypeEnum DataType { get=>DataTypeEnum.Int; }
     public override IObj Clone(IObjRegistry parent = null) {
-        IntgerSourceDataObj obj = new IntgerSourceDataObj(this);
+        IntSourceDataObj obj = new IntSourceDataObj(this);
         if (parent != null) {
             obj.UnregisterFromParent();
             obj.RegisterToParent(parent);
         }
         return (IObj)obj;
     }
-    public IntgerSourceDataObj(string name, IObjRegistry parent = null, int value = 0)
+    public IntSourceDataObj(string name, IObjRegistry parent = null, int value = 0)
     : base (name, parent) {}
-    public IntgerSourceDataObj(IntgerSourceDataObj obj) : base(obj) {}
-    public IntgerSourceDataObj() {}
+    public IntSourceDataObj(IntSourceDataObj obj) : base(obj) {}
+    public IntSourceDataObj() {}
 }
 public class FloatSourceDataObj : SourceDataObj<float> {
     public static readonly TraitsSimpleFloat m_traitsSimple = new TraitsSimpleFloat();

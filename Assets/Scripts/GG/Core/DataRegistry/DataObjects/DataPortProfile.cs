@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-public class PipelineProfile {
+public class DataPortProfile {
     List<string> m_inputNames;
     List<DataTypeEnum> m_inputTypes;
     List<string> m_outputNames;
@@ -38,15 +38,15 @@ public class PipelineProfile {
         m_outputTypes = new List<DataTypeEnum>();
     }
 
-    public PipelineProfile() { InitData(); }
-    public PipelineProfile(string inputName, DataTypeEnum inputType, string outputName, DataTypeEnum outputType) {
+    public DataPortProfile() { InitData(); }
+    public DataPortProfile(string inputName, DataTypeEnum inputType, string outputName, DataTypeEnum outputType) {
         InitData();
         m_inputNames.Add(inputName);
         m_inputTypes.Add(inputType);
         m_outputNames.Add(outputName);
         m_outputTypes.Add(outputType);
     }
-    public PipelineProfile(PipelineProfile pp) {
+    public DataPortProfile(DataPortProfile pp) {
         m_inputNames = new List<string>(pp.m_inputNames);
         m_inputTypes = new List<DataTypeEnum>(pp.m_inputTypes);
         m_outputNames = new List<string>(pp.m_outputNames);

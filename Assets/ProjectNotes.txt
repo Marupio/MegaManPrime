@@ -4,6 +4,9 @@ MULTITHREADING - when true, include Interlocked / Mutex and other multithreading
 
 
 TODO
+Flesh out DerivedUpdaterBase for the KVariableLimits
+Implement 
+
 GlobalRegistrar.Cloning, DerivedDataObjs, IDerivedUpdaters
 There should be an unclonable switch, to create global IObjs.  Time, Camera, Sun, etc.  Things associated with
 these can be data sources that don't clone.

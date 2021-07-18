@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class $prefix\$DataObj : SourceDataSetObj<$type\$, $component_type\$> {
+public class $prefix\$SourceDataObj : SourceDataSetObj<$type\$, $component_type\$> {
     public static readonly TraitsSimple$prefix\$ m_traitsSimple = new TraitsSimple$prefix\$();
     public static readonly Traits$prefix\$ m_traits = new Traits$prefix\$();
     public override ITraitsSimple<$type\$> TraitsSimple { get=>m_traitsSimple; }
@@ -17,10 +17,10 @@ public class $prefix\$DataObj : SourceDataSetObj<$type\$, $component_type\$> {
     public override $component_type\$ this[int index] { get { $return_component_by_index\$ } set { $set_component_by_index\$ } }
     public override $component_type\$ this[string elem] { get { $return_component_by_string\$ } set{ $set_component_by_string\$ } }
     public override IObj Clone(IObjRegistry parent) {
-        $prefix\$DataObj obj = new $prefix\$DataObj(m_name, parent, m_data);
+        $prefix\$SourceDataObj obj = new $prefix\$SourceDataObj(m_name, parent, m_data);
         return (IObj)obj;
     }
-    $prefix\$DataObj(string name, IObjRegistry parent = null, $type\$ m_data = default($type\$)) : base(name, parent, m_data) {}
-    public $prefix\$DataObj($prefix\$DataObj obj) : base(obj) {}
-    public $prefix\$DataObj() {}
+    public $prefix\$SourceDataObj(string name, IObjRegistry parent = null, $type\$ m_data = default($type\$)) : base(name, parent, m_data) {}
+    public $prefix\$SourceDataObj($prefix\$SourceDataObj obj) : base(obj) {}
+    public $prefix\$SourceDataObj() {}
 }

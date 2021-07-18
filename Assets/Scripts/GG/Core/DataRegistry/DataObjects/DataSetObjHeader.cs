@@ -1,3 +1,6 @@
+// Currently unused
+// Not used by SourceData... and DerivedData...
+
 public abstract class DataSetObjHeader : DataObjHeader, IDataSetObjMeta {
     public abstract DataTypeEnum ComponentType { get; }
     public abstract ComponentAccessType PreferredAccessType { get; }

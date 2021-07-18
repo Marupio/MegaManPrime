@@ -105,8 +105,8 @@ public interface IExecutableObjMeta : IObj { // TODO
 public interface IPipelineExecutableObj : IExecutableObjMeta {
     bool Enabled { get; set; }
     int NProfiles { get; } // A profile is an arrangement of inputs and outputs
-    PipelineProfile GetProfile(int index);
-    PipelineProfile ActiveProfile { get; }
+    DataPortProfile GetProfile(int index);
+    DataPortProfile ActiveProfile { get; }
     int ActiveProfileIndex { get; set; }
     void AttachInput(IDataObjMeta obj, int port);
     void AttachOutput(IDataObjMeta obj, int port);
@@ -126,11 +126,14 @@ public interface IPipelineExecutableObj : IExecutableObjMeta {
 }
 // In a derived updater workflow, inputs are Source/Derived and outputs are only Derived
 public interface IDerivedUpdater : IExecutableObjMeta {
+    DataPortProfile DataProfile { get; }
     List<IDerivedDataObjMeta> AllDerivedData { get; }
+    List<List<IDataObjMeta>> DirectDependsOn { get; } // The sources used in Update, may include other DerivedDataObj
+    List<List<ISourceDataObjMeta>> SourceDependsOn { get; } // The sources, resolved down to SourceDataObj level, hierarchically flattened
     bool PerformUpdatesFor(IDerivedDataObjMeta target);
     void PerformAllUpdates();
     // 'Init' the 'DependsOn' list 'For' the given target derivedDataObj
-    bool InitDependsOnFor(IDerivedDataObjMeta target, out List<ISourceDataObjMeta> dependsOn);
+    bool InitDependsOnFor(IDerivedDataObjMeta target, out List<IDataObjMeta> directDependsOn, out List<ISourceDataObjMeta> sourceDependsOn);
     void InitAllDependsOn();
     bool SpawnAllDerived();
 }
@@ -150,7 +153,8 @@ public interface ISourceDataObjMeta : IDataObjMeta {  // --> No direct implement
     // IControllerObj ControlledBy { get; set; }
 }
 public interface IDerivedDataObjMeta : IDataObjMeta {  // --> // TODO
-    List<ISourceDataObjMeta> DependsOn { get; set; }
+    List<IDataObjMeta> DirectDependsOn { get; set; }
+    List<ISourceDataObjMeta> SourceDependsOn { get; set; }
     IDerivedUpdater Updater { get; set; }
     bool Stale();
     bool UpToDate();
