@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj {
-    List<DataPortProfile> m_profiles;
+    DataPortProfileList m_profiles;
     List<IDataObjMeta> m_attachedInputs;
     int m_attachedInputsSize; // allocated size may differ
     List<IDataObjMeta> m_attachedOutputs;
@@ -23,26 +23,7 @@ public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj
         }
     }
     public int NProfiles { get=>m_profiles.Count; }
-    public DataPortProfile GetProfile(int index) { return m_profiles[index]; }
-    public DataPortProfile ActiveProfile { get=>m_activeProfile; }
-    public int ActiveProfileIndex {
-        get => m_activeProfileIndex;
-        set {
-            #if DEBUG
-                if (value > m_profiles.Count-1) {
-                    
-                    throw new System.IndexOutOfRangeException("Expecting value between -1.." + (m_profiles.Count-1).ToString());
-                }
-            #endif
-            m_activeProfileIndex = value;
-            if (m_activeProfileIndex < 0) {
-                m_activeProfile = null;
-            } else {
-                m_activeProfile = m_profiles[m_activeProfileIndex];
-                UpdateListSizes();
-            }
-        }
-    }
+    public DataPortProfileList Profiles { get=>m_profiles; set=>m_profiles=value; }
     public void AttachInput(IDataObjMeta obj, int port) {
         #if DEBUG
             if (port > m_activeProfile.NInputs-1 || port < 0) {
@@ -156,6 +137,7 @@ public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj
                 throw new System.ArgumentException("Active DataPortProfile requires " + nVars + " data objects, received 4");
             }
         #endif
+//        InternalExecut(m_profiles.HotWire(obj0, obj1, obj2, obj3));
         switch (m_activeProfile.NInputs) {
             case 0:
                 m_tmpOutputs[0] = obj0;

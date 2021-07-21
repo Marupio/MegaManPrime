@@ -222,7 +222,7 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
     public void OnCollisionEnter2D(Collision2D collision)
     {
         Collider2D targetCollider = collision.collider;
-        IGetHurt target = GeneralTools.ApplyRulesOfEngagement(targetCollider, m_collider, side, "collision.collider");
+        IGetHurt target = GeneralGameTools.ApplyRulesOfEngagement(targetCollider, m_collider, side, "collision.collider");
         if (target == null)
         {
             return;
@@ -245,7 +245,7 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
     // *** ICanHit interface internal helpers
     private void CheckForColliderHits(Collider2D hitInfo)
     {
-        IGetHurt target = GeneralTools.ApplyRulesOfEngagement(hitInfo, m_collider, side, "collision.otherCollider");
+        IGetHurt target = GeneralGameTools.ApplyRulesOfEngagement(hitInfo, m_collider, side, "collision.otherCollider");
         if (target == null)
         {
             return;

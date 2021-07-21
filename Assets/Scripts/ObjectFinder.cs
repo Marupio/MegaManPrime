@@ -283,7 +283,7 @@ public class ObjectFinder : MonoBehaviour
         {
             for (int i = objList.Count-1; i >= 0; --i)
             {
-                if (!GeneralTools.IsInLayerMask(objList[i], m_layerMask))
+                if (!GeneralGameTools.IsInLayerMask(objList[i], m_layerMask))
                 {
                     objList.Remove(objList[i]);
                 }

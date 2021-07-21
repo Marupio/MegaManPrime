@@ -126,7 +126,9 @@ public interface IPipelineExecutableObj : IExecutableObjMeta {
 }
 // In a derived updater workflow, inputs are Source/Derived and outputs are only Derived
 public interface IDerivedUpdater : IExecutableObjMeta {
-    DataPortProfile DataProfile { get; }
+    List<DataPortProfile> DataProfiles { get; }
+    DataPortProfile ActiveDataProfile { get; }
+    void SetActiveDataProfile(int newProfileIndex);
     List<IDerivedDataObjMeta> AllDerivedData { get; }
     List<List<IDataObjMeta>> DirectDependsOn { get; } // The sources used in Update, may include other DerivedDataObj
     List<List<ISourceDataObjMeta>> SourceDependsOn { get; } // The sources, resolved down to SourceDataObj level, hierarchically flattened

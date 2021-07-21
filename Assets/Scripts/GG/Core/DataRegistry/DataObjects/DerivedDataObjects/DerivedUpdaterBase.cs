@@ -74,10 +74,14 @@ public abstract class DerivedUpdaterBase : ObjHeader, IDerivedUpdater {
             );
             m_outputs.Add(newDerived);
         }
+        return true;
     }
 
+    // *** Constructors
     DerivedUpdaterBase(string name, IObjRegistry parent = null, DataPortProfile dataProfile = null)
     : base(name, parent) {
         m_dataProfile = dataProfile;
     }
+    DerivedUpdaterBase(DerivedUpdaterBase obj) : base(obj) {}
+    DerivedUpdaterBase() : base() {}
 }

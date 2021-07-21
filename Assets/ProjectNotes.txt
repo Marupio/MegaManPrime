@@ -99,7 +99,13 @@ ObjHeader   DataObjHeader   DataSetObjHeader        DerivedDataSetObj<L, C>
 But this analysis ignores the interfaces, which make more sense.  Headers are just grouped interfaces
 implemented at a convenient point of single inheritence.  What matters are the interfaces.
 
-
+TODO
+* Create a DataPortProfileList that has functionality to select from a preset series of DPPs.
+* Finish adding ActiveDataPortConnections to DataPortProfile or List or whatever
+* Finish modifying IDerivedUpdater to have multiple DataPortProfile options
+* Make all objects fully built, maybe one init state, but ensure they don't run uninit.
+* Make derived obj base accept multiple profiles, and switch to a single one from a method that takes its
+  index and input variables.
 
 
 

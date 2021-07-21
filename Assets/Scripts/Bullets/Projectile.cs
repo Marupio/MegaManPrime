@@ -78,7 +78,7 @@ public class Projectile : MonoBehaviour, ICanHit, ILoyalty, IDie, ISelfDestruct
     public void OnCollisionEnter2D(Collision2D collision)
     {
         Collider2D targetCollider = collision.collider;
-        IGetHurt target = GeneralTools.ApplyRulesOfEngagement(targetCollider, m_collider, side, "collision.collider");
+        IGetHurt target = GeneralGameTools.ApplyRulesOfEngagement(targetCollider, m_collider, side, "collision.collider");
         if (target == null || m_objectsHit.Contains(target))
         {
             return;
@@ -100,7 +100,7 @@ public class Projectile : MonoBehaviour, ICanHit, ILoyalty, IDie, ISelfDestruct
     // *** ICanHit interface internal helpers
     private void CheckForColliderHits(Collider2D hitInfo)
     {
-        IGetHurt target = GeneralTools.ApplyRulesOfEngagement(hitInfo, m_collider, side, "OnTriggerEnter2D");
+        IGetHurt target = GeneralGameTools.ApplyRulesOfEngagement(hitInfo, m_collider, side, "OnTriggerEnter2D");
         // If it isn't null and isn't an entity we already hit, proceed with the hit
         if (target != null && !m_objectsHit.Contains(target))
         {
