@@ -1,19 +1,32 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// I am a single configuration of inputs and outputs, presumably for some kind of object that takes inputs and returns outputs.
+/// I also have a name, in case there are more than one possible configurations of data input / output.
+/// </summary>
 public class DataPortProfile {
+    public static readonly DataPortProfile Null = new DataPortProfile("Null");
     string m_name;
     List<string> m_inputNames;
     List<DataTypeEnum> m_inputTypes;
     List<string> m_outputNames;
     List<DataTypeEnum> m_outputTypes;
+    List<ActiveDataPortConnections> m_activeWithConnections;
+
+    // *** Access
     public string Name { get=>m_name; set=>m_name=value;}
     public int NInputs { get=>m_inputTypes.Count; }
     public int NOutputs { get=>m_outputTypes.Count; }
     public List<string> InputNames {
         get=>m_inputNames;
         set {
+            if (m_activeWithConnections.Count > 0) {
+                Debug.LogError("Attempting to modify active DataPortProfile");
+                return;
+            }
             m_inputNames=value;
             #if DEBUG
                 if (GeneralTools.CountDuplicates(m_inputNames) > 0) {
@@ -22,10 +35,23 @@ public class DataPortProfile {
             #endif
         }
     }
-    public List<DataTypeEnum> InputTypes { get=>m_inputTypes; set=>m_inputTypes=value; }
+    public List<DataTypeEnum> InputTypes {
+        get=>m_inputTypes;
+        set {
+            if (m_activeWithConnections.Count > 0) {
+                Debug.LogError("Attempting to modify active DataPortProfile");
+                return;
+            }
+            m_inputTypes=value;
+        }
+    }
     public List<string> OutputNames {
         get=>m_outputNames;
         set {
+            if (m_activeWithConnections.Count > 0) {
+                Debug.LogError("Attempting to modify active DataPortProfile");
+                return;
+            }
             m_outputNames=value;
             #if DEBUG
                 if (GeneralTools.CountDuplicates(m_outputNames) > 0) {
@@ -34,8 +60,19 @@ public class DataPortProfile {
             #endif
         }
     }
-    public List<DataTypeEnum> OutputTypes { get=>m_outputTypes; set=>m_outputTypes=value; }
+    public List<DataTypeEnum> OutputTypes {
+        get=>m_outputTypes;
+        set {
+            if (m_activeWithConnections.Count > 0) {
+                Debug.LogError("Attempting to modify active DataPortProfile");
+                return;
+            }
+            m_outputTypes=value;
+        }
+    }
+    List<ActiveDataPortConnections> ActiveWithConnections { get=>m_activeWithConnections; }
 
+    // *** Query
     public int GetInputPortFromName(string name) { // returns -1 if not found
         return m_inputNames.FindIndex(x => x == name);
     }
@@ -52,7 +89,12 @@ public class DataPortProfile {
         return m_outputNames.FindIndex(x => x == name);
     }
 
+    // *** Edit
     public void AddInput(string name, DataTypeEnum type) {
+        if (m_activeWithConnections.Count > 0) {
+            Debug.LogError("Attempting to modify active DataPortProfile");
+            return;
+        }
         #if DEBUG
             if (m_inputNames.Contains(name)) {
                 Debug.LogWarning("Adding duplicate name '" + name + "' in inputs for profile " + m_name);
@@ -62,6 +104,10 @@ public class DataPortProfile {
         m_inputTypes.Add(type);
     }
     public void AddOutput(string name, DataTypeEnum type) {
+        if (m_activeWithConnections.Count > 0) {
+            Debug.LogError("Attempting to modify active DataPortProfile");
+            return;
+        }
         #if DEBUG
             if (m_outputNames.Contains(name)) {
                 Debug.LogWarning("Adding duplicate name '" + name + "' in outputs for profile " + m_name);
@@ -71,6 +117,10 @@ public class DataPortProfile {
         m_outputTypes.Add(type);
     }
     public void RemoveInput(string name) {
+        if (m_activeWithConnections.Count > 0) {
+            Debug.LogError("Attempting to modify active DataPortProfile");
+            return;
+        }
         int removeIndex = m_inputNames.FindIndex(x => x == name);
         m_inputNames.RemoveAt(removeIndex);
         m_inputTypes.RemoveAt(removeIndex);
@@ -80,28 +130,59 @@ public class DataPortProfile {
         m_outputNames.RemoveAt(removeIndex);
         m_outputTypes.RemoveAt(removeIndex);
     }
+    public void ActiveWith(ActiveDataPortConnections adp) {
+        if (m_activeWithConnections.Contains(adp)) {
+            Debug.LogWarning("Attempting to add duplicate ActiveDataPortConnection to DataPortProfile " + m_name);
+            return;
+        }
+        m_activeWithConnections.Add(adp);
+    }
+    public void NotActiveWith(ActiveDataPortConnections adp) {
+        int index = m_activeWithConnections.IndexOf(adp);
+        if (index < 0) {
+            Debug.LogError("Attempting to remove missing ActiveDataPortConnection from DataPortProfile " + m_name);
+            return;
+        }
+        m_activeWithConnections.RemoveAt(index);
+    }
 
+    // *** Internal methods
     void InitData() {
         m_inputNames = new List<string>();
         m_inputTypes = new List<DataTypeEnum>();
         m_outputNames = new List<string>();
         m_outputTypes = new List<DataTypeEnum>();
+        m_activeWithConnections = new List<ActiveDataPortConnections>();
     }
 
     public DataPortProfile() { InitData(); }
-    public DataPortProfile(string name, string inputName, DataTypeEnum inputType, string outputName, DataTypeEnum outputType) {
+    public DataPortProfile(string name) { m_name = name; InitData(); }
+    public DataPortProfile(
+        string name,
+        string inputName,
+        DataTypeEnum inputType,
+        string outputName,
+        DataTypeEnum outputType,
+        ActiveDataPortConnections activateWithConnections = null
+    ) {
         InitData();
         m_name = name;
         m_inputNames.Add(inputName);
         m_inputTypes.Add(inputType);
         m_outputNames.Add(outputName);
         m_outputTypes.Add(outputType);
+        if (activateWithConnections != null) {
+            m_activeWithConnections.Add(activateWithConnections);
+        }
     }
-    public DataPortProfile(DataPortProfile pp) {
+    public DataPortProfile(DataPortProfile pp, ActiveDataPortConnections activateWithConnections = null) {
         m_name = pp.m_name;
         m_inputNames = new List<string>(pp.m_inputNames);
         m_inputTypes = new List<DataTypeEnum>(pp.m_inputTypes);
         m_outputNames = new List<string>(pp.m_outputNames);
         m_outputTypes = new List<DataTypeEnum>(pp.m_outputTypes);
+        if (activateWithConnections != null) {
+            m_activeWithConnections.Add(activateWithConnections);
+        }
     }
 }

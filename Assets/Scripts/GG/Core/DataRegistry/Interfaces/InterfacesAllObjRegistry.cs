@@ -101,28 +101,24 @@ public interface IObjRegistry : IObj {
 public interface IExecutableObjMeta : IObj { // TODO
     // I do stuff to data
 }
+
+
 // In a pipeline workflow, inputs and outputs are 'DataObj', not restricted to Source/Derived
 public interface IPipelineExecutableObj : IExecutableObjMeta {
     bool Enabled { get; set; }
-    int NProfiles { get; } // A profile is an arrangement of inputs and outputs
-    DataPortProfile GetProfile(int index);
+    DataPortProfileList Profiles { get; set; }
+    int NProfiles { get; }
     DataPortProfile ActiveProfile { get; }
-    int ActiveProfileIndex { get; set; }
-    void AttachInput(IDataObjMeta obj, int port);
-    void AttachOutput(IDataObjMeta obj, int port);
-    void DetachInput(int port);
-    void DetachOutput(int port);
-    void DetachAllInputs();
-    void DetachAllOutputs();
-    void DetachAllPorts();
-    // Requires variables attached to ports,
-    void ExecuteAttached(); // Requires variables attached to ports
-    void Execute(IDataObjMeta obj0);
-    void Execute(IDataObjMeta obj0, IDataObjMeta obj1);
-    void Execute(IDataObjMeta obj0, IDataObjMeta obj1, IDataObjMeta obj2);
-    void Execute(IDataObjMeta obj0, IDataObjMeta obj1, IDataObjMeta obj2, IDataObjMeta obj3);
-    void Execute(IDataObjMeta obj0, IDataObjMeta obj1, IDataObjMeta obj2, IDataObjMeta obj3, IDataObjMeta obj4);
-    void Execute(params IDataObjMeta[] objs);
+    ActiveDataPortConnections Connections { get; }
+    bool Ready { get; }
+    // void InternalExecute(DataPortProfile profile, ActiveDataPortConnections connections);
+    void ExecuteAttached();
+    void ExecuteProfile(DataPortProfile profile);
+    void ExecuteProfile(DataPortProfile profile, ActiveDataPortConnections connections);
+    void ExecuteProfile(string profileName);
+    void ExecuteProfile(string profileName, ActiveDataPortConnections connections);
+    void ExecuteProfile(int profileIndex);
+    void ExecuteProfile(int profileIndex, ActiveDataPortConnections connections);
 }
 // In a derived updater workflow, inputs are Source/Derived and outputs are only Derived
 public interface IDerivedUpdater : IExecutableObjMeta {

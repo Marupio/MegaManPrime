@@ -3,288 +3,83 @@ using UnityEngine;
 
 public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj {
     DataPortProfileList m_profiles;
-    List<IDataObjMeta> m_attachedInputs;
-    int m_attachedInputsSize; // allocated size may differ
-    List<IDataObjMeta> m_attachedOutputs;
-    int m_attachedOutputsSize; // allocated size may differ
-    List<IDataObjMeta> m_tmpInputs;
-    int m_tmpInputsSize; // allocated size may differ
-    List<IDataObjMeta> m_tmpOutputs;
-    int m_tmpOutputsSize; // allocated size may differ
-    int m_activeProfileIndex;
-    DataPortProfile m_activeProfile;
-    public bool Enabled {
-        get=>m_activeProfileIndex < 0;
-        set {
-            if (value && m_activeProfileIndex < 0 || !value && m_activeProfileIndex >= 0) {
-                int newApi = -1 - m_activeProfileIndex;
-                ActiveProfileIndex = newApi; // apply setter
-            }
-        }
-    }
-    public int NProfiles { get=>m_profiles.Count; }
+    bool m_enabled = true;
+
+    public bool Enabled { get=>m_enabled; set=>m_enabled=value; }
     public DataPortProfileList Profiles { get=>m_profiles; set=>m_profiles=value; }
-    public void AttachInput(IDataObjMeta obj, int port) {
-        #if DEBUG
-            if (port > m_activeProfile.NInputs-1 || port < 0) {
-                throw new System.IndexOutOfRangeException("Expecting value between 0.." + (m_activeProfile.NInputs-1).ToString());
-            }
-        #endif
-        m_attachedInputs[port] = obj;
+    public int NProfiles { get=>m_profiles.Count; }
+    public DataPortProfile ActiveProfile { get=>m_profiles.ActiveProfile; }
+    public ActiveDataPortConnections Connections { get=>m_profiles.Connections; }
+    public bool Ready { get=>m_profiles.Connections.Ready; }
+
+    // *** Internal methods
+    public abstract void InternalExecute(DataPortProfile profile, ActiveDataPortConnections connections);
+    bool CheckProfileAndCondition(DataPortProfile profile) {
+        if (!m_profiles.Contains(profile)) {
+            Debug.LogError("Attempting to execute missing DataPortProfile " + profile.Name + " on PipelineExecutableBase object " + m_name);
+            return false;
+        }
+        return m_enabled;
     }
-    public void AttachOutput(IDataObjMeta obj, int port) {
-        #if DEBUG
-            if (port > m_activeProfile.NOutputs-1 || port < 0) {
-                throw new System.IndexOutOfRangeException("Expecting value between 0.." + (m_activeProfile.NOutputs-1).ToString());
-            }
-        #endif
-        m_attachedOutputs[port] = obj;
+    bool CheckProfileAndCondition(string profileName) {
+        if (!m_profiles.Contains(profileName)) {
+            Debug.LogError("Attempting to execute missing DataPortProfile " + profileName + " on PipelineExecutableBase object " + m_name);
+            return false;
+        }
+        return m_enabled;
     }
-    public void DetachInput(int port) {
-        #if DEBUG
-            if (port > m_activeProfile.NInputs-1 || port < 0) {
-                throw new System.IndexOutOfRangeException("Expecting value between 0.." + (m_activeProfile.NInputs-1).ToString());
-            }
-        #endif
-        m_attachedInputs[port] = null;
+    bool CheckProfileAndCondition(int profileIndex) {
+        if (profileIndex < 0 || profileIndex >= m_profiles.Count) {
+            Debug.LogError("Index " + profileIndex + " out of range [0.." + (m_profiles.Count - 1) + "] on PipelineExecutableBase object " + m_name);
+            return false;
+        }
+        return m_enabled;
     }
-    public void DetachOutput(int port) {
-        #if DEBUG
-            if (port > m_activeProfile.NOutputs-1 || port < 0) {
-                throw new System.IndexOutOfRangeException("Expecting value between 0.." + (m_activeProfile.NOutputs-1).ToString());
-            }
-        #endif
-        m_attachedInputs[port] = null;
-    }
-    public void DetachAllInputs() { for (int i = 0; i < m_attachedInputs.Count; ++i) { m_attachedInputs[i] = null; } }
-    public void DetachAllOutputs() { for (int i = 0; i < m_attachedOutputs.Count; ++i) { m_attachedOutputs[i] = null; } }
-    public void DetachAllPorts() { DetachAllInputs(); DetachAllOutputs(); }
+
+    // *** Execute
     public void ExecuteAttached() {
-        InternalExecute(m_attachedInputs, m_attachedOutputs);
+        InternalExecute(ActiveProfile, Connections);
     }
-    public void Execute(IDataObjMeta obj0) {
-        #if DEBUG
-            int nVars = m_activeProfile.NInputs + m_activeProfile.NOutputs;
-            if (nVars != 1) {
-                throw new System.ArgumentException("Active DataPortProfile requires " + nVars + " data objects, received 1");
-            }
-        #endif
-        if (m_activeProfile.NInputs > 0) {
-            m_tmpInputs[0] = obj0;
-        } else {
-            m_tmpOutputs[0] = obj0;
-        }
-        InternalExecute(m_tmpInputs, m_tmpOutputs);
+    public void ExecuteProfile(DataPortProfile profile) {
+        if (!CheckProfileAndCondition(profile)) return;
+        InternalExecute(profile, new ActiveDataPortConnections(profile));
     }
-    public void Execute(IDataObjMeta obj0, IDataObjMeta obj1) {
-        #if DEBUG
-            int nVars = m_activeProfile.NInputs + m_activeProfile.NOutputs;
-            if (nVars != 2) {
-                throw new System.ArgumentException("Active DataPortProfile requires " + nVars + " data objects, received 2");
-            }
-        #endif
-        switch (m_activeProfile.NInputs) {
-            case 0:
-                m_tmpOutputs[0] = obj0;
-                m_tmpOutputs[1] = obj1;
-                break;
-            case 1:
-                m_tmpInputs[0] = obj0;
-                m_tmpOutputs[0] = obj1;
-                break;
-            default: // case 2
-                m_tmpInputs[0] = obj0;
-                m_tmpInputs[1] = obj1;
-                break;
-        }
-        InternalExecute(m_tmpInputs, m_tmpOutputs);
+    public void ExecuteProfile(DataPortProfile profile, ActiveDataPortConnections connections) {
+        if (!CheckProfileAndCondition(profile)) return;
+        InternalExecute(profile, connections);
     }
-    public void Execute(IDataObjMeta obj0, IDataObjMeta obj1, IDataObjMeta obj2) {
-        #if DEBUG
-            int nVars = m_activeProfile.NInputs + m_activeProfile.NOutputs;
-            if (nVars != 3) {
-                throw new System.ArgumentException("Active DataPortProfile requires " + nVars + " data objects, received 3");
-            }
-        #endif
-        switch (m_activeProfile.NInputs) {
-            case 0:
-                m_tmpOutputs[0] = obj0;
-                m_tmpOutputs[1] = obj1;
-                m_tmpOutputs[2] = obj2;
-                break;
-            case 1:
-                m_tmpInputs[0] = obj0;
-                m_tmpOutputs[0] = obj1;
-                m_tmpOutputs[1] = obj2;
-                break;
-            case 2:
-                m_tmpInputs[0] = obj0;
-                m_tmpInputs[1] = obj1;
-                m_tmpOutputs[0] = obj2;
-                break;
-            default: // case 3
-                m_tmpInputs[0] = obj0;
-                m_tmpInputs[1] = obj1;
-                m_tmpInputs[2] = obj2;
-                break;
-        }
-        InternalExecute(m_tmpInputs, m_tmpOutputs);
+    public void ExecuteProfile(string profileName) {
+        if (!CheckProfileAndCondition(profileName)) return;
+        DataPortProfile profile = m_profiles[profileName];
+        InternalExecute(profile, new ActiveDataPortConnections(profile));
     }
-    public void Execute(IDataObjMeta obj0, IDataObjMeta obj1, IDataObjMeta obj2, IDataObjMeta obj3) {
-        #if DEBUG
-            int nVars = m_activeProfile.NInputs + m_activeProfile.NOutputs;
-            if (nVars != 4) {
-                throw new System.ArgumentException("Active DataPortProfile requires " + nVars + " data objects, received 4");
-            }
-        #endif
-//        InternalExecut(m_profiles.HotWire(obj0, obj1, obj2, obj3));
-        switch (m_activeProfile.NInputs) {
-            case 0:
-                m_tmpOutputs[0] = obj0;
-                m_tmpOutputs[1] = obj1;
-                m_tmpOutputs[2] = obj2;
-                m_tmpOutputs[3] = obj3;
-                break;
-            case 1:
-                m_tmpInputs[0] = obj0;
-                m_tmpOutputs[0] = obj1;
-                m_tmpOutputs[1] = obj2;
-                m_tmpOutputs[2] = obj3;
-                break;
-            case 2:
-                m_tmpInputs[0] = obj0;
-                m_tmpInputs[1] = obj1;
-                m_tmpOutputs[0] = obj2;
-                m_tmpOutputs[1] = obj3;
-                break;
-            case 3:
-                m_tmpInputs[0] = obj0;
-                m_tmpInputs[1] = obj1;
-                m_tmpInputs[2] = obj2;
-                m_tmpOutputs[0] = obj3;
-                break;
-            default: // case 4
-                m_tmpInputs[0] = obj0;
-                m_tmpInputs[1] = obj1;
-                m_tmpInputs[2] = obj2;
-                m_tmpInputs[3] = obj3;
-                break;
-        }
-        InternalExecute(m_tmpInputs, m_tmpOutputs);
+    public void ExecuteProfile(string profileName, ActiveDataPortConnections connections) {
+        if (!CheckProfileAndCondition(profileName)) return;
+        DataPortProfile profile = m_profiles[profileName];
+        InternalExecute(profile, connections);
     }
-    public void Execute(IDataObjMeta obj0, IDataObjMeta obj1, IDataObjMeta obj2, IDataObjMeta obj3, IDataObjMeta obj4) {
-        #if DEBUG
-            int nVars = m_activeProfile.NInputs + m_activeProfile.NOutputs;
-            if (nVars != 5) {
-                throw new System.ArgumentException("Active DataPortProfile requires " + nVars + " data objects, received 5");
-            }
-        #endif
-        switch (m_activeProfile.NInputs) {
-            case 0:
-                m_tmpOutputs[0] = obj0;
-                m_tmpOutputs[1] = obj1;
-                m_tmpOutputs[2] = obj2;
-                m_tmpOutputs[3] = obj3;
-                m_tmpOutputs[4] = obj4;
-                break;
-            case 1:
-                m_tmpInputs[0] = obj0;
-                m_tmpOutputs[0] = obj1;
-                m_tmpOutputs[1] = obj2;
-                m_tmpOutputs[2] = obj3;
-                m_tmpOutputs[3] = obj4;
-                break;
-            case 2:
-                m_tmpInputs[0] = obj0;
-                m_tmpInputs[1] = obj1;
-                m_tmpOutputs[0] = obj2;
-                m_tmpOutputs[1] = obj3;
-                m_tmpOutputs[2] = obj4;
-                break;
-            case 3:
-                m_tmpInputs[0] = obj0;
-                m_tmpInputs[1] = obj1;
-                m_tmpInputs[2] = obj2;
-                m_tmpOutputs[0] = obj3;
-                m_tmpOutputs[1] = obj4;
-                break;
-            case 4:
-                m_tmpInputs[0] = obj0;
-                m_tmpInputs[1] = obj1;
-                m_tmpInputs[2] = obj2;
-                m_tmpInputs[3] = obj3;
-                m_tmpOutputs[0] = obj4;
-                break;
-            default: // case 5
-                m_tmpInputs[0] = obj0;
-                m_tmpInputs[1] = obj1;
-                m_tmpInputs[2] = obj2;
-                m_tmpInputs[3] = obj3;
-                m_tmpInputs[4] = obj4;
-                break;
-        }
-        InternalExecute(m_tmpInputs, m_tmpOutputs);
+    public void ExecuteProfile(int profileIndex) {
+        if (!CheckProfileAndCondition(profileIndex)) return;
+        DataPortProfile profile = m_profiles[profileIndex];
+        InternalExecute(profile, new ActiveDataPortConnections(profile));
     }
-    public void Execute(params IDataObjMeta[] objs) {
-        #if DEBUG
-            int nVars = m_activeProfile.NInputs + m_activeProfile.NOutputs;
-            if (nVars != objs.Length) {
-                throw new System.ArgumentException("Active DataPortProfile requires " + nVars + " data objects, received " + objs.Length);
-            }
-        #endif
-        int nInputs = m_activeProfile.NInputs;
-        for (int i = 0; i < nInputs; ++i) {
-            m_tmpInputs[i] = objs[i];
-        }
-        for (int i = 0; i < m_activeProfile.NOutputs; ++i) {
-            m_tmpOutputs[i] = objs[i + nInputs];
-        }
-        InternalExecute(m_tmpInputs, m_tmpOutputs);
+    public void ExecuteProfile(int profileIndex, ActiveDataPortConnections connections) {
+        if (!CheckProfileAndCondition(profileIndex)) return;
+        DataPortProfile profile = m_profiles[profileIndex];
+        InternalExecute(profile, connections);
     }
 
-    public abstract void InternalExecute(List<IDataObjMeta> inputs, List<IDataObjMeta> outputs);
-    void UpdateListSizes() {
-        for (int i = m_attachedInputsSize; i < m_activeProfile.NInputs; ++i) {
-            m_attachedInputs.Add(null);
-            m_tmpInputs.Add(null);
-        }
-        for (int i = m_attachedOutputsSize; i < m_activeProfile.NOutputs; ++i) {
-            m_attachedOutputs.Add(null);
-            m_tmpOutputs.Add(null);
-        }
-        m_attachedInputsSize = m_activeProfile.NInputs;
-        m_attachedOutputsSize = m_activeProfile.NOutputs;
-    }
-
-    PipelineExecutableBase(
-        string name,
-        IObjRegistry parent = null,
-        List<DataPortProfile> profiles = null
-    ) : base (name, parent) {
+    // *** Constructors
+    public PipelineExecutableBase(DataPortProfileList profiles) {
         m_profiles = profiles;
-        m_attachedInputs = new List<IDataObjMeta>();
-        m_attachedOutputs = new List<IDataObjMeta>();
-        m_tmpInputs = new List<IDataObjMeta>();
-        m_tmpOutputs = new List<IDataObjMeta>();
-        ActiveProfileIndex = 0; // setter triggers UpdateListSizes
     }
-
-    PipelineExecutableBase(PipelineExecutableBase obj) : base(obj) {
-        m_profiles = new List<DataPortProfile>(obj.m_profiles.Count);
-        foreach (DataPortProfile pp in obj.m_profiles) {
-            m_profiles.Add(new DataPortProfile(pp));
-        }
+    public PipelineExecutableBase(DataPortProfile profile) {
+        m_profiles = new DataPortProfileList(profile);
     }
-    PipelineExecutableBase() : base() {
-        m_profiles = new List<DataPortProfile>();
-        m_attachedInputs = new List<IDataObjMeta>();
-        m_attachedInputsSize = 0;
-        m_attachedOutputs = new List<IDataObjMeta>();
-        m_attachedOutputsSize = 0;
-        m_tmpInputs = new List<IDataObjMeta>();
-        m_tmpInputsSize = 0;
-        m_tmpOutputs = new List<IDataObjMeta>();
-        m_tmpOutputsSize = 0;
-        m_activeProfileIndex = -1;
+    public PipelineExecutableBase(List<DataPortProfile> dpps, int activeProfileIndex = 0) {
+        m_profiles = new DataPortProfileList(dpps, activeProfileIndex);
+    }
+    public PipelineExecutableBase() {
+        m_profiles = new DataPortProfileList();
     }
 }

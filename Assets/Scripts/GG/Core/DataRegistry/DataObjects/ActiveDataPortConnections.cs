@@ -1,20 +1,39 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// I contain the data objects that are connected to the active DataPortProfile
+/// </summary>
 public class ActiveDataPortConnections {
     List<IDataObjMeta> m_inputs;
     List<IDataObjMeta> m_outputs;
     DataPortProfile m_profile;
 
+    // *** Access
     public List<IDataObjMeta> Inputs { get=>m_inputs; }
     public List<IDataObjMeta> Outputs { get=>m_outputs; }
 
+    // *** Query
+    public bool Ready {
+        get {
+            if (m_profile == DataPortProfile.Null) return false;
+            if (m_inputs.Contains(null)) return false;
+            if (m_outputs.Contains(null)) return false;
+            return true;
+        }
+    }
+
+    // *** Edit - Switch profiles
     public void ChangeProfileAndDetachAll(DataPortProfile profile) {
+        // m_profile may be null on construction only
+        if (m_profile != null) m_profile.NotActiveWith(this);
+        m_profile = profile;
+        m_profile.ActiveWith(this);
         InternalChangeProfileAndDetachAll(profile.NInputs, ref m_inputs);
         InternalChangeProfileAndDetachAll(profile.NOutputs, ref m_outputs);
     }
 
-    // *** Attach inputs
+    // *** Edit - Attach inputs
     public void AttachInput(IDataObjMeta obj, int port=0) {
         #if DEBUG
             if (port > m_inputs.Count || port < 0) {
@@ -41,7 +60,7 @@ public class ActiveDataPortConnections {
         InternalAttachAllXputs(objs, ref m_inputs);
     }
 
-    // *** Attach outputs
+    // *** Edit - Attach outputs
     public void AttachOutput(IDataObjMeta obj, int port=0) {
         #if DEBUG
             if (port > m_outputs.Count || port < 0) {
@@ -66,7 +85,7 @@ public class ActiveDataPortConnections {
         InternalAttachAllXputs(objs, ref m_outputs);
     }
 
-    // *** Attach all
+    // *** Edit - Attach all
     public void AttachAll(IDataObjMeta obj0) {
         #if DEBUG
             int nPorts = m_inputs.Count + m_outputs.Count;
@@ -208,7 +227,7 @@ public class ActiveDataPortConnections {
                 m_outputs[0] = obj3;
                 m_outputs[1] = obj4;
                 return;
-            case 3:
+            case 4:
                 m_inputs[0] = obj0;
                 m_inputs[1] = obj1;
                 m_inputs[2] = obj2;
@@ -239,7 +258,7 @@ public class ActiveDataPortConnections {
         }
     }
 
-    // *** Detach inputs
+    // *** Edit - Detach inputs
     public void DetachInput(int port) {
         #if DEBUG
             if (port < 0 || port >= m_inputs.Count) {
@@ -263,7 +282,7 @@ public class ActiveDataPortConnections {
         }
     }
 
-    // *** Detach outputs
+    // *** Edit - Detach outputs
     public void DetachOutput(int port) {
         #if DEBUG
             if (port < 0 || port >= m_outputs.Count) {
@@ -287,12 +306,13 @@ public class ActiveDataPortConnections {
         }
     }
 
-    // *** Detach all
+    // *** Edit - Detach all
     public void DetachAll() {
         DetachAllInputs();
         DetachAllOutputs();
     }
 
+    // *** Internal methods
     void InternalChangeProfileAndDetachAll(int size, ref List<IDataObjMeta> xputs) {
         if (size < xputs.Count) {
             for (int i = 0; i < size; ++i) {
@@ -342,8 +362,45 @@ public class ActiveDataPortConnections {
     }
 
     // *** Constructors
-    ActiveDataPortConnections(DataPortProfile profile) {
+    public ActiveDataPortConnections(DataPortProfile profile) {
         Init();
         ChangeProfileAndDetachAll(profile);
+    }
+    public ActiveDataPortConnections(DataPortProfile profile, IDataObjMeta obj0) {
+        Init();
+        ChangeProfileAndDetachAll(profile);
+        AttachAll(obj0);
+    }
+    public ActiveDataPortConnections(DataPortProfile profile, IDataObjMeta obj0, IDataObjMeta obj1) {
+        Init();
+        ChangeProfileAndDetachAll(profile);
+        AttachAll(obj0, obj1);
+    }
+    public ActiveDataPortConnections(DataPortProfile profile, IDataObjMeta obj0, IDataObjMeta obj1, IDataObjMeta obj2) {
+        Init();
+        ChangeProfileAndDetachAll(profile);
+        AttachAll(obj0, obj1, obj2);
+    }
+    public ActiveDataPortConnections(DataPortProfile profile, IDataObjMeta obj0, IDataObjMeta obj1, IDataObjMeta obj2, IDataObjMeta obj3) {
+        Init();
+        ChangeProfileAndDetachAll(profile);
+        AttachAll(obj0, obj1, obj2, obj3);
+    }
+    public ActiveDataPortConnections(DataPortProfile profile, IDataObjMeta obj0, IDataObjMeta obj1, IDataObjMeta obj2, IDataObjMeta obj3, IDataObjMeta obj4) {
+        Init();
+        ChangeProfileAndDetachAll(profile);
+        AttachAll(obj0, obj1, obj2, obj3, obj4);
+    }
+    public ActiveDataPortConnections(DataPortProfile profile, params IDataObjMeta[] objs) {
+        Init();
+        ChangeProfileAndDetachAll(profile);
+        AttachAll(objs);
+    }
+
+    // *** Destructor
+    ~ActiveDataPortConnections() {
+        if (m_profile != null) {
+            m_profile.NotActiveWith(this);
+        }
     }
 }
