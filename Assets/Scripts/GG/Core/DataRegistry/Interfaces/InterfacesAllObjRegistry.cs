@@ -101,17 +101,18 @@ public interface IObjRegistry : IObj {
 public interface IExecutableObjMeta : IObj { // TODO
     // I do stuff to data
 }
-
-
-// In a pipeline workflow, inputs and outputs are 'DataObj', not restricted to Source/Derived
-public interface IPipelineExecutableObj : IExecutableObjMeta {
+public interface IDataPortModule : IObj {
     bool Enabled { get; set; }
     DataPortProfileList Profiles { get; set; }
     int NProfiles { get; }
     DataPortProfile ActiveProfile { get; }
     ActiveDataPortConnections Connections { get; }
     bool Ready { get; }
-    // void InternalExecute(DataPortProfile profile, ActiveDataPortConnections connections);
+}
+
+
+// In a pipeline workflow, inputs and outputs are 'DataObj', not restricted to Source/Derived
+public interface IPipelineExecutableObj : IDataPortModule, IExecutableObjMeta {
     void ExecuteAttached();
     void ExecuteProfile(DataPortProfile profile);
     void ExecuteProfile(DataPortProfile profile, ActiveDataPortConnections connections);
@@ -120,11 +121,9 @@ public interface IPipelineExecutableObj : IExecutableObjMeta {
     void ExecuteProfile(int profileIndex);
     void ExecuteProfile(int profileIndex, ActiveDataPortConnections connections);
 }
+
 // In a derived updater workflow, inputs are Source/Derived and outputs are only Derived
-public interface IDerivedUpdater : IExecutableObjMeta {
-    List<DataPortProfile> DataProfiles { get; }
-    DataPortProfile ActiveDataProfile { get; }
-    void SetActiveDataProfile(int newProfileIndex);
+public interface IDerivedUpdater : IDataPortModule {
     List<IDerivedDataObjMeta> AllDerivedData { get; }
     List<List<IDataObjMeta>> DirectDependsOn { get; } // The sources used in Update, may include other DerivedDataObj
     List<List<ISourceDataObjMeta>> SourceDependsOn { get; } // The sources, resolved down to SourceDataObj level, hierarchically flattened

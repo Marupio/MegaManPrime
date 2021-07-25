@@ -13,8 +13,42 @@ using UnityEngine;
 //     // protected Vector2 GetVector2(string name);
 // }
 
-public abstract class DerivedUpdaterBase : ObjHeader, IDerivedUpdater {
-    protected DataPortProfile m_dataProfile;
+public abstract class DerivedUpdaterBase : DataPortModule, IDerivedUpdater {
+    //DPM
+    // protected DataPortProfileList m_profiles;
+    // protected bool m_enabled = true;
+    // public bool Enabled { get=>m_enabled; set=>m_enabled=value; }
+    // public DataPortProfileList Profiles { get=>m_profiles; set=>m_profiles=value; }
+    // public int NProfiles { get=>m_profiles.Count; }
+    // public DataPortProfile ActiveProfile { get=>m_profiles.ActiveProfile; }
+    // public ActiveDataPortConnections Connections { get=>m_profiles.Connections; }
+    // public bool Ready { get=>m_profiles.Connections.Ready; }
+    // // *** Constructors
+    // public DataPortModule(DataPortProfileList profiles) {
+    //     m_profiles = profiles;
+    // }
+    // public DataPortModule(DataPortProfile profile) {
+    //     m_profiles = new DataPortProfileList(profile);
+    // }
+    // public DataPortModule(List<DataPortProfile> dpps, int activeProfileIndex = 0) {
+    //     m_profiles = new DataPortProfileList(dpps, activeProfileIndex);
+    // }
+    // public DataPortModule() {
+    //     m_profiles = new DataPortProfileList();
+    // }
+
+    //IDU
+    // List<IDerivedDataObjMeta> AllDerivedData { get; }
+    // List<List<IDataObjMeta>> DirectDependsOn { get; } // The sources used in Update, may include other DerivedDataObj
+    // List<List<ISourceDataObjMeta>> SourceDependsOn { get; } // The sources, resolved down to SourceDataObj level, hierarchically flattened
+    // bool PerformUpdatesFor(IDerivedDataObjMeta target);
+    // void PerformAllUpdates();
+    // // 'Init' the 'DependsOn' list 'For' the given target derivedDataObj
+    // bool InitDependsOnFor(IDerivedDataObjMeta target, out List<IDataObjMeta> directDependsOn, out List<ISourceDataObjMeta> sourceDependsOn);
+    // void InitAllDependsOn();
+    // bool SpawnAllDerived();
+
+
 
     // Reverse lookup
     protected Dictionary<IDerivedDataObjMeta, int> m_index;
@@ -25,10 +59,19 @@ public abstract class DerivedUpdaterBase : ObjHeader, IDerivedUpdater {
     protected List<List<ISourceDataObjMeta>> m_sourceInputs;
     protected List<bool> m_derivedVarInitComplete;
 
-    public DataPortProfile DataProfile { get=>m_dataProfile; }
     public List<IDerivedDataObjMeta> AllDerivedData { get=>m_outputs; }
     public List<List<IDataObjMeta>> DirectDependsOn { get=>m_directInputs; }
     public List<List<ISourceDataObjMeta>> SourceDependsOn { get=>m_sourceInputs; }
+
+    // List<IDerivedDataObjMeta> AllDerivedData { get; }
+    // List<List<IDataObjMeta>> DirectDependsOn { get; } // The sources used in Update, may include other DerivedDataObj
+    // List<List<ISourceDataObjMeta>> SourceDependsOn { get; } // The sources, resolved down to SourceDataObj level, hierarchically flattened
+    // bool PerformUpdatesFor(IDerivedDataObjMeta target);
+    // void PerformAllUpdates();
+    // // 'Init' the 'DependsOn' list 'For' the given target derivedDataObj
+    // bool InitDependsOnFor(IDerivedDataObjMeta target, out List<IDataObjMeta> directDependsOn, out List<ISourceDataObjMeta> sourceDependsOn);
+    // void InitAllDependsOn();
+    // bool SpawnAllDerived();
 
     public abstract bool PerformUpdatesFor(IDerivedDataObjMeta target); // TODO - or internally change this into an index, and make that call abstract
     public abstract void PerformAllUpdates();

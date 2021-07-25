@@ -1,17 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj {
-    DataPortProfileList m_profiles;
-    bool m_enabled = true;
-
-    public bool Enabled { get=>m_enabled; set=>m_enabled=value; }
-    public DataPortProfileList Profiles { get=>m_profiles; set=>m_profiles=value; }
-    public int NProfiles { get=>m_profiles.Count; }
-    public DataPortProfile ActiveProfile { get=>m_profiles.ActiveProfile; }
-    public ActiveDataPortConnections Connections { get=>m_profiles.Connections; }
-    public bool Ready { get=>m_profiles.Connections.Ready; }
-
+public abstract class PipelineExecutableBase : DataPortModule, IPipelineExecutableObj {
     // *** Internal methods
     public abstract void InternalExecute(DataPortProfile profile, ActiveDataPortConnections connections);
     bool CheckProfileAndCondition(DataPortProfile profile) {
@@ -70,16 +60,8 @@ public abstract class PipelineExecutableBase : ObjHeader, IPipelineExecutableObj
     }
 
     // *** Constructors
-    public PipelineExecutableBase(DataPortProfileList profiles) {
-        m_profiles = profiles;
-    }
-    public PipelineExecutableBase(DataPortProfile profile) {
-        m_profiles = new DataPortProfileList(profile);
-    }
-    public PipelineExecutableBase(List<DataPortProfile> dpps, int activeProfileIndex = 0) {
-        m_profiles = new DataPortProfileList(dpps, activeProfileIndex);
-    }
-    public PipelineExecutableBase() {
-        m_profiles = new DataPortProfileList();
-    }
+    public PipelineExecutableBase(DataPortProfileList profiles) : base(profiles) {}
+    public PipelineExecutableBase(DataPortProfile profile) : base(profile) {}
+    public PipelineExecutableBase(List<DataPortProfile> dpps, int activeProfileIndex = 0): base(dpps, activeProfileIndex) {}
+    public PipelineExecutableBase() : base() {}
 }

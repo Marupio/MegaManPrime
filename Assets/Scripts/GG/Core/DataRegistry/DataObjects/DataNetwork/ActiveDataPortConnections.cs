@@ -1,13 +1,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public interface IActiveDataPortConnections {
+    // Connect inputs / outputs
+    //  * Base is IDataObjMeta
+    // Derived can apply restrictions to the connections, e.g.
+    //  * Inputs can only be ISourceDataObjMeta  < type constraint
+    //  * Outputs can only be IDerivedDataObjMeta
+
+}
+
+
+
 /// <summary>
 /// I contain the data objects that are connected to the active DataPortProfile
 /// </summary>
-public class ActiveDataPortConnections {
-    List<IDataObjMeta> m_inputs;
-    List<IDataObjMeta> m_outputs;
-    DataPortProfile m_profile;
+public class ActiveDataPortConnections/*<S, T> where S : class, IDataObjMeta where T : class, IDataObjMeta*/ {
+    protected List<IDataObjMeta> m_inputs;
+    protected List<IDataObjMeta> m_outputs;
+    protected DataPortProfile m_profile;
 
     // *** Access
     public List<IDataObjMeta> Inputs { get=>m_inputs; }
@@ -24,7 +35,7 @@ public class ActiveDataPortConnections {
     }
 
     // *** Edit - Switch profiles
-    public void ChangeProfileAndDetachAll(DataPortProfile profile) {
+    public virtual void ChangeProfileAndDetachAll(DataPortProfile profile) {
         // m_profile may be null on construction only
         if (m_profile != null) m_profile.NotActiveWith(this);
         m_profile = profile;
@@ -37,9 +48,12 @@ public class ActiveDataPortConnections {
     public void AttachInput(IDataObjMeta obj, int port=0) {
         #if DEBUG
             if (port > m_inputs.Count || port < 0) {
-                throw new System.ArgumentOutOfRangeException(
-                    "Port " + port + " out of range [0.." + m_inputs.Count + "] for profile " + m_profile.Name
+                Debug.LogException(
+                    new System.ArgumentOutOfRangeException(
+                        "Port " + port + " out of range [0.." + m_inputs.Count + "] for profile " + m_profile.Name
+                    )
                 );
+                return;
             }
             if (m_inputs[port] != null) {
                 Debug.LogWarning("Overwriting existing port connection " + port + " for profile " + m_profile.Name);
@@ -51,7 +65,10 @@ public class ActiveDataPortConnections {
         int port = m_profile.GetInputPortFromName(inputName);
         #if DEBUG
             if (port < 0) {
-                throw new System.ArgumentOutOfRangeException(inputName + " is not a valid inputName for profile " + m_profile.Name);
+                Debug.LogException(
+                    new System.ArgumentOutOfRangeException(inputName + " is not a valid inputName for profile " + m_profile.Name)
+                );
+                return;
             }
         #endif
         m_inputs[port] = obj;
@@ -61,10 +78,11 @@ public class ActiveDataPortConnections {
     }
 
     // *** Edit - Attach outputs
-    public void AttachOutput(IDataObjMeta obj, int port=0) {
+    public virtual void AttachOutput(IDataObjMeta obj, int port=0) {
         #if DEBUG
             if (port > m_outputs.Count || port < 0) {
-                throw new System.ArgumentOutOfRangeException("Port " + port + " out of range [0.." + m_outputs.Count + "]");
+                Debug.LogException(new System.ArgumentOutOfRangeException("Port " + port + " out of range [0.." + m_outputs.Count + "]"));
+                return;
             }
             if (m_outputs[port] != null) {
                 Debug.LogWarning("Overwriting existing port connection " + port);
@@ -72,25 +90,27 @@ public class ActiveDataPortConnections {
         #endif
         m_outputs[port] = obj;
     }
-    public void AttachOutput(IDataObjMeta obj, string outputName) {
+    public virtual void AttachOutput(IDataObjMeta obj, string outputName) {
         int port = m_profile.GetOutputPortFromName(outputName);
         #if DEBUG
             if (port < 0) {
-                throw new System.ArgumentOutOfRangeException(outputName + " is not a valid outputName for profile " + m_profile.Name);
+                Debug.LogException(new System.ArgumentOutOfRangeException(outputName + " is not a valid outputName for profile " + m_profile.Name));
+                return;
             }
         #endif
         m_outputs[port] = obj;
     }
-    public void AttachAllOutputs(List<IDataObjMeta> objs) {
+    public virtual void AttachAllOutputs(List<IDataObjMeta> objs) {
         InternalAttachAllXputs(objs, ref m_outputs);
     }
 
     // *** Edit - Attach all
-    public void AttachAll(IDataObjMeta obj0) {
+    public virtual void AttachAll(IDataObjMeta obj0) {
         #if DEBUG
             int nPorts = m_inputs.Count + m_outputs.Count;
             if (nPorts != 1) {
-                throw new System.MissingFieldException("1 connection given for " + nPorts + " ports for profile " + m_profile.Name);
+                Debug.LogException(new System.MissingFieldException("1 connection given for " + nPorts + " ports for profile " + m_profile.Name));
+                return;
             }
         #endif
         if (m_inputs.Count > 0) {
@@ -99,11 +119,12 @@ public class ActiveDataPortConnections {
             m_outputs[0] = obj0;
         }
     }
-    public void AttachAll(IDataObjMeta obj0, IDataObjMeta obj1) {
+    public virtual void AttachAll(IDataObjMeta obj0, IDataObjMeta obj1) {
         #if DEBUG
             int nPorts = m_inputs.Count + m_outputs.Count;
             if (nPorts != 2) {
-                throw new System.MissingFieldException("2 connections given for " + nPorts + " ports for profile " + m_profile.Name);
+                Debug.LogException(new System.MissingFieldException("2 connections given for " + nPorts + " ports for profile " + m_profile.Name));
+                return;
             }
         #endif
         switch (m_inputs.Count) {
@@ -121,11 +142,12 @@ public class ActiveDataPortConnections {
                 return;
         }
     }
-    public void AttachAll(IDataObjMeta obj0, IDataObjMeta obj1, IDataObjMeta obj2) {
+    public virtual void AttachAll(IDataObjMeta obj0, IDataObjMeta obj1, IDataObjMeta obj2) {
         #if DEBUG
             int nPorts = m_inputs.Count + m_outputs.Count;
             if (nPorts != 3) {
-                throw new System.MissingFieldException("3 connections given for " + nPorts + " ports for profile " + m_profile.Name);
+                Debug.LogException(new System.MissingFieldException("3 connections given for " + nPorts + " ports for profile " + m_profile.Name));
+                return;
             }
         #endif
         switch (m_inputs.Count) {
@@ -151,11 +173,12 @@ public class ActiveDataPortConnections {
                 return;
         }
     }
-    public void AttachAll(IDataObjMeta obj0, IDataObjMeta obj1, IDataObjMeta obj2, IDataObjMeta obj3) {
+    public virtual void AttachAll(IDataObjMeta obj0, IDataObjMeta obj1, IDataObjMeta obj2, IDataObjMeta obj3) {
         #if DEBUG
             int nPorts = m_inputs.Count + m_outputs.Count;
             if (nPorts != 4) {
-                throw new System.MissingFieldException("4 connections given for " + nPorts + " ports for profile " + m_profile.Name);
+                Debug.LogException(new System.MissingFieldException("4 connections given for " + nPorts + " ports for profile " + m_profile.Name));
+                return;
             }
         #endif
         switch (m_inputs.Count) {
@@ -191,11 +214,12 @@ public class ActiveDataPortConnections {
                 return;
         }
     }
-    public void AttachAll(IDataObjMeta obj0, IDataObjMeta obj1, IDataObjMeta obj2, IDataObjMeta obj3, IDataObjMeta obj4) {
+    public virtual void AttachAll(IDataObjMeta obj0, IDataObjMeta obj1, IDataObjMeta obj2, IDataObjMeta obj3, IDataObjMeta obj4) {
         #if DEBUG
             int nPorts = m_inputs.Count + m_outputs.Count;
             if (nPorts != 5) {
-                throw new System.MissingFieldException("5 connections given for " + nPorts + " ports for profile " + m_profile.Name);
+                Debug.LogException(new System.MissingFieldException("5 connections given for " + nPorts + " ports for profile " + m_profile.Name));
+                return;
             }
         #endif
         switch (m_inputs.Count) {
@@ -231,8 +255,8 @@ public class ActiveDataPortConnections {
                 m_inputs[0] = obj0;
                 m_inputs[1] = obj1;
                 m_inputs[2] = obj2;
-                m_outputs[0] = obj3;
-                m_outputs[1] = obj4;
+                m_inputs[3] = obj3;
+                m_outputs[0] = obj4;
                 return;
             default:
                 m_inputs[0] = obj0;
@@ -243,11 +267,12 @@ public class ActiveDataPortConnections {
                 return;
         }
     }
-    public void AttachAll(params IDataObjMeta[] objs) {
+    public virtual void AttachAll(params IDataObjMeta[] objs) {
         #if DEBUG
             int nPorts = m_inputs.Count + m_outputs.Count;
             if (nPorts != objs.Length) {
-                throw new System.MissingFieldException(objs.Length + " connections given for " + nPorts + " ports for profile " + m_profile.Name);
+                Debug.LogException(new System.MissingFieldException(objs.Length + " connections given for " + nPorts + " ports for profile " + m_profile.Name));
+                return;
             }
         #endif
         for (int i = 0; i < m_inputs.Count; ++i) {
@@ -262,7 +287,8 @@ public class ActiveDataPortConnections {
     public void DetachInput(int port) {
         #if DEBUG
             if (port < 0 || port >= m_inputs.Count) {
-                throw new System.ArgumentOutOfRangeException("Port " + port + " out of range [0.." + m_inputs.Count + "]");
+                Debug.LogException(new System.ArgumentOutOfRangeException("Port " + port + " out of range [0.." + m_inputs.Count + "]"));
+                return;
             }
         #endif
         m_inputs[port] = null;
@@ -271,7 +297,8 @@ public class ActiveDataPortConnections {
         int port = m_profile.GetInputPortFromName(inputName);
         #if DEBUG
             if (port < 0) {
-                throw new System.ArgumentOutOfRangeException(inputName + " is not a valid inputName for profile " + m_profile.Name);
+                Debug.LogException(new System.ArgumentOutOfRangeException(inputName + " is not a valid inputName for profile " + m_profile.Name));
+                return;
             }
         #endif
         m_inputs[port] = null;
@@ -286,7 +313,8 @@ public class ActiveDataPortConnections {
     public void DetachOutput(int port) {
         #if DEBUG
             if (port < 0 || port >= m_outputs.Count) {
-                throw new System.ArgumentOutOfRangeException("Port " + port + " out of range [0.." + m_outputs.Count + "]");
+                Debug.LogException(new System.ArgumentOutOfRangeException("Port " + port + " out of range [0.." + m_outputs.Count + "]"));
+                return;
             }
         #endif
         m_outputs[port] = null;
@@ -295,7 +323,8 @@ public class ActiveDataPortConnections {
         int port = m_profile.GetOutputPortFromName(outputName);
         #if DEBUG
             if (port < 0) {
-                throw new System.ArgumentOutOfRangeException(outputName + " is not a valid outputName for profile " + m_profile.Name);
+                Debug.LogException(new System.ArgumentOutOfRangeException(outputName + " is not a valid outputName for profile " + m_profile.Name));
+                return;
             }
         #endif
         m_outputs[port] = null;
@@ -313,7 +342,7 @@ public class ActiveDataPortConnections {
     }
 
     // *** Internal methods
-    void InternalChangeProfileAndDetachAll(int size, ref List<IDataObjMeta> xputs) {
+    protected void InternalChangeProfileAndDetachAll(int size, ref List<IDataObjMeta> xputs) {
         if (size < xputs.Count) {
             for (int i = 0; i < size; ++i) {
                 xputs[i] = null;
@@ -340,7 +369,8 @@ public class ActiveDataPortConnections {
     void InternalAttachAllXputs(List<IDataObjMeta> objs, ref List<IDataObjMeta> xputs) {
         #if DEBUG
             if (objs.Count != xputs.Count) {
-                throw new System.ArgumentOutOfRangeException("Cannot attach " + objs.Count + " inputs to " + xputs.Count + " input ports.");
+                Debug.LogException(new System.ArgumentOutOfRangeException("Cannot attach " + objs.Count + " connections to " + xputs.Count + " ports."));
+                return;
             }
             int nOverwrites = 0;
             foreach (IDataObjMeta obj in xputs) {
