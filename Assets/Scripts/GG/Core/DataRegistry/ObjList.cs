@@ -4,31 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public abstract class ObjConstraint {
-    public abstract bool Test(IObj obj);
-}
+public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
+    protected List<T> m_objList;
+    protected ObjConstraintBase<T> m_constraint;
 
-public class ObjConstraintMustBeClass<T> : ObjConstraint where T : class, IObj {
-    public override bool Test(IObj obj) {
-        return obj is T;
-    }
-}
-
-public class ObjConstraintList : ObjConstraint {
-    public List<ObjConstraint> constraints;
-    public override bool Test(IObj obj) {
-        foreach(ObjConstraint constraint in constraints) {
-            if (!constraint.Test(obj)) { return false; }
-        }
-        return true;
-    }
-}
-
-public class ObjList : IEnumerable<IObj> {
-    protected List<IObj> m_objList;
-    protected ObjConstraint m_constraint;
-
-    public ObjConstraint Constraint {
+    public ObjConstraintBase<T> Constraint {
         get=>m_constraint;
         set {
             m_constraint = value;
@@ -37,10 +17,13 @@ public class ObjList : IEnumerable<IObj> {
             }
         }
     }
+    public void SetConstraintUnsafe(ObjConstraintBase<T> constraint) {
+        m_constraint = constraint;
+    }
 
     public int Capacity { get=>m_objList.Capacity; }
     public int Count { get=>m_objList.Count; }
-    public virtual IObj this[int index] {
+    public virtual T this[int index] {
         get=>m_objList[index];
         set {
             if (m_constraint.Test(value)) {
@@ -53,7 +36,7 @@ public class ObjList : IEnumerable<IObj> {
         }
     }
 
-    public void Add(IObj obj) {
+    public void Add(T obj) {
         if (m_constraint == null) {
             m_objList.Add(obj);
             return;
@@ -66,8 +49,14 @@ public class ObjList : IEnumerable<IObj> {
             #endif
         }
     }
-    public void AddRange(IEnumerable<IObj> objs) {
+    public void AddRange(IEnumerable<T> objs) {
         InsertRange(m_objList.Count, objs);
+    }
+    public void AddUnsafe(T obj) {
+        m_objList.Add(obj);
+    }
+    public void AddRangeUnsafe(IEnumerable<T> objs) {
+        m_objList.AddRange(objs);
     }
 
     // TODO - ReadOnlyCollection
@@ -76,57 +65,57 @@ public class ObjList : IEnumerable<IObj> {
     public void Clear() {
         m_objList.Clear();
     }
-    public bool Contains(IObj obj) {
+    public bool Contains(T obj) {
         return m_objList.Contains(obj);
     }
-    public List<TOutput> ConvertAll<TOutput>(Converter<IObj, TOutput> converter) {
+    public List<TOutput> ConvertAll<TOutput>(Converter<T, TOutput> converter) {
         return m_objList.ConvertAll<TOutput>(converter);
     }
-    public void CopyTo(int index, IObj[] array, int arrayIndex, int count) {
+    public void CopyTo(int index, T[] array, int arrayIndex, int count) {
         m_objList.CopyTo(index, array, arrayIndex, count);
     }
-    public void CopyTo(IObj[] array, int arrayIndex) {
+    public void CopyTo(T[] array, int arrayIndex) {
         m_objList.CopyTo(array, arrayIndex);
     }
-    public void CopyTo(IObj[] array) {
+    public void CopyTo(T[] array) {
         m_objList.CopyTo(array);
     }
-    public bool Exists(Predicate<IObj> match) {
+    public bool Exists(Predicate<T> match) {
         return m_objList.Exists(match);
     }
-    public IObj Find(Predicate<IObj> match) {
+    public T Find(Predicate<T> match) {
         return m_objList.Find(match);
     }
-    public List<IObj> FindAll(Predicate<IObj> match) {
+    public List<T> FindAll(Predicate<T> match) {
         return m_objList.FindAll(match);
     }
-    public int FindIndex(int startIndex, int count, Predicate<IObj> match) {
+    public int FindIndex(int startIndex, int count, Predicate<T> match) {
         return m_objList.FindIndex(startIndex, count, match);
     }
-    public int FindIndex(int startIndex, Predicate<IObj> match) {
+    public int FindIndex(int startIndex, Predicate<T> match) {
         return m_objList.FindIndex(startIndex, match);
     }
-    public int FindIndex(Predicate<IObj> match) {
+    public int FindIndex(Predicate<T> match) {
         return m_objList.FindIndex(match);
     }
-    public IObj FindLast(Predicate<IObj> match) {
+    public T FindLast(Predicate<T> match) {
         return m_objList.FindLast(match);
     }
-    public int FindLastIndex(int startIndex, int count, Predicate<IObj> match) {
+    public int FindLastIndex(int startIndex, int count, Predicate<T> match) {
         return m_objList.FindLastIndex(startIndex, count, match);
     }
-    public int FindLastIndex(int startIndex, Predicate<IObj> match) {
+    public int FindLastIndex(int startIndex, Predicate<T> match) {
         return m_objList.FindLastIndex(startIndex, match);
     }
-    public int FindLastIndex(Predicate<IObj> match) {
+    public int FindLastIndex(Predicate<T> match) {
         return m_objList.FindLastIndex(match);
     }
-    public void ForEach(Action<IObj> action) {
+    public void ForEach(Action<T> action) {
         m_objList.ForEach(action);
     }
 
     // *** IEnumerable interface
-    public IEnumerator<IObj> GetEnumerator()
+    public IEnumerator<T> GetEnumerator()
     {
         return m_objList.GetEnumerator();
     }
@@ -135,16 +124,16 @@ public class ObjList : IEnumerable<IObj> {
         return this.GetEnumerator();
     }
 
-    public int IndexOf(IObj item, int index, int count) {
+    public int IndexOf(T item, int index, int count) {
         return m_objList.IndexOf(item, index, count);
     }
-    public int IndexOf(IObj item, int index) {
+    public int IndexOf(T item, int index) {
         return m_objList.IndexOf(item, index);
     }
-    public int IndexOf(IObj item) {
+    public int IndexOf(T item) {
         return m_objList.IndexOf(item);
     }
-    public void Insert(int index, IObj item) {
+    public void Insert(int index, T item) {
         if (m_constraint == null) {
             m_objList.Insert(index, item);
         } else {
@@ -152,12 +141,12 @@ public class ObjList : IEnumerable<IObj> {
                 m_objList.Insert(index, item);
             } else {
                 #if DEBUG
-                    Debug.LogWarning("Filtered " + obj.Name + " from ObjList");
+                    Debug.LogWarning("Filtered " + item.Name + " from ObjList");
                 #endif
             }
         }
     }
-    public void InsertRange(int atIndex, IEnumerable<IObj> objs) {
+    public void InsertRange(int atIndex, IEnumerable<T> objs) {
         if (m_constraint == null) {
             m_objList.InsertRange(atIndex, objs);
             return;
@@ -167,10 +156,10 @@ public class ObjList : IEnumerable<IObj> {
             return;
         }
         if (atIndex >= m_objList.Count) {
-            Debug.LogException(new System.ArgumentOutOfRangeException("atIndex " + atIndex + " out of range [0.." + (m_objList.Count-1) + "]");
+            Debug.LogException(new System.ArgumentOutOfRangeException("atIndex " + atIndex + " out of range [0.." + (m_objList.Count-1) + "]"));
             return;
         }
-        ICollection<IObj> c = objs as ICollection<IObj>;
+        ICollection<T> c = objs as ICollection<T>;
         if (c != null) {
             int count = c.Count;
             if (count > 0) {
@@ -182,7 +171,7 @@ public class ObjList : IEnumerable<IObj> {
                 return;
             }
         } else {
-            using(IEnumerator<IObj> en = objs.GetEnumerator()) {
+            using(IEnumerator<T> en = objs.GetEnumerator()) {
                 while(en.MoveNext()) {
                     if (m_constraint.Test(en.Current)) {
                         m_objList.Add(en.Current);
@@ -191,19 +180,25 @@ public class ObjList : IEnumerable<IObj> {
             }
         }
     }
-    public int LastIndexOf(IObj item) {
+    public void InsertUnsafe(int index, T item) {
+        m_objList.Insert(index, item);
+    }
+    public void InsertRangeUnsafe(int atIndex, IEnumerable<T> objs) {
+        m_objList.InsertRange(atIndex, objs);
+    }
+    public int LastIndexOf(T item) {
         return m_objList.LastIndexOf(item);
     }
-    public int LastIndexOf(IObj item, int index) {
+    public int LastIndexOf(T item, int index) {
         return m_objList.LastIndexOf(item, index);
     }
-    public int LastIndexOf(IObj item, int index, int count) {
+    public int LastIndexOf(T item, int index, int count) {
         return m_objList.LastIndexOf(item, index, count);
     }
-    public bool Remove(IObj item) {
+    public bool Remove(T item) {
         return m_objList.Remove(item);
     }
-    public int RemoveAll(Predicate<IObj> match) {
+    public int RemoveAll(Predicate<T> match) {
         return m_objList.RemoveAll(match);
     }
     public void RemoveAt(int index) {
@@ -223,13 +218,13 @@ public class ObjList : IEnumerable<IObj> {
     //  including: by Id, by MTag, by Name
     //  then expand to DataObjs: by value, by Magnitude, etc..
 
-    public IObj[] ToArray() {
+    public T[] ToArray() {
         return m_objList.ToArray();
     }
     public void TrimExcess() {
         m_objList.TrimExcess();
     }
-    public bool TrueForAll(Predicate<IObj> match) {
+    public bool TrueForAll(Predicate<T> match) {
         return m_objList.TrueForAll(match);
     }
     // TODO public struct Enumerator : IEnumerator<T>, IEnumerator, IDisposable
@@ -237,31 +232,31 @@ public class ObjList : IEnumerable<IObj> {
     // Can I do something like: using m_objList.Enumerator?
 
     // *** Constructors - patterned after List ctors
-    public ObjList(ObjConstraint constraint = null) {
+    public ObjListBase(ObjConstraintBase<T> constraint = null) {
         m_constraint = constraint;
-        m_objList = new List<IObj>();
+        m_objList = new List<T>();
     }
-    public ObjList(IEnumerable<IObj> collection, ObjConstraint constraint = null) {
+    public ObjListBase(IEnumerable<T> collection, ObjConstraintBase<T> constraint = null) {
         if (constraint == null) {
-            m_objList = new List<IObj>(collection);
+            m_objList = new List<T>(collection);
             return;
         }
         m_constraint = constraint;
         if (collection == null) {
             Debug.LogException(new System.ArgumentNullException("collection"));
-            m_objList = new List<IObj>();
+            m_objList = new List<T>();
             return;
         }
-        ICollection<IObj> c = collection as ICollection<IObj>;
+        ICollection<T> c = collection as ICollection<T>;
         if (c != null) {
-            m_objList = new List<IObj>(
+            m_objList = new List<T>(
                 from obj in c
                 where m_constraint.Test(obj)
                 select obj
             );
         } else {
-            m_objList = new List<IObj>();
-            using(IEnumerator<IObj> en = collection.GetEnumerator()) {
+            m_objList = new List<T>();
+            using(IEnumerator<T> en = collection.GetEnumerator()) {
                 while(en.MoveNext()) {
                     if (m_constraint.Test(en.Current)) {
                         m_objList.Add(en.Current);
@@ -270,70 +265,25 @@ public class ObjList : IEnumerable<IObj> {
             }
         }
     }
-    public ObjList(int capacity, ObjConstraint constraint = null) {
+    public ObjListBase(int capacity, ObjConstraintBase<T> constraint = null) {
         m_constraint = constraint;
-        m_objList = new List<IObj>(capacity);
+        m_objList = new List<T>(capacity);
     }
 }
 
-
-
-
-
-
-
-// RUBBISH CODE
-
-// public abstract class ObjConstraint {
-//     public abstract bool Test(IObj obj);
-// }
-
-// public class ObjMustBeClass<T> : ObjConstraint where T : class, IObj {
-//     public override bool Test(IObj obj) {
-//         return obj is T;
-//     }
-// }
-
-// public class CombineObjConstraint : ObjConstraint {
-//     List<ObjConstraint> m_constraints;
-//     public override bool Test(IObj obj) {
-//         foreach (ObjConstraint constraint in m_constraints) {
-//             if (!constraint.Test(obj)) return false;
-//         }
-//         return true;
-//     }
-// }
-
-// // public class ObjMustBeTypeEnum : ObjConstraint {
-// // }
-
-// public class ObjList : /* IEnumerable<maybeGeneric> */ {
-//     protected List<IObj> m_objList;
-//     protected ObjConstraint m_constraint;
-//     public virtual IObj this[int index] {
-//         get=>m_objList[index];
-//         set {
-//             if (!m_constraint.Test(value)) {
-//                 Debug.LogWarning("Object " + value.Name + " filtered from list");
-//                 return;
-//             }
-//             m_objList.Add(value);
-//         }
-//     }
-// }
-
-// public class DataObjList : ObjList {
-//     List<IDataObjMeta> m_dataObjList;
-//     public override IObj this[int index] {
-//         get=>m_dataObjList[index];
-//         set {
-//             if (!m_constraint.Test(value)) {
-//                 Debug.LogWarning("Object " + value.Name + " filtered from list");
-//                 return;
-//             }
-//             m_objList.Add(value);
-//         }
-//     }
-// }
-
-
+public class ObjList : ObjListBase<IObj> {
+    public ObjList(ObjConstraintBase<IObj> constraint = null) {
+        m_constraint = constraint;
+        m_objList = new List<IObj>();
+    }
+    public ObjList(IEnumerable<IObj> collection, ObjConstraintBase<IObj> constraint = null) : base(collection, constraint) {}
+    public ObjList(int capacity, ObjConstraintBase<IObj> constraint = null) : base(capacity, constraint) {}
+}
+public class DataObjList : ObjListBase<IDataObjMeta> {
+    public DataObjList(ObjConstraintBase<IDataObjMeta> constraint = null) {
+        m_constraint = constraint;
+        m_objList = new List<IDataObjMeta>();
+    }
+    public DataObjList(IEnumerable<IDataObjMeta> collection, ObjConstraintBase<IDataObjMeta> constraint = null) : base(collection, constraint) {}
+    public DataObjList(int capacity, ObjConstraintBase<IDataObjMeta> constraint = null) : base(capacity, constraint) {}
+}
