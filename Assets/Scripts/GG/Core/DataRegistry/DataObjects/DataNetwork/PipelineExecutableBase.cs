@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class PipelineExecutableBase : DataPortModule, IPipelineExecutableObj {
+public abstract class PipelineExecutableBase : DataPortModule<DataObjPassNull, DataObjPassNull>, IPipelineExecutableObj {
     // *** Internal methods
-    public abstract void InternalExecute(DataPortProfile profile, ActiveDataPortConnections connections);
+    public abstract void InternalExecute(DataPortProfile profile, ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections);
     bool CheckProfileAndCondition(DataPortProfile profile) {
         if (!m_profiles.Contains(profile)) {
             Debug.LogError("Attempting to execute missing DataPortProfile " + profile.Name + " on PipelineExecutableBase object " + m_name);
@@ -32,18 +32,18 @@ public abstract class PipelineExecutableBase : DataPortModule, IPipelineExecutab
     }
     public void ExecuteProfile(DataPortProfile profile) {
         if (!CheckProfileAndCondition(profile)) return;
-        InternalExecute(profile, new ActiveDataPortConnections(profile));
+        InternalExecute(profile, new ActiveDataPortConnections<DataObjPassNull, DataObjPassNull>(profile));
     }
-    public void ExecuteProfile(DataPortProfile profile, ActiveDataPortConnections connections) {
+    public void ExecuteProfile(DataPortProfile profile, ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections) {
         if (!CheckProfileAndCondition(profile)) return;
         InternalExecute(profile, connections);
     }
     public void ExecuteProfile(string profileName) {
         if (!CheckProfileAndCondition(profileName)) return;
         DataPortProfile profile = m_profiles[profileName];
-        InternalExecute(profile, new ActiveDataPortConnections(profile));
+        InternalExecute(profile, new ActiveDataPortConnections<DataObjPassNull, DataObjPassNull>(profile));
     }
-    public void ExecuteProfile(string profileName, ActiveDataPortConnections connections) {
+    public void ExecuteProfile(string profileName, ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections) {
         if (!CheckProfileAndCondition(profileName)) return;
         DataPortProfile profile = m_profiles[profileName];
         InternalExecute(profile, connections);
@@ -51,16 +51,16 @@ public abstract class PipelineExecutableBase : DataPortModule, IPipelineExecutab
     public void ExecuteProfile(int profileIndex) {
         if (!CheckProfileAndCondition(profileIndex)) return;
         DataPortProfile profile = m_profiles[profileIndex];
-        InternalExecute(profile, new ActiveDataPortConnections(profile));
+        InternalExecute(profile, new ActiveDataPortConnections<DataObjPassNull, DataObjPassNull>(profile));
     }
-    public void ExecuteProfile(int profileIndex, ActiveDataPortConnections connections) {
+    public void ExecuteProfile(int profileIndex, ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections) {
         if (!CheckProfileAndCondition(profileIndex)) return;
         DataPortProfile profile = m_profiles[profileIndex];
         InternalExecute(profile, connections);
     }
 
     // *** Constructors
-    public PipelineExecutableBase(DataPortProfileList profiles) : base(profiles) {}
+    public PipelineExecutableBase(DataPortProfileList<DataObjPassNull, DataObjPassNull> profiles) : base(profiles) {}
     public PipelineExecutableBase(DataPortProfile profile) : base(profile) {}
     public PipelineExecutableBase(List<DataPortProfile> dpps, int activeProfileIndex = 0): base(dpps, activeProfileIndex) {}
     public PipelineExecutableBase() : base() {}

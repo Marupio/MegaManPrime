@@ -6,18 +6,18 @@ using UnityEngine;
 
 public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
     protected List<T> m_objList;
-    protected ObjConstraintBase<T> m_constraint;
+    protected IObjPass<T> m_constraint;
 
-    public ObjConstraintBase<T> Constraint {
+    public IObjPass<T> Constraint {
         get=>m_constraint;
         set {
             m_constraint = value;
             if (m_constraint != null) {
-                m_objList.RemoveAll(obj => !m_constraint.Test(obj));
+                m_objList.RemoveAll(obj => !m_constraint.Pass(obj));
             }
         }
     }
-    public void SetConstraintUnsafe(ObjConstraintBase<T> constraint) {
+    public void SetConstraintUnsafe(IObjPass<T> constraint) {
         m_constraint = constraint;
     }
 
@@ -26,7 +26,7 @@ public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
     public virtual T this[int index] {
         get=>m_objList[index];
         set {
-            if (m_constraint.Test(value)) {
+            if (m_constraint.Pass(value)) {
                 m_objList.Add(value);
             } else {
                 #if DEBUG
@@ -41,7 +41,7 @@ public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
             m_objList.Add(obj);
             return;
         }
-        if (m_constraint.Test(obj)) {
+        if (m_constraint.Pass(obj)) {
             m_objList.Add(obj);
         } else {
             #if DEBUG
@@ -137,7 +137,7 @@ public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
         if (m_constraint == null) {
             m_objList.Insert(index, item);
         } else {
-            if (m_constraint.Test(item)) {
+            if (m_constraint.Pass(item)) {
                 m_objList.Insert(index, item);
             } else {
                 #if DEBUG
@@ -165,7 +165,7 @@ public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
             if (count > 0) {
                 m_objList.AddRange(
                     from obj in c
-                    where m_constraint.Test(obj)
+                    where m_constraint.Pass(obj)
                     select obj
                 );
                 return;
@@ -173,7 +173,7 @@ public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
         } else {
             using(IEnumerator<T> en = objs.GetEnumerator()) {
                 while(en.MoveNext()) {
-                    if (m_constraint.Test(en.Current)) {
+                    if (m_constraint.Pass(en.Current)) {
                         m_objList.Add(en.Current);
                     }
                 }
@@ -232,11 +232,11 @@ public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
     // Can I do something like: using m_objList.Enumerator?
 
     // *** Constructors - patterned after List ctors
-    public ObjListBase(ObjConstraintBase<T> constraint = null) {
+    public ObjListBase(IObjPass<T> constraint = null) {
         m_constraint = constraint;
         m_objList = new List<T>();
     }
-    public ObjListBase(IEnumerable<T> collection, ObjConstraintBase<T> constraint = null) {
+    public ObjListBase(IEnumerable<T> collection, IObjPass<T> constraint = null) {
         if (constraint == null) {
             m_objList = new List<T>(collection);
             return;
@@ -251,39 +251,45 @@ public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
         if (c != null) {
             m_objList = new List<T>(
                 from obj in c
-                where m_constraint.Test(obj)
+                where m_constraint.Pass(obj)
                 select obj
             );
         } else {
             m_objList = new List<T>();
             using(IEnumerator<T> en = collection.GetEnumerator()) {
                 while(en.MoveNext()) {
-                    if (m_constraint.Test(en.Current)) {
+                    if (m_constraint.Pass(en.Current)) {
                         m_objList.Add(en.Current);
                     }
                 }
             }
         }
     }
-    public ObjListBase(int capacity, ObjConstraintBase<T> constraint = null) {
+    public ObjListBase(int capacity, IObjPass<T> constraint = null) {
         m_constraint = constraint;
         m_objList = new List<T>(capacity);
     }
 }
 
+/// <summary>
+/// ObjList - explicitly uses IObjPass<IObj> constraints
+/// </summary>
 public class ObjList : ObjListBase<IObj> {
-    public ObjList(ObjConstraintBase<IObj> constraint = null) {
+    public ObjList(IObjPass<IObj> constraint = null) {
         m_constraint = constraint;
         m_objList = new List<IObj>();
     }
-    public ObjList(IEnumerable<IObj> collection, ObjConstraintBase<IObj> constraint = null) : base(collection, constraint) {}
-    public ObjList(int capacity, ObjConstraintBase<IObj> constraint = null) : base(capacity, constraint) {}
+    public ObjList(IEnumerable<IObj> collection, IObjPass<IObj> constraint = null) : base(collection, constraint) {}
+    public ObjList(int capacity, IObjPass<IObj> constraint = null) : base(capacity, constraint) {}
 }
+/// <summary>
+/// DataObjList - explicitly uses IObjPass<IDataObjMeta> constraints
+/// </summary>
 public class DataObjList : ObjListBase<IDataObjMeta> {
-    public DataObjList(ObjConstraintBase<IDataObjMeta> constraint = null) {
+    public DataObjList(IObjPass<IDataObjMeta> constraint = null) {
         m_constraint = constraint;
         m_objList = new List<IDataObjMeta>();
     }
-    public DataObjList(IEnumerable<IDataObjMeta> collection, ObjConstraintBase<IDataObjMeta> constraint = null) : base(collection, constraint) {}
-    public DataObjList(int capacity, ObjConstraintBase<IDataObjMeta> constraint = null) : base(capacity, constraint) {}
+    public DataObjList(IEnumerable<IDataObjMeta> collection, IObjPass<IDataObjMeta> constraint = null) : base(collection, constraint) {}
+    public DataObjList(int capacity, IObjPass<IDataObjMeta> constraint = null) : base(capacity, constraint) {}
 }

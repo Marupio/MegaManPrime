@@ -15,31 +15,30 @@ using UnityEngine;
 
 public abstract class DerivedUpdaterBase : DataPortModule, IDerivedUpdater {
     //DPM
-    // protected DataPortProfileList m_profiles;
+    // protected DataPortProfileList<I, O> m_profiles;
     // protected bool m_enabled = true;
     // public bool Enabled { get=>m_enabled; set=>m_enabled=value; }
-    // public DataPortProfileList Profiles { get=>m_profiles; set=>m_profiles=value; }
+    // public DataPortProfileList<I, O> Profiles { get=>m_profiles; set=>m_profiles=value; }
     // public int NProfiles { get=>m_profiles.Count; }
     // public DataPortProfile ActiveProfile { get=>m_profiles.ActiveProfile; }
-    // public ActiveDataPortConnections Connections { get=>m_profiles.Connections; }
+    // public ActiveDataPortConnections<I, O> Connections { get=>m_profiles.Connections; }
     // public bool Ready { get=>m_profiles.Connections.Ready; }
-    // // *** Constructors
-    // public DataPortModule(DataPortProfileList profiles) {
-    //     m_profiles = profiles;
-    // }
-    // public DataPortModule(DataPortProfile profile) {
-    //     m_profiles = new DataPortProfileList(profile);
-    // }
-    // public DataPortModule(List<DataPortProfile> dpps, int activeProfileIndex = 0) {
-    //     m_profiles = new DataPortProfileList(dpps, activeProfileIndex);
-    // }
-    // public DataPortModule() {
-    //     m_profiles = new DataPortProfileList();
-    // }
+
+    // DPM Contains all pre-defined input/output configurations
+    // It also contains the currently selected one
+    // For that one, it has:
+    //      a list of inputs (IDataObjMeta)
+    //      a list of outputs (IDataObMeta filter only IDerivedDataObjMeta)
+
 
     //IDU
     // List<IDerivedDataObjMeta> AllDerivedData { get; }
+        // DataPortModule.ActiveDataPortConnections -> protected DataObjList m_inputs;
+        // This is 1:1 the list of DerivedData, but all cast as IDataObjMeta types
+        // Is this okay, or do we need to maintain a separate MetaData type?
     // List<List<IDataObjMeta>> DirectDependsOn { get; } // The sources used in Update, may include other DerivedDataObj
+        // For each Derived, gives the dependent data.  Is this too complicated?  Treat the entire updater as a black box.
+        // Yes, we will treat the entire updater as a black box, no need for this level of resolution
     // List<List<ISourceDataObjMeta>> SourceDependsOn { get; } // The sources, resolved down to SourceDataObj level, hierarchically flattened
     // bool PerformUpdatesFor(IDerivedDataObjMeta target);
     // void PerformAllUpdates();
@@ -47,6 +46,15 @@ public abstract class DerivedUpdaterBase : DataPortModule, IDerivedUpdater {
     // bool InitDependsOnFor(IDerivedDataObjMeta target, out List<IDataObjMeta> directDependsOn, out List<ISourceDataObjMeta> sourceDependsOn);
     // void InitAllDependsOn();
     // bool SpawnAllDerived();
+
+    DataPortModule<
+
+    // May have multiple pre-defined inputs / outputs - these are all encapsulated in a DataPortProfileList
+
+    // These are all encapsulated in ActiveDataPortConnections
+    protected DataObjList m_inputs;     // Input from pipeline -> not constrained - any IDataObjMeta
+    protected DataObjList m_outputs;    // Output to pipeline  -> internally constrained to IDerivedDataObjMeta
+
 
 
 

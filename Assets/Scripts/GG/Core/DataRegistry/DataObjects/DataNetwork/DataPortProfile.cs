@@ -14,7 +14,7 @@ public class DataPortProfile {
     List<DataTypeEnum> m_inputTypes;
     List<string> m_outputNames;
     List<DataTypeEnum> m_outputTypes;
-    List<ActiveDataPortConnections> m_activeWithConnections;
+    List<object> m_activeWithConnections;
 
     // *** Access
     public string Name { get=>m_name; set=>m_name=value;}
@@ -70,7 +70,7 @@ public class DataPortProfile {
             m_outputTypes=value;
         }
     }
-    List<ActiveDataPortConnections> ActiveWithConnections { get=>m_activeWithConnections; }
+    List<object> ActiveWithConnections { get=>m_activeWithConnections; }
 
     // *** Query
     public int GetInputPortFromName(string name) { // returns -1 if not found
@@ -130,14 +130,14 @@ public class DataPortProfile {
         m_outputNames.RemoveAt(removeIndex);
         m_outputTypes.RemoveAt(removeIndex);
     }
-    public void ActiveWith(ActiveDataPortConnections adp) {
+    public void ActiveWith(object adp) {
         if (m_activeWithConnections.Contains(adp)) {
             Debug.LogWarning("Attempting to add duplicate ActiveDataPortConnection to DataPortProfile " + m_name);
             return;
         }
         m_activeWithConnections.Add(adp);
     }
-    public void NotActiveWith(ActiveDataPortConnections adp) {
+    public void NotActiveWith(object adp) {
         int index = m_activeWithConnections.IndexOf(adp);
         if (index < 0) {
             Debug.LogError("Attempting to remove missing ActiveDataPortConnection from DataPortProfile " + m_name);
@@ -152,7 +152,7 @@ public class DataPortProfile {
         m_inputTypes = new List<DataTypeEnum>();
         m_outputNames = new List<string>();
         m_outputTypes = new List<DataTypeEnum>();
-        m_activeWithConnections = new List<ActiveDataPortConnections>();
+        m_activeWithConnections = new List<object>();
     }
 
     public DataPortProfile() { InitData(); }
@@ -163,7 +163,7 @@ public class DataPortProfile {
         DataTypeEnum inputType,
         string outputName,
         DataTypeEnum outputType,
-        ActiveDataPortConnections activateWithConnections = null
+        object activateWithConnections = null
     ) {
         InitData();
         m_name = name;
@@ -175,7 +175,7 @@ public class DataPortProfile {
             m_activeWithConnections.Add(activateWithConnections);
         }
     }
-    public DataPortProfile(DataPortProfile pp, ActiveDataPortConnections activateWithConnections = null) {
+    public DataPortProfile(DataPortProfile pp, object activateWithConnections = null) {
         m_name = pp.m_name;
         m_inputNames = new List<string>(pp.m_inputNames);
         m_inputTypes = new List<DataTypeEnum>(pp.m_inputTypes);

@@ -101,29 +101,46 @@ public interface IObjRegistry : IObj {
 public interface IExecutableObjMeta : IObj { // TODO
     // I do stuff to data
 }
-public interface IDataPortModule : IObj {
+public interface IDataPortModule<I, O> : IObj where I : class, IObjPass<IDataObjMeta> where O : class, IObjPass<IDataObjMeta> {
     bool Enabled { get; set; }
-    DataPortProfileList Profiles { get; set; }
+    DataPortProfileList<I, O> Profiles { get; set; }
     int NProfiles { get; }
     DataPortProfile ActiveProfile { get; }
-    ActiveDataPortConnections Connections { get; }
+    ActiveDataPortConnections<I, O> Connections { get; }
     bool Ready { get; }
 }
 
 
 // In a pipeline workflow, inputs and outputs are 'DataObj', not restricted to Source/Derived
-public interface IPipelineExecutableObj : IDataPortModule, IExecutableObjMeta {
+public interface IPipelineExecutableObj : IDataPortModule<DataObjPassNull, DataObjPassNull>, IExecutableObjMeta {
     void ExecuteAttached();
     void ExecuteProfile(DataPortProfile profile);
-    void ExecuteProfile(DataPortProfile profile, ActiveDataPortConnections connections);
+    void ExecuteProfile(
+        DataPortProfile profile,
+        ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections
+    );
     void ExecuteProfile(string profileName);
-    void ExecuteProfile(string profileName, ActiveDataPortConnections connections);
+    void ExecuteProfile(
+        string profileName,
+        ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections
+    );
     void ExecuteProfile(int profileIndex);
-    void ExecuteProfile(int profileIndex, ActiveDataPortConnections connections);
+    void ExecuteProfile(
+        int profileIndex,
+        ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections
+    );
 }
 
 // In a derived updater workflow, inputs are Source/Derived and outputs are only Derived
-public interface IDerivedUpdater : IDataPortModule {
+public interface IDerivedUpdater : IDataPortModule<DataObjPassNull, DataObjPassDerivedData> {
+    // Option 0
+    //  DataObjList AllDerivedData {get;} // constraints are hidden from interface and types
+    //  DataObjList DependsOnData {get;}  // but we directly use the ObjLists and the ObjLists are compatible
+    // Option 1
+    //  List<IDerivedDataObjMeta> AllDerivedData {get;} // Convert ObjList to another storage list type, constraints are visible
+    //  List<IDataObjMeta> DirectDependsOn {get;}
+    // Option 2 Put constraints as generic parameter to ObjList
+    DataObjList
     List<IDerivedDataObjMeta> AllDerivedData { get; }
     List<List<IDataObjMeta>> DirectDependsOn { get; } // The sources used in Update, may include other DerivedDataObj
     List<List<ISourceDataObjMeta>> SourceDependsOn { get; } // The sources, resolved down to SourceDataObj level, hierarchically flattened

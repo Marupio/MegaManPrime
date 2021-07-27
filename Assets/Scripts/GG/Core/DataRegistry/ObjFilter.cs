@@ -43,6 +43,9 @@ public struct ObjFilter {
     private long m_id;
     private IdCriterion m_idCriterion;
 
+    // General constraint
+    IObjPass<IObj> m_constraint;
+
     // *** Access
     public string Name {
         get => m_name;
@@ -77,6 +80,8 @@ public struct ObjFilter {
         set { m_id = value < 1 ? value - 1 : value; }
     }
     public IdCriterion IdType { get => m_idCriterion; set => m_idCriterion = value; }
+
+    public IObjPass<IObj> Constraint { get => m_constraint; set => m_constraint = value;}
 
     // *** Query
     public bool Pass(IObj obj) {
@@ -149,6 +154,9 @@ public struct ObjFilter {
         }
 
         // Passed all tests
+        if (m_constraint != null) {
+            return m_constraint.Pass(obj);
+        }
         return true;
     }
 
@@ -176,13 +184,15 @@ public struct ObjFilter {
     // *** Contstructors
     // Constructors have 3 pairs of arguments: Name+NameCriterion, TypeName+TypeNameCriterion, Id+IdCriterion
     // List them in that order, omit any pair you don't need, and you have a valid constructor
+    // If you want to apply a constraint (IObjPass<IObj>), you can add at the end of the arguments
     ObjFilter(
         string name,
         NameCriterionEnum nameCriterion,
         string typeName=null,
         TypeNameCriterionEnum typeNameCriterion=TypeNameCriterionEnum.None,
         long id = 0,
-        IdCriterion idCriterion = IdCriterion.None
+        IdCriterion idCriterion = IdCriterion.None,
+        IObjPass<IObj> constraint = null
     ) {
         m_name = name;
         m_nameCriterion = nameCriterion;
@@ -192,6 +202,7 @@ public struct ObjFilter {
         m_idCriterion = idCriterion;
         m_nameRegex = null;
         m_typeNameRegex = null;
+        m_constraint = constraint;
         UpdateNameRegex();
         UpdateTypeNameRegex();
     }
@@ -199,7 +210,8 @@ public struct ObjFilter {
         string typeName,
         TypeNameCriterionEnum typeNameCriterion,
         long id = 0,
-        IdCriterion idCriterion = IdCriterion.None
+        IdCriterion idCriterion = IdCriterion.None,
+        IObjPass<IObj> constraint = null
     ) {
         m_name = null;
         m_nameCriterion = NameCriterionEnum.None;
@@ -209,13 +221,15 @@ public struct ObjFilter {
         m_idCriterion = idCriterion;
         m_nameRegex = null;
         m_typeNameRegex = null;
+        m_constraint = constraint;
         UpdateTypeNameRegex();
     }
     ObjFilter(
         string name,
         NameCriterionEnum nameCriterion,
         long id,
-        IdCriterion idCriterion
+        IdCriterion idCriterion,
+        IObjPass<IObj> constraint = null
     ) {
         m_name = name;
         m_nameCriterion = nameCriterion;
@@ -225,11 +239,13 @@ public struct ObjFilter {
         m_idCriterion = idCriterion;
         m_nameRegex = null;
         m_typeNameRegex = null;
+        m_constraint = constraint;
         UpdateNameRegex();
     }
     ObjFilter(
         long id,
-        IdCriterion idCriterion
+        IdCriterion idCriterion,
+        IObjPass<IObj> constraint = null
     ) {
         m_name = null;
         m_nameCriterion = NameCriterionEnum.None;
@@ -239,5 +255,19 @@ public struct ObjFilter {
         m_idCriterion = idCriterion;
         m_nameRegex = null;
         m_typeNameRegex = null;
+        m_constraint = constraint;
+    }
+    ObjFilter(
+        IObjPass<IObj> constraint
+    ) {
+        m_name = null;
+        m_nameCriterion = NameCriterionEnum.None;
+        m_typeName = null;
+        m_typeNameCriterion = TypeNameCriterionEnum.None;
+        m_id = 0;
+        m_idCriterion = IdCriterion.None;
+        m_nameRegex = null;
+        m_typeNameRegex = null;
+        m_constraint = constraint;
     }
 }

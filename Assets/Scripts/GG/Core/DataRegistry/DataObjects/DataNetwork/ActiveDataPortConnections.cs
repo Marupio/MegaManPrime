@@ -1,28 +1,29 @@
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
-public interface IActiveDataPortConnections {
-    // Connect inputs / outputs
-    //  * Base is IDataObjMeta
-    // Derived can apply restrictions to the connections, e.g.
-    //  * Inputs can only be ISourceDataObjMeta  < type constraint
-    //  * Outputs can only be IDerivedDataObjMeta
-
-}
-
-
+// public interface IActiveDataPortConnections {
+//     // Connect inputs / outputs
+//     //  * Base is IDataObjMeta
+//     // Derived can apply restrictions to the connections, e.g.
+//     //  * Inputs can only be ISourceDataObjMeta  < type constraint
+//     //  * Outputs can only be IDerivedDataObjMeta
+// }
+// TODO - Update these comments - it is dated
 
 /// <summary>
 /// I contain the data objects that are connected to the active DataPortProfile
 /// </summary>
-public class ActiveDataPortConnections/*<S, T> where S : class, IDataObjMeta where T : class, IDataObjMeta*/ {
-    protected List<IDataObjMeta> m_inputs;
-    protected List<IDataObjMeta> m_outputs;
+public class ActiveDataPortConnections<I, O>
+    where I : class, IObjPass<IDataObjMeta>
+    where O : class, IObjPass<IDataObjMeta>
+{
+    protected DataObjList m_inputs;
+    protected DataObjList m_outputs;
     protected DataPortProfile m_profile;
 
     // *** Access
-    public List<IDataObjMeta> Inputs { get=>m_inputs; }
-    public List<IDataObjMeta> Outputs { get=>m_outputs; }
+    public DataObjList Inputs { get=>m_inputs; }
+    public DataObjList Outputs { get=>m_outputs; }
 
     // *** Query
     public bool Ready {
@@ -73,7 +74,7 @@ public class ActiveDataPortConnections/*<S, T> where S : class, IDataObjMeta whe
         #endif
         m_inputs[port] = obj;
     }
-    public void AttachAllInputs(List<IDataObjMeta> objs) {
+    public void AttachAllInputs(DataObjList objs) {
         InternalAttachAllXputs(objs, ref m_inputs);
     }
 
@@ -100,7 +101,7 @@ public class ActiveDataPortConnections/*<S, T> where S : class, IDataObjMeta whe
         #endif
         m_outputs[port] = obj;
     }
-    public virtual void AttachAllOutputs(List<IDataObjMeta> objs) {
+    public virtual void AttachAllOutputs(DataObjList objs) {
         InternalAttachAllXputs(objs, ref m_outputs);
     }
 
@@ -342,7 +343,7 @@ public class ActiveDataPortConnections/*<S, T> where S : class, IDataObjMeta whe
     }
 
     // *** Internal methods
-    protected void InternalChangeProfileAndDetachAll(int size, ref List<IDataObjMeta> xputs) {
+    protected void InternalChangeProfileAndDetachAll(int size, ref DataObjList xputs) {
         if (size < xputs.Count) {
             for (int i = 0; i < size; ++i) {
                 xputs[i] = null;
@@ -366,7 +367,7 @@ public class ActiveDataPortConnections/*<S, T> where S : class, IDataObjMeta whe
         }
         return;
     }
-    void InternalAttachAllXputs(List<IDataObjMeta> objs, ref List<IDataObjMeta> xputs) {
+    void InternalAttachAllXputs(DataObjList objs, ref DataObjList xputs) {
         #if DEBUG
             if (objs.Count != xputs.Count) {
                 Debug.LogException(new System.ArgumentOutOfRangeException("Cannot attach " + objs.Count + " connections to " + xputs.Count + " ports."));
@@ -387,8 +388,8 @@ public class ActiveDataPortConnections/*<S, T> where S : class, IDataObjMeta whe
         }
     }
     void Init() {
-        m_inputs = new List<IDataObjMeta>();
-        m_outputs = new List<IDataObjMeta>();
+        m_inputs = new DataObjList(Activator.CreateInstance<I>());
+        m_outputs = new DataObjList(Activator.CreateInstance<O>());
     }
 
     // *** Constructors
@@ -434,3 +435,5 @@ public class ActiveDataPortConnections/*<S, T> where S : class, IDataObjMeta whe
         }
     }
 }
+
+// public class ActiveDerivedDataPortConnections : ActiveDataPortConnections {}

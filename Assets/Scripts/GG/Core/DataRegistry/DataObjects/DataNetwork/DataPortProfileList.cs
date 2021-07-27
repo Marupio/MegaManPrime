@@ -8,14 +8,17 @@ using UnityEngine;
 /// I manage a list of possible DataPortProfiles, letting everyone know which is the "active" profile.  For the active profile, I have an
 /// ActiveDataPortConnections object that holds the actual data objects connected to me.
 /// </summary>
-public class DataPortProfileList /*: IEnumerable<DataPortProfile>*/ {
+public class DataPortProfileList<I, O> : IEnumerable<DataPortProfile>
+    where I : class, IObjPass<IDataObjMeta>
+    where O : class, IObjPass<IDataObjMeta>
+{
     public List<DataPortProfile> m_profiles;
     protected int m_activeProfileIndex;
     protected DataPortProfile m_activeProfile;
-    protected ActiveDataPortConnections m_connections;
+    protected ActiveDataPortConnections<I, O> m_connections;
 
     public DataPortProfile ActiveProfile { get=>m_activeProfile; }
-    public ActiveDataPortConnections Connections { get=>m_connections; }
+    public ActiveDataPortConnections<I, O> Connections { get=>m_connections; }
     public bool SetActiveProfileAt(int index) {
         if (index < m_profiles.Count && index >= 0) {
             InternalSetIndex(index);
@@ -129,16 +132,15 @@ public class DataPortProfileList /*: IEnumerable<DataPortProfile>*/ {
         }
     }
 
-    // I think I shouldn't allow this - I need to control access - for m_activeProfile data
     // *** IEnumerable interface
-    // public IEnumerator<DataPortProfile> GetEnumerator()
-    // {
-    //     return m_profiles.GetEnumerator();
-    // }
-    // IEnumerator IEnumerable.GetEnumerator()
-    // {
-    //     return this.GetEnumerator();
-    // }
+    public IEnumerator<DataPortProfile> GetEnumerator()
+    {
+        return m_profiles.GetEnumerator();
+    }
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return this.GetEnumerator();
+    }
 
     protected void InternalSetIndex(int index) { // No checks
         m_activeProfileIndex = index;
@@ -147,44 +149,44 @@ public class DataPortProfileList /*: IEnumerable<DataPortProfile>*/ {
     }
 
     // *** Constructors
-    public DataPortProfileList(DataPortProfile dpp, ActiveDataPortConnections connections = null) {
+    public DataPortProfileList(DataPortProfile dpp, ActiveDataPortConnections<I, O> connections = null) {
         m_profiles = new List<DataPortProfile>{dpp};
         m_activeProfileIndex = 0;
         m_activeProfile = dpp;
         if (connections != null) {
             m_connections = connections;
         } else {
-            m_connections = new ActiveDataPortConnections(dpp);
+            m_connections = new ActiveDataPortConnections<I, O>(dpp);
         }
     }
-    public DataPortProfileList(List<DataPortProfile> dpps, int activeProfileIndex = 0, ActiveDataPortConnections connections = null) {
+    public DataPortProfileList(List<DataPortProfile> dpps, int activeProfileIndex = 0, ActiveDataPortConnections<I, O> connections = null) {
         m_profiles = dpps;
         m_activeProfileIndex = activeProfileIndex;
         m_activeProfile = m_activeProfileIndex < 0 ? DataPortProfile.Null : m_profiles[m_activeProfileIndex];
         if (connections != null) {
             m_connections = connections;
         } else {
-            m_connections = new ActiveDataPortConnections(m_activeProfile);
+            m_connections = new ActiveDataPortConnections<I, O>(m_activeProfile);
         }
     }
-    public DataPortProfileList(DataPortProfileList dpl, ActiveDataPortConnections connections = null) {
+    public DataPortProfileList(DataPortProfileList<I, O> dpl, ActiveDataPortConnections<I, O> connections = null) {
         m_profiles = new List<DataPortProfile>(dpl.m_profiles);
         m_activeProfileIndex = dpl.m_activeProfileIndex;
         m_activeProfile = m_activeProfileIndex < 0 ? DataPortProfile.Null : m_profiles[m_activeProfileIndex];
         if (connections != null) {
             m_connections = connections;
         } else {
-            m_connections = new ActiveDataPortConnections(m_activeProfile);
+            m_connections = new ActiveDataPortConnections<I, O>(m_activeProfile);
         }
     }
-    public DataPortProfileList(ActiveDataPortConnections connections = null) {
+    public DataPortProfileList(ActiveDataPortConnections<I, O> connections = null) {
         m_profiles = new List<DataPortProfile>();
         m_activeProfileIndex = -1;
         m_activeProfile = DataPortProfile.Null;
         if (connections != null) {
             m_connections = connections;
         } else {
-            m_connections = new ActiveDataPortConnections(m_activeProfile);
+            m_connections = new ActiveDataPortConnections<I, O>(m_activeProfile);
         }
     }
 }
