@@ -5,8 +5,7 @@ public abstract class SourceDataObjHeader : DataObjHeader, ISourceDataObjMeta {
     public static SourceDataObjHeader Spawn(
         DataTypeEnum type,
         string name,
-        IObjRegistry parent,
-        IDerivedUpdater updater
+        IObjRegistry parent
     ) {
         switch (type) {
             case DataTypeEnum.None:

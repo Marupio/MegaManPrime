@@ -1,23 +1,28 @@
 using System.Collections.Generic;
 
 // *** Two interfaces to choose from
-public interface IObjPass<T> where T : class, IObj { bool Pass(T obj); }
+public interface IObjPass<T> where T : class, IObj { bool Null {get;} bool Pass(T obj); }
 
 public interface IDataObjPass<T> : IObjPass<T> where T : class, IDataObjMeta {}
 
 // *** Base classes
 public abstract class ObjPassBase : IObjPass<IObj> {
+    public virtual bool Null { get=>false; }
     public abstract bool Pass(IObj obj);
 }
 public abstract class DataObjPassBase : IDataObjPass<IDataObjMeta> {
+    public virtual bool Null { get=>false; }
     public abstract bool Pass(IDataObjMeta obj);
 }
 
+
 // *** Comile time classes (parameterless)
 public class ObjPassNull : ObjPassBase {
+    public override bool Null { get=>true; }
     public override bool Pass(IObj obj) { return true; }
 }
 public class DataObjPassNull : DataObjPassBase {
+    public override bool Null { get=>true; }
     public override bool Pass(IDataObjMeta obj) { return true; }
 }
 

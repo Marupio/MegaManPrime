@@ -24,6 +24,7 @@ public class ActiveDataPortConnections<I, O>
     // *** Access
     public DataObjList Inputs { get=>m_inputs; }
     public DataObjList Outputs { get=>m_outputs; }
+    public DataPortProfile Profile { get=> m_profile; }
 
     // *** Query
     public bool Ready {

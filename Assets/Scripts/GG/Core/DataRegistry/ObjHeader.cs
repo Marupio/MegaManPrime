@@ -43,7 +43,7 @@ public class ObjHeader : IObj, IEquatable<IObj> {
     public void InternalSetOrphan() { m_parent = null; }
     public virtual ModTag MTag { get=>m_mtag; } // set
     public virtual void SetModified() { GlobalRegistrar.UpdateModTag(ref m_mtag); }
-    public bool Clonable { get=>m_clonable; set=>m_clonable=value; }
+    public virtual bool Clonable { get=>m_clonable; set=>m_clonable=value; }
     /// <summary>
     /// DeepCopy on everything except parent
     /// </summary>

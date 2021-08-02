@@ -92,7 +92,6 @@ public class ObjRegistry : ObjHeader, IObjRegistry {
         return null;
     }
     public IObj FindObj(string name, bool recursive=true) {
-// protected Dictionary<string, List<long>> m_nameIndex;
         List<long> idList;
         if(m_nameIndex.TryGetValue(name, out idList)) {
             #if DEBUG
@@ -539,23 +538,28 @@ public class ObjRegistry : ObjHeader, IObjRegistry {
         return false;
     }
     public override IObj Clone(IObjRegistry parent = null) {
-        IObjRegistry newRegistry = new ObjRegistry(m_name, parent);
-        // No cloning the children
-        return newRegistry;
+        if (m_clonable) {
+            IObjRegistry newRegistry = new ObjRegistry(m_name, parent);
+            return newRegistry;
+        }
+        return this;
     }
     public virtual CloneResult CloneFamily(IObjRegistry parent = null) {
-        IObjRegistry newThis = new ObjRegistry(m_name, parent);
-        CloneResult cr = new CloneResult(this, newThis);
-        foreach(KeyValuePair<long, IObj> entry in m_children) {
-            IObj child = entry.Value;
-            IObjRegistry childReg = child.ObjRegistry();
-            if (childReg != null) {
-                cr.Add(childReg.CloneFamily(newThis));
-            } else {
-                cr.Add(child, child.Clone(newThis));
+        if (m_clonable) {
+            IObjRegistry newThis = new ObjRegistry(m_name, parent);
+            CloneResult cr = new CloneResult(this, newThis);
+            foreach(KeyValuePair<long, IObj> entry in m_children) {
+                IObj child = entry.Value;
+                IObjRegistry childReg = child.ObjRegistry();
+                if (childReg != null) {
+                    cr.Add(childReg.CloneFamily(newThis));
+                } else {
+                    cr.Add(child, child.Clone(newThis));
+                }
             }
+            return cr;
         }
-        return cr;
+        return new CloneResult(this, this);
     }
 
     // Initialise member fields
@@ -573,6 +577,7 @@ public class ObjRegistry : ObjHeader, IObjRegistry {
     }
 
     // *** Constructors
+    // Can never be in an invalid state - all constructors fully build the instance
     // Stream (future), Components, Copy, Null
     public ObjRegistry(string name, IObjRegistry parent = null, List<IObj> children = null)
     : base (name, parent) {

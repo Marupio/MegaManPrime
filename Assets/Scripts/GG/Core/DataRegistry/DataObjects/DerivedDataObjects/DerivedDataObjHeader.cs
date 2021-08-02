@@ -1,21 +1,19 @@
 using System.Collections.Generic;
 
 public abstract class DerivedDataObjHeader : DataObjHeader, IDerivedDataObjMeta {
-    // Encapsulation - updater is responsible for initialising and populating these data
-    List<IDataObjMeta> m_directDependsOn;
-    List<ISourceDataObjMeta> m_sourceDependsOn;
+    // Removed from design, now Updater holds them all
+    // // Encapsulation - updater is responsible for initialising and populating these data
+    // DataObjList_AllPass m_directDependsOn;
+    // DataObjList_SourcePass m_sourceDependsOn;
     IDerivedUpdater m_updater;
 
     public IDerivedUpdater Updater { get=>m_updater; set=>m_updater=value; }
-    public List<IDataObjMeta> DirectDependsOn { get=>m_directDependsOn; set=>m_directDependsOn=value; }
-    public List<ISourceDataObjMeta> SourceDependsOn { get=>m_sourceDependsOn; set=>m_sourceDependsOn=value; }
+    // public DataObjList_AllPass DirectDependsOn { get=>m_directDependsOn; set=>m_directDependsOn=value; }
+    // public DataObjList_SourcePass SourceDependsOn { get=>m_sourceDependsOn; set=>m_sourceDependsOn=value; }
     public bool Stale() { return m_updater == null; }
     public bool UpToDate() {
         if (m_updater == null) { return false; }
-        foreach(IObj dataObj in m_sourceDependsOn) {
-            if (dataObj.MTag > m_mtag) { return false; }
-        }
-        return true;
+        return m_updater.UpToDateFor(this);
     }
     public bool UpdateDerived() {
         if (m_updater == null) {
@@ -148,12 +146,7 @@ public abstract class DerivedDataObjHeader : DataObjHeader, IDerivedDataObjMeta 
         IDerivedUpdater updater = null
     ) : base(name, parent) {
         m_updater = updater;
-        if (m_updater != null) {
-            m_updater.InitDependsOnFor(this, out m_directDependsOn, out m_sourceDependsOn);
-        }
     }
-    public DerivedDataObjHeader(DerivedDataObjHeader obj) : base(obj) {
-        // Do not init m_dependsOn - we expect our updater to do it
-    }
-    public DerivedDataObjHeader() {}
+    public DerivedDataObjHeader(DerivedDataObjHeader obj) : base(obj) {}
+    public DerivedDataObjHeader() : base() {}
 }

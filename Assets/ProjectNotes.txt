@@ -4,6 +4,17 @@ MULTITHREADING - when true, include Interlocked / Mutex and other multithreading
 
 
 TODO
+Implement Clonable flag
+Finish implementing Cloning for derived / sources / pipeline / derivedUpdater
+Lazy evaluation for pipeline - enable/disable tracking and suppressed operation
+    * DataProfileActivityTracker - done
+    * Put it on Pipeline guy and add flags - done
+    * Use it in DerivedData guys
+Flesh out PipelineExecutable and DerivedUpdater
+KVariableLimits --> kveFieldFiniteFilterUpdater
+Make sure we are hitting MTag when we need to - we almost never are
+Working on DerivedUpdater - problems with DataModule changing, need to implement lazy evaluation pattern
+
 Flesh out DerivedUpdaterBase for the KVariableLimits
 Implement 
 

@@ -2,7 +2,27 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+public static class MyExtensions 
+{
+    public static void AddToFront<T>(this List<T> list, T item)
+    {
+         // omits validation, etc.
+         list.Insert(0, item);
+    }
+    public static HashSet<T> ToHashSet<T>(
+        this IEnumerable<T> source,
+        IEqualityComparer<T> comparer = null)
+    {
+        return new HashSet<T>(source, comparer);
+    }
+}
+
 public static class GeneralTools {
+    
+    public static void SetEqual<T>(this List<T> list, IEnumerable<T> other) {
+        list.Clear();
+        list.AddRange(other);
+    }
 
     public static bool Assert(bool test) {
         if (test) {

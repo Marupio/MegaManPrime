@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
 
+/// <summary>
+/// Base interface for all tracked objects - everyone gets a unique ID, even unused IObjs
+/// Constructors always build a valid object - objects are never in a uninitialized state
+/// </summary>
 public interface IObj : IEquatable<IObj> {  // --> See ObjHeader for implementation
     string Name { get; }
     long Id { get; }
@@ -20,6 +24,9 @@ public interface IObj : IEquatable<IObj> {  // --> See ObjHeader for implementat
     // Down
     IDataObjMeta DataObjMeta();
 }
+/// <summary>
+/// This IObj contains, registers and tracks child IObjs, and since it is an IObj itself, it allows for a hierarchical object structure
+/// </summary>
 public interface IObjRegistry : IObj {
     Dictionary<long, IObj> Children { get; }
     List<IObj> ChildrenList { get; }
@@ -98,20 +105,33 @@ public interface IObjRegistry : IObj {
     bool UnregisterChild(long id);
     CloneResult CloneFamily(IObjRegistry parent = null);
 }
+/// <summary>
+/// A classification type of interface - IObjs in this category 'do stuff', whereas other IObjs 'are stuff'
+/// </summary>
 public interface IExecutableObjMeta : IObj { // TODO
     // I do stuff to data
 }
+/// <summary>
+/// Classes that implement this interface take input and output IDataObjMetas.
+/// This interface:
+///     * defines one or many valid arrangements of inputs and outputs
+///     * inputs and outputs are loosely specified by their dataTypes and names
+///     * has a single 'active' input/output arrangement, on to which actual IDataObjMeta objects attach
+/// The input data are constrained to conform to I, an IObjPass - a predicate class
+/// The output data are constrained to conform to O, also an IObjPass
+/// </summary>
 public interface IDataPortModule<I, O> : IObj where I : class, IObjPass<IDataObjMeta> where O : class, IObjPass<IDataObjMeta> {
     bool Enabled { get; set; }
-    DataPortProfileList<I, O> Profiles { get; set; }
+    List<DataPortProfile> Profiles { get; set; }
     int NProfiles { get; }
     DataPortProfile ActiveProfile { get; }
     ActiveDataPortConnections<I, O> Connections { get; }
     bool Ready { get; }
 }
-
-
-// In a pipeline workflow, inputs and outputs are 'DataObj', not restricted to Source/Derived
+/// <summary>
+/// IPipelineExecutableObj classes have the input/output functionality of the IDataPortModule classes, and operate on the inputs to produce the
+/// outputs.  A single instance of this class can operate on as many sets of inputs and outputs as desired, and as many times in a row as desired.
+/// </summary>
 public interface IPipelineExecutableObj : IDataPortModule<DataObjPassNull, DataObjPassNull>, IExecutableObjMeta {
     void ExecuteAttached();
     void ExecuteProfile(DataPortProfile profile);
@@ -120,19 +140,13 @@ public interface IPipelineExecutableObj : IDataPortModule<DataObjPassNull, DataO
         ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections
     );
     void ExecuteProfile(string profileName);
-    void ExecuteProfile(
-        string profileName,
-        ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections
-    );
+    void ExecuteProfile(string profileName, ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections);
     void ExecuteProfile(int profileIndex);
-    void ExecuteProfile(
-        int profileIndex,
-        ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections
-    );
+    void ExecuteProfile(int profileIndex, ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections);
 }
 
 // In a derived updater workflow, inputs are Source/Derived and outputs are only Derived
-public interface IDerivedUpdater : IDataPortModule<DataObjPassNull, DataObjPassDerivedData> {
+public interface IDerivedUpdater : IDataPortModule<DataObjPassNull, DataObjPassDerivedData>, IObjRegistry {
     // Option 0
     //  DataObjList AllDerivedData {get;} // constraints are hidden from interface and types
     //  DataObjList DependsOnData {get;}  // but we directly use the ObjLists and the ObjLists are compatible
@@ -140,16 +154,16 @@ public interface IDerivedUpdater : IDataPortModule<DataObjPassNull, DataObjPassD
     //  List<IDerivedDataObjMeta> AllDerivedData {get;} // Convert ObjList to another storage list type, constraints are visible
     //  List<IDataObjMeta> DirectDependsOn {get;}
     // Option 2 Put constraints as generic parameter to ObjList
-    DataObjList
-    List<IDerivedDataObjMeta> AllDerivedData { get; }
-    List<List<IDataObjMeta>> DirectDependsOn { get; } // The sources used in Update, may include other DerivedDataObj
-    List<List<ISourceDataObjMeta>> SourceDependsOn { get; } // The sources, resolved down to SourceDataObj level, hierarchically flattened
-    bool PerformUpdatesFor(IDerivedDataObjMeta target);
-    void PerformAllUpdates();
-    // 'Init' the 'DependsOn' list 'For' the given target derivedDataObj
-    bool InitDependsOnFor(IDerivedDataObjMeta target, out List<IDataObjMeta> directDependsOn, out List<ISourceDataObjMeta> sourceDependsOn);
-    void InitAllDependsOn();
-    bool SpawnAllDerived();
+
+    DataObjList_DerivedPass AllDerivedData { get; }
+    DataObjList AllDependsOnDirectly { get; }
+    DataObjList_SourcePass AllDependsOnSources { get; }
+    DataObjList GetDirectDependsOnFor(IDerivedDataObjMeta outputObj); // The sources used in Update, may include other DerivedDataObj
+    DataObjList_SourcePass GetSourceDependsOnFor(IDerivedDataObjMeta outputObj); // The sources, resolved down to SourceDataObj level, hierarchically flattened
+    bool UpToDateAll();
+    bool UpToDateFor(IDerivedDataObjMeta obj);
+    bool PerformUpdatesAll();
+    bool PerformUpdatesFor(IDerivedDataObjMeta outputObj);
 }
 // public interface IControllerObj : IExecutableObjMeta { // TODO
 //     // I control stuff
@@ -167,8 +181,6 @@ public interface ISourceDataObjMeta : IDataObjMeta {  // --> No direct implement
     // IControllerObj ControlledBy { get; set; }
 }
 public interface IDerivedDataObjMeta : IDataObjMeta {  // --> // TODO
-    List<IDataObjMeta> DirectDependsOn { get; set; }
-    List<ISourceDataObjMeta> SourceDependsOn { get; set; }
     IDerivedUpdater Updater { get; set; }
     bool Stale();
     bool UpToDate();

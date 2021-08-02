@@ -26,37 +26,43 @@ public abstract class PipelineExecutableBase : DataPortModule<DataObjPassNull, D
         return m_enabled;
     }
 
+    void ExecuteDispatch(DataPortProfile profile, ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections) {
+        if (Profiles.Tracker.HaveInputsChanged(profile, connections)) {
+            InternalExecute(profile, connections);
+        }
+    }
+
     // *** Execute
     public void ExecuteAttached() {
-        InternalExecute(ActiveProfile, Connections);
+        ExecuteDispatch(ActiveProfile, Connections);
     }
     public void ExecuteProfile(DataPortProfile profile) {
         if (!CheckProfileAndCondition(profile)) return;
-        InternalExecute(profile, new ActiveDataPortConnections<DataObjPassNull, DataObjPassNull>(profile));
+        ExecuteDispatch(profile, new ActiveDataPortConnections<DataObjPassNull, DataObjPassNull>(profile));
     }
     public void ExecuteProfile(DataPortProfile profile, ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections) {
         if (!CheckProfileAndCondition(profile)) return;
-        InternalExecute(profile, connections);
+        ExecuteDispatch(profile, connections);
     }
     public void ExecuteProfile(string profileName) {
         if (!CheckProfileAndCondition(profileName)) return;
         DataPortProfile profile = m_profiles[profileName];
-        InternalExecute(profile, new ActiveDataPortConnections<DataObjPassNull, DataObjPassNull>(profile));
+        ExecuteDispatch(profile, new ActiveDataPortConnections<DataObjPassNull, DataObjPassNull>(profile));
     }
     public void ExecuteProfile(string profileName, ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections) {
         if (!CheckProfileAndCondition(profileName)) return;
         DataPortProfile profile = m_profiles[profileName];
-        InternalExecute(profile, connections);
+        ExecuteDispatch(profile, connections);
     }
     public void ExecuteProfile(int profileIndex) {
         if (!CheckProfileAndCondition(profileIndex)) return;
         DataPortProfile profile = m_profiles[profileIndex];
-        InternalExecute(profile, new ActiveDataPortConnections<DataObjPassNull, DataObjPassNull>(profile));
+        ExecuteDispatch(profile, new ActiveDataPortConnections<DataObjPassNull, DataObjPassNull>(profile));
     }
     public void ExecuteProfile(int profileIndex, ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections) {
         if (!CheckProfileAndCondition(profileIndex)) return;
         DataPortProfile profile = m_profiles[profileIndex];
-        InternalExecute(profile, connections);
+        ExecuteDispatch(profile, connections);
     }
 
     // *** Constructors
