@@ -1,9 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-class KveFiniteFilterUpdater : DerivedUpdaterBase {
+class KveFiniteFilterUpdater : PipelineExecutableBase {
 
 
+    public abstract void InternalExecute(DataPortProfile profile, ActiveDataPortConnections<DataObjList, DataObjList> connections);
+
+
+    // OLD STUFF BELOW
 
     // *** Data
     // protected DataPortProfile m_dataProfile;

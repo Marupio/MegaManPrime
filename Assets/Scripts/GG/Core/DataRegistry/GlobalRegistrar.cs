@@ -40,9 +40,11 @@ public static class GlobalRegistrar {
                 return new CloneResult(target, target.Clone(parent));
             }
         }
-        HashSet<IObj> dSources;
-        if (recursive) {
-        }
+        // TODO - compile error suppression
+        return new CloneResult();
+        // HashSet<IObj> dSources;
+        // if (recursive) {
+        // }
         // TODO build a list of all derivedSources, and any derivedSources' derivedSources, and so on
         // If recursive, then you have a clone family to cross reference as well
         // Any derivedSources that are not currently included get added as a child of parent.
@@ -51,7 +53,9 @@ public static class GlobalRegistrar {
         if (!cloneDerivedSources) {
             return new CloneResult(target, target.Clone());
         }
-        // TODO
+
+        // TODO - compile error suppression
+        return new CloneResult();
     }
 
     // *** Static constructor

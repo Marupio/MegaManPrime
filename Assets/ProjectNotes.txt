@@ -14,6 +14,7 @@ Flesh out PipelineExecutable and DerivedUpdater
 KVariableLimits --> kveFieldFiniteFilterUpdater
 Make sure we are hitting MTag when we need to - we almost never are
 Working on DerivedUpdater - problems with DataModule changing, need to implement lazy evaluation pattern
+Need to iron out DerivedUpdater as an ObjRegistry - does it register its derived?
 
 Flesh out DerivedUpdaterBase for the KVariableLimits
 Implement 

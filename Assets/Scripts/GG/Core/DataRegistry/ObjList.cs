@@ -35,11 +35,7 @@ public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
     public List<T> Data { get=>m_objList; }
 
     public bool Add(T obj) {
-        if (m_constraint == null) {
-            m_objList.Add(obj);
-            return true;
-        }
-        if (m_constraint.Pass(obj)) {
+        if (m_constraint == null || obj == null || m_constraint.Pass(obj)) {
             m_objList.Add(obj);
             return true;
         } else {
@@ -82,6 +78,15 @@ public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
     }
     public bool Exists(Predicate<T> match) {
         return m_objList.Exists(match);
+    }
+    public bool Fill(T item) {
+        if (m_constraint == null || item == null || m_constraint.Pass(item)) {
+            for (int i = 0; i < m_objList.Count; ++i) {
+                m_objList[i] = item;
+            }
+            return true;
+        }
+        return false;
     }
     public T Find(Predicate<T> match) {
         return m_objList.Find(match);
@@ -134,20 +139,14 @@ public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
         return m_objList.IndexOf(item);
     }
     public bool Insert(int index, T item) {
-        if (m_constraint == null) {
+        if (m_constraint == null || item == null || m_constraint.Pass(item)) {
             m_objList.Insert(index, item);
             return true;
-        } else {
-            if (m_constraint.Pass(item)) {
-                m_objList.Insert(index, item);
-                return true;
-            } else {
-                // #if DEBUG
-                //     Debug.LogWarning("Filtered " + item.Name + " from ObjList");
-                // #endif
-                return false;
-            }
         }
+        // #if DEBUG
+        //     Debug.LogWarning("Filtered " + item.Name + " from ObjList");
+        // #endif
+        return false;
     }
     public int InsertRange(int atIndex, IEnumerable<T> objs) {
         if (m_constraint == null) {
@@ -169,7 +168,7 @@ public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
                 int sizeBefore = m_objList.Count;
                 m_objList.AddRange(
                     from obj in c
-                    where m_constraint.Pass(obj)
+                    where obj == null || m_constraint.Pass(obj)
                     select obj
                 );
                 return m_objList.Count - sizeBefore;
@@ -179,7 +178,7 @@ public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
             int count = 0;
             using(IEnumerator<T> en = objs.GetEnumerator()) {
                 while(en.MoveNext()) {
-                    if (m_constraint.Pass(en.Current)) {
+                    if (en.Current == null || m_constraint.Pass(en.Current)) {
                         m_objList.Add(en.Current);
                         ++count;
                     }
@@ -215,6 +214,43 @@ public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
     public void RemoveRange(int index, int count) {
         m_objList.RemoveRange(index, count);
     }
+    public bool ResizeAndFill(int size, T item) {
+        if (m_constraint == null || item == null || m_constraint.Pass(item)) {
+            if (size < m_objList.Count) {
+                RemoveRange(size, m_objList.Count - size);
+                Fill(item);
+                return true;
+            }
+            if (size == m_objList.Count) {
+                Fill(item);
+                return true;
+            }
+            // size > count
+            Fill(item);
+            int nDiff = size - m_objList.Count;
+            for (int i = 0; i < nDiff; ++i) {
+                m_objList.Add(item);
+            }
+            return true;
+        }
+        // Fails constraint - use null
+        if (size < m_objList.Count) {
+            RemoveRange(size, m_objList.Count - size);
+            Fill(null);
+            return false;
+        }
+        if (size == m_objList.Count) {
+            Fill(null);
+            return false;
+        }
+        // size > count
+        Fill(null);
+        int nnDiff = size - m_objList.Count;
+        for (int i = 0; i < nnDiff; ++i) {
+            m_objList.Add(null);
+        }
+        return false;
+    }
     public void Reverse(int index, int count) {
         m_objList.Reverse(index, count);
     }
@@ -222,7 +258,16 @@ public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
         m_objList.Reverse();
     }
 
-    void SetEqual(IEnumerable<T> collection) {
+    // A replacement for this[i] = value that provides feedback if the value passed
+    public bool SetAt(int index, T item) {
+        if (m_constraint == null || item == null || m_constraint.Pass(item)) {
+            m_objList[index] = item;
+            return true;
+        }
+        return false;
+    }
+
+    public void SetEqual(IEnumerable<T> collection) {
         // if (constraint == null || constraint.Null) {
         //     m_objList = new List<T>(collection);
         //     return;
@@ -239,7 +284,7 @@ public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
             } else {
                 m_objList.AddRange(
                     from obj in c
-                    where m_constraint.Pass(obj)
+                    where obj == null || m_constraint.Pass(obj)
                     select obj
                 );
             }
@@ -253,7 +298,7 @@ public class ObjListBase<T> : IEnumerable<T> where T : class, IObj {
             } else {
                 using(IEnumerator<T> en = collection.GetEnumerator()) {
                     while(en.MoveNext()) {
-                        if (m_constraint.Pass(en.Current)) {
+                        if (en.Current == null || m_constraint.Pass(en.Current)) {
                             m_objList.Add(en.Current);
                         }
                     }

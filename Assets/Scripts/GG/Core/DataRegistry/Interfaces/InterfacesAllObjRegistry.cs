@@ -120,9 +120,9 @@ public interface IExecutableObjMeta : IObj { // TODO
 /// The input data are constrained to conform to I, an IObjPass - a predicate class
 /// The output data are constrained to conform to O, also an IObjPass
 /// </summary>
-public interface IDataPortModule<I, O> : IObj where I : class, IObjPass<IDataObjMeta> where O : class, IObjPass<IDataObjMeta> {
+public interface IDataPortModule<I, O> : IObj where I : DataObjList where O : DataObjList {
     bool Enabled { get; set; }
-    List<DataPortProfile> Profiles { get; set; }
+    Dictionary<string, DataPortProfile> Profiles { get; set; }
     int NProfiles { get; }
     DataPortProfile ActiveProfile { get; }
     ActiveDataPortConnections<I, O> Connections { get; }
@@ -132,21 +132,21 @@ public interface IDataPortModule<I, O> : IObj where I : class, IObjPass<IDataObj
 /// IPipelineExecutableObj classes have the input/output functionality of the IDataPortModule classes, and operate on the inputs to produce the
 /// outputs.  A single instance of this class can operate on as many sets of inputs and outputs as desired, and as many times in a row as desired.
 /// </summary>
-public interface IPipelineExecutableObj : IDataPortModule<DataObjPassNull, DataObjPassNull>, IExecutableObjMeta {
+public interface IPipelineExecutableObj : IDataPortModule<DataObjList, DataObjList>, IExecutableObjMeta {
     void ExecuteAttached();
     void ExecuteProfile(DataPortProfile profile);
     void ExecuteProfile(
         DataPortProfile profile,
-        ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections
+        ActiveDataPortConnections<DataObjList, DataObjList> connections
     );
     void ExecuteProfile(string profileName);
-    void ExecuteProfile(string profileName, ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections);
+    void ExecuteProfile(string profileName, ActiveDataPortConnections<DataObjList, DataObjList> connections);
     void ExecuteProfile(int profileIndex);
-    void ExecuteProfile(int profileIndex, ActiveDataPortConnections<DataObjPassNull, DataObjPassNull> connections);
+    void ExecuteProfile(int profileIndex, ActiveDataPortConnections<DataObjList, DataObjList> connections);
 }
 
 // In a derived updater workflow, inputs are Source/Derived and outputs are only Derived
-public interface IDerivedUpdater : IDataPortModule<DataObjPassNull, DataObjPassDerivedData>, IObjRegistry {
+public interface IDerivedUpdater : IDataPortModule<DataObjList, DataObjList_DerivedPass>, IObjRegistry {
     // Option 0
     //  DataObjList AllDerivedData {get;} // constraints are hidden from interface and types
     //  DataObjList DependsOnData {get;}  // but we directly use the ObjLists and the ObjLists are compatible

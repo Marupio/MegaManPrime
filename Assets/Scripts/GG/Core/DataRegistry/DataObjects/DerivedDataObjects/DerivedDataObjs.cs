@@ -7,7 +7,7 @@ public class NoneDerivedDataObj : DerivedDataObj<object> {
     public override DataTypeEnum DataType { get=>DataTypeEnum.None; }
     public override IObj Clone(IObjRegistry parent = null) {
         // Clones a stale DerivedDataObj
-        NoneDerivedDataObj obj = new NoneSourceDataObj(this);
+        NoneDerivedDataObj obj = new NoneDerivedDataObj(this);
         if (parent != null) {
             obj.UnregisterFromParent();
             obj.RegisterToParent(parent);
@@ -29,7 +29,7 @@ public class BoolDerivedDataObj : DerivedDataObj<bool> {
     public override DataTypeEnum DataType { get=>DataTypeEnum.Bool; }
     public override IObj Clone(IObjRegistry parent = null) {
         // Clones a stale DerivedDataObj
-        BoolDerivedDataObj obj = new BoolSourceDataObj(this);
+        BoolDerivedDataObj obj = new BoolDerivedDataObj(this);
         if (parent != null) {
             obj.UnregisterFromParent();
             obj.RegisterToParent(parent);
@@ -51,7 +51,7 @@ public class TriggerDerivedDataObj : DerivedDataObj<Trigger> {
     public override DataTypeEnum DataType { get=>DataTypeEnum.TriggerType; }
     public override IObj Clone(IObjRegistry parent = null) {
         // Clones a stale DerivedDataObj
-        TriggerDerivedDataObj obj = new TriggerSourceDataObj(this);
+        TriggerDerivedDataObj obj = new TriggerDerivedDataObj(this);
         if (parent != null) {
             obj.UnregisterFromParent();
             obj.RegisterToParent(parent);
@@ -73,7 +73,7 @@ public class CharDerivedDataObj : DerivedDataObj<char> {
     public override DataTypeEnum DataType { get=>DataTypeEnum.Char; }
     public override IObj Clone(IObjRegistry parent = null) {
         // Clones a stale DerivedDataObj
-        CharDerivedDataObj obj = new CharSourceDataObj(this);
+        CharDerivedDataObj obj = new CharDerivedDataObj(this);
         if (parent != null) {
             obj.UnregisterFromParent();
             obj.RegisterToParent(parent);
@@ -95,7 +95,7 @@ public class StringDerivedDataObj : DerivedDataObj<string> {
     public override DataTypeEnum DataType { get=>DataTypeEnum.String; }
     public override IObj Clone(IObjRegistry parent = null) {
         // Clones a stale DerivedDataObj
-        StringDerivedDataObj obj = new StringSourceDataObj(this);
+        StringDerivedDataObj obj = new StringDerivedDataObj(this);
         if (parent != null) {
             obj.UnregisterFromParent();
             obj.RegisterToParent(parent);
@@ -117,7 +117,7 @@ public class IntDerivedDataObj : DerivedDataObj<int> {
     public override DataTypeEnum DataType { get=>DataTypeEnum.Int; }
     public override IObj Clone(IObjRegistry parent = null) {
         // Clones a stale DerivedDataObj
-        IntDerivedDataObj obj = new IntSourceDataObj(this);
+        IntDerivedDataObj obj = new IntDerivedDataObj(this);
         if (parent != null) {
             obj.UnregisterFromParent();
             obj.RegisterToParent(parent);
@@ -139,7 +139,7 @@ public class FloatDerivedDataObj : DerivedDataObj<float> {
     public override DataTypeEnum DataType { get=>DataTypeEnum.Float; }
     public override IObj Clone(IObjRegistry parent = null) {
         // Clones a stale DerivedDataObj
-        FloatDerivedDataObj obj = new FloatSourceDataObj(this);
+        FloatDerivedDataObj obj = new FloatDerivedDataObj(this);
         if (parent != null) {
             obj.UnregisterFromParent();
             obj.RegisterToParent(parent);
@@ -161,7 +161,7 @@ public class Vector2IntDerivedDataObj : DerivedDataObj<Vector2Int> {
     public override DataTypeEnum DataType { get=>DataTypeEnum.Vector2IntType; }
     public override IObj Clone(IObjRegistry parent = null) {
         // Clones a stale DerivedDataObj
-        Vector2IntDerivedDataObj obj = new Vector2IntSourceDataObj(this);
+        Vector2IntDerivedDataObj obj = new Vector2IntDerivedDataObj(this);
         if (parent != null) {
             obj.UnregisterFromParent();
             obj.RegisterToParent(parent);
@@ -183,7 +183,7 @@ public class Vector2DerivedDataObj : DerivedDataObj<Vector2> {
     public override DataTypeEnum DataType { get=>DataTypeEnum.Vector2Type; }
     public override IObj Clone(IObjRegistry parent = null) {
         // Clones a stale DerivedDataObj
-        Vector2DerivedDataObj obj = new Vector2SourceDataObj(this);
+        Vector2DerivedDataObj obj = new Vector2DerivedDataObj(this);
         if (parent != null) {
             obj.UnregisterFromParent();
             obj.RegisterToParent(parent);
@@ -205,7 +205,7 @@ public class Vector3IntDerivedDataObj : DerivedDataObj<Vector3Int> {
     public override DataTypeEnum DataType { get=>DataTypeEnum.Vector3IntType; }
     public override IObj Clone(IObjRegistry parent = null) {
         // Clones a stale DerivedDataObj
-        Vector3IntDerivedDataObj obj = new Vector3IntSourceDataObj(this);
+        Vector3IntDerivedDataObj obj = new Vector3IntDerivedDataObj(this);
         if (parent != null) {
             obj.UnregisterFromParent();
             obj.RegisterToParent(parent);
@@ -227,7 +227,7 @@ public class Vector3DerivedDataObj : DerivedDataObj<Vector3> {
     public override DataTypeEnum DataType { get=>DataTypeEnum.Vector3Type; }
     public override IObj Clone(IObjRegistry parent = null) {
         // Clones a stale DerivedDataObj
-        Vector3DerivedDataObj obj = new Vector3SourceDataObj(this);
+        Vector3DerivedDataObj obj = new Vector3DerivedDataObj(this);
         if (parent != null) {
             obj.UnregisterFromParent();
             obj.RegisterToParent(parent);
@@ -249,7 +249,7 @@ public class Vector4DerivedDataObj : DerivedDataObj<Vector4> {
     public override DataTypeEnum DataType { get=>DataTypeEnum.Vector4Type; }
     public override IObj Clone(IObjRegistry parent = null) {
         // Clones a stale DerivedDataObj
-        Vector4DerivedDataObj obj = new Vector4SourceDataObj(this);
+        Vector4DerivedDataObj obj = new Vector4DerivedDataObj(this);
         if (parent != null) {
             obj.UnregisterFromParent();
             obj.RegisterToParent(parent);
@@ -271,7 +271,7 @@ public class QuaternionDerivedDataObj : DerivedDataObj<Quaternion> {
     public override DataTypeEnum DataType { get=>DataTypeEnum.QuaternionType; }
     public override IObj Clone(IObjRegistry parent = null) {
         // Clones a stale DerivedDataObj
-        QuaternionDerivedDataObj obj = new QuaternionSourceDataObj(this);
+        QuaternionDerivedDataObj obj = new QuaternionDerivedDataObj(this);
         if (parent != null) {
             obj.UnregisterFromParent();
             obj.RegisterToParent(parent);

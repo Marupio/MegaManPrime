@@ -13,17 +13,15 @@ using UnityEngine;
 /// <summary>
 /// I contain the data objects that are connected to the active DataPortProfile
 /// </summary>
-public class ActiveDataPortConnections<I, O>
-    where I : class, IObjPass<IDataObjMeta>
-    where O : class, IObjPass<IDataObjMeta>
+public class ActiveDataPortConnections<I, O> where I : DataObjList where O : DataObjList
 {
-    protected DataObjList m_inputs;
-    protected DataObjList m_outputs;
+    protected I m_inputs;
+    protected O m_outputs;
     protected DataPortProfile m_profile;
 
     // *** Access
-    public DataObjList Inputs { get=>m_inputs; }
-    public DataObjList Outputs { get=>m_outputs; }
+    public I Inputs { get=>m_inputs; }
+    public O Outputs { get=>m_outputs; }
     public DataPortProfile Profile { get=> m_profile; }
 
     // *** Query
@@ -42,8 +40,8 @@ public class ActiveDataPortConnections<I, O>
         if (m_profile != null) m_profile.NotActiveWith(this);
         m_profile = profile;
         m_profile.ActiveWith(this);
-        InternalChangeProfileAndDetachAll(profile.NInputs, ref m_inputs);
-        InternalChangeProfileAndDetachAll(profile.NOutputs, ref m_outputs);
+        m_inputs.ResizeAndFill(profile.NInputs, null);
+        m_outputs.ResizeAndFill(profile.NOutputs, null);
     }
 
     // *** Edit - Attach inputs
@@ -76,7 +74,7 @@ public class ActiveDataPortConnections<I, O>
         m_inputs[port] = obj;
     }
     public void AttachAllInputs(DataObjList objs) {
-        InternalAttachAllXputs(objs, ref m_inputs);
+        InternalAttachAllXputs(objs, m_inputs);
     }
 
     // *** Edit - Attach outputs
@@ -103,7 +101,7 @@ public class ActiveDataPortConnections<I, O>
         m_outputs[port] = obj;
     }
     public virtual void AttachAllOutputs(DataObjList objs) {
-        InternalAttachAllXputs(objs, ref m_outputs);
+        InternalAttachAllXputs(objs, m_outputs);
     }
 
     // *** Edit - Attach all
@@ -116,9 +114,9 @@ public class ActiveDataPortConnections<I, O>
             }
         #endif
         if (m_inputs.Count > 0) {
-            m_inputs[0] = obj0;
+            m_inputs.SetAt(0, obj0);
         } else {
-            m_outputs[0] = obj0;
+            m_outputs.SetAt(0, obj0);
         }
     }
     public virtual void AttachAll(IDataObjMeta obj0, IDataObjMeta obj1) {
@@ -131,16 +129,16 @@ public class ActiveDataPortConnections<I, O>
         #endif
         switch (m_inputs.Count) {
             case 0:
-                m_outputs[0] = obj0;
-                m_outputs[1] = obj1;
+                m_outputs.SetAt(0, obj0);
+                m_outputs.SetAt(1, obj1);
                 return;
             case 1:
-                m_inputs[0] = obj0;
-                m_outputs[0] = obj1;
+                m_inputs.SetAt(0, obj0);
+                m_outputs.SetAt(0, obj1);
                 return;
             default:
-                m_inputs[0] = obj0;
-                m_inputs[1] = obj1;
+                m_inputs.SetAt(0, obj0);
+                m_inputs.SetAt(1, obj1);
                 return;
         }
     }
@@ -154,24 +152,24 @@ public class ActiveDataPortConnections<I, O>
         #endif
         switch (m_inputs.Count) {
             case 0:
-                m_outputs[0] = obj0;
-                m_outputs[1] = obj1;
-                m_outputs[2] = obj2;
+                m_outputs.SetAt(0, obj0);
+                m_outputs.SetAt(1, obj1);
+                m_outputs.SetAt(2, obj2);
                 return;
             case 1:
-                m_inputs[0] = obj0;
-                m_outputs[0] = obj1;
-                m_outputs[1] = obj2;
+                m_inputs.SetAt(0, obj0);
+                m_outputs.SetAt(0, obj1);
+                m_outputs.SetAt(1, obj2);
                 return;
             case 2:
-                m_inputs[0] = obj0;
-                m_inputs[1] = obj1;
-                m_outputs[0] = obj2;
+                m_inputs.SetAt(0, obj0);
+                m_inputs.SetAt(1, obj1);
+                m_outputs.SetAt(0, obj2);
                 return;
             default:
-                m_inputs[0] = obj0;
-                m_inputs[1] = obj1;
-                m_inputs[2] = obj2;
+                m_inputs.SetAt(0, obj0);
+                m_inputs.SetAt(1, obj1);
+                m_inputs.SetAt(2, obj2);
                 return;
         }
     }
@@ -185,34 +183,34 @@ public class ActiveDataPortConnections<I, O>
         #endif
         switch (m_inputs.Count) {
             case 0:
-                m_outputs[0] = obj0;
-                m_outputs[1] = obj1;
-                m_outputs[2] = obj2;
-                m_outputs[3] = obj3;
+                m_outputs.SetAt(0, obj0);
+                m_outputs.SetAt(1, obj1);
+                m_outputs.SetAt(2, obj2);
+                m_outputs.SetAt(3, obj3);
                 return;
             case 1:
-                m_inputs[0] = obj0;
-                m_outputs[0] = obj1;
-                m_outputs[1] = obj2;
-                m_outputs[2] = obj3;
+                m_inputs.SetAt(0, obj0);
+                m_outputs.SetAt(0, obj1);
+                m_outputs.SetAt(1, obj2);
+                m_outputs.SetAt(2, obj3);
                 return;
             case 2:
-                m_inputs[0] = obj0;
-                m_inputs[1] = obj1;
-                m_outputs[0] = obj2;
-                m_outputs[1] = obj3;
+                m_inputs.SetAt(0, obj0);
+                m_inputs.SetAt(1, obj1);
+                m_outputs.SetAt(0, obj2);
+                m_outputs.SetAt(1, obj3);
                 return;
             case 3:
-                m_inputs[0] = obj0;
-                m_inputs[1] = obj1;
-                m_inputs[2] = obj2;
-                m_outputs[0] = obj3;
+                m_inputs.SetAt(0, obj0);
+                m_inputs.SetAt(1, obj1);
+                m_inputs.SetAt(2, obj2);
+                m_outputs.SetAt(0, obj3);
                 return;
             default:
-                m_inputs[0] = obj0;
-                m_inputs[1] = obj1;
-                m_inputs[2] = obj2;
-                m_inputs[3] = obj3;
+                m_inputs.SetAt(0, obj0);
+                m_inputs.SetAt(1, obj1);
+                m_inputs.SetAt(2, obj2);
+                m_inputs.SetAt(3, obj3);
                 return;
         }
     }
@@ -226,46 +224,46 @@ public class ActiveDataPortConnections<I, O>
         #endif
         switch (m_inputs.Count) {
             case 0:
-                m_outputs[0] = obj0;
-                m_outputs[1] = obj1;
-                m_outputs[2] = obj2;
-                m_outputs[3] = obj3;
-                m_outputs[4] = obj4;
+                m_outputs.SetAt(0, obj0);
+                m_outputs.SetAt(1, obj1);
+                m_outputs.SetAt(2, obj2);
+                m_outputs.SetAt(3, obj3);
+                m_outputs.SetAt(4, obj4);
                 return;
             case 1:
-                m_inputs[0] = obj0;
-                m_outputs[0] = obj1;
-                m_outputs[1] = obj2;
-                m_outputs[2] = obj3;
-                m_outputs[3] = obj4;
+                m_inputs.SetAt(0, obj0);
+                m_outputs.SetAt(0, obj1);
+                m_outputs.SetAt(1, obj2);
+                m_outputs.SetAt(2, obj3);
+                m_outputs.SetAt(3, obj4);
                 return;
             case 2:
-                m_inputs[0] = obj0;
-                m_inputs[1] = obj1;
-                m_outputs[0] = obj2;
-                m_outputs[1] = obj3;
-                m_outputs[2] = obj4;
+                m_inputs.SetAt(0, obj0);
+                m_inputs.SetAt(1, obj1);
+                m_outputs.SetAt(0, obj2);
+                m_outputs.SetAt(1, obj3);
+                m_outputs.SetAt(2, obj4);
                 return;
             case 3:
-                m_inputs[0] = obj0;
-                m_inputs[1] = obj1;
-                m_inputs[2] = obj2;
-                m_outputs[0] = obj3;
-                m_outputs[1] = obj4;
+                m_inputs.SetAt(0, obj0);
+                m_inputs.SetAt(1, obj1);
+                m_inputs.SetAt(2, obj2);
+                m_outputs.SetAt(0, obj3);
+                m_outputs.SetAt(1, obj4);
                 return;
             case 4:
-                m_inputs[0] = obj0;
-                m_inputs[1] = obj1;
-                m_inputs[2] = obj2;
-                m_inputs[3] = obj3;
-                m_outputs[0] = obj4;
+                m_inputs.SetAt(0, obj0);
+                m_inputs.SetAt(1, obj1);
+                m_inputs.SetAt(2, obj2);
+                m_inputs.SetAt(3, obj3);
+                m_outputs.SetAt(0, obj4);
                 return;
             default:
-                m_inputs[0] = obj0;
-                m_inputs[1] = obj1;
-                m_inputs[2] = obj2;
-                m_inputs[3] = obj3;
-                m_inputs[4] = obj4;
+                m_inputs.SetAt(0, obj0);
+                m_inputs.SetAt(1, obj1);
+                m_inputs.SetAt(2, obj2);
+                m_inputs.SetAt(3, obj3);
+                m_inputs.SetAt(4, obj4);
                 return;
         }
     }
@@ -278,10 +276,10 @@ public class ActiveDataPortConnections<I, O>
             }
         #endif
         for (int i = 0; i < m_inputs.Count; ++i) {
-            m_inputs[i] = objs[i];
+            m_inputs.SetAt(i, objs[i]);
         }
         for (int i = 0; i < m_outputs.Count; ++i) {
-            m_outputs[i] = objs[i + m_inputs.Count];
+            m_outputs.SetAt(i, objs[i + m_inputs.Count]);
         }
     }
 
@@ -344,31 +342,7 @@ public class ActiveDataPortConnections<I, O>
     }
 
     // *** Internal methods
-    protected void InternalChangeProfileAndDetachAll(int size, ref DataObjList xputs) {
-        if (size < xputs.Count) {
-            for (int i = 0; i < size; ++i) {
-                xputs[i] = null;
-            }
-            xputs.RemoveRange(size, xputs.Count - size);
-            return;
-        }
-        if (size == xputs.Count) {
-            for (int i = 0; i < size; ++i) {
-                xputs[i] = null;
-            }
-            return;
-        }
-        // size > count
-        for (int i = 0; i < xputs.Count; ++i) {
-            xputs[i] = null;
-        }
-        int nDiff = size - xputs.Count;
-        for (int i = 0; i < nDiff; ++i) {
-            xputs.Add(null);
-        }
-        return;
-    }
-    void InternalAttachAllXputs(DataObjList objs, ref DataObjList xputs) {
+    void InternalAttachAllXputs(DataObjList objs, DataObjList xputs) {
         #if DEBUG
             if (objs.Count != xputs.Count) {
                 Debug.LogException(new System.ArgumentOutOfRangeException("Cannot attach " + objs.Count + " connections to " + xputs.Count + " ports."));
@@ -385,12 +359,12 @@ public class ActiveDataPortConnections<I, O>
             }
         #endif
         for (int i = 0; i < xputs.Count; ++i) {
-            xputs[i] = objs[i];
+            xputs.SetAt(i, objs[i]);
         }
     }
     void Init() {
-        m_inputs = new DataObjList(Activator.CreateInstance<I>());
-        m_outputs = new DataObjList(Activator.CreateInstance<O>());
+        m_inputs = Activator.CreateInstance<I>();
+        m_outputs = Activator.CreateInstance<O>();
     }
 
     // *** Constructors

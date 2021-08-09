@@ -7,7 +7,7 @@ public class $prefix\$DerivedDataObj : DerivedDataObj<$type\$> {
     public override DataTypeEnum DataType { get=>DataTypeEnum.$enum\$; }
     public override IObj Clone(IObjRegistry parent = null) {
         // Clones a stale DerivedDataObj
-        $prefix\$DerivedDataObj obj = new $prefix\$SourceDataObj(this);
+        $prefix\$DerivedDataObj obj = new $prefix\$DerivedDataObj(this);
         if (parent != null) {
             obj.UnregisterFromParent();
             obj.RegisterToParent(parent);

@@ -6,10 +6,10 @@ using UnityEngine;
 ///     * Input tracking can be used for lazy evaluation (suppressing calculations if nothing has changed).
 ///     * Output tracking can be used to check for data alterations coming from elsewhere.
 /// </summary>
-public class DataProfileActivityTracker<I, O>
-    where I : class, IObjPass<IDataObjMeta>
-    where O : class, IObjPass<IDataObjMeta>
+public class DataProfileActivityTracker<I, O> where I : DataObjList where O : DataObjList
 {
+    // TODO - To clear the bugs here, we need to refactor this to accomodate the fact that a DataPortModule is nolonger index-based.  It is now
+    // a dictionary, so we need to organize our data here by keys instead of by indices.
     DataPortModule<I, O> m_profiles;
     List<bool> m_activeByProfileIndex; // true if this profile index has ever seen activity
     List<long> m_inputTagHashByProfileIndex; // contains the latest hash of input mtags
@@ -24,6 +24,7 @@ public class DataProfileActivityTracker<I, O>
         if (!m_inputEnabled) {
             return true;
         }
+
         int index = m_profiles.Profiles.IndexOf(profile);
         #if DEBUG
             if (index < 0) {
