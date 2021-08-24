@@ -18,24 +18,26 @@ public class PatrolBotAnimationDirector : MonoBehaviour
     float m_timeCurrentClipEnds;
     string m_clipNameNext;
 
-    struct ClipData
-    {
-        public ClipData(string nameIn, float lengthIn)
-        {
-            name = nameIn;
-            length = lengthIn;
-        }
-        public string name;
-        public float length;
-    }
-    List<ClipData> m_clipData;
+    public Dictionary<string, double> m_clipData;
+    // public struct ClipMetaData
+    // {
+    //     public ClipMetaData(string nameIn, float lengthIn)
+    //     {
+    //         name = nameIn;
+    //         length = lengthIn;
+    //     }
+    //     public string name;
+    //     public float length;
+    // }
+    // List<ClipMetaData> m_clipData;
 
+    public Dictionary<string, double> ClipData {get=>m_clipData; set=>m_clipData=value;}
 
     void Awake()
     {
         m_controller = GetComponent<PatrolBot>();
         m_animator = GetComponent<Animator>();
-        GetClipData();
+        MakeClipData();
     }
 
     void FixedUpdate()
@@ -101,10 +103,15 @@ public class PatrolBotAnimationDirector : MonoBehaviour
 
 
     // *** Private member functions
-    void GetClipData()
+    void MakeClipData()
     {
+        m_clipData = new Dictionary<string, double>();
         // TODO - Use animator layers properly
         AnimatorClipInfo[] clips = m_animator.GetCurrentAnimatorClipInfo(0);
-        m_clipData = clips.Select(clip => new ClipData(clip.clip.name, clip.clip.length)).ToList();
+        foreach(AnimatorClipInfo clip in clips) {
+            m_clipData.Add(clip.clip.name, clip.clip.length);
+        }
+        // m_clipData = clips.ToDictionary<string, double>(clips.Select(clip=>clip.clip.name).ToList(), clip => clip.clip.length);
+        // m_clipData = clips.Select(clip => new ClipMetaData(clip.clip.name, clip.clip.length)).ToList();
     }
 }

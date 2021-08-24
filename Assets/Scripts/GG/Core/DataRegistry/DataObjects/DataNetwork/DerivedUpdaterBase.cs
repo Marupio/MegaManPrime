@@ -21,7 +21,7 @@ public abstract class DerivedUpdaterBase : ObjRegistry, IDerivedUpdater {
     protected DataPortModule<DataObjList, DataObjList_DerivedPass> m_module;
     protected ModTag m_lastModuleTag;
     public bool Enabled { get=>m_module.Enabled; set=>m_module.Enabled=value; }
-    public List<DataPortProfile> Profiles {
+    public Dictionary<string, DataPortProfile> Profiles {
         get=>m_module.Profiles;
         set=>m_module.Profiles=value;
     }
@@ -127,7 +127,8 @@ public abstract class DerivedUpdaterBase : ObjRegistry, IDerivedUpdater {
         UpdateSourceDependsOn();
     }
     DerivedUpdaterBase(string name, IObjRegistry parent, int activeProfileIndex) : base(name, parent) {
-        m_module = new DataPortModule<DataObjList, DataObjList_DerivedPass>(SupportedProfiles(), activeProfileIndex);
+        List<DataPortProfile> supportedProfiles = SupportedProfiles();
+        m_module = new DataPortModule<DataObjList, DataObjList_DerivedPass>(supportedProfiles, supportedProfiles[activeProfileIndex]);
         m_allDependsOnSources = new DataObjList_SourcePass();
         UpdateSourceDependsOn();
     }

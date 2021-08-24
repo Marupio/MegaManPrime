@@ -29,9 +29,11 @@ public enum PatrolBotState
 [RequireComponent(typeof(ILive))]
 [RequireComponent(typeof(ISelfDestruct))]
 [RequireComponent(typeof(Collider2D))]
+[RequireComponent(typeof(PatrolBotAnimationDirector))]
 public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
 {
     // *** References
+    PatrolBotAnimationDirector m_animationDirector;
     ILive m_health;
     ISelfDestruct m_reaper;
     Collider2D m_collider;
@@ -79,7 +81,7 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
     public float m_direction; // -1 left, +1 right
     public float m_currVelocity;
     public bool m_exploded;
-    public bool m_bare;        // m_bare and m_bareShock go on together, the m_bareShock goes off
+    public bool m_bare;        // m_bare and m_bareShock go on together, then m_bareShock goes off
     public bool m_bareShock;   // ^
     public float m_bareShockStart;
     public bool m_smug;
@@ -98,6 +100,7 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
 
     void Awake()
     {
+        m_animationDirector = GetComponent<PatrolBotAnimationDirector>();
         m_health = GetComponent<ILive>();
         m_reaper = GetComponent<ISelfDestruct>();
         m_collider = GetComponent<Collider2D>();
@@ -116,6 +119,12 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
         {
             m_reaper.IHaveFinalWords(this);
         }
+        Dictionary<string, double> clips = m_animationDirector.ClipData;
+        string outputMe = "";
+        foreach(KeyValuePair<string, double> entry in clips) {
+            outputMe = " " + entry.Key + ":" + entry.Value;
+        }
+        Debug.Log(outputMe);
     }
 
     void FixedUpdate()
@@ -153,7 +162,6 @@ public class PatrolBot : MonoBehaviour, ILoyalty, IDie, IGetHurt, ICanHit
     // *** IGetHurt interface
     public bool TakeDamage(Collision2D collision, int damage, ICanHit attacker)
     {
-
         List<ContactPoint2D> contacts = new List<ContactPoint2D>();
         collision.GetContacts(contacts);
         List<Vector2> points = (from contact in contacts select contact.point).ToList();

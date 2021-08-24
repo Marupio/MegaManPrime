@@ -141,8 +141,6 @@ public interface IPipelineExecutableObj : IDataPortModule<DataObjList, DataObjLi
     );
     void ExecuteProfile(string profileName);
     void ExecuteProfile(string profileName, ActiveDataPortConnections<DataObjList, DataObjList> connections);
-    void ExecuteProfile(int profileIndex);
-    void ExecuteProfile(int profileIndex, ActiveDataPortConnections<DataObjList, DataObjList> connections);
 }
 
 // In a derived updater workflow, inputs are Source/Derived and outputs are only Derived

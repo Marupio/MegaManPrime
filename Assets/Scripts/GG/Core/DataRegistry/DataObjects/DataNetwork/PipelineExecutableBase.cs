@@ -15,22 +15,15 @@ public abstract class PipelineExecutableBase : DataPortModule<DataObjList, DataO
 
     // *** Internal methods
     bool CheckProfileAndCondition(DataPortProfile profile) {
-        if (!m_profiles.Contains(profile)) {
+        if (!Profiles.ContainsValue(profile)) {
             Debug.LogError("Attempting to execute missing DataPortProfile " + profile.Name + " on PipelineExecutableBase object " + m_name);
             return false;
         }
         return m_enabled;
     }
     bool CheckProfileAndCondition(string profileName) {
-        if (m_profiles.Select(profile=>profile.Name == profileName).Count() == 0) {
+        if (!Profiles.ContainsKey(profileName)) {
             Debug.LogError("Attempting to execute missing DataPortProfile " + profileName + " on PipelineExecutableBase object " + m_name);
-            return false;
-        }
-        return m_enabled;
-    }
-    bool CheckProfileAndCondition(int profileIndex) {
-        if (profileIndex < 0 || profileIndex >= m_profiles.Count) {
-            Debug.LogError("Index " + profileIndex + " out of range [0.." + (m_profiles.Count - 1) + "] on PipelineExecutableBase object " + m_name);
             return false;
         }
         return m_enabled;
@@ -64,16 +57,6 @@ public abstract class PipelineExecutableBase : DataPortModule<DataObjList, DataO
         DataPortProfile profile = this[profileName];
         ExecuteDispatch(profile, connections);
     }
-    public void ExecuteProfile(int profileIndex) {
-        if (!CheckProfileAndCondition(profileIndex)) return;
-        DataPortProfile profile = this[profileIndex];
-        ExecuteDispatch(profile, new ActiveDataPortConnections<DataObjList, DataObjList>(profile));
-    }
-    public void ExecuteProfile(int profileIndex, ActiveDataPortConnections<DataObjList, DataObjList> connections) {
-        if (!CheckProfileAndCondition(profileIndex)) return;
-        DataPortProfile profile = this[profileIndex];
-        ExecuteDispatch(profile, connections);
-    }
 
     // *** Constructors
 
@@ -84,6 +67,6 @@ public abstract class PipelineExecutableBase : DataPortModule<DataObjList, DataO
 
     public PipelineExecutableBase(DataPortModule<DataObjList, DataObjList> dataModule) : base(dataModule) {}
     public PipelineExecutableBase(DataPortProfile profile) : base(profile) {}
-    public PipelineExecutableBase(List<DataPortProfile> dpps, int activeProfileIndex = 0): base(dpps, activeProfileIndex) {}
+    public PipelineExecutableBase(List<DataPortProfile> dpps, int activeProfileIndex = 0): base(dpps, dpps[activeProfileIndex]) {}
     public PipelineExecutableBase() : base() {}
 }

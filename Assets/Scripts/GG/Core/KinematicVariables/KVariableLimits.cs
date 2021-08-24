@@ -6,22 +6,28 @@ using UnityEngine;
 /// See also the KvLimiter class - it applies these limits on variable instances.
 /// </summary>
 /// <seealso cref="KvLimiter"/>
-public class KVariableLimits : PipelineExecutableBase {
-    KVariablesExtFloatSourceDataObj m_maxVars; // make parent same as me, name, mine+"max", kind of thing
-    KVariablesExtFloatSourceDataObj m_minVars; // make parent same as me
+public class KVariableLimits {// : PipelineExecutableBase {
+// TODO - Bring in the data model here as you had planned... sometime in the future
+    // KVariablesExtFloatSourceDataObj m_maxVars; // make parent same as me, name, mine+"max", kind of thing
+    // KVariablesExtFloatSourceDataObj m_minVars; // make parent same as me
+    KVariablesExt<float> m_maxVars; // make parent same as me, name, mine+"max", kind of thing
+    KVariablesExt<float> m_minVars; // make parent same as me
 
     // *** Derived data
-    KVariableTypeSetDerivedDataObj m_limitedVars;
-    KveFiniteFilterUpdater m_limitedVarsUpdater;
+//    KVariableTypeSetDerivedDataObj m_limitedVars;
+//    KveFiniteFilterUpdater m_limitedVarsUpdater;
+    KVariableTypeSet m_limitedVars;
     
     // *** Access
-    public KVariablesExt<float> Max { get => m_maxVars.Data; set => m_maxVars.Data = value; }
-    public KVariablesExt<float> Min { get => m_minVars.Data; set => m_minVars.Data = value; }
+//    public KVariablesExt<float> Max { get => m_maxVars.Data; set => m_maxVars.Data = value; }
+//    public KVariablesExt<float> Min { get => m_minVars.Data; set => m_minVars.Data = value; }
+    public KVariablesExt<float> Max { get => m_maxVars; set => m_maxVars = value; }
+    public KVariablesExt<float> Min { get => m_minVars; set => m_minVars = value; }
     public KVariableTypeSet LimitedVars {
         get { // TODO - this is the main project
-            if (m_upToDateFrame < 0) {
-                UpdateDerived();
-            }
+            // if (m_upToDateFrame < 0) {
+            //     UpdateDerived();
+            // }
             return m_limitedVars;
         }
     }
@@ -41,16 +47,16 @@ public class KVariableLimits : PipelineExecutableBase {
         Add(new KVariable<float>(type, value), max);
     }
     public void AddMax(string name, float value) {
-        m_maxVars.SetComponent(name, value);
+        m_maxVars.Set(name, value);
     }
     public void AddMin(string name, float value) {
-        m_minVars.SetComponent(name, value);
+        m_minVars.Set(name, value);
     }
     public void Add(string name, float value, bool max) {
         if (max) {
-            m_maxVars.SetComponent(name, value);
+            m_maxVars.Set(name, value);
         } else {
-            m_minVars.SetComponent(name, value);
+            m_minVars.Set(name, value);
         }
     }
     public void Add(KVariable<float> kv, bool max) {
@@ -119,7 +125,7 @@ public class KVariableLimits : PipelineExecutableBase {
                 Debug.LogError("Unhandled case");
                 break;
         }
-        m_upToDateFrame = -1;
+        // m_upToDateFrame = -1;
     }
     public void Remove(KVariableEnum type, bool max) {
         float value = max ? float.PositiveInfinity : float.NegativeInfinity;
@@ -137,11 +143,11 @@ public class KVariableLimits : PipelineExecutableBase {
     }
     public void RemoveMax(string name) {
         m_maxVars.Set(name, float.PositiveInfinity);
-        m_upToDateFrame = -1;
+        // m_upToDateFrame = -1;
     }
     public void RemoveMin(string name) {
         m_minVars.Set(name, float.NegativeInfinity);
-        m_upToDateFrame = -1;
+        // m_upToDateFrame = -1;
     }
     public void Remove(string name, bool max) {
         if (max) {
@@ -149,14 +155,14 @@ public class KVariableLimits : PipelineExecutableBase {
         } else {
             m_minVars.Set(name, float.NegativeInfinity);
         }
-        m_upToDateFrame = -1;
+        // m_upToDateFrame = -1;
     }
     /// <summary>
     /// Combine two KVariableLimits, taking the smallest maxima and largest minima
     /// </summary>
     public void Combine(KVariableLimits kvl) {
         // Use accessor to trigger demand-driven data
-        if (m_upToDateFrame < 0) { UpdateDerived(); }
+        // if (m_upToDateFrame < 0) { UpdateDerived(); }
         m_limitedVars |= kvl.LimitedVars;
         if (m_limitedVars.Contains(KVariableEnum.Variable)) {
             m_maxVars.Variable = Mathf.Min(m_maxVars.Variable, kvl.m_maxVars.Variable);
@@ -210,9 +216,9 @@ public class KVariableLimits : PipelineExecutableBase {
     // *** Internal methods
     private void UpdateDerived() {
         #if DEBUG
-            if (m_upToDateFrame >= 0) {
-                Debug.LogError("Rebuilding up-to-date derived data");
-            }
+            // if (m_upToDateFrame >= 0) {
+            //     Debug.LogError("Rebuilding up-to-date derived data");
+            // }
         #endif
         // // Alternative iteration method    
         // m_limitedVars = KVariableTypeInfo.None;
@@ -238,37 +244,37 @@ public class KVariableLimits : PipelineExecutableBase {
         if (!float.IsPositiveInfinity(m_maxVars.ImpulseForce) || !float.IsNegativeInfinity(m_minVars.ImpulseForce)) { m_limitedVars.Add(KVariableEnum.ImpulseForce); }
         if (!float.IsPositiveInfinity(m_maxVars.AppliedForceDerivative) || !float.IsNegativeInfinity(m_minVars.AppliedForceDerivative)) { m_limitedVars.Add(KVariableEnum.AppliedForceDerivative); }
         if (!float.IsPositiveInfinity(m_maxVars.ImpulseForceDerivative) || !float.IsNegativeInfinity(m_minVars.ImpulseForceDerivative)) { m_limitedVars.Add(KVariableEnum.ImpulseForceDerivative); }
-        m_upToDateFrame = m_time.frameCount;
+        // m_upToDateFrame = m_time.frameCount;
     }
-    public override void InternalExecute(List<IDataObjMeta> inputs, List<IDataObjMeta> outputs) {
-        // TODO
-    }
+    // public override void InternalExecute(List<IDataObjMeta> inputs, List<IDataObjMeta> outputs) {
+    //     // TODO
+    // }
 
     // *** Constructors
     // TODO - Add DataPortProfiles to base construction, add base construction
     public KVariableLimits() {
         m_maxVars = new KVariablesExt<float>(float.PositiveInfinity);
         m_minVars = new KVariablesExt<float>(float.NegativeInfinity);
-        m_upToDateFrame = m_time.frameCount;
+        // m_upToDateFrame = m_time.frameCount;
         m_limitedVars = KVariableTypeInfo.None;
     }
     public KVariableLimits(KVariableLimits kvl) {
         m_maxVars = kvl.m_maxVars;
         m_minVars = kvl.m_minVars;
-        m_upToDateFrame = kvl.m_upToDateFrame;
+        // m_upToDateFrame = kvl.m_upToDateFrame;
         m_limitedVars = kvl.m_limitedVars;
     }
     public KVariableLimits(KVariable<float> kv, bool max) {
         m_maxVars = new KVariablesExt<float>(float.PositiveInfinity);
         m_minVars = new KVariablesExt<float>(float.NegativeInfinity);
-        m_upToDateFrame = -1;
+        // m_upToDateFrame = -1;
         m_limitedVars = KVariableTypeInfo.None;
         Add(kv, max);
     }
     public KVariableLimits(KVariable<float>[] kvArray, bool[] maxArray) {
         m_maxVars = new KVariablesExt<float>(float.PositiveInfinity);
         m_minVars = new KVariablesExt<float>(float.NegativeInfinity);
-        m_upToDateFrame = -1;
+        // m_upToDateFrame = -1;
         m_limitedVars = KVariableTypeInfo.None;
         for (int i = 0; i < kvArray.Length; ++i) {
             KVariable<float> kv = new KVariable<float>(kvArray[i]);
@@ -278,7 +284,7 @@ public class KVariableLimits : PipelineExecutableBase {
     public KVariableLimits(List<KVariable<float>> kvArray, List<bool> maxArray) {
         m_maxVars = new KVariablesExt<float>(float.PositiveInfinity);
         m_minVars = new KVariablesExt<float>(float.NegativeInfinity);
-        m_upToDateFrame = -1;
+        // m_upToDateFrame = -1;
         m_limitedVars = KVariableTypeInfo.None;
         for (int i = 0; i < kvArray.Count; ++i) {
             KVariable<float> kv = new KVariable<float>(kvArray[i]);
@@ -315,7 +321,7 @@ public class KVariableLimits : PipelineExecutableBase {
             impulseForceMin,
             impulseForceDerivativeMin
         );
-        m_upToDateFrame = -1;
+        // m_upToDateFrame = -1;
         m_limitedVars = KVariableTypeInfo.None;
     }
 }

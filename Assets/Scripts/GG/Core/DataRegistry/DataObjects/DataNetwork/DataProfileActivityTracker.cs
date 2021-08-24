@@ -25,7 +25,8 @@ public class DataProfileActivityTracker<I, O> where I : DataObjList where O : Da
             return true;
         }
 
-        int index = m_profiles.Profiles.IndexOf(profile);
+        // Compile fix hack
+        int index = 0;// m_profiles.Profiles.IndexOf(profile);
         #if DEBUG
             if (index < 0) {
                 Debug.LogException(new System.IndexOutOfRangeException("profile " + profile.Name + " not found in list"));
@@ -37,7 +38,8 @@ public class DataProfileActivityTracker<I, O> where I : DataObjList where O : Da
         if (!m_outputEnabled) {
             return true;
         }
-        int index = m_profiles.Profiles.IndexOf(profile);
+        // Compile fix hack
+        int index = 0;//m_profiles.Profiles.IndexOf(profile);
         #if DEBUG
             if (index < 0) {
                 Debug.LogException(new System.IndexOutOfRangeException("profile " + profile.Name + " not found in list"));
